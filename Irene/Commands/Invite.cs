@@ -3,10 +3,10 @@ using System.IO;
 
 using static Irene.Program;
 
-namespace Irene.Modules {
+namespace Irene.Commands {
 	using id_ch = ChannelIDs;
 
-	class Invite : IModule {
+	class Invite : ICommands {
 		readonly static List<string> token_erythro = new () {
 			"erythro", "ery", "wow"
 		};
@@ -29,7 +29,7 @@ namespace Irene.Modules {
 			return text.ToString();
 		}
 
-		public static void run_command(Command cmd) {
+		public static void run(Command cmd) {
 			string arg = cmd.args.Trim().ToLower();
 
 			StringWriter text = new ();

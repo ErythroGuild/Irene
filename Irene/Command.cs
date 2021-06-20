@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
 
 using static Irene.Program;
-using Irene.Modules;
+using Irene.Commands;
 
 namespace Irene {
 	using id_r  = RoleIDs;
@@ -18,14 +18,15 @@ namespace Irene {
 		// Command data
 		static readonly Dictionary<string, Action<Command>> dict_cmd = new () {
 			{ "invite", Invite.run_command },
-			{ "inv",    Invite.run_command },
-			{ "i",      Invite.run_command },
+			{ "invite", Invite.run },
+			{ "inv",    Invite.run },
+			{ "i",      Invite.run },
 		};
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
-			{ Invite.run_command, Invite.help },
+			{ Invite.run, Invite.help },
 		};
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
-			{ Invite.run_command, AccessLevel.None },
+			{ Invite.run, AccessLevel.None },
 		};
 
 		// Properties
