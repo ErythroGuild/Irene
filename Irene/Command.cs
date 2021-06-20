@@ -68,7 +68,8 @@ namespace Irene {
 				access = AccessLevel.None;
 				log.warning("  Could not convert message author to DiscordMember.");
 			} else {
-				access = user.Roles switch {
+				List<DiscordRole> roles_user = new (user.Roles);
+				access = roles_user switch {
 					List<DiscordRole> r when r.Contains(roles[id_r.admin])   => AccessLevel.Admin,
 					List<DiscordRole> r when r.Contains(roles[id_r.officer]) => AccessLevel.Officer,
 					List<DiscordRole> r when r.Contains(roles[id_r.member])  => AccessLevel.Member,
