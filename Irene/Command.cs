@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
@@ -127,7 +127,7 @@ namespace Irene {
 				if (has_permission(dict_cmd[cmd], access)) {
 					dict_cmd[cmd](this);
 				} else {
-					msg.RespondAsync($"Sorry, this command requires the {access} to use. :lock:");
+					msg.RespondAsync($"Sorry, this command requires the {access} role to use. :lock:");
 					log.warning($"  {user?.Username??"x"}#{user?.Discriminator??"xxxx"} does not have access to this command.");
 				}
 			} else {
