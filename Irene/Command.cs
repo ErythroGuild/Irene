@@ -99,7 +99,7 @@ namespace Irene {
 				this.cmd = split[0];
 				args = split[1];
 			}
-			this.cmd = this.cmd.TrimStart('-');
+			this.cmd = this.cmd.TrimStart('-').ToLower();
 
 			this.msg = msg;
 			user = msg.Author as DiscordMember;
