@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
 
 using static Irene.Program;
@@ -114,6 +115,7 @@ namespace Irene {
 		// Extract the needed members (DiscordMember and access level)
 		// from the DiscordMessage itself.
 		public Command(string cmd, DiscordMessage msg) {
+			// Process cmd / args.
 			if (!cmd.Contains(' ')) {
 				this.cmd = cmd;
 				args = "";
@@ -123,10 +125,25 @@ namespace Irene {
 				args = split[1];
 			}
 			this.cmd = this.cmd.TrimStart('-').ToLower();
-
 			this.msg = msg;
-			user = msg.Author as DiscordMember;
 
+			// Parse the user.
+			// If private channel, search through member list.
+			if (msg.Channel.IsPrivate) {
+				DiscordGuild erythro =
+					irene.GetGuildAsync(id_g_erythro)
+					.Result;
+				foreach (DiscordMember member in erythro.Members.Values) {
+					if (member.Id == msg.Author.Id) {
+						user = member;
+						break;
+					}
+				}
+			} else {
+				user = msg.Author as DiscordMember;
+			}
+
+			// Assign permissions.
 			if (user is null) {
 				access = AccessLevel.None;
 				log.warning("  Could not convert message author to DiscordMember.");
