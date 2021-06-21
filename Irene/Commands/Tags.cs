@@ -115,7 +115,7 @@ namespace Irene.Commands {
 			text.WriteLine("`@Irene -tags-add <tag>=<content>` adds the tag;");
 			text.WriteLine("`@Irene -tags-edit <tag>=<content>` edits the tag.");
 			text.WriteLine("`@Irene -tags-remove <tag>` removes the tag.");
-			text.WriteLine("All tags are case-insensitive.");
+			text.WriteLine("All tags are case-insensitive and ignore spaces.");
 			text.WriteLine("Only officers can add, edit, and remove tags.");
 			text.WriteLine("If you'd like a tag added/edited/removed, message an officer.");
 
@@ -124,8 +124,9 @@ namespace Irene.Commands {
 		}
 
 		public static void run(Command cmd) {
-			// All tags are case-insensitive.
+			// All tags are case-insensitive and ignore spaces.
 			string arg = cmd.args.Trim().ToLower();
+			arg = arg.Replace(" ", "");
 
 			// If no tags are specified, assume the user wants to see
 			// what tags are available.
@@ -243,6 +244,7 @@ namespace Irene.Commands {
 			// Parse the (pending) tag to add.
 			string[] split = cmd.args.Split(delim, 2);
 			string tag = split[0].Trim().ToLower();
+			tag = tag.Replace(" ", "");
 			string content = split[1];
 
 			// Read in the current tags.
@@ -315,6 +317,7 @@ namespace Irene.Commands {
 			// Parse the (pending) tag to add.
 			string[] split = cmd.args.Split(delim, 2);
 			string tag = split[0].Trim().ToLower();
+			tag = tag.Replace(" ", "");
 			string content = split[1];
 
 			// Read in the current tags.
@@ -364,8 +367,9 @@ namespace Irene.Commands {
 		}
 
 		public static void remove(Command cmd) {
-			// All tags are case-insensitive.
+			// All tags are case-insensitive and ignore spaces.
 			string arg = cmd.args.Trim().ToLower();
+			arg = arg.Replace(" ", "");
 
 			// The delimiter string is not allowed in tag names.
 			if (arg.Contains(delim)) {
