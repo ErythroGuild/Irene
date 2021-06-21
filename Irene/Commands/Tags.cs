@@ -459,7 +459,7 @@ namespace Irene.Commands {
 		static string escape(string str) {
 			foreach (string escape_code in escape_codes.Keys) {
 				string codepoint = escape_codes[escape_code];
-				str.Replace(codepoint, escape_code);
+				str = str.Replace(codepoint, escape_code);
 			}
 			return str;
 		}
@@ -468,7 +468,7 @@ namespace Irene.Commands {
 		static string unescape(string str) {
 			foreach (string escape_code in escape_codes.Keys) {
 				string codepoint = escape_codes[escape_code];
-				str.Replace(escape_code, codepoint);
+				str = str.Replace(escape_code, codepoint);
 			}
 			return str;
 		}
