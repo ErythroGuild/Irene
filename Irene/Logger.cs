@@ -65,13 +65,18 @@ namespace Irene {
 			switch (level) {
 			case Severity.Error:
 				write_colored("[ERROR]", ConsoleColor.Black, ConsoleColor.Red);
-				write(" ");
 				break;
 			case Severity.Warning:
 				write_colored("[WARN]", ConsoleColor.DarkYellow);
-				write(" ");
+				break;
+			case Severity.Info:
+				write_colored("[info]", ConsoleColor.DarkGray);
+				break;
+			case Severity.Debug:
+				write_colored("[dbug]", ConsoleColor.DarkGray);
 				break;
 			}
+			write(" ");
 
 			if (level == Severity.Debug) {
 				write_colored(text, ConsoleColor.DarkGray);
