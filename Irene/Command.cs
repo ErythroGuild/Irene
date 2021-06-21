@@ -17,15 +17,55 @@ namespace Irene {
 
 		// Command data
 		static readonly Dictionary<string, Action<Command>> dict_cmd = new () {
-			{ "invite", Invite.run_command },
+			{ "tags", Tags.run },
+			{ "tag",  Tags.run },
+			{ "t",    Tags.run },
+			{ "tags-list", Tags.list },
+			{ "tags-view", Tags.list },
+			{ "list-tags", Tags.list },
+			{ "view-tags", Tags.list },
+			{ "tags-add",    Tags.add },
+			{ "tags-new",    Tags.add },
+			{ "tags-create", Tags.add },
+			{ "tag-add",     Tags.add },
+			{ "tag-new",     Tags.add },
+			{ "tag-create",  Tags.add },
+			{ "add-tag",     Tags.add },
+			{ "new-tag",     Tags.add },
+			{ "create-tag",  Tags.add },
+			{ "tags-update", Tags.update },
+			{ "tags-edit",   Tags.update },
+			{ "tag-update",  Tags.update },
+			{ "tag-edit",    Tags.update },
+			{ "edit-tag",    Tags.update },
+			{ "update-tag",  Tags.update },
+			{ "tags-remove", Tags.remove },
+			{ "tags-delete", Tags.remove },
+			{ "tag-remove",  Tags.remove },
+			{ "tag-delete",  Tags.remove },
+			{ "remove-tag",  Tags.remove },
+			{ "delete-tag",  Tags.remove },
+
 			{ "invite", Invite.run },
 			{ "inv",    Invite.run },
 			{ "i",      Invite.run },
 		};
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
+			{ Tags.run,    Tags.help },
+			{ Tags.list,   Tags.help },
+			{ Tags.add,    Tags.help },
+			{ Tags.update, Tags.help },
+			{ Tags.remove, Tags.help },
+
 			{ Invite.run, Invite.help },
 		};
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
+			{ Tags.run,    AccessLevel.None    },
+			{ Tags.list,   AccessLevel.None    },
+			{ Tags.add,    AccessLevel.Officer },
+			{ Tags.update, AccessLevel.Officer },
+			{ Tags.remove, AccessLevel.Officer },
+
 			{ Invite.run, AccessLevel.None },
 		};
 
