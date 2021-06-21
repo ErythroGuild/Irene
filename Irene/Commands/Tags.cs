@@ -13,9 +13,6 @@ namespace Irene.Commands {
 	
 	class Tags : ICommands {
 		class ListHandler {
-			public const int page_size = 8;
-			public static readonly TimeSpan timeout = TimeSpan.FromMinutes(10);
-
 			public int page { get; private set; }
 			public readonly int page_count;
 			public readonly List<string> list;
@@ -25,39 +22,45 @@ namespace Irene.Commands {
 			readonly ButtonPressLambda handler;
 
 			public ListHandler(List<string> list, DiscordUser author) {
+				// Initialize simple variables.
 				this.author = author;
 				this.list = list;
 				page = 0;
-				double page_count_d = (double)list.Count / page_size;
+				double page_count_d = (double)list.Count / list_page_size;
 				page_count = (int)Math.Round(Math.Ceiling(page_count_d));
 				timer = new Timer(timeout.TotalMilliseconds);
 				timer.AutoReset = false;
 
 				handler = async (irene, e) => {
+					// Ignore triggers from the wrong message.
+					if (e.Message != msg) {
+						return;
+					}
+
 					// Ignore people who aren't the original user.
 					if (e.User != author) {
 						await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 						return;
-					} else {
-						switch (e.Id) {
-						case id_button_prev:
-							page--;
-							break;
-						case id_button_next:
-							page++;
-							break;
-						}
-						page = Math.Max(page, 0);
-						page = Math.Min(page, page_count);
-						await e.Interaction.CreateResponseAsync(
-							InteractionResponseType.UpdateMessage,
-							new DiscordInteractionResponseBuilder()
-							.WithContent(get_page(page, page_size, list))
-							.AddComponents(buttons_nav_list(page, page_count))
-						);
-						timer.Stop();
-						timer.Start();
 					}
+
+					switch (e.Id) {
+					case id_button_prev:
+						page--;
+						break;
+					case id_button_next:
+						page++;
+						break;
+					}
+					page = Math.Max(page, 0);
+					page = Math.Min(page, page_count);
+					await e.Interaction.CreateResponseAsync(
+						InteractionResponseType.UpdateMessage,
+						new DiscordInteractionResponseBuilder()
+						.WithContent(get_page(page, list_page_size, this.list))
+						.AddComponents(buttons_nav_list(page, page_count))
+					);
+					timer.Stop();
+					timer.Start();
 				};
 
 				// Configure timeout event listener.
@@ -89,6 +92,9 @@ namespace Irene.Commands {
 			{ @":emsp:", "\u2003" },
 			{ @":ensp:", "\u2022" },
 		};
+
+		const int list_page_size = 8;
+		static readonly TimeSpan timeout = TimeSpan.FromMinutes(10);
 
 		const string
 			path_data = @"data/tags.txt",
@@ -177,6 +183,7 @@ namespace Irene.Commands {
 				string[] split = line.Split(delim, 2);
 				tags.Add(split[0], split[1]);
 			}
+			data.Close();
 
 			// Exit early if no tags exist.
 			if (tags.Count == 0) {
@@ -192,11 +199,12 @@ namespace Irene.Commands {
 			}
 
 			// Construct message and respond.
-			ListHandler handler = new (new List<string>(tags.Keys), cmd.msg.Author);
+			List<string> tags_list = new (tags.Keys);
+			ListHandler handler = new (tags_list, cmd.msg.Author);
 			handlers_list.Add(handler);
 			DiscordMessageBuilder msg =
 				new DiscordMessageBuilder()
-				.WithContent(get_page(handler.page, ListHandler.page_size, handler.list))
+				.WithContent(get_page(handler.page, list_page_size, handler.list))
 				.AddComponents(buttons_nav_list(handler.page, handler.page_count));
 			handler.msg = cmd.msg.RespondAsync(msg).Result;
 			log.info("  Tag list sent.");
