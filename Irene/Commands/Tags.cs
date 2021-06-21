@@ -429,7 +429,12 @@ namespace Irene.Commands {
 			File.Replace(path_buffer, path_data, null);
 			log.info($"  Successfully removed tag: {arg}");
 			log.debug($"  {content}");
-			_ = cmd.msg.RespondAsync($"Removed tag: `{arg}`");
+
+			StringWriter text_respond = new ();
+			text_respond.WriteLine($"Removed tag: `{arg}`");
+			text_respond.WriteLine(content);
+			text_respond.Flush();
+			_ = cmd.msg.RespondAsync(text_respond.ToString());
 		}
 
 		// Make sure the data file (and its directory) exists.
