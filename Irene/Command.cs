@@ -18,6 +18,10 @@ namespace Irene {
 
 		// Command data
 		static readonly Dictionary<string, Action<Command>> dict_cmd = new () {
+			{ "help", Help.run },
+			{ "h"   , Help.run },
+			{ "?"   , Help.run },
+
 			{ "roles"     , Roles.list },
 			{ "r"         , Roles.list },
 			{ "rlist"     , Roles.list },
@@ -71,6 +75,8 @@ namespace Irene {
 			{ "i"     , Invite.run },
 		};
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
+			{ Help.run, Help.help },
+
 			{ Roles.list  , Roles.help },
 			{ Roles.add   , Roles.help },
 			{ Roles.remove, Roles.help },
@@ -84,6 +90,8 @@ namespace Irene {
 			{ Invite.run, Invite.help },
 		};
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
+			{ Help.run, AccessLevel.None },
+
 			{ Roles.list  , AccessLevel.None  },
 			{ Roles.add   , AccessLevel.Guest },
 			{ Roles.remove, AccessLevel.Guest },
@@ -91,7 +99,7 @@ namespace Irene {
 			{ Tags.run   , AccessLevel.None    },
 			{ Tags.list  , AccessLevel.None    },
 			{ Tags.add   , AccessLevel.Officer },
-			{ Tags.edit, AccessLevel.Officer },
+			{ Tags.edit  , AccessLevel.Officer },
 			{ Tags.remove, AccessLevel.Officer },
 
 			{ Invite.run, AccessLevel.None },
@@ -106,8 +114,14 @@ namespace Irene {
 		
 		// Return the help message for a command, without having to
 		// actually construct a Command object.
-		public static string help(string cmd) {
-			return dict_help[dict_cmd[cmd]]();
+		// Returns null if the command isn't recognized.
+		public static string? help(string cmd) {
+			cmd = cmd.Trim().ToLower();
+			if (dict_cmd.ContainsKey(cmd)) {
+				return dict_help[dict_cmd[cmd]]();
+			} else {
+				return null;
+			}
 		}
 
 		// Return true if the required permissions for the command
