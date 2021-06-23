@@ -5,11 +5,12 @@ using System.Timers;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
 using static Irene.Program;
 
 namespace Irene.Commands {
-	using ButtonPressLambda = Emzi0767.Utilities.AsyncEventHandler<DiscordClient, DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs>;
+	using ButtonPressLambda = Emzi0767.Utilities.AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
 	
 	class Tags : ICommands {
 		class ListHandler {
