@@ -58,6 +58,7 @@ namespace Irene.Commands {
 			text.WriteLine("`@Irene -roles-remove <role(s)>`: Remove a role (or space-separated list of roles).");
 			text.WriteLine("`@Irene -tags`: List the available tags.");
 			text.WriteLine("`@Irene -tags <tag>`: Display the tag.");
+			text.WriteLine("`@Irene -cap <type>`: Display the current cap of the resource.");
 			text.WriteLine("`@Irene -invite [erythro|leuko]`: Link the server invite link.");
 
 			log.info("  Sending general help text.");
