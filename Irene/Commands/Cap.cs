@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
 using static Irene.Program;
 
 namespace Irene.Commands {
-	using id_r = RoleIDs;
-	using id_ch = ChannelIDs;
-	using id_e = EmojiIDs;
-
 	class Cap : ICommands {
 		enum Type {
 			Renown, Valor, Conquest,
