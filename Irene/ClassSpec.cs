@@ -235,6 +235,12 @@ namespace Irene {
 			log.debug($"  Took {stopwatch.ElapsedMilliseconds} msec.");
 		}
 
+		// Get the emoji associated with the Class.
+		public static string class_emoji(Class @class) {
+			DiscordGuildEmoji emoji = dict_emoji[@class];
+			return emoji.ToString();
+		}
+
 		// Get the Class of the Spec.
 		// Returns Class.Multiple for Spec.Multiple.
 		public static Class get_class(Spec spec) => spec switch {
