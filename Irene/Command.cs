@@ -70,6 +70,9 @@ namespace Irene {
 			{ "remove-tag" , Tags.remove },
 			{ "delete-tag" , Tags.remove },
 
+			{ "cap", Cap.run },
+			{ "c"  , Cap.run },
+
 			{ "invite", Invite.run },
 			{ "inv"   , Invite.run },
 			{ "i"     , Invite.run },
@@ -84,8 +87,10 @@ namespace Irene {
 			{ Tags.run   , Tags.help },
 			{ Tags.list  , Tags.help },
 			{ Tags.add   , Tags.help },
-			{ Tags.edit, Tags.help },
+			{ Tags.edit  , Tags.help },
 			{ Tags.remove, Tags.help },
+
+			{ Cap.run, Cap.help },
 
 			{ Invite.run, Invite.help },
 		};
@@ -101,6 +106,8 @@ namespace Irene {
 			{ Tags.add   , AccessLevel.Officer },
 			{ Tags.edit  , AccessLevel.Officer },
 			{ Tags.remove, AccessLevel.Officer },
+
+			{ Cap.run, AccessLevel.None },
 
 			{ Invite.run, AccessLevel.None },
 		};
