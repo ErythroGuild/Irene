@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using DSharpPlus;
 using DSharpPlus.Entities;
 
 using static Irene.Program;
