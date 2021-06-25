@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 
 using static Irene.Program;
+using Irene.Modules;
 
 namespace Irene {
 	using id_r = RoleIDs;
@@ -25,6 +26,7 @@ namespace Irene {
 		internal static readonly Dictionary<ulong, DiscordGuildEmoji> emojis = new ();
 		internal static readonly Logger log;
 		static readonly Stopwatch stopwatch_connect;
+		internal static bool is_guild_loaded = false;
 
 		// File paths for config files.
 		internal const string
@@ -78,7 +80,7 @@ namespace Irene {
 				herald  = 712469431573544972;
 		}
 		internal static class ChannelIDs {
-			internal const ulong
+			public const ulong
 				// Broadcast
 				rules     = 443002035604815872,
 				announce  = 443001903123791873,
@@ -201,6 +203,9 @@ namespace Irene {
 				TokenType = TokenType.Bot
 			});
 
+			// Initialize modules.
+			Starboard.init();
+
 			log.info("Irene initialized.");
 		}
 
@@ -280,6 +285,7 @@ namespace Irene {
 						}
 					}
 
+					is_guild_loaded = true;
 					log.endl();
 				});
 				return Task.CompletedTask;
