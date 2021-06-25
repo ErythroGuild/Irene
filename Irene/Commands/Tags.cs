@@ -92,6 +92,7 @@ namespace Irene.Commands {
 			{ @"\u25E6", "\u25E6" },
 			{ @":emsp:", "\u2003" },
 			{ @":ensp:", "\u2022" },
+			{ @":+-:"  , "\u00B1" },
 		};
 
 		const int list_page_size = 8;
