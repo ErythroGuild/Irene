@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -37,6 +37,7 @@ namespace Irene {
 
 		// Discord IDs of various components.
 		internal const ulong id_g_erythro = 317723973968461824;
+		internal const string str_mention_n = @"<@!609752546994683911>";
 		internal static class RoleIDs {
 			public const ulong
 				// Colors
@@ -317,9 +318,12 @@ namespace Irene {
 					}
 
 					// Handle normal commands.
-					string mention_str = irene.CurrentUser.Mention;
-					if (msg_text.StartsWith(mention_str)) {
-						msg_text = msg_text[mention_str.Length..];
+					string str_mention = irene.CurrentUser.Mention;
+					if (msg_text.StartsWith(str_mention_n)) {
+						msg_text = msg_text.Replace(str_mention_n, str_mention);
+					}
+					if (msg_text.StartsWith(str_mention)) {
+						msg_text = msg_text[str_mention.Length..];
 						msg_text = msg_text.TrimStart();
 						log.info("Command received.");
 						DiscordUser author = msg.Author;
