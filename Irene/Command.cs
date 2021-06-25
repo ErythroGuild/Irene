@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using DSharpPlus;
 using DSharpPlus.Entities;
 
 using static Irene.Program;
@@ -18,17 +17,24 @@ namespace Irene {
 
 		// Command data
 		static readonly Dictionary<string, Action<Command>> dict_cmd = new () {
+			{ "help", Help.run },
+			{ "h"   , Help.run },
+			{ "?"   , Help.run },
+
 			{ "roles"     , Roles.list },
 			{ "r"         , Roles.list },
+			{ "rlist"     , Roles.list },
 			{ "roles-list", Roles.list },
 			{ "roles-view", Roles.list },
 			{ "list-roles", Roles.list },
 			{ "view-roles", Roles.list },
 			{ "roles-add", Roles.add },
+			{ "radd"     , Roles.add },
 			{ "role-add" , Roles.add },
 			{ "add-roles", Roles.add },
 			{ "add-role" , Roles.add },
 			{ "roles-remove", Roles.remove },
+			{ "rremove"     , Roles.remove },
 			{ "role-remove" , Roles.remove },
 			{ "remove-roles", Roles.remove },
 			{ "remove-role" , Roles.remove },
@@ -37,36 +43,42 @@ namespace Irene {
 			{ "tag" , Tags.run },
 			{ "t"   , Tags.run },
 			{ "tags-list", Tags.list },
+			{ "tlist"    , Tags.list },
 			{ "tags-view", Tags.list },
 			{ "list-tags", Tags.list },
 			{ "view-tags", Tags.list },
-			{ "tags-add"   , Tags.add },
-			{ "tags-new"   , Tags.add },
-			{ "tags-create", Tags.add },
-			{ "tag-add"    , Tags.add },
-			{ "tag-new"    , Tags.add },
-			{ "tag-create" , Tags.add },
-			{ "add-tag"    , Tags.add },
-			{ "new-tag"    , Tags.add },
-			{ "create-tag" , Tags.add },
-			{ "tags-update", Tags.update },
-			{ "tags-edit"  , Tags.update },
-			{ "tag-update" , Tags.update },
-			{ "tag-edit"   , Tags.update },
-			{ "edit-tag"   , Tags.update },
-			{ "update-tag" , Tags.update },
+			{ "tags-add", Tags.add },
+			{ "tadd"    , Tags.add },
+			{ "tags-new", Tags.add },
+			{ "tag-add" , Tags.add },
+			{ "tag-new" , Tags.add },
+			{ "add-tag" , Tags.add },
+			{ "new-tag" , Tags.add },
+			{ "tags-edit"  , Tags.edit },
+			{ "tedit"      , Tags.edit },
+			{ "tags-update", Tags.edit },
+			{ "tag-edit"   , Tags.edit },
+			{ "tag-update" , Tags.edit },
+			{ "edit-tag"   , Tags.edit },
+			{ "update-tag" , Tags.edit },
 			{ "tags-remove", Tags.remove },
+			{ "tremove"    , Tags.remove },
 			{ "tags-delete", Tags.remove },
 			{ "tag-remove" , Tags.remove },
 			{ "tag-delete" , Tags.remove },
 			{ "remove-tag" , Tags.remove },
 			{ "delete-tag" , Tags.remove },
 
+			{ "cap", Cap.run },
+			{ "c"  , Cap.run },
+
 			{ "invite", Invite.run },
 			{ "inv"   , Invite.run },
 			{ "i"     , Invite.run },
 		};
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
+			{ Help.run, Help.help },
+
 			{ Roles.list  , Roles.help },
 			{ Roles.add   , Roles.help },
 			{ Roles.remove, Roles.help },
@@ -74,12 +86,16 @@ namespace Irene {
 			{ Tags.run   , Tags.help },
 			{ Tags.list  , Tags.help },
 			{ Tags.add   , Tags.help },
-			{ Tags.update, Tags.help },
+			{ Tags.edit  , Tags.help },
 			{ Tags.remove, Tags.help },
+
+			{ Cap.run, Cap.help },
 
 			{ Invite.run, Invite.help },
 		};
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
+			{ Help.run, AccessLevel.None },
+
 			{ Roles.list  , AccessLevel.None  },
 			{ Roles.add   , AccessLevel.Guest },
 			{ Roles.remove, AccessLevel.Guest },
@@ -87,8 +103,10 @@ namespace Irene {
 			{ Tags.run   , AccessLevel.None    },
 			{ Tags.list  , AccessLevel.None    },
 			{ Tags.add   , AccessLevel.Officer },
-			{ Tags.update, AccessLevel.Officer },
+			{ Tags.edit  , AccessLevel.Officer },
 			{ Tags.remove, AccessLevel.Officer },
+
+			{ Cap.run, AccessLevel.None },
 
 			{ Invite.run, AccessLevel.None },
 		};
@@ -102,8 +120,14 @@ namespace Irene {
 		
 		// Return the help message for a command, without having to
 		// actually construct a Command object.
-		public static string help(string cmd) {
-			return dict_help[dict_cmd[cmd]]();
+		// Returns null if the command isn't recognized.
+		public static string? help(string cmd) {
+			cmd = cmd.Trim().ToLower();
+			if (dict_cmd.ContainsKey(cmd)) {
+				return dict_help[dict_cmd[cmd]]();
+			} else {
+				return null;
+			}
 		}
 
 		// Return true if the required permissions for the command

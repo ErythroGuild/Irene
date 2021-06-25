@@ -8,7 +8,6 @@ using static Irene.Program;
 
 namespace Irene.Commands {
 	using id_r = RoleIDs;
-	using id_ch = ChannelIDs;
 	using id_e = EmojiIDs;
 
 	class Roles : ICommands {
@@ -58,6 +57,7 @@ namespace Irene.Commands {
 			{ @"\u25E6", "\u25E6" },
 			{ @":emsp:", "\u2003" },
 			{ @":ensp:", "\u2022" },
+			{ @":+-:"  , "\u00B1" },
 		};
 
 		const string path_intros = @"data/roles_intros.txt";

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 
 using static Irene.Program;
+using Irene.Modules;
 
 namespace Irene {
 	using id_r = RoleIDs;
@@ -25,6 +26,7 @@ namespace Irene {
 		internal static readonly Dictionary<ulong, DiscordGuildEmoji> emojis = new ();
 		internal static readonly Logger log;
 		static readonly Stopwatch stopwatch_connect;
+		internal static bool is_guild_loaded = false;
 
 		// File paths for config files.
 		internal const string
@@ -37,6 +39,7 @@ namespace Irene {
 
 		// Discord IDs of various components.
 		internal const ulong id_g_erythro = 317723973968461824;
+		internal const string str_mention_n = @"<@!609752546994683911>";
 		internal static class RoleIDs {
 			public const ulong
 				// Colors
@@ -77,7 +80,7 @@ namespace Irene {
 				herald  = 712469431573544972;
 		}
 		internal static class ChannelIDs {
-			internal const ulong
+			public const ulong
 				// Broadcast
 				rules     = 443002035604815872,
 				announce  = 443001903123791873,
@@ -141,18 +144,18 @@ namespace Irene {
 				venthyr   = 697166461164322927,
 
 				// Classes
-				deathknight = 676750707759513611,
-				demonhunter = 676750708175011860,
-				druid       = 676750708447641611,
-				hunter      = 676750708879523850,
-				mage        = 676750710699720736,
-				monk        = 676750843286126624,
-				paladin     = 676750876433711114,
-				priest      = 676750889922330665,
-				rogue       = 676750902895312901,
-				shaman      = 676750915843260436,
-				warlock     = 676750927889170437,
-				warrior     = 676750939910045707;
+				dk      = 676750707759513611,
+				dh      = 676750708175011860,
+				druid   = 676750708447641611,
+				hunter  = 676750708879523850,
+				mage    = 676750710699720736,
+				monk    = 676750843286126624,
+				paladin = 676750876433711114,
+				priest  = 676750889922330665,
+				rogue   = 676750902895312901,
+				shaman  = 676750915843260436,
+				warlock = 676750927889170437,
+				warrior = 676750939910045707;
 		}
 
 		static Program() {
@@ -199,6 +202,9 @@ namespace Irene {
 				Token = bot_token,
 				TokenType = TokenType.Bot
 			});
+
+			// Initialize modules.
+			Starboard.init();
 
 			log.info("Irene initialized.");
 		}
@@ -279,6 +285,7 @@ namespace Irene {
 						}
 					}
 
+					is_guild_loaded = true;
 					log.endl();
 				});
 				return Task.CompletedTask;
@@ -317,9 +324,12 @@ namespace Irene {
 					}
 
 					// Handle normal commands.
-					string mention_str = irene.CurrentUser.Mention;
-					if (msg_text.StartsWith(mention_str)) {
-						msg_text = msg_text[mention_str.Length..];
+					string str_mention = irene.CurrentUser.Mention;
+					if (msg_text.StartsWith(str_mention_n)) {
+						msg_text = msg_text.Replace(str_mention_n, str_mention);
+					}
+					if (msg_text.StartsWith(str_mention)) {
+						msg_text = msg_text[str_mention.Length..];
 						msg_text = msg_text.TrimStart();
 						log.info("Command received.");
 						DiscordUser author = msg.Author;

@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
+using DSharpPlus.Entities;
+
 using static Irene.Program;
 
 namespace Irene {
+	using id_e = EmojiIDs;
+
 	class ClassSpec {
 		// "Multiple" is public-only. Private methods will always
 		// return a list instead.
@@ -35,6 +39,21 @@ namespace Irene {
 		}
 
 		// Conversion tables.
+		static readonly Dictionary<Class, DiscordGuildEmoji> dict_emoji = new () {
+			{ Class.DK     , emojis[id_e.dk     ] },
+			{ Class.DH     , emojis[id_e.dh     ] },
+			{ Class.Druid  , emojis[id_e.druid  ] },
+			{ Class.Hunter , emojis[id_e.hunter ] },
+			{ Class.Mage   , emojis[id_e.mage   ] },
+			{ Class.Monk   , emojis[id_e.monk   ] },
+			{ Class.Paladin, emojis[id_e.paladin] },
+			{ Class.Priest , emojis[id_e.priest ] },
+			{ Class.Rogue  , emojis[id_e.rogue  ] },
+			{ Class.Shaman , emojis[id_e.shaman ] },
+			{ Class.Warlock, emojis[id_e.warlock] },
+			{ Class.Warrior, emojis[id_e.warrior] },
+		};
+
 		static readonly Dictionary<Spec, Role> spec_to_role = new () {
 			{ Spec.DK_Blood,  Role.Tank },
 			{ Spec.DK_Frost,  Role.DPS  },
@@ -214,6 +233,12 @@ namespace Irene {
 			stopwatch.Stop();
 			log.debug("  Conversion cache initialized.");
 			log.debug($"  Took {stopwatch.ElapsedMilliseconds} msec.");
+		}
+
+		// Get the emoji associated with the Class.
+		public static string class_emoji(Class @class) {
+			DiscordGuildEmoji emoji = dict_emoji[@class];
+			return emoji.ToString();
 		}
 
 		// Get the Class of the Spec.

@@ -5,11 +5,12 @@ using System.Timers;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
 using static Irene.Program;
 
 namespace Irene.Commands {
-	using ButtonPressLambda = Emzi0767.Utilities.AsyncEventHandler<DiscordClient, DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs>;
+	using ButtonPressLambda = Emzi0767.Utilities.AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
 	
 	class Tags : ICommands {
 		class ListHandler {
@@ -91,6 +92,7 @@ namespace Irene.Commands {
 			{ @"\u25E6", "\u25E6" },
 			{ @":emsp:", "\u2003" },
 			{ @":ensp:", "\u2022" },
+			{ @":+-:"  , "\u00B1" },
 		};
 
 		const int list_page_size = 8;
@@ -113,19 +115,20 @@ namespace Irene.Commands {
 
 			text.WriteLine("`@Irene -tags <tag>` posts the message corresponding to the tag.");
 			text.WriteLine("`@Irene -tags-add <tag>=<content>` adds the tag;");
-			text.WriteLine("`@Irene -tags-update <tag>=<content>` updates the tag.");
+			text.WriteLine("`@Irene -tags-edit <tag>=<content>` edits the tag.");
 			text.WriteLine("`@Irene -tags-remove <tag>` removes the tag.");
-			text.WriteLine("All tags are case-insensitive.");
-			text.WriteLine("Only officers can add, update, and remove tags.");
-			text.WriteLine("If you'd like a tag added/updated/removed, message an officer.");
+			text.WriteLine("All tags are case-insensitive and ignore spaces.");
+			text.WriteLine("Only officers can add, edit, and remove tags.");
+			text.WriteLine("If you'd like a tag added/edited/removed, message an officer.");
 
 			text.Flush();
 			return text.ToString();
 		}
 
 		public static void run(Command cmd) {
-			// All tags are case-insensitive.
+			// All tags are case-insensitive and ignore spaces.
 			string arg = cmd.args.Trim().ToLower();
+			arg = arg.Replace(" ", "");
 
 			// If no tags are specified, assume the user wants to see
 			// what tags are available.
@@ -243,6 +246,7 @@ namespace Irene.Commands {
 			// Parse the (pending) tag to add.
 			string[] split = cmd.args.Split(delim, 2);
 			string tag = split[0].Trim().ToLower();
+			tag = tag.Replace(" ", "");
 			string content = split[1];
 
 			// Read in the current tags.
@@ -258,7 +262,7 @@ namespace Irene.Commands {
 
 					StringWriter text = new ();
 					text.WriteLine($"Tag `{tag}` already exists.");
-					text.WriteLine("Use `@Irene -tags-update <tag>=<content>` to updating existing tags.");
+					text.WriteLine("Use `@Irene -tags-edit <tag>=<content>` to edit existing tags.");
 					text.WriteLine("Also see: `@Irene -help tags`.");
 					text.Flush();
 					_ = cmd.msg.RespondAsync(text.ToString());
@@ -282,12 +286,12 @@ namespace Irene.Commands {
 			_ = cmd.msg.RespondAsync($"New tag added: `{tag}`");
 		}
 
-		public static void update(Command cmd) {
+		public static void edit(Command cmd) {
 			string arg = cmd.args.Trim();
 
 			// If nothing is specified, redirect user to help.
 			if (arg == "" || arg.StartsWith(delim)) {
-				log.info("  Cannot update an empty tag.");
+				log.info("  Cannot edit an empty tag.");
 
 				StringWriter text = new ();
 				text.WriteLine("A tag cannot be empty.");
@@ -300,11 +304,11 @@ namespace Irene.Commands {
 
 			// Don't allow empty tags to be added.
 			if (!arg.Contains(delim) || arg.EndsWith(delim)) {
-				log.info("  Cannot update tag with empty content.");
+				log.info("  Cannot edit tag with empty content.");
 				log.debug($"  {cmd.args}");
 
 				StringWriter text = new ();
-				text.WriteLine("Cannot update a tag with no content.");
+				text.WriteLine("Cannot edit a tag with no content.");
 				text.WriteLine("See `@Irene -help tags` for syntax help.");
 				text.Flush();
 				_ = cmd.msg.RespondAsync(text.ToString());
@@ -315,6 +319,7 @@ namespace Irene.Commands {
 			// Parse the (pending) tag to add.
 			string[] split = cmd.args.Split(delim, 2);
 			string tag = split[0].Trim().ToLower();
+			tag = tag.Replace(" ", "");
 			string content = split[1];
 
 			// Read in the current tags.
@@ -356,16 +361,17 @@ namespace Irene.Commands {
 			// Write the file (to a buffer first, then overwrite).
 			File.WriteAllLines(path_buffer, tags.Keys);
 			File.Replace(path_buffer, path_data, null);
-			log.info($"  Successfully updated tag: {arg}");
+			log.info($"  Successfully edited tag: {arg}");
 			log.debug($"  {content}");
 			log.debug("  Original content:");
 			log.debug($"{content_old}");
-			_ = cmd.msg.RespondAsync($"Updated tag: `{tag}`");
+			_ = cmd.msg.RespondAsync($"Edited tag: `{tag}`");
 		}
 
 		public static void remove(Command cmd) {
-			// All tags are case-insensitive.
+			// All tags are case-insensitive and ignore spaces.
 			string arg = cmd.args.Trim().ToLower();
+			arg = arg.Replace(" ", "");
 
 			// The delimiter string is not allowed in tag names.
 			if (arg.Contains(delim)) {
