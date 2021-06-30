@@ -73,8 +73,8 @@ namespace Irene.Commands {
 			StringWriter text = new ();
 
 			text.WriteLine("`@Irene -roles` Lists the available roles to add/remove.");
-			text.WriteLine("`@Irene -roles-add <role(s)>` Gives you the named role(s);");
-			text.WriteLine("`@Irene -roles-remove <role(s)>` Removes the named role(s) from you.");
+			text.WriteLine("`@Irene -roles-add <role1> [role2 ...]` Gives you the named role(s);");
+			text.WriteLine("`@Irene -roles-remove <role1> [role2 ...]` Removes the named role(s) from you.");
 			text.WriteLine(":warning: Only type the name! Don't mention the role (no `@`).");
 			text.WriteLine("To add/remove multiple roles at once, separate the role names with spaces.");
 			text.WriteLine("You can assign yourself roles at any time, provided you are at least a Guest.");
