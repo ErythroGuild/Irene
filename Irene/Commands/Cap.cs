@@ -129,20 +129,13 @@ namespace Irene.Commands {
 			}
 
 			// Season 1 (post-9.0.5).
-			if (date < date_patch_910) {
+			if (date < date_season_2) {
 				TimeSpan duration = date - date_patch_905;
 				int week = duration.Days / 7;  // int division!
 				int cap = 5000 + week * weekly_valor;
 
 				log.info($"  Current valor cap: {cap}, week {week + 1}");
 				_ = cmd.msg.RespondAsync($"Current Valor cap: **{cap}** (week {week + 1})");
-				return;
-			}
-
-			// Season 2 preseason (9.1.0).
-			if (date < date_season_2) {
-				log.info("  Current valor cap: 0 (pre-season)");
-				_ = cmd.msg.RespondAsync("Current Valor cap: **0** (pre-season)");
 				return;
 			}
 
@@ -174,20 +167,13 @@ namespace Irene.Commands {
 			}
 
 			// Season 1 (9.0.2).
-			if (date < date_patch_910) {
+			if (date < date_season_2) {
 				TimeSpan duration = date - date_season_1;
 				int week = duration.Days / 7;  // int division!
 				int cap = 550 + week * weekly_conquest;
 
 				log.info($"  Current conquest cap: {cap}, week {week + 1}");
 				_ = cmd.msg.RespondAsync($"Current Conquest cap: **{cap}** (week {week + 1})");
-				return;
-			}
-
-			// Season 2 preseason (9.1.0).
-			if (date < date_season_2) {
-				log.info("  Current conquest cap: 0 (pre-season)");
-				_ = cmd.msg.RespondAsync("Current Conquest cap: **0** (pre-season)");
 				return;
 			}
 
