@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
@@ -157,7 +157,10 @@ namespace Irene {
 				DiscordGuild erythro =
 					irene.GetGuildAsync(id_g_erythro)
 					.Result;
-				foreach (DiscordMember member in erythro.Members.Values) {
+				List<DiscordMember> members = new (
+					erythro.GetAllMembersAsync()
+					.Result );
+				foreach (DiscordMember member in members) {
 					if (member.Id == msg.Author.Id) {
 						user = member;
 						break;
