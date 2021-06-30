@@ -462,9 +462,10 @@ namespace Irene.Commands {
 			}
 
 			// Check against names.
+			arg = arg.ToLower();
 			List<DiscordMember> results = new ();
 			foreach (DiscordMember member in members) {
-				if (member.DisplayName == arg) {
+				if (member.DisplayName.ToLower().StartsWith(arg)) {
 					results.Add(member);
 				}
 			}
