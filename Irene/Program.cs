@@ -204,6 +204,7 @@ namespace Irene {
 			});
 
 			// Initialize modules.
+			Welcome.init();
 			Starboard.init();
 
 			log.info("Irene initialized.");
