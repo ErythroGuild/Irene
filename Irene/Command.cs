@@ -39,6 +39,25 @@ namespace Irene {
 			{ "remove-roles", Roles.remove },
 			{ "remove-role" , Roles.remove },
 
+			{ "rank-erythro", Rank.set_erythro },
+			{ "set-erythro" , Rank.set_erythro },
+			{ "rank-add-guilds", Rank.add_guilds },
+			{ "add-guilds"     , Rank.add_guilds },
+			{ "rank-clear-guilds", Rank.clear_guilds },
+			{ "clear-guilds"     , Rank.clear_guilds },
+			{ "rank-promote", Rank.promote },
+			{ "promote"     , Rank.promote },
+			{ "rank-demote", Rank.demote },
+			{ "demote"     , Rank.demote },
+			{ "rank-promote-officer", Rank.promote_officer },
+			{ "promote-officer"     , Rank.promote_officer },
+			{ "rank-demote-officer", Rank.demote_officer },
+			{ "demote-officer"     , Rank.demote_officer },
+			{ "rank-strip-all-roles", Rank.strip },
+			{ "rank-list-trials", Rank.list_trials },
+			{ "list-trials"     , Rank.list_trials },
+			{ "trials"          , Rank.list_trials },
+
 			{ "tags", Tags.run },
 			{ "tag" , Tags.run },
 			{ "t"   , Tags.run },
@@ -83,6 +102,16 @@ namespace Irene {
 			{ Roles.add   , Roles.help },
 			{ Roles.remove, Roles.help },
 
+			{ Rank.set_erythro , Rank.help },
+			{ Rank.add_guilds  , Rank.help },
+			{ Rank.clear_guilds, Rank.help },
+			{ Rank.promote, Rank.help },
+			{ Rank.demote , Rank.help },
+			{ Rank.promote_officer, Rank.help },
+			{ Rank.demote_officer , Rank.help },
+			{ Rank.strip, Rank.help },
+			{ Rank.list_trials, Rank.help },
+
 			{ Tags.run   , Tags.help },
 			{ Tags.list  , Tags.help },
 			{ Tags.add   , Tags.help },
@@ -99,6 +128,16 @@ namespace Irene {
 			{ Roles.list  , AccessLevel.None  },
 			{ Roles.add   , AccessLevel.Guest },
 			{ Roles.remove, AccessLevel.Guest },
+
+			{ Rank.set_erythro , AccessLevel.Officer },
+			{ Rank.add_guilds  , AccessLevel.Officer },
+			{ Rank.clear_guilds, AccessLevel.Officer },
+			{ Rank.promote, AccessLevel.Officer },
+			{ Rank.demote , AccessLevel.Officer },
+			{ Rank.promote_officer, AccessLevel.Admin },
+			{ Rank.demote_officer , AccessLevel.Admin },
+			{ Rank.strip, AccessLevel.Officer },
+			{ Rank.list_trials, AccessLevel.Officer },
 
 			{ Tags.run   , AccessLevel.None    },
 			{ Tags.list  , AccessLevel.None    },
@@ -157,7 +196,10 @@ namespace Irene {
 				DiscordGuild erythro =
 					irene.GetGuildAsync(id_g_erythro)
 					.Result;
-				foreach (DiscordMember member in erythro.Members.Values) {
+				List<DiscordMember> members = new (
+					erythro.GetAllMembersAsync()
+					.Result );
+				foreach (DiscordMember member in members) {
 					if (member.Id == msg.Author.Id) {
 						user = member;
 						break;

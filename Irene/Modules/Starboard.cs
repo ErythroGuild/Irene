@@ -356,8 +356,10 @@ namespace Irene.Modules {
 
 		// Returns a formatting string describing the emojis.
 		static string get_emoji_list(Dictionary<DiscordEmoji, int> list) {
-			const string separator = "\u2003";
-			const string ellipsis = "\u2026";
+			const string
+				nbsp      = "\u00A0",
+				separator = "\u2003",
+				ellipsis  = "\u2026";
 
 			// Sort list of emojis.
 			List<DiscordEmoji> emojis = new (list.Keys);
@@ -369,7 +371,7 @@ namespace Irene.Modules {
 			// Format as string.
 			StringWriter text = new ();
 			foreach (DiscordEmoji emoji in emojis) {
-				text.Write($"{emoji} **{list[emoji]}**{separator}");
+				text.Write($"{emoji}{nbsp}**{list[emoji]}**{separator}");
 			}
 			if (is_elided) {
 				text.Write($"{ellipsis}");

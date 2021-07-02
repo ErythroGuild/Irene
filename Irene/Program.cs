@@ -52,9 +52,9 @@ namespace Irene {
 				guest      = 452299336123023360,
 
 				// Titles
-				beloved    = 780159178202284053,
-				esteemed   = 780159754676338700,
-				selfless   = 780161029111021630,
+				acclaimed = 780161029111021630,
+				beloved   = 780159178202284053,
+				esteemed  = 780159754676338700,
 
 				// Officers
 				raidOfficer   = 723061867127373874,
@@ -64,12 +64,12 @@ namespace Irene {
 				banker        = 723061777213947974,
 
 				// Guilds
-				erythro      = 542021676884557824,
-				glaive       = 529135445712568323,
-				dragonsreach = 830985516639584257,
-				angels       = 529135186382946345,
-				asgard       = 539515941877448728,
-				enclave      = 676356017461919744,
+				erythro = 542021676884557824,
+				glaive  = 529135445712568323,
+				dragons = 830985516639584257,
+				angels  = 529135186382946345,
+				asgard  = 539515941877448728,
+				enclave = 676356017461919744,
 
 				// Subscriptions
 				raid    = 654062159956803664,
@@ -204,6 +204,7 @@ namespace Irene {
 			});
 
 			// Initialize modules.
+			Welcome.init();
 			Starboard.init();
 
 			log.info("Irene initialized.");
@@ -284,6 +285,7 @@ namespace Irene {
 							}
 						}
 					}
+					log.debug("Emojis fetched.");
 
 					is_guild_loaded = true;
 					log.endl();
