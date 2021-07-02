@@ -107,9 +107,9 @@ namespace Irene.Commands {
 				int week = duration.Days / 7;
 				int cap;
 				if (week < 8) {
-					cap = 43 + week * 3;
+					cap = 42 + week * 3;
 				} else if (week < 16) {
-					cap = 66 + (week - 8) * 2;
+					cap = 65 + (week - 8) * 2;
 				} else {
 					cap = 80;
 				}
