@@ -39,7 +39,7 @@ namespace Irene.Modules {
 						log.debug("  Notifying recruitment officer.");
 						StringWriter text = new ();
 						text.WriteLine($"{roles[r_recruiter].Mention} - " +
-							$"New member ({e.Member.Mention}) joined.");
+							$"New member {e.Member.Mention} joined the server. :tada:");
 						text.Flush();
 						_ = channels[ch_notify].SendMessageAsync(text.ToString());
 					}
