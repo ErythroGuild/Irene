@@ -43,6 +43,8 @@ namespace Irene.Modules {
 						text.Flush();
 						_ = channels[ch_notify].SendMessageAsync(text.ToString());
 					}
+
+					log.endl();
 				});
 				return Task.CompletedTask;
 			};
