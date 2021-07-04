@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -153,7 +153,7 @@ namespace Irene {
 			{ Spec.Druid_Feral,   new () { "feral", "cat" } },
 			{ Spec.Druid_Balance, new () { "balance", "moonkin", "boomy", "boomkin" } },
 
-			{ Spec.Hunter_BM, new () { "beast mastery", "bm", "beast master" } },
+			{ Spec.Hunter_BM, new () { "beast mastery", "bm", "beast master", "beastmastery", "beastmaster" } },
 			{ Spec.Hunter_MM, new () { "marksman", "marks", "mm", "marksmanship" } },
 			{ Spec.Hunter_SV, new () { "survival", "sv", "surv" } },
 
