@@ -91,6 +91,13 @@ namespace Irene {
 			{ "cap", Cap.run },
 			{ "c"  , Cap.run },
 
+			{ "classdiscord"  , ClassDiscords.run },
+			{ "cd"            , ClassDiscords.run },
+			{ "classdiscords" , ClassDiscords.run },
+			{ "class-discord" , ClassDiscords.run },
+			{ "class-discords", ClassDiscords.run },
+			{ "discords"      , ClassDiscords.run },
+
 			{ "invite", Invite.run },
 			{ "inv"   , Invite.run },
 			{ "i"     , Invite.run },
@@ -125,6 +132,8 @@ namespace Irene {
 
 			{ Cap.run, Cap.help },
 
+			{ ClassDiscords.run, ClassDiscords.help },
+
 			{ Invite.run, Invite.help },
 
 			{ Roll.run, Roll.help },
@@ -153,6 +162,8 @@ namespace Irene {
 			{ Tags.remove, AccessLevel.Officer },
 
 			{ Cap.run, AccessLevel.None },
+
+			{ ClassDiscords.run, AccessLevel.None },
 
 			{ Invite.run, AccessLevel.None },
 
