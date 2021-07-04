@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -39,19 +39,24 @@ namespace Irene {
 		}
 
 		// Conversion tables.
-		static readonly Dictionary<Class, DiscordGuildEmoji> dict_emoji = new () {
-			{ Class.DK     , emojis[id_e.dk     ] },
-			{ Class.DH     , emojis[id_e.dh     ] },
-			{ Class.Druid  , emojis[id_e.druid  ] },
-			{ Class.Hunter , emojis[id_e.hunter ] },
-			{ Class.Mage   , emojis[id_e.mage   ] },
-			{ Class.Monk   , emojis[id_e.monk   ] },
-			{ Class.Paladin, emojis[id_e.paladin] },
-			{ Class.Priest , emojis[id_e.priest ] },
-			{ Class.Rogue  , emojis[id_e.rogue  ] },
-			{ Class.Shaman , emojis[id_e.shaman ] },
-			{ Class.Warlock, emojis[id_e.warlock] },
-			{ Class.Warrior, emojis[id_e.warrior] },
+		static readonly Dictionary<Role, ulong> dict_emoji_role = new () {
+			{ Role.Tank, id_e.tank },
+			{ Role.Heal, id_e.heal },
+			{ Role.DPS , id_e.dps  },
+		};
+		static readonly Dictionary<Class, ulong> dict_emoji_class = new () {
+			{ Class.DK     ,id_e.dk      },
+			{ Class.DH     ,id_e.dh      },
+			{ Class.Druid  ,id_e.druid   },
+			{ Class.Hunter ,id_e.hunter  },
+			{ Class.Mage   ,id_e.mage    },
+			{ Class.Monk   ,id_e.monk    },
+			{ Class.Paladin,id_e.paladin },
+			{ Class.Priest ,id_e.priest  },
+			{ Class.Rogue  ,id_e.rogue   },
+			{ Class.Shaman ,id_e.shaman  },
+			{ Class.Warlock,id_e.warlock },
+			{ Class.Warrior,id_e.warrior },
 		};
 
 		static readonly Dictionary<Spec, Role> spec_to_role = new () {
@@ -235,9 +240,33 @@ namespace Irene {
 			log.debug($"  Took {stopwatch.ElapsedMilliseconds} msec.");
 		}
 
+		// Get the emoji associated with the Role.
+		// Returns an empty string if `Role.Multiple` is passed, or
+		// if emojis haven't been initialized yet.
+		public static string role_emoji(Role role) {
+			if (role == Role.Multiple)
+				{ return ""; }
+
+			if (!is_guild_loaded)
+				{ return ""; }
+
+			ulong id = dict_emoji_role[role];
+			DiscordGuildEmoji emoji = emojis[id];
+			return emoji.ToString();
+		}
+
 		// Get the emoji associated with the Class.
+		// Returns an empty string if `Class.Multiple` is passed, or
+		// if emojis haven't been initialized yet.
 		public static string class_emoji(Class @class) {
-			DiscordGuildEmoji emoji = dict_emoji[@class];
+			if (@class == Class.Multiple)
+				{ return ""; }
+
+			if (!is_guild_loaded)
+				{ return ""; }
+
+			ulong id = dict_emoji_class[@class];
+			DiscordGuildEmoji emoji = emojis[id];
 			return emoji.ToString();
 		}
 
