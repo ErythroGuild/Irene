@@ -94,6 +94,11 @@ namespace Irene {
 			{ "invite", Invite.run },
 			{ "inv"   , Invite.run },
 			{ "i"     , Invite.run },
+
+			{ "roll"  , Roll.run },
+			{ "random", Roll.run },
+			{ "rand"  , Roll.run },
+			{ "dice"  , Roll.run },
 		};
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 			{ Help.run, Help.help },
@@ -121,6 +126,8 @@ namespace Irene {
 			{ Cap.run, Cap.help },
 
 			{ Invite.run, Invite.help },
+
+			{ Roll.run, Roll.help },
 		};
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 			{ Help.run, AccessLevel.None },
@@ -148,6 +155,8 @@ namespace Irene {
 			{ Cap.run, AccessLevel.None },
 
 			{ Invite.run, AccessLevel.None },
+
+			{ Roll.run, AccessLevel.None },
 		};
 
 		// Properties

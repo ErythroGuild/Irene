@@ -310,6 +310,13 @@ namespace Irene {
 						return;
 					}
 					if (msg_text.ToLower().StartsWith("/roll")) {
+						log.info("Command received.");
+						DiscordUser author = msg.Author;
+						log.debug($"  {author.Username}#{author.Discriminator}: {msg_text}");
+						msg_text = msg_text.ToLower().Replace("/roll", "-roll");
+						Command cmd = new (msg_text, msg);
+						cmd.invoke();
+						log.endl();
 						return;
 					}
 					if (msg_text.ToLower().StartsWith($"{irene.CurrentUser.Mention} :wave:")) {
