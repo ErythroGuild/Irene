@@ -59,7 +59,9 @@ namespace Irene.Commands {
 			text.WriteLine("`@Irene -tags`: List the available tags.");
 			text.WriteLine("`@Irene -tags <tag>`: Display the tag.");
 			text.WriteLine("`@Irene -cap <type>`: Display the current cap of the resource.");
+			text.WriteLine("`@Irene -classdiscord <class>`: Link the class' class discord.");
 			text.WriteLine("`@Irene -invite [erythro|leuko]`: Link the server invite link.");
+			text.WriteLine("`@Irene -roll [x] [y]`: Generates a random integer.");
 
 			log.info("  Sending general help text.");
 			text.Flush();
