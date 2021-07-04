@@ -41,7 +41,7 @@ namespace Irene.Commands {
 			}
 			
 			// If only one argument is specified, the interval is [1, N].
-			else if (!arg.Contains(' ') || !arg.Contains('-')) {
+			else if (!arg.Contains(' ') && !arg.Contains('-')) {
 				low = 1;
 				bool did_parse = ulong.TryParse(arg, out high);
 
