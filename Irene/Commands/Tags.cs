@@ -86,14 +86,6 @@ namespace Irene.Commands {
 		}
 
 		static readonly List<ListHandler> handlers_list = new ();
-		static readonly Dictionary<string, string> escape_codes = new () {
-			{ @"\n"    , "\n"     },
-			{ @"\u2022", "\u2022" },
-			{ @"\u25E6", "\u25E6" },
-			{ @":emsp:", "\u2003" },
-			{ @":ensp:", "\u2022" },
-			{ @":+-:"  , "\u00B1" },
-		};
 
 		const int list_page_size = 8;
 		static readonly TimeSpan timeout = TimeSpan.FromMinutes(10);
@@ -171,7 +163,7 @@ namespace Irene.Commands {
 			}
 
 			// Display tag.
-			content = unescape(content);
+			content = content.unescape();
 			log.debug($"  {content}");
 			_ = cmd.msg.RespondAsync(content);
 		}
@@ -275,7 +267,7 @@ namespace Irene.Commands {
 			data.Close();
 
 			// Add the tag.
-			content = escape(content);
+			content = content.escape();
 			tags.Add($"{tag}{delim}{content}", null);
 
 			// Write the file (to a buffer first, then overwrite).
@@ -459,24 +451,6 @@ namespace Irene.Commands {
 				log.info("  Creating tag file.");
 				File.Create(path_data).Close();
 			}
-		}
-
-		// Replace all recognized codepoints with their escape codes.
-		static string escape(string str) {
-			foreach (string escape_code in escape_codes.Keys) {
-				string codepoint = escape_codes[escape_code];
-				str = str.Replace(codepoint, escape_code);
-			}
-			return str;
-		}
-
-		// Replace all recognized escape codes with their codepoints.
-		static string unescape(string str) {
-			foreach (string escape_code in escape_codes.Keys) {
-				string codepoint = escape_codes[escape_code];
-				str = str.Replace(escape_code, codepoint);
-			}
-			return str;
 		}
 
 		// Return the paginated content of a list's given page.

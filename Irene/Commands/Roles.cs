@@ -50,14 +50,6 @@ namespace Irene.Commands {
 			{ PingRole.Events , "Social event announcements." },
 			{ PingRole.Herald , "Herald of the Titans announcements." },
 		};
-		static readonly Dictionary<string, string> escape_codes = new () {
-			{ @"\n"    , "\n"     },
-			{ @"\u2022", "\u2022" },
-			{ @"\u25E6", "\u25E6" },
-			{ @":emsp:", "\u2003" },
-			{ @":ensp:", "\u2022" },
-			{ @":+-:"  , "\u00B1" },
-		};
 
 		const string path_intros = @"data/roles_intros.txt";
 		const string delim = "=";
@@ -233,18 +225,9 @@ namespace Irene.Commands {
 			}
 			data.Close();
 
-			content = unescape(content);
+			content = content.unescape();
 			content = $"{emojis[id_e.erythro]} {content}";
 			return content;
-		}
-
-		// Replace all recognized escape codes with their codepoints.
-		static string unescape(string str) {
-			foreach (string escape_code in escape_codes.Keys) {
-				string codepoint = escape_codes[escape_code];
-				str = str.Replace(escape_code, codepoint);
-			}
-			return str;
 		}
 	}
 }
