@@ -12,6 +12,8 @@ namespace Irene {
 			{ @":+-:"  , "\u00B1" },
 		};
 
+		// Extension methods for converting discord messages to/from
+		// single-line easily parseable text.
 		public static string escape(this string str) {
 			string text = str;
 			foreach (string escape_code in escape_codes.Keys) {
