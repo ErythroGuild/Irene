@@ -207,6 +207,9 @@ namespace Irene {
 			Welcome.init();
 			Starboard.init();
 
+			// Initialize commands.
+			Commands.Help.init();
+
 			log.info("Irene initialized.");
 		}
 
