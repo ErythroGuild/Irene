@@ -8,32 +8,41 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
 
+using static Irene.Program;
+
 namespace Irene {
 	using ButtonLambda = AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
 
 	class Pages {
-		protected static readonly List<Pages> handlers = new ();
-		protected static readonly int list_page_size = 8;
-		protected static readonly TimeSpan timeout = TimeSpan.FromMinutes(10);
-		protected const string
+		// protected (overrideable) properties
+		protected virtual int list_page_size
+			{ get { return 8; } }
+		protected virtual TimeSpan timeout
+			{ get { return TimeSpan.FromMinutes(10); } }
+
+		// private static values
+		static readonly List<Pages> handlers = new ();
+		const string
 			id_button_prev = "list_prev",
 			id_button_next = "list_next",
 			id_button_page = "list_page";
-
 		const string
 			label_prev = "\u25B2",
 			label_next = "\u25BC";
 
+		// public properties/fields
 		public int page { get; protected set; }
 		public readonly int page_count;
 		public readonly List<string> list;
 		public readonly DiscordUser author;
 		public DiscordMessage? msg;	// may not be set immediately
 
+		// protected properties/fields
 		protected readonly Timer timer;
 		protected readonly ButtonLambda handler;
 
 		public Pages(List<string> list, DiscordUser author) {
+			// Initialize members.
 			this.author = author;
 			this.list = list;
 			page = 0;
@@ -79,25 +88,34 @@ namespace Irene {
 				// Refresh deactivation timer.
 				timer.Stop();
 				timer.Start();
-
-				// Configure timeout event listener.
-				timer.Elapsed += async (s, e) => {
-					irene.ComponentInteractionCreated -= handler;
-					if (msg is not null) {
-						await msg.ModifyAsync(
-							new DiscordMessageBuilder()
-							.WithContent(msg.Content)
-							.AddComponents(buttons(page, page_count, false))
-						);
-					}
-					handlers.Remove(this);
-				};
-
-				// Attach handler to client and start deactivation timer.
-				handlers.Add(this);
-				irene.ComponentInteractionCreated += handler;
-				timer.Start();
 			};
+
+			// Configure timeout event listener.
+			timer.Elapsed += async (s, e) => {
+				irene.ComponentInteractionCreated -= handler;
+				if (msg is not null) {
+					await msg.ModifyAsync(
+						new DiscordMessageBuilder()
+						.WithContent(msg.Content)
+						.AddComponents(buttons(page, page_count, false))
+					);
+				}
+				handlers.Remove(this);
+			};
+
+			// Attach handler to client and start deactivation timer.
+			handlers.Add(this);
+			irene.ComponentInteractionCreated += handler;
+			timer.Start();
+		}
+
+		// Returns the first page of content (used for the initial response.
+		public DiscordMessageBuilder first_page() {
+			DiscordMessageBuilder msg =
+				new DiscordMessageBuilder()
+				.WithContent(paginate(0, list_page_size, list))
+				.AddComponents(buttons(page, page_count));
+			return msg;
 		}
 
 		// Return the paginated page content.
