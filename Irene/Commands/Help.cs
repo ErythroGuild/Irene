@@ -69,6 +69,7 @@ namespace Irene.Commands {
 			// Construct the paginated help message.
 			DiscordUser author = cmd.user ?? cmd.msg.Author;
 			HelpPages pages = new (list_help, author);
+			log.info("  Displaying help pages.");
 			DiscordMessage msg =
 				cmd.msg.RespondAsync(pages.first_page()).Result;
 			pages.msg = msg;
