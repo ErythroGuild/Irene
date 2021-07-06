@@ -91,9 +91,21 @@ namespace Irene {
 			{ "cap", Cap.run },
 			{ "c"  , Cap.run },
 
+			{ "classdiscord"  , ClassDiscords.run },
+			{ "cd"            , ClassDiscords.run },
+			{ "classdiscords" , ClassDiscords.run },
+			{ "class-discord" , ClassDiscords.run },
+			{ "class-discords", ClassDiscords.run },
+			{ "discords"      , ClassDiscords.run },
+
 			{ "invite", Invite.run },
 			{ "inv"   , Invite.run },
 			{ "i"     , Invite.run },
+
+			{ "roll"  , Roll.run },
+			{ "random", Roll.run },
+			{ "rand"  , Roll.run },
+			{ "dice"  , Roll.run },
 		};
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 			{ Help.run, Help.help },
@@ -120,7 +132,11 @@ namespace Irene {
 
 			{ Cap.run, Cap.help },
 
+			{ ClassDiscords.run, ClassDiscords.help },
+
 			{ Invite.run, Invite.help },
+
+			{ Roll.run, Roll.help },
 		};
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 			{ Help.run, AccessLevel.None },
@@ -147,7 +163,11 @@ namespace Irene {
 
 			{ Cap.run, AccessLevel.None },
 
+			{ ClassDiscords.run, AccessLevel.None },
+
 			{ Invite.run, AccessLevel.None },
+
+			{ Roll.run, AccessLevel.None },
 		};
 
 		// Properties

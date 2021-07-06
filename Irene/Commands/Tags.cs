@@ -13,102 +13,10 @@ namespace Irene.Commands {
 	using ButtonPressLambda = Emzi0767.Utilities.AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
 	
 	class Tags : ICommands {
-		class ListHandler {
-			public int page { get; private set; }
-			public readonly int page_count;
-			public readonly List<string> list;
-			public readonly DiscordUser author;
-			public DiscordMessage? msg;
-			readonly Timer timer;
-			readonly ButtonPressLambda handler;
-
-			public ListHandler(List<string> list, DiscordUser author) {
-				// Initialize simple variables.
-				this.author = author;
-				this.list = list;
-				page = 0;
-				double page_count_d = (double)list.Count / list_page_size;
-				page_count = (int)Math.Round(Math.Ceiling(page_count_d));
-				timer = new Timer(timeout.TotalMilliseconds);
-				timer.AutoReset = false;
-
-				handler = async (irene, e) => {
-					// Ignore triggers from the wrong message.
-					if (e.Message != msg) {
-						return;
-					}
-
-					// Ignore people who aren't the original user.
-					if (e.User != author) {
-						await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-						return;
-					}
-
-					switch (e.Id) {
-					case id_button_prev:
-						page--;
-						break;
-					case id_button_next:
-						page++;
-						break;
-					}
-					page = Math.Max(page, 0);
-					page = Math.Min(page, page_count);
-					await e.Interaction.CreateResponseAsync(
-						InteractionResponseType.UpdateMessage,
-						new DiscordInteractionResponseBuilder()
-						.WithContent(get_page(page, list_page_size, this.list))
-						.AddComponents(buttons_nav_list(page, page_count))
-					);
-					timer.Stop();
-					timer.Start();
-				};
-
-				// Configure timeout event listener.
-				timer.Elapsed += async (s, e) => {
-					irene.ComponentInteractionCreated -= handler;
-					if (msg is not null) {
-						await msg.ModifyAsync(
-							new DiscordMessageBuilder()
-							.WithContent(msg.Content)
-							.AddComponents(buttons_nav_list(page, page_count, false))
-						);
-					}
-					handlers_list.Remove(this);
-				};
-
-				// Actually attach handler.
-				irene.ComponentInteractionCreated += handler;
-
-				// Start timer.
-				timer.Start();
-			}
-		}
-
-		static readonly List<ListHandler> handlers_list = new ();
-		static readonly Dictionary<string, string> escape_codes = new () {
-			{ @"\n"    , "\n"     },
-			{ @"\u2022", "\u2022" },
-			{ @"\u25E6", "\u25E6" },
-			{ @":emsp:", "\u2003" },
-			{ @":ensp:", "\u2022" },
-			{ @":+-:"  , "\u00B1" },
-		};
-
-		const int list_page_size = 8;
-		static readonly TimeSpan timeout = TimeSpan.FromMinutes(10);
-
 		const string
 			path_data = @"data/tags.txt",
 			path_buffer = @"data/tags_buffer.txt";
 		const string delim = "=";
-		const string
-			id_button_prev = "list_prev",
-			id_button_next = "list_next",
-			id_button_page = "list_page";
-		const string
-			label_prev = "\u25B2",
-			label_next = "\u25BC";
 
 		public static string help() {
 			StringWriter text = new ();
@@ -171,7 +79,7 @@ namespace Irene.Commands {
 			}
 
 			// Display tag.
-			content = unescape(content);
+			content = content.unescape();
 			log.debug($"  {content}");
 			_ = cmd.msg.RespondAsync(content);
 		}
@@ -203,13 +111,10 @@ namespace Irene.Commands {
 
 			// Construct message and respond.
 			List<string> tags_list = new (tags.Keys);
-			ListHandler handler = new (tags_list, cmd.msg.Author);
-			handlers_list.Add(handler);
-			DiscordMessageBuilder msg =
-				new DiscordMessageBuilder()
-				.WithContent(get_page(handler.page, list_page_size, handler.list))
-				.AddComponents(buttons_nav_list(handler.page, handler.page_count));
-			handler.msg = cmd.msg.RespondAsync(msg).Result;
+			Pages pages = new (tags_list, cmd.msg.Author);
+			DiscordMessage msg =
+				cmd.msg.RespondAsync(pages.first_page()).Result;
+			pages.msg = msg;
 			log.info("  Tag list sent.");
 		}
 
@@ -275,7 +180,7 @@ namespace Irene.Commands {
 			data.Close();
 
 			// Add the tag.
-			content = escape(content);
+			content = content.escape();
 			tags.Add($"{tag}{delim}{content}", null);
 
 			// Write the file (to a buffer first, then overwrite).
@@ -459,65 +364,6 @@ namespace Irene.Commands {
 				log.info("  Creating tag file.");
 				File.Create(path_data).Close();
 			}
-		}
-
-		// Replace all recognized codepoints with their escape codes.
-		static string escape(string str) {
-			foreach (string escape_code in escape_codes.Keys) {
-				string codepoint = escape_codes[escape_code];
-				str = str.Replace(codepoint, escape_code);
-			}
-			return str;
-		}
-
-		// Replace all recognized escape codes with their codepoints.
-		static string unescape(string str) {
-			foreach (string escape_code in escape_codes.Keys) {
-				string codepoint = escape_codes[escape_code];
-				str = str.Replace(escape_code, codepoint);
-			}
-			return str;
-		}
-
-		// Return the paginated content of a list's given page.
-		// Assumes all arguments are within bounds.
-		static string get_page(int page, int page_size, List<string> list) {
-			StringWriter text = new ();
-
-			int i_start = page * page_size;
-			for (int i=i_start; i<i_start+page_size && i<list.Count; i++) {
-				text.WriteLine(list[i]);
-			}
-
-			text.Flush();
-			return text.ToString();
-		}
-
-		// Returns the paginated button row for the list of tags.
-		static DiscordComponent[] buttons_nav_list(
-			int page,
-			int total,
-			bool is_enabled=true ) {
-			return new DiscordComponent[] {
-				new DiscordButtonComponent(
-					ButtonStyle.Secondary,
-					id_button_prev,
-					label_prev,
-					(page + 1 == 1) || !is_enabled
-				),
-				new DiscordButtonComponent(
-					ButtonStyle.Secondary,
-					id_button_page,
-					$"{page + 1} / {total}",
-					!is_enabled
-				),
-				new DiscordButtonComponent(
-					ButtonStyle.Secondary,
-					id_button_next,
-					label_next,
-					(page + 1 == total) || !is_enabled
-				),
-			};
 		}
 	}
 }
