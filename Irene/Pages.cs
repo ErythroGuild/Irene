@@ -128,8 +128,7 @@ namespace Irene {
 				text.WriteLine(list[i]);
 			}
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		// Returns a row of buttons for paginating the data.
