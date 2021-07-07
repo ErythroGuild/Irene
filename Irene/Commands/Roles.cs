@@ -131,8 +131,7 @@ namespace Irene.Commands {
 				foreach (PingRole role in roles) {
 					text.Write($"**{dict_names[role]}**  ");
 				}
-				text.Flush();
-				return text.ToString()[..^2];
+				return text.output()[..^2];
 			}
 
 			// Returns a dropdown of all roles; some of them pre-selected.
@@ -243,8 +242,7 @@ namespace Irene.Commands {
 			text.WriteLine("`@Irene -roles-info` Lists available roles and also shows a brief description.");
 			text.WriteLine("Any member can view available roles, but you must be at least a Guest to update them.");
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		public static void set(Command cmd) {
@@ -284,8 +282,7 @@ namespace Irene.Commands {
 			}
 			text.WriteLine("*Use `@Irene -roles` to assign yourself roles.*");
 
-			text.Flush();
-			_ = cmd.msg.RespondAsync(text.ToString());
+			_ = cmd.msg.RespondAsync(text.output());
 		}
 
 		public static void royce(Command cmd) {

@@ -25,8 +25,7 @@ namespace Irene.Commands {
 			text.WriteLine("and `@Irene -inv` fetches both server invites.");
 			text.WriteLine($"These invite links can also be found in {channels[id_ch.resources]}.");
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		public static void run(Command cmd) {
@@ -43,8 +42,7 @@ namespace Irene.Commands {
 				text.WriteLine(invite_leuko);
 			}
 
-			text.Flush();
-			_ = cmd.msg.RespondAsync(text.ToString());
+			_ = cmd.msg.RespondAsync(text.output());
 		}
 	}
 }

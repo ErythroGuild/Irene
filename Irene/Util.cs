@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace Irene {
 	static class Util {
@@ -29,6 +30,12 @@ namespace Irene {
 				text = text.Replace(escape_code, codepoint);
 			}
 			return text;
+		}
+
+		// Convenience extension method to implicitly flush StringWriter.
+		public static string output(this StringWriter writer) {
+			writer.Flush();
+			return writer.ToString();
 		}
 	}
 }

@@ -40,8 +40,7 @@ namespace Irene.Commands {
 			text.WriteLine("`@Irene -cap <type>` shows the current cap of the given resource.");
 			text.WriteLine("E.g.: `renown`, `valor`, `conquest`.");
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		// Parse the argument and dispatch the correct handler.
@@ -55,8 +54,7 @@ namespace Irene.Commands {
 				StringWriter text = new ();
 				text.WriteLine("You must specify the cap you're looking for (e.g. `renown`).");
 				text.WriteLine("See `@Irene -help cap` for more help.");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 				return;
 			}
 
@@ -66,8 +64,7 @@ namespace Irene.Commands {
 				StringWriter text = new ();
 				text.WriteLine("Could not recognize the requested info type.");
 				text.WriteLine("See `@Irene -help cap` for more help.");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 				return;
 			}
 

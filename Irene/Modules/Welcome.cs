@@ -40,8 +40,7 @@ namespace Irene.Modules {
 						StringWriter text = new ();
 						text.WriteLine($"{roles[r_recruiter].Mention} - " +
 							$"New member {e.Member.Mention} joined the server. :tada:");
-						text.Flush();
-						_ = channels[ch_notify].SendMessageAsync(text.ToString());
+						_ = channels[ch_notify].SendMessageAsync(text.output());
 					}
 
 					log.endl();

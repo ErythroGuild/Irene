@@ -142,8 +142,7 @@ namespace Irene.Modules {
 							string m = channels[id_ch.starboard].Mention;
 							text.WriteLine($"Your post was exceptionally popular, and has been added to **<Erythro>**'s {m} channel.");
 							text.WriteLine(":champagne_glass: :champagne:");
-							text.Flush();
-							_ = author_member.SendMessageAsync(text.ToString());
+							_ = author_member.SendMessageAsync(text.output());
 						}
 					}
 					log.endl();
@@ -378,8 +377,7 @@ namespace Irene.Modules {
 			}
 
 			// Cleanup result and return.
-			text.Flush();
-			string output = text.ToString();
+			string output = text.output();
 			if (output.EndsWith(separator)) {
 				output = output[..^separator.Length];
 			}
