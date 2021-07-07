@@ -11,6 +11,7 @@ using Serilog;
 
 using static Irene.Program;
 using Irene.Modules;
+using Irene.Commands;
 
 namespace Irene {
 	using id_r = RoleIDs;
@@ -208,7 +209,8 @@ namespace Irene {
 			Starboard.init();
 
 			// Initialize commands.
-			Commands.Help.init();
+			Help.init();
+			Roles.init();
 
 			log.info("Irene initialized.");
 		}

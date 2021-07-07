@@ -109,7 +109,7 @@ namespace Irene {
 			timer.Start();
 		}
 
-		// Returns the first page of content (used for the initial response.
+		// Returns the first page of content (used for initial response).
 		public DiscordMessageBuilder first_page() {
 			DiscordMessageBuilder msg =
 				new DiscordMessageBuilder()

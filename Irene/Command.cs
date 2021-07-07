@@ -21,23 +21,11 @@ namespace Irene {
 			{ "h"   , Help.run },
 			{ "?"   , Help.run },
 
-			{ "roles"     , Roles.list },
-			{ "r"         , Roles.list },
-			{ "rlist"     , Roles.list },
-			{ "roles-list", Roles.list },
-			{ "roles-view", Roles.list },
-			{ "list-roles", Roles.list },
-			{ "view-roles", Roles.list },
-			{ "roles-add", Roles.add },
-			{ "radd"     , Roles.add },
-			{ "role-add" , Roles.add },
-			{ "add-roles", Roles.add },
-			{ "add-role" , Roles.add },
-			{ "roles-remove", Roles.remove },
-			{ "rremove"     , Roles.remove },
-			{ "role-remove" , Roles.remove },
-			{ "remove-roles", Roles.remove },
-			{ "remove-role" , Roles.remove },
+			{ "roles"      , Roles.set   },
+			{ "r"          , Roles.set   },
+			{ "roles-info" , Roles.list  },
+			{ "rinfo"      , Roles.list  },
+			{ "roles-royce", Roles.royce },
 
 			{ "rank-erythro", Rank.set_erythro },
 			{ "set-erythro" , Rank.set_erythro },
@@ -110,9 +98,9 @@ namespace Irene {
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 			{ Help.run, Help.help },
 
-			{ Roles.list  , Roles.help },
-			{ Roles.add   , Roles.help },
-			{ Roles.remove, Roles.help },
+			{ Roles.set  , Roles.help },
+			{ Roles.list , Roles.help },
+			{ Roles.royce, Roles.help },
 
 			{ Rank.set_erythro , Rank.help },
 			{ Rank.add_guilds  , Rank.help },
@@ -141,9 +129,9 @@ namespace Irene {
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 			{ Help.run, AccessLevel.None },
 
-			{ Roles.list  , AccessLevel.None  },
-			{ Roles.add   , AccessLevel.Guest },
-			{ Roles.remove, AccessLevel.Guest },
+			{ Roles.set  , AccessLevel.Guest },
+			{ Roles.list , AccessLevel.None  },
+			{ Roles.royce, AccessLevel.None  },
 
 			{ Rank.set_erythro , AccessLevel.Officer },
 			{ Rank.add_guilds  , AccessLevel.Officer },
