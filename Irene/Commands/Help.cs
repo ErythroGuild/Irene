@@ -82,7 +82,7 @@ namespace Irene.Commands {
 			s.WriteLine($"Commands can be DM'd to Irene, but still need to start with `{m}`.");
 			s.WriteLine("*`<required argument>`, `[optional argument]`, `[option A | option B]`*");
 			s.WriteLine($"{t}If you need more help, ask, or shoot Ernie a message! :+1:");
-			s.WriteLine("");
+			s.WriteLine();
 			s.WriteLine("**Help**");
 			s.WriteLine($"`{m} -help`: Display this help text.");
 			s.WriteLine($"`{m} -help <command>`: Display help for a specific command.");
@@ -124,12 +124,17 @@ namespace Irene.Commands {
 			StringWriter s;
 
 			s = new StringWriter();
+			s.WriteLine("**:lock: Ranks**");
 			list_officer.Add(s.output());
 
 			s = new StringWriter();
-			list_officer.Add(s.output());
-
-			s = new StringWriter();
+			s.WriteLine("**:lock: Tags**");
+			s.WriteLine($"`{m} -tags-add <tag>=<content>`: Add a new tag with the given content.");
+			s.WriteLine($"{t}*aliases:* `-tadd`, `-tag-add`, `-add-tag`");
+			s.WriteLine($"`{m} -tags-edit <tag>=<content>`: Edit the existing tag to have the given content.");
+			s.WriteLine($"{t}*aliases:* `-tedit`, `-tag-edit`, `-edit-tag`");
+			s.WriteLine($"`{m} -tags-remove <tag>`: Remove the existing tag.");
+			s.WriteLine($"{t}*aliases:* `-tremove`, `-tag-remove`, `-remove-tag`");
 			list_officer.Add(s.output());
 		}
 	}

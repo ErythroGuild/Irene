@@ -82,13 +82,13 @@ namespace Irene.Commands {
 
 			text.WriteLine("It is recommended to use user IDs to specify members.");
 			text.WriteLine("Although nicknames can be used instead of user ID, the nickname often contains special characters.");
-			text.WriteLine("`@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
-			text.WriteLine("`@Irene -trials` lists all current trials (**Guest** *and* **<Erythro>**.");
-			text.WriteLine("`@Irene -promote <user-id>` promotes the user from **None** -> **Guest** -> **Member**;");
-			text.WriteLine("`@Irene -demote <user-id>` demotes the user from **Member** -> **Guest** -> **None**.");
-			text.WriteLine("`@Irene -add-guilds <user-id> <guild1> [<guild2> ...]` gives the user the requested guild tags;");
-			text.WriteLine("`@Irene -clear-guilds <user-id>` clears all guild tags from the user.");
-			text.WriteLine("`@Irene -rank-strip-all-roles <user-id>` removes **ALL** roles from the user.");
+			text.WriteLine(":lock: `@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
+			text.WriteLine(":lock: `@Irene -trials` lists all current trials (**Guest** *and* **<Erythro>**.");
+			text.WriteLine(":lock: `@Irene -promote <user-id>` promotes the user from **None** -> **Guest** -> **Member**;");
+			text.WriteLine(":lock: `@Irene -demote <user-id>` demotes the user from **Member** -> **Guest** -> **None**.");
+			text.WriteLine(":lock: `@Irene -add-guilds <user-id> <guild1> [<guild2> ...]` gives the user the requested guild tags;");
+			text.WriteLine(":lock: `@Irene -clear-guilds <user-id>` clears all guild tags from the user.");
+			text.WriteLine(":lock: `@Irene -rank-strip-all-roles <user-id>` removes **ALL** roles from the user.");
 
 			return text.output();
 		}

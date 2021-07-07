@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Timers;
 
-using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
 using static Irene.Program;
 
 namespace Irene.Commands {
-	using ButtonPressLambda = Emzi0767.Utilities.AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
-	
 	class Tags : ICommands {
 		const string
 			path_data = @"data/tags.txt",
@@ -22,9 +16,9 @@ namespace Irene.Commands {
 			StringWriter text = new ();
 
 			text.WriteLine("`@Irene -tags <tag>` posts the message corresponding to the tag.");
-			text.WriteLine("`@Irene -tags-add <tag>=<content>` adds the tag;");
-			text.WriteLine("`@Irene -tags-edit <tag>=<content>` edits the tag.");
-			text.WriteLine("`@Irene -tags-remove <tag>` removes the tag.");
+			text.WriteLine(":lock: `@Irene -tags-add <tag>=<content>` adds the tag;");
+			text.WriteLine(":lock: `@Irene -tags-edit <tag>=<content>` edits the tag.");
+			text.WriteLine(":lock: `@Irene -tags-remove <tag>` removes the tag.");
 			text.WriteLine("All tags are case-insensitive and ignore spaces.");
 			text.WriteLine("Only officers can add, edit, and remove tags.");
 			text.WriteLine("If you'd like a tag added/edited/removed, message an officer.");
