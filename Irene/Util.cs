@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Irene {
 	static class Util {
-		static Dictionary<string, string> escape_codes = new () {
+		static readonly Dictionary<string, string> escape_codes = new () {
 			{ @"\n"    , "\n"     },
 			{ @":bbul:", "\u2022" },
 			{ @":wbul:", "\u25E6" },

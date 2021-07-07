@@ -234,9 +234,9 @@ namespace Irene {
 				_ = Task.Run(() => {
 					DiscordActivity helptext =
 #if RELEASE
-						new DiscordActivity("@Irene -help", ActivityType.Watching);
+						new ("@Irene -help", ActivityType.Watching);
 #else
-						new DiscordActivity("DEBUG MODE", ActivityType.Playing);
+						new ("DEBUG MODE", ActivityType.Playing);
 #endif
 					irene.UpdateStatusAsync(helptext);
 

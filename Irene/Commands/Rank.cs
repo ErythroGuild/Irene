@@ -443,7 +443,7 @@ namespace Irene.Commands {
 			arg = arg.Trim();
 
 			// Check against ID / @mention.
-			Regex regex_id = new Regex(@"(?<id><@!?\d+>|\d+)");
+			Regex regex_id = new (@"(?<id><@!?\d+>|\d+)");
 			if (regex_id.IsMatch(arg)) {
 				string id_str = regex_id.Match(arg).Groups["id"].Value;
 				bool can_parse = ulong.TryParse(id_str, out ulong id);

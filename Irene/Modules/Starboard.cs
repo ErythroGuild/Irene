@@ -193,7 +193,7 @@ namespace Irene.Modules {
 					}
 				}
 
-				DiscordMessage msg_last = msg_list[msg_list.Count - 1];
+				DiscordMessage msg_last = msg_list[^1];
 				ulong id_last = msg_last.Id;
 				msg_list =
 					new (ch.GetMessagesBeforeAsync(id_last).Result);
@@ -221,7 +221,7 @@ namespace Irene.Modules {
 			}
 
 			// Get content strings.
-			string text = "";
+			string text;
 			string? content = get_content(msg);
 			string emojis = get_emoji_list(reacts);
 			if (content is not null) {

@@ -28,11 +28,11 @@ namespace Irene.Commands {
 
 		// Patch release days
 		// 7:00 PST = 8:00 PDT = 15:00 UTC
-		static readonly DateTime date_patch_902 = new DateTime(2020, 11, 17, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_season_1  = new DateTime(2020, 12,  8, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_patch_905 = new DateTime(2021,  3,  9, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_patch_910 = new DateTime(2021,  6, 29, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_season_2  = new DateTime(2021,  7,  6, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_patch_902 = new (2020, 11, 17, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_season_1  = new (2020, 12,  8, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_patch_905 = new (2021,  3,  9, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_patch_910 = new (2021,  6, 29, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_season_2  = new (2021,  7,  6, 15, 0, 0, DateTimeKind.Utc);
 
 		public static string help() {
 			StringWriter text = new ();

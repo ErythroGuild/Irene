@@ -50,8 +50,9 @@ namespace Irene {
 			double page_count_d = (double)list.Count / list_page_size;
 			page_count = (int)Math.Round(Math.Ceiling(page_count_d));
 
-			timer = new Timer(timeout.TotalMilliseconds);
-			timer.AutoReset = false;
+			timer = new Timer(timeout.TotalMilliseconds) {
+				AutoReset = false,
+			};
 
 			handler = async (irene, e) => {
 				// Ignore triggers from the wrong message.

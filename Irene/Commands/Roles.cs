@@ -56,8 +56,9 @@ namespace Irene.Commands {
 				this.roles = roles;
 				this.author = author;
 
-				timer = new Timer(timeout.TotalMilliseconds);
-				timer.AutoReset = false;
+				timer = new Timer(timeout.TotalMilliseconds) {
+					AutoReset = false,
+				};
 
 				handler = async (irene, e) => {
 					// Ignore triggers from the wrong message.
@@ -332,9 +333,6 @@ namespace Irene.Commands {
 		}
 
 		// Read through data file to find matching welcome message.
-		static string get_welcome(DiscordRole role) {
-			return get_welcome(discordRole_to_pingRole[role]);
-		}
 		static string get_welcome(PingRole role) {
 			string content = "";
 			StreamReader data = File.OpenText(path_intros);
