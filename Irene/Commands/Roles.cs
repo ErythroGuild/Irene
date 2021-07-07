@@ -180,15 +180,15 @@ namespace Irene.Commands {
 			}
 		}
 
-		static readonly Dictionary<PingRole, DiscordRole> pingRole_to_discordRole = new () {
-			{ PingRole.Raid   , roles[id_r.raid   ] },
-			{ PingRole.Mythics, roles[id_r.mythics] },
-			{ PingRole.KSM    , roles[id_r.ksm    ] },
-			{ PingRole.Gearing, roles[id_r.gearing] },
-			{ PingRole.Events , roles[id_r.events ] },
-			{ PingRole.Herald , roles[id_r.herald ] },
+		static readonly Dictionary<PingRole, ulong> pingRole_to_discordRole = new () {
+			{ PingRole.Raid   , id_r.raid    },
+			{ PingRole.Mythics, id_r.mythics },
+			{ PingRole.KSM    , id_r.ksm     },
+			{ PingRole.Gearing, id_r.gearing },
+			{ PingRole.Events , id_r.events  },
+			{ PingRole.Herald , id_r.herald  },
 		};
-		static readonly Dictionary<DiscordRole, PingRole> discordRole_to_pingRole;
+		static readonly Dictionary<ulong, PingRole> discordRole_to_pingRole;
 		static readonly Dictionary<string, PingRole> dict_pingRoles = new () {
 			{ "raid"   , PingRole.Raid },
 			{ "raids"  , PingRole.Raid },
@@ -230,7 +230,7 @@ namespace Irene.Commands {
 		// Force static initializer to run.
 		public static void init() { return; }
 		static Roles() {
-			discordRole_to_pingRole = new Dictionary<DiscordRole, PingRole>();
+			discordRole_to_pingRole = new Dictionary<ulong, PingRole>();
 			foreach (PingRole role in pingRole_to_discordRole.Keys) {
 				discordRole_to_pingRole.Add(pingRole_to_discordRole[role], role);
 			}
@@ -258,8 +258,9 @@ namespace Irene.Commands {
 			DiscordMember member = cmd.user;
 			List<PingRole> roles_current = new ();
 			foreach(DiscordRole role in member.Roles) {
-				if (discordRole_to_pingRole.ContainsKey(role)) {
-					roles_current.Add(discordRole_to_pingRole[role]);
+				ulong role_id = role.Id;
+				if (discordRole_to_pingRole.ContainsKey(role_id)) {
+					roles_current.Add(discordRole_to_pingRole[role_id]);
 				}
 			}
 
@@ -277,7 +278,8 @@ namespace Irene.Commands {
 
 			text.WriteLine("*Available roles:*");
 			foreach (PingRole role in pingRole_to_discordRole.Keys) {
-				string name = pingRole_to_discordRole[role].Name;
+				ulong role_id = pingRole_to_discordRole[role];
+				string name = roles[role_id].Name;
 				string summary = dict_summaries[role];
 				text.WriteLine($"**{name}:** {summary}");
 			}
@@ -302,8 +304,9 @@ namespace Irene.Commands {
 			// Initialize comparison sets.
 			HashSet<PingRole> roles_prev = new ();
 			foreach (DiscordRole role in member.Roles) {
-				if (discordRole_to_pingRole.ContainsKey(role)) {
-					roles_prev.Add(discordRole_to_pingRole[role]);
+				ulong role_id = role.Id;
+				if (discordRole_to_pingRole.ContainsKey(role_id)) {
+					roles_prev.Add(discordRole_to_pingRole[role_id]);
 				}
 			}
 			HashSet<PingRole> roles_new = new (roles);
@@ -317,15 +320,15 @@ namespace Irene.Commands {
 			// Remove/add roles.
 			log.info($"  Removing {roles_removed.Count} role(s).");
 			foreach (PingRole role in roles_removed) {
-				DiscordRole role_discord = pingRole_to_discordRole[role];
+				ulong role_id = pingRole_to_discordRole[role];
 				log.debug($"    Removing {role}.");
-				_ = member.RevokeRoleAsync(role_discord);
+				_ = member.RevokeRoleAsync(Program.roles[role_id]);
 			}
 			log.info($"  Adding {roles_added.Count} role(s).");
 			foreach (PingRole role in roles_added) {
-				DiscordRole role_discord = pingRole_to_discordRole[role];
+				ulong role_id = pingRole_to_discordRole[role];
 				log.debug($"    Adding {role}.");
-				_ = member.GrantRoleAsync(role_discord);
+				_ = member.GrantRoleAsync(Program.roles[role_id]);
 				string welcome = get_welcome(role);
 				_ = member.SendMessageAsync(welcome);
 			}
