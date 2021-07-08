@@ -97,7 +97,7 @@ namespace Irene {
 				if (msg is not null) {
 					await msg.ModifyAsync(
 						new DiscordMessageBuilder()
-						.WithContent(msg.Content)
+						.WithContent(paginate(page, list_page_size, this.list))
 						.AddComponents(buttons(page, page_count, false))
 					);
 				}
