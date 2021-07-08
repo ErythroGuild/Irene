@@ -223,6 +223,7 @@ namespace Irene {
 				if (has_permission(dict_cmd[cmd], access)) {
 					dict_cmd[cmd](this);
 				} else {
+					AccessLevel access = dict_access[dict_cmd[cmd]];
 					msg.RespondAsync($"Sorry, this command requires the {access} role to use. :lock:");
 					log.warning($"  {user?.Username??"x"}#{user?.Discriminator??"xxxx"} does not have access to this command.");
 				}
