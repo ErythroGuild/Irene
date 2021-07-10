@@ -62,32 +62,34 @@ namespace Irene {
 
 		// Log to the console.
 		static void print_console(string text, Severity level, DateTime time) {
-			string time_str = time.ToString(@"H:mm:ss");
-			write_colored($"{time_str} ", ConsoleColor.DarkGray);
+			lock (new object()) {
+				string time_str = time.ToString(@"H:mm:ss");
+				write_colored($"{time_str} ", ConsoleColor.DarkGray);
 
-			switch (level) {
-			case Severity.Error:
-				write_colored("[ERROR]", ConsoleColor.Black, ConsoleColor.Red);
-				break;
-			case Severity.Warning:
-				write_colored("[WARN]", ConsoleColor.DarkYellow);
-				break;
-			case Severity.Info:
-				write_colored("[info]", ConsoleColor.DarkGray);
-				break;
-			case Severity.Debug:
-				write_colored("[dbug]", ConsoleColor.DarkGray);
-				break;
+				switch (level) {
+				case Severity.Error:
+					write_colored("[ERROR]", ConsoleColor.Black, ConsoleColor.Red);
+					break;
+				case Severity.Warning:
+					write_colored("[WARN]", ConsoleColor.DarkYellow);
+					break;
+				case Severity.Info:
+					write_colored("[info]", ConsoleColor.DarkGray);
+					break;
+				case Severity.Debug:
+					write_colored("[dbug]", ConsoleColor.DarkGray);
+					break;
+				}
+				write(" ");
+
+				if (level == Severity.Debug) {
+					write_colored(text, ConsoleColor.DarkGray);
+				} else {
+					write(text);
+				}
+
+				Console.Write("\n");
 			}
-			write(" ");
-
-			if (level == Severity.Debug) {
-				write_colored(text, ConsoleColor.DarkGray);
-			} else {
-				write(text);
-			}
-
-			Console.Write("\n");
 		}
 
 		// Log to the designated file.
@@ -102,9 +104,11 @@ namespace Irene {
 			};
 			string entry = $"{time_str} > {tag} {text}";
 
-			StreamWriter writer = File.AppendText(file);
-			writer.WriteLine(entry);
-			writer.Close();
+			lock (new object()) {
+				StreamWriter writer = File.AppendText(file);
+				writer.WriteLine(entry);
+				writer.Close();
+			}
 		}
 
 		// Alias for `Console.Write`.
@@ -113,13 +117,15 @@ namespace Irene {
 		// Uses `Console.Write` in a specific color combo, and
 		// restores the colors after writing.
 		static void write_colored(string text, ConsoleColor fg, ConsoleColor bg = ConsoleColor.Black) {
-			ConsoleColor fg_prev = Console.ForegroundColor;
-			ConsoleColor bg_prev = Console.BackgroundColor;
-			Console.ForegroundColor = fg;
-			Console.BackgroundColor = bg;
-			Console.Write(text);
-			Console.ForegroundColor = fg_prev;
-			Console.BackgroundColor = bg_prev;
+			lock (new object()) {
+				ConsoleColor fg_prev = Console.ForegroundColor;
+				ConsoleColor bg_prev = Console.BackgroundColor;
+				Console.ForegroundColor = fg;
+				Console.BackgroundColor = bg;
+				Console.Write(text);
+				Console.ForegroundColor = fg_prev;
+				Console.BackgroundColor = bg_prev;
+			}
 		}
 	}
 }
