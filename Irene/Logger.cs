@@ -7,12 +7,16 @@ namespace Irene {
 	class Logger {
 		public enum Severity { Error, Warning, Info, Debug }
 
+		static object lock_console = new ();
+		static object lock_console_block = new ();
+
 		// Log files are created under this directory.
 		public string dir { get; }
 
 		readonly Timer timer;
 		DateTime log_epoch;
 		string file;
+		object lock_file = new ();
 
 		// Set up a new logger.
 		public Logger(string dir, TimeSpan interval) {
@@ -35,16 +39,20 @@ namespace Irene {
 			log_epoch = DateTime.Now;
 			string filename = log_epoch.ToString("yyyy-MM-dd_HHmm");
 			file = $@"{dir}/{filename}.txt";
-			StreamWriter s = File.CreateText(file);
-			s.Close();
+			lock (lock_file) {
+				StreamWriter s = File.CreateText(file);
+				s.Close();
+			}
 		}
 
 		// Create a newline (no timestamps) on the console and logfile.
 		public void endl() {
 			Console.WriteLine();
-			StreamWriter writer = File.AppendText(file);
-			writer.WriteLine();
-			writer.Close();
+			lock (lock_file) {
+				StreamWriter writer = File.AppendText(file);
+				writer.WriteLine();
+				writer.Close();
+			}
 		}
 
 		// Convenience functions for logging to various priorities.
@@ -62,8 +70,8 @@ namespace Irene {
 
 		// Log to the console.
 		static void print_console(string text, Severity level, DateTime time) {
-			lock (new object()) {
-				string time_str = time.ToString(@"H:mm:ss");
+			string time_str = time.ToString(@"H:mm:ss");
+			lock (lock_console) {
 				write_colored($"{time_str} ", ConsoleColor.DarkGray);
 
 				switch (level) {
@@ -117,9 +125,9 @@ namespace Irene {
 		// Uses `Console.Write` in a specific color combo, and
 		// restores the colors after writing.
 		static void write_colored(string text, ConsoleColor fg, ConsoleColor bg = ConsoleColor.Black) {
-			lock (new object()) {
-				ConsoleColor fg_prev = Console.ForegroundColor;
-				ConsoleColor bg_prev = Console.BackgroundColor;
+			ConsoleColor fg_prev = Console.ForegroundColor;
+			ConsoleColor bg_prev = Console.BackgroundColor;
+			lock (lock_console_block) {
 				Console.ForegroundColor = fg;
 				Console.BackgroundColor = bg;
 				Console.Write(text);
