@@ -40,8 +40,7 @@ namespace Irene {
 			string filename = log_epoch.ToString("yyyy-MM-dd_HHmm");
 			file = $@"{dir}/{filename}.txt";
 			lock (lock_file) {
-				StreamWriter s = File.CreateText(file);
-				s.Close();
+				File.CreateText(file).Close();
 			}
 		}
 
