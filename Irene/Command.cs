@@ -225,7 +225,7 @@ namespace Irene {
 				} else {
 					AccessLevel access = dict_access[dict_cmd[cmd]];
 					msg.RespondAsync($"Sorry, this command requires the {access} role to use. :lock:");
-					log.warning($"  {user?.Username??"x"}#{user?.Discriminator??"xxxx"} does not have access to this command.");
+					log.warning($"  {user?.tag() ?? "<unknown user>"} does not have access to this command.");
 				}
 			} else {
 				dict_cmd["help"](this);

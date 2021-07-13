@@ -331,7 +331,7 @@ namespace Irene.Commands {
 			StringWriter text = new ();
 			foreach (DiscordMember trial in trials) {
 				TimeSpan time = DateTimeOffset.Now - trial.JoinedAt;
-				log.debug($"    {trial.Username}#{trial.Discriminator} - {time.Days} days old");
+				log.debug($"    {trial.tag()} - {time.Days} days old");
 				text.WriteLine($"{trial.Mention} - {time.Days} days old");
 			}
 			_ = cmd.msg.RespondAsync(text.output());

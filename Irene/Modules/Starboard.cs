@@ -100,7 +100,7 @@ namespace Irene.Modules {
 						return;
 					}
 					log.info("Popular post detected; checking starboard.");
-					log.debug($"  #{channel.Name} - {author.Username}#{author.Discriminator}");
+					log.debug($"  #{channel.Name} - {author.tag()}");
 
 					// Check if message is already pinned.
 					bool is_update = false;
@@ -217,7 +217,7 @@ namespace Irene.Modules {
 				}
 			} else {
 				DiscordUser author = msg.Author;
-				author_name = $"{author.Username}#{author.Discriminator}";
+				author_name = $"{author.tag()}";
 			}
 
 			// Get content strings.

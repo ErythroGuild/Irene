@@ -30,7 +30,7 @@ namespace Irene.Modules {
 
 					// Send welcome message to new member.
 					log.info("Sending welcome message to new member.");
-					log.debug($"  {member.Username}#{member.Discriminator}");
+					log.debug($"  {member.tag()}");
 					await member.SendMessageAsync(welcome);
 					await member.SendMessageAsync(url_mascot);
 

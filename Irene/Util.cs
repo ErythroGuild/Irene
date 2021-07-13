@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using DSharpPlus.Entities;
+
 namespace Irene {
 	static class Util {
 		static readonly Dictionary<string, string> escape_codes = new () {
@@ -36,6 +38,12 @@ namespace Irene {
 		public static string output(this StringWriter writer) {
 			writer.Flush();
 			return writer.ToString();
+		}
+
+		// Prints the "user#tag" of the user.
+		// (Also works for `DiscordMember`s, of course.)
+		public static string tag(this DiscordUser user) {
+			return $"{user.Username}#{user.Discriminator}";
 		}
 	}
 }
