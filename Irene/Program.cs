@@ -317,7 +317,7 @@ namespace Irene {
 					if (msg_text.ToLower().StartsWith("/roll")) {
 						log.info("Command received.");
 						DiscordUser author = msg.Author;
-						log.debug($"  {author.Username}#{author.Discriminator}: {msg_text}");
+						log.debug($"  {author.tag()}: {msg_text}");
 						msg_text = msg_text.ToLower().Replace("/roll", "-roll");
 						Command cmd = new (msg_text, msg);
 						cmd.invoke();
@@ -347,7 +347,7 @@ namespace Irene {
 						msg_text = msg_text.TrimStart();
 						log.info("Command received.");
 						DiscordUser author = msg.Author;
-						log.debug($"  {author.Username}#{author.Discriminator}: {msg_text}");
+						log.debug($"  {author.tag()}: {msg_text}");
 						Command cmd = new (msg_text, msg);
 						cmd.invoke();
 						log.endl();
