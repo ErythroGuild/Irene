@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -111,6 +112,20 @@ namespace Irene {
 		// (Also works for `DiscordMember`s, of course.)
 		public static string tag(this DiscordUser user) {
 			return $"{user.Username}#{user.Discriminator}";
+		}
+
+		// Fetches audit log entries, but wrapping the call in a
+		// try/catch block to handle exceptions.
+		public static async Task<DiscordAuditLogEntry?> last_audit_entry(
+			this DiscordGuild guild,
+			AuditLogActionType? type ) {
+			try {
+				List<DiscordAuditLogEntry> entry =
+					new (await guild.GetAuditLogsAsync(1, null, type));
+				return (entry.Count < 1) ? null : entry[0];
+			} catch {
+				return null;
+			}
 		}
 	}
 }
