@@ -35,6 +35,8 @@ namespace Irene {
 
 			// Text channel permissions
 			{ Permissions.SendMessages       , "Send messages"         },
+			{ Permissions.UsePublicThreads   , "Use public threads"    },
+			{ Permissions.UsePrivateThreads  , "Use private threads"   },
 			{ Permissions.EmbedLinks         , "Embed links"           },
 			{ Permissions.AttachFiles        , "Attach files"          },
 			{ Permissions.AddReactions       , "Add reactions"         },
@@ -42,6 +44,7 @@ namespace Irene {
 			{ Permissions.UseExternalStickers, "Use external stickers" },
 			{ Permissions.MentionEveryone    , "Mention all roles"     },
 			{ Permissions.ManageMessages     , "Manage messages"       },
+			{ Permissions.ManageThreads      , "Manage threads"        },
 			{ Permissions.ReadMessageHistory , "Read message history"  },
 			{ Permissions.SendTtsMessages    , "Send TTS messages"     },
 			{ Permissions.UseSlashCommands   , "Use slash commands"    },
@@ -63,11 +66,6 @@ namespace Irene {
 			{ Permissions.Administrator, "Administrator" },
 			{ Permissions.All , "All"  },
 			{ Permissions.None, "None" },
-
-			// Threads?
-			// ManageThreads
-			// UsePublicThreads
-			// UsePrivateThreads
 		};
 
 		// Extension methods for converting discord messages to/from
