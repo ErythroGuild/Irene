@@ -100,7 +100,7 @@ namespace Irene.Modules {
 						return;
 					}
 					log.info("Popular post detected; checking starboard.");
-					log.debug($"  #{channel.Name} - {author.Username}#{author.Discriminator}");
+					log.debug($"  #{channel.Name} - {author.tag()}");
 
 					// Check if message is already pinned.
 					bool is_update = false;
@@ -142,8 +142,7 @@ namespace Irene.Modules {
 							string m = channels[id_ch.starboard].Mention;
 							text.WriteLine($"Your post was exceptionally popular, and has been added to **<Erythro>**'s {m} channel.");
 							text.WriteLine(":champagne_glass: :champagne:");
-							text.Flush();
-							_ = author_member.SendMessageAsync(text.ToString());
+							_ = author_member.SendMessageAsync(text.output());
 						}
 					}
 					log.endl();
@@ -194,7 +193,7 @@ namespace Irene.Modules {
 					}
 				}
 
-				DiscordMessage msg_last = msg_list[msg_list.Count - 1];
+				DiscordMessage msg_last = msg_list[^1];
 				ulong id_last = msg_last.Id;
 				msg_list =
 					new (ch.GetMessagesBeforeAsync(id_last).Result);
@@ -218,11 +217,11 @@ namespace Irene.Modules {
 				}
 			} else {
 				DiscordUser author = msg.Author;
-				author_name = $"{author.Username}#{author.Discriminator}";
+				author_name = $"{author.tag()}";
 			}
 
 			// Get content strings.
-			string text = "";
+			string text;
 			string? content = get_content(msg);
 			string emojis = get_emoji_list(reacts);
 			if (content is not null) {
@@ -378,8 +377,7 @@ namespace Irene.Modules {
 			}
 
 			// Cleanup result and return.
-			text.Flush();
-			string output = text.ToString();
+			string output = text.output();
 			if (output.EndsWith(separator)) {
 				output = output[..^separator.Length];
 			}

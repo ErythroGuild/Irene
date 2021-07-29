@@ -29,8 +29,7 @@ namespace Irene.Commands {
 			text.WriteLine("Link the server invite for the given class discord.");
 			text.WriteLine("`@Irene -classdiscord <class>`");
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		public static void run(Command cmd) {
@@ -43,8 +42,7 @@ namespace Irene.Commands {
 				StringWriter text = new ();
 				text.WriteLine("Could not determine a class from the command.");
 				text.WriteLine("See also: `@Irene -help classdiscord`");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 				return;
 			}
 			Class @class = (Class)class_n;
@@ -53,8 +51,7 @@ namespace Irene.Commands {
 				StringWriter text = new ();
 				text.WriteLine("Found multiple classes in the command; try a more specific term.");
 				text.WriteLine("See also: `@Irene -help classdiscord`");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 				return;
 			}
 

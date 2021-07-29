@@ -21,23 +21,11 @@ namespace Irene {
 			{ "h"   , Help.run },
 			{ "?"   , Help.run },
 
-			{ "roles"     , Roles.list },
-			{ "r"         , Roles.list },
-			{ "rlist"     , Roles.list },
-			{ "roles-list", Roles.list },
-			{ "roles-view", Roles.list },
-			{ "list-roles", Roles.list },
-			{ "view-roles", Roles.list },
-			{ "roles-add", Roles.add },
-			{ "radd"     , Roles.add },
-			{ "role-add" , Roles.add },
-			{ "add-roles", Roles.add },
-			{ "add-role" , Roles.add },
-			{ "roles-remove", Roles.remove },
-			{ "rremove"     , Roles.remove },
-			{ "role-remove" , Roles.remove },
-			{ "remove-roles", Roles.remove },
-			{ "remove-role" , Roles.remove },
+			{ "roles"      , Roles.set   },
+			{ "r"          , Roles.set   },
+			{ "roles-info" , Roles.list  },
+			{ "rinfo"      , Roles.list  },
+			{ "roles-royce", Roles.royce },
 
 			{ "rank-erythro", Rank.set_erythro },
 			{ "set-erythro" , Rank.set_erythro },
@@ -58,35 +46,21 @@ namespace Irene {
 			{ "list-trials"     , Rank.list_trials },
 			{ "trials"          , Rank.list_trials },
 
-			{ "tags", Tags.run },
-			{ "tag" , Tags.run },
-			{ "t"   , Tags.run },
-			{ "tags-list", Tags.list },
-			{ "tlist"    , Tags.list },
-			{ "tags-view", Tags.list },
-			{ "list-tags", Tags.list },
-			{ "view-tags", Tags.list },
-			{ "tags-add", Tags.add },
-			{ "tadd"    , Tags.add },
-			{ "tags-new", Tags.add },
-			{ "tag-add" , Tags.add },
-			{ "tag-new" , Tags.add },
-			{ "add-tag" , Tags.add },
-			{ "new-tag" , Tags.add },
-			{ "tags-edit"  , Tags.edit },
-			{ "tedit"      , Tags.edit },
-			{ "tags-update", Tags.edit },
-			{ "tag-edit"   , Tags.edit },
-			{ "tag-update" , Tags.edit },
-			{ "edit-tag"   , Tags.edit },
-			{ "update-tag" , Tags.edit },
+			{ "tags"       , Tags.run    },
+			{ "t"          , Tags.run    },
+			{ "tag"        , Tags.run    },
+			{ "tags-add"   , Tags.add    },
+			{ "tadd"       , Tags.add    },
+			{ "tag-add"    , Tags.add    },
+			{ "add-tag"    , Tags.add    },
+			{ "tags-edit"  , Tags.edit   },
+			{ "tedit"      , Tags.edit   },
+			{ "tag-edit"   , Tags.edit   },
+			{ "edit-tag"   , Tags.edit   },
 			{ "tags-remove", Tags.remove },
 			{ "tremove"    , Tags.remove },
-			{ "tags-delete", Tags.remove },
 			{ "tag-remove" , Tags.remove },
-			{ "tag-delete" , Tags.remove },
 			{ "remove-tag" , Tags.remove },
-			{ "delete-tag" , Tags.remove },
 
 			{ "cap", Cap.run },
 			{ "c"  , Cap.run },
@@ -95,24 +69,22 @@ namespace Irene {
 			{ "cd"            , ClassDiscords.run },
 			{ "classdiscords" , ClassDiscords.run },
 			{ "class-discord" , ClassDiscords.run },
-			{ "class-discords", ClassDiscords.run },
-			{ "discords"      , ClassDiscords.run },
 
 			{ "invite", Invite.run },
-			{ "inv"   , Invite.run },
 			{ "i"     , Invite.run },
+			{ "inv"   , Invite.run },
 
 			{ "roll"  , Roll.run },
+			{ "dice"  , Roll.run },
 			{ "random", Roll.run },
 			{ "rand"  , Roll.run },
-			{ "dice"  , Roll.run },
 		};
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 			{ Help.run, Help.help },
 
-			{ Roles.list  , Roles.help },
-			{ Roles.add   , Roles.help },
-			{ Roles.remove, Roles.help },
+			{ Roles.set  , Roles.help },
+			{ Roles.list , Roles.help },
+			{ Roles.royce, Roles.help },
 
 			{ Rank.set_erythro , Rank.help },
 			{ Rank.add_guilds  , Rank.help },
@@ -125,7 +97,6 @@ namespace Irene {
 			{ Rank.list_trials, Rank.help },
 
 			{ Tags.run   , Tags.help },
-			{ Tags.list  , Tags.help },
 			{ Tags.add   , Tags.help },
 			{ Tags.edit  , Tags.help },
 			{ Tags.remove, Tags.help },
@@ -141,9 +112,9 @@ namespace Irene {
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 			{ Help.run, AccessLevel.None },
 
-			{ Roles.list  , AccessLevel.None  },
-			{ Roles.add   , AccessLevel.Guest },
-			{ Roles.remove, AccessLevel.Guest },
+			{ Roles.set  , AccessLevel.Guest },
+			{ Roles.list , AccessLevel.None  },
+			{ Roles.royce, AccessLevel.None  },
 
 			{ Rank.set_erythro , AccessLevel.Officer },
 			{ Rank.add_guilds  , AccessLevel.Officer },
@@ -156,7 +127,6 @@ namespace Irene {
 			{ Rank.list_trials, AccessLevel.Officer },
 
 			{ Tags.run   , AccessLevel.None    },
-			{ Tags.list  , AccessLevel.None    },
 			{ Tags.add   , AccessLevel.Officer },
 			{ Tags.edit  , AccessLevel.Officer },
 			{ Tags.remove, AccessLevel.Officer },
@@ -253,8 +223,9 @@ namespace Irene {
 				if (has_permission(dict_cmd[cmd], access)) {
 					dict_cmd[cmd](this);
 				} else {
+					AccessLevel access = dict_access[dict_cmd[cmd]];
 					msg.RespondAsync($"Sorry, this command requires the {access} role to use. :lock:");
-					log.warning($"  {user?.Username??"x"}#{user?.Discriminator??"xxxx"} does not have access to this command.");
+					log.warning($"  {user?.tag() ?? "<unknown user>"} does not have access to this command.");
 				}
 			} else {
 				dict_cmd["help"](this);

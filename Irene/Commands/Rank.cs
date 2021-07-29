@@ -82,16 +82,15 @@ namespace Irene.Commands {
 
 			text.WriteLine("It is recommended to use user IDs to specify members.");
 			text.WriteLine("Although nicknames can be used instead of user ID, the nickname often contains special characters.");
-			text.WriteLine("`@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
-			text.WriteLine("`@Irene -trials` lists all current trials (**Guest** *and* **<Erythro>**.");
-			text.WriteLine("`@Irene -promote <user-id>` promotes the user from **None** -> **Guest** -> **Member**;");
-			text.WriteLine("`@Irene -demote <user-id>` demotes the user from **Member** -> **Guest** -> **None**.");
-			text.WriteLine("`@Irene -add-guilds <user-id> <guild1> [<guild2> ...]` gives the user the requested guild tags;");
-			text.WriteLine("`@Irene -clear-guilds <user-id>` clears all guild tags from the user.");
-			text.WriteLine("`@Irene -rank-strip-all-roles <user-id>` removes **ALL** roles from the user.");
+			text.WriteLine(":lock: `@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
+			text.WriteLine(":lock: `@Irene -trials` lists all current trials (**Guest** *and* **<Erythro>**.");
+			text.WriteLine(":lock: `@Irene -promote <user-id>` promotes the user from **None** -> **Guest** -> **Member**;");
+			text.WriteLine(":lock: `@Irene -demote <user-id>` demotes the user from **Member** -> **Guest** -> **None**.");
+			text.WriteLine(":lock: `@Irene -add-guilds <user-id> <guild1> [<guild2> ...]` gives the user the requested guild tags;");
+			text.WriteLine(":lock: `@Irene -clear-guilds <user-id>` clears all guild tags from the user.");
+			text.WriteLine(":lock: `@Irene -rank-strip-all-roles <user-id>` removes **ALL** roles from the user.");
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		// Grant Guest permissions and tag as <Erythro>.
@@ -123,8 +122,7 @@ namespace Irene.Commands {
 				log.info($"  {member.DisplayName} does not need to be tagged.");
 				text.WriteLine($"{member.Mention} is already tagged as **<Erythro>**.");
 			}
-			text.Flush();
-			_ = cmd.msg.RespondAsync(text.ToString());
+			_ = cmd.msg.RespondAsync(text.output());
 		}
 
 		public static void add_guilds(Command cmd) {
@@ -333,11 +331,10 @@ namespace Irene.Commands {
 			StringWriter text = new ();
 			foreach (DiscordMember trial in trials) {
 				TimeSpan time = DateTimeOffset.Now - trial.JoinedAt;
-				log.debug($"    {trial.Username}#{trial.Discriminator} - {time.Days} days old");
+				log.debug($"    {trial.tag()} - {time.Days} days old");
 				text.WriteLine($"{trial.Mention} - {time.Days} days old");
 			}
-			text.Flush();
-			_ = cmd.msg.RespondAsync(text.ToString());
+			_ = cmd.msg.RespondAsync(text.output());
 		}
 
 		// Returns a list of all Guilds with recognized strings.
@@ -410,8 +407,7 @@ namespace Irene.Commands {
 				StringWriter text = new ();
 				text.WriteLine($"Could not find any members matching `{cmd.args}`.");
 				text.WriteLine("If their display name doesn't work, try their user ID instead.");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 				return true;
 			}
 			if (members.Count > 1) {
@@ -422,8 +418,7 @@ namespace Irene.Commands {
 					text.WriteLine($"{em}{member_i.Mention}: `{member_i.Id}`");
 				}
 				text.WriteLine("Try specifying a user ID instead.");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 				return true;
 			}
 			return false;
@@ -448,7 +443,7 @@ namespace Irene.Commands {
 			arg = arg.Trim();
 
 			// Check against ID / @mention.
-			Regex regex_id = new Regex(@"(?<id><@!?\d+>|\d+)");
+			Regex regex_id = new (@"(?<id><@!?\d+>|\d+)");
 			if (regex_id.IsMatch(arg)) {
 				string id_str = regex_id.Match(arg).Groups["id"].Value;
 				bool can_parse = ulong.TryParse(id_str, out ulong id);

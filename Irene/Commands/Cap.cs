@@ -28,11 +28,11 @@ namespace Irene.Commands {
 
 		// Patch release days
 		// 7:00 PST = 8:00 PDT = 15:00 UTC
-		static readonly DateTime date_patch_902 = new DateTime(2020, 11, 17, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_season_1  = new DateTime(2020, 12,  8, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_patch_905 = new DateTime(2021,  3,  9, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_patch_910 = new DateTime(2021,  6, 29, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_season_2  = new DateTime(2021,  7,  6, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_patch_902 = new (2020, 11, 17, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_season_1  = new (2020, 12,  8, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_patch_905 = new (2021,  3,  9, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_patch_910 = new (2021,  6, 29, 15, 0, 0, DateTimeKind.Utc);
+		static readonly DateTime date_season_2  = new (2021,  7,  6, 15, 0, 0, DateTimeKind.Utc);
 
 		public static string help() {
 			StringWriter text = new ();
@@ -40,8 +40,7 @@ namespace Irene.Commands {
 			text.WriteLine("`@Irene -cap <type>` shows the current cap of the given resource.");
 			text.WriteLine("E.g.: `renown`, `valor`, `conquest`.");
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		// Parse the argument and dispatch the correct handler.
@@ -55,8 +54,7 @@ namespace Irene.Commands {
 				StringWriter text = new ();
 				text.WriteLine("You must specify the cap you're looking for (e.g. `renown`).");
 				text.WriteLine("See `@Irene -help cap` for more help.");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 				return;
 			}
 
@@ -66,8 +64,7 @@ namespace Irene.Commands {
 				StringWriter text = new ();
 				text.WriteLine("Could not recognize the requested info type.");
 				text.WriteLine("See `@Irene -help cap` for more help.");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 				return;
 			}
 

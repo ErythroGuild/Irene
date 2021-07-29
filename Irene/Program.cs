@@ -11,6 +11,7 @@ using Serilog;
 
 using static Irene.Program;
 using Irene.Modules;
+using Irene.Commands;
 
 namespace Irene {
 	using id_r = RoleIDs;
@@ -204,11 +205,13 @@ namespace Irene {
 			});
 
 			// Initialize modules.
+			AuditLog.init();
 			Welcome.init();
 			Starboard.init();
 
 			// Initialize commands.
-			Commands.Help.init();
+			Help.init();
+			Roles.init();
 
 			log.info("Irene initialized.");
 		}
@@ -232,9 +235,9 @@ namespace Irene {
 				_ = Task.Run(() => {
 					DiscordActivity helptext =
 #if RELEASE
-						new DiscordActivity("@Irene -help", ActivityType.Watching);
+						new ("@Irene -help", ActivityType.Watching);
 #else
-						new DiscordActivity("DEBUG MODE", ActivityType.Playing);
+						new ("DEBUG MODE", ActivityType.Playing);
 #endif
 					irene.UpdateStatusAsync(helptext);
 
@@ -315,7 +318,7 @@ namespace Irene {
 					if (msg_text.ToLower().StartsWith("/roll")) {
 						log.info("Command received.");
 						DiscordUser author = msg.Author;
-						log.debug($"  {author.Username}#{author.Discriminator}: {msg_text}");
+						log.debug($"  {author.tag()}: {msg_text}");
 						msg_text = msg_text.ToLower().Replace("/roll", "-roll");
 						Command cmd = new (msg_text, msg);
 						cmd.invoke();
@@ -345,7 +348,7 @@ namespace Irene {
 						msg_text = msg_text.TrimStart();
 						log.info("Command received.");
 						DiscordUser author = msg.Author;
-						log.debug($"  {author.Username}#{author.Discriminator}: {msg_text}");
+						log.debug($"  {author.tag()}: {msg_text}");
 						Command cmd = new (msg_text, msg);
 						cmd.invoke();
 						log.endl();

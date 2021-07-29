@@ -26,8 +26,7 @@ namespace Irene.Commands {
 			text.WriteLine("`@Irene -roll <min> <max>` generates a number between `min` and `max`.");
 			text.WriteLine("All ranges are inclusive (e.g. `[1, 100]`).");
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		public static void run(Command cmd) {
@@ -100,8 +99,7 @@ namespace Irene.Commands {
 				text.WriteLine("Could not generate an unbiased random number.");
 				text.WriteLine($"Attempts: `{max_attempts}`");
 				text.WriteLine($"Probability: `{p:g}%`");
-				text.Flush();
-				_ = cmd.msg.RespondAsync(text.ToString());
+				_ = cmd.msg.RespondAsync(text.output());
 			}
 		}
 

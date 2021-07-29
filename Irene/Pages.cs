@@ -50,8 +50,9 @@ namespace Irene {
 			double page_count_d = (double)list.Count / list_page_size;
 			page_count = (int)Math.Round(Math.Ceiling(page_count_d));
 
-			timer = new Timer(timeout.TotalMilliseconds);
-			timer.AutoReset = false;
+			timer = new Timer(timeout.TotalMilliseconds) {
+				AutoReset = false,
+			};
 
 			handler = async (irene, e) => {
 				// Ignore triggers from the wrong message.
@@ -96,7 +97,7 @@ namespace Irene {
 				if (msg is not null) {
 					await msg.ModifyAsync(
 						new DiscordMessageBuilder()
-						.WithContent(msg.Content)
+						.WithContent(paginate(page, list_page_size, this.list))
 						.AddComponents(buttons(page, page_count, false))
 					);
 				}
@@ -109,7 +110,7 @@ namespace Irene {
 			timer.Start();
 		}
 
-		// Returns the first page of content (used for the initial response.
+		// Returns the first page of content (used for initial response).
 		public DiscordMessageBuilder first_page() {
 			DiscordMessageBuilder msg =
 				new DiscordMessageBuilder()
@@ -128,8 +129,7 @@ namespace Irene {
 				text.WriteLine(list[i]);
 			}
 
-			text.Flush();
-			return text.ToString();
+			return text.output();
 		}
 
 		// Returns a row of buttons for paginating the data.
