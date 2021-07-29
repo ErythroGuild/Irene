@@ -106,6 +106,11 @@ namespace Irene {
 			}
 		}
 
+		// Prints a DiscordColor in "#RRGGBB" format.
+		public static string color_code(this DiscordColor color) {
+			return $"#{color:X6}";
+		}
+
 		// Prints the "user#tag" of the user.
 		// (Also works for `DiscordMember`s, of course.)
 		public static string tag(this DiscordUser user) {
