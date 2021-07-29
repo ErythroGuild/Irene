@@ -205,6 +205,7 @@ namespace Irene {
 			});
 
 			// Initialize modules.
+			AuditLog.init();
 			Welcome.init();
 			Starboard.init();
 
