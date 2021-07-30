@@ -16,7 +16,8 @@ namespace Irene.Modules {
 		static AuditLogEntryTable audit_log_base = new ();
 		static bool is_audit_log_loaded = false;
 
-		const string t = "\u2003\u2003";
+		const string t = "\u2003";
+		const string b = "\u2022";
 		const string l = "\u2B9A";
 		const string r = "\u21A6";
 		const string n = "`N/A`";
@@ -60,6 +61,8 @@ namespace Irene.Modules {
 			}
 
 			is_audit_log_loaded = true;
+			log.debug("AuditLog module initialized.");
+			log.endl();
 		}
 
 		static AuditLog() {

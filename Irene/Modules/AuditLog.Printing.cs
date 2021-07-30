@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 using DSharpPlus;
@@ -273,7 +273,7 @@ namespace Irene.Modules {
 					{ continue; }
 
 				if (perms.HasPermission(perms_i)) {
-					text.WriteLine($"{t}{t}{perms_i.description()}");
+					text.WriteLine($"{t}{t}{b} {perms_i.description()}");
 				}
 			}
 		}
