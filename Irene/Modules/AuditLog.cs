@@ -595,7 +595,7 @@ namespace Irene.Modules {
 				DiscordUser user = entry.UserResponsible;
 				DiscordMember member =
 							erythro.GetMemberAsync(user.Id).Result;
-				text.WriteLine($"Action by: {member_string(member)}");
+				text.WriteLine($"*Action by:* {member_string(member)}");
 			}
 
 			// Reason data
