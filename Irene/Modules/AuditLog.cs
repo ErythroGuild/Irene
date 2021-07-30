@@ -421,7 +421,7 @@ namespace Irene.Modules {
 						}
 					}
 					if (emojis_removed.Count > 0) {
-						text.WriteLine($"{t}Emoji added:");
+						text.WriteLine($"{t}Emoji removed:");
 						foreach (ulong id in emojis_removed) {
 							DiscordEmoji emoji = e.EmojisBefore[id];
 							text.WriteLine($"{t}{t}{emoji_string(emoji)}`");
