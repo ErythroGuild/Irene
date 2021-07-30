@@ -98,7 +98,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogBanEntry? entry =
-						find_entry(AuditLogActionType.Ban)
+						find_entry(AuditLogActionType.Ban).Result
 						as DiscordAuditLogBanEntry;
 
 					// Format output.
@@ -116,7 +116,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogBanEntry? entry =
-						find_entry(AuditLogActionType.Unban)
+						find_entry(AuditLogActionType.Unban).Result
 						as DiscordAuditLogBanEntry;
 
 					// Format output.
@@ -134,12 +134,21 @@ namespace Irene.Modules {
 					DiscordMember member = e.Member;
 
 					// Fetch additional data.
-					DiscordAuditLogMemberUpdateEntry? entry =
-						find_entry(AuditLogActionType.MemberUpdate)
-						as DiscordAuditLogMemberUpdateEntry;
-					DiscordAuditLogMemberUpdateEntry? entry_roles =
-						find_entry(AuditLogActionType.MemberRoleUpdate)
-						as DiscordAuditLogMemberUpdateEntry;
+					DiscordAuditLogMemberUpdateEntry?
+						entry = null,
+						entry_roles = null;
+					List<Task> tasks = new ();
+					tasks.Add(Task.Run(async () => {
+						entry = await
+							find_entry(AuditLogActionType.MemberUpdate)
+							as DiscordAuditLogMemberUpdateEntry;
+					}));
+					tasks.Add(Task.Run(async () => {
+						entry_roles = await
+							find_entry(AuditLogActionType.MemberRoleUpdate)
+							as DiscordAuditLogMemberUpdateEntry;
+					}));
+					task_join(tasks);
 
 					// Only print this event if an audit log entry was found,
 					// meaning the change was significant:
@@ -172,7 +181,7 @@ namespace Irene.Modules {
 				_ = Task.Run(() => {
 					// Fetch additional data.
 					DiscordAuditLogGuildEntry? entry =
-						find_entry(AuditLogActionType.GuildUpdate)
+						find_entry(AuditLogActionType.GuildUpdate).Result
 						as DiscordAuditLogGuildEntry;
 
 					// Format output.
@@ -192,7 +201,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogRoleUpdateEntry? entry =
-						find_entry(AuditLogActionType.RoleCreate)
+						find_entry(AuditLogActionType.RoleCreate).Result
 						as DiscordAuditLogRoleUpdateEntry;
 
 					// Format output.
@@ -210,7 +219,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogRoleUpdateEntry? entry =
-						find_entry(AuditLogActionType.RoleDelete)
+						find_entry(AuditLogActionType.RoleDelete).Result
 						as DiscordAuditLogRoleUpdateEntry;
 
 					// Format output.
@@ -229,7 +238,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogRoleUpdateEntry? entry =
-						find_entry(AuditLogActionType.RoleUpdate)
+						find_entry(AuditLogActionType.RoleUpdate).Result
 						as DiscordAuditLogRoleUpdateEntry;
 
 					// Format output.
@@ -253,7 +262,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogChannelEntry? entry =
-						find_entry(AuditLogActionType.ChannelCreate)
+						find_entry(AuditLogActionType.ChannelCreate).Result
 						as DiscordAuditLogChannelEntry;
 
 					// Format output.
@@ -276,7 +285,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogChannelEntry? entry =
-						find_entry(AuditLogActionType.ChannelDelete)
+						find_entry(AuditLogActionType.ChannelDelete).Result
 						as DiscordAuditLogChannelEntry;
 
 					// Format output.
@@ -299,18 +308,34 @@ namespace Irene.Modules {
 						{ return; }
 
 					// Fetch additional data.
-					DiscordAuditLogChannelEntry? entry_channel =
-						find_entry(AuditLogActionType.ChannelUpdate)
-						as DiscordAuditLogChannelEntry;
-					DiscordAuditLogOverwriteEntry? entry_perms_create =
-						find_entry(AuditLogActionType.OverwriteCreate)
-						as DiscordAuditLogOverwriteEntry;
-					DiscordAuditLogOverwriteEntry? entry_perms_delete =
-						find_entry(AuditLogActionType.OverwriteDelete)
-						as DiscordAuditLogOverwriteEntry;
-					DiscordAuditLogOverwriteEntry? entry_perms_update =
-						find_entry(AuditLogActionType.OverwriteUpdate)
-						as DiscordAuditLogOverwriteEntry;
+					DiscordAuditLogChannelEntry?
+						entry_channel = null;
+					DiscordAuditLogOverwriteEntry?
+						entry_perms_create = null,
+						entry_perms_delete = null,
+						entry_perms_update = null;
+					List<Task> tasks = new ();
+					tasks.Add(Task.Run(async () => {
+						entry_channel = await
+							find_entry(AuditLogActionType.ChannelUpdate)
+							as DiscordAuditLogChannelEntry;
+					}));
+					tasks.Add(Task.Run(async () => {
+						entry_perms_create = await
+							find_entry(AuditLogActionType.OverwriteCreate)
+							as DiscordAuditLogOverwriteEntry;
+					}));
+					tasks.Add(Task.Run(async () => {
+						entry_perms_delete = await
+							find_entry(AuditLogActionType.OverwriteDelete)
+							as DiscordAuditLogOverwriteEntry;
+					}));
+					tasks.Add(Task.Run(async () => {
+						entry_perms_update = await
+							find_entry(AuditLogActionType.OverwriteUpdate)
+							as DiscordAuditLogOverwriteEntry;
+					}));
+					task_join(tasks);
 
 					// Format output.
 					StringWriter text = new ();
@@ -351,15 +376,28 @@ namespace Irene.Modules {
 					emojis_removed.ExceptWith(emojis_after);
 
 					// Fetch additional data.
-					DiscordAuditLogEmojiEntry? entry_create =
-						find_entry(AuditLogActionType.EmojiCreate)
-						as DiscordAuditLogEmojiEntry;
-					DiscordAuditLogEmojiEntry? entry_delete =
-						find_entry(AuditLogActionType.EmojiDelete)
-						as DiscordAuditLogEmojiEntry;
-					DiscordAuditLogEmojiEntry? entry_update =
-						find_entry(AuditLogActionType.EmojiUpdate)
-						as DiscordAuditLogEmojiEntry;
+					DiscordAuditLogEmojiEntry?
+						entry_create = null,
+						entry_delete = null,
+						entry_update = null;
+					List<Task> tasks = new ();
+
+					task_join(tasks);
+					tasks.Add(Task.Run(async () => {
+						entry_create = await
+							find_entry(AuditLogActionType.EmojiCreate)
+							as DiscordAuditLogEmojiEntry;
+					}));
+					tasks.Add(Task.Run(async () => {
+						entry_delete = await
+							find_entry(AuditLogActionType.EmojiDelete)
+							as DiscordAuditLogEmojiEntry;
+					}));
+					tasks.Add(Task.Run(async () => {
+						entry_update = await
+							find_entry(AuditLogActionType.EmojiUpdate)
+							as DiscordAuditLogEmojiEntry;
+					}));
 
 					// Format output.
 					StringWriter text = new ();
@@ -407,7 +445,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogInviteEntry? entry =
-						find_entry(AuditLogActionType.InviteCreate)
+						find_entry(AuditLogActionType.InviteCreate).Result
 						as DiscordAuditLogInviteEntry;
 
 					// Format output.
@@ -429,7 +467,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogInviteEntry? entry =
-						find_entry(AuditLogActionType.InviteCreate)
+						find_entry(AuditLogActionType.InviteCreate).Result
 						as DiscordAuditLogInviteEntry;
 
 					// Format output.
@@ -457,7 +495,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogMessageEntry? entry =
-						find_entry(AuditLogActionType.MessageDelete)
+						find_entry(AuditLogActionType.MessageDelete).Result
 						as DiscordAuditLogMessageEntry;
 
 					// Only log this event if the author isn't the user to
@@ -485,7 +523,7 @@ namespace Irene.Modules {
 
 					// Fetch additional data.
 					DiscordAuditLogMessageEntry? entry =
-						find_entry(AuditLogActionType.MessageBulkDelete)
+						find_entry(AuditLogActionType.MessageBulkDelete).Result
 						as DiscordAuditLogMessageEntry;
 
 					// Format output.
@@ -544,7 +582,7 @@ namespace Irene.Modules {
 		// Fetches the most recent audit log entry of the given type.
 		// Blocks the thread while it fetches the entry.
 		// Returns null if entries cannot be searched.
-		static DiscordAuditLogEntry? find_entry(AuditLogActionType type) {
+		static async Task<DiscordAuditLogEntry?> find_entry(AuditLogActionType type) {
 			const int retry_interval_init = 50; // msec
 			const int retry_interval_exp = 2;
 			const int retry_count = 6;	// ~3000 msec
@@ -566,10 +604,10 @@ namespace Irene.Modules {
 			for (int i=0; i<retry_count; i++) {
 				// Pause slightly before trying.
 				retry_interval *= retry_interval_exp;
-				Thread.Sleep(retry_interval);
+				await Task.Delay(retry_interval);
 
 				// Attempt to fetch entry.
-				DiscordAuditLogEntry? entry = erythro.last_audit_entry(type).Result;
+				DiscordAuditLogEntry? entry = await erythro.last_audit_entry(type);
 
 				// Return the entry if one was found and is new.
 				// Also update the "most recent" audit log entry of that type.
@@ -584,6 +622,11 @@ namespace Irene.Modules {
 			// Return null if nothing could be found.
 			log.debug("    No new corresponding audit logs found.");
 			return null;
+		}
+
+		// Blocks until all Tasks in the List have finished executing.
+		static void task_join(List<Task> tasks) {
+			Task.WaitAll(tasks.ToArray());
 		}
 
 		// Takes a StringWriter and adds DiscordMember / reason data
