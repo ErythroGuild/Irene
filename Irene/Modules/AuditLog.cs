@@ -16,7 +16,8 @@ namespace Irene.Modules {
 		static AuditLogEntryTable audit_log_base = new ();
 		static bool is_audit_log_loaded = false;
 
-		const string t = "\u2003\u2003";
+		const string t = "\u2003";
+		const string b = "\u2022";
 		const string l = "\u2B9A";
 		const string r = "\u21A6";
 		const string n = "`N/A`";
@@ -60,6 +61,8 @@ namespace Irene.Modules {
 			}
 
 			is_audit_log_loaded = true;
+			log.debug("AuditLog module initialized.");
+			log.endl();
 		}
 
 		static AuditLog() {
@@ -137,6 +140,11 @@ namespace Irene.Modules {
 					DiscordAuditLogMemberUpdateEntry? entry_roles =
 						find_entry(AuditLogActionType.MemberRoleUpdate)
 						as DiscordAuditLogMemberUpdateEntry;
+
+					// Only print this event if an audit log entry was found,
+					// meaning the change was significant:
+					if (entry is null && entry_roles is null)
+						{ return; }
 
 					// Format output.
 					StringWriter text = new ();
@@ -587,7 +595,7 @@ namespace Irene.Modules {
 				DiscordUser user = entry.UserResponsible;
 				DiscordMember member =
 							erythro.GetMemberAsync(user.Id).Result;
-				text.WriteLine($"Action by: {member_string(member)}");
+				text.WriteLine($"*Action by:* {member_string(member)}");
 			}
 
 			// Reason data

@@ -247,8 +247,19 @@ namespace Irene.Modules {
 
 		// Syntax sugar for checking if a property change needs to be printed.
 		static bool was_changed<T>(PropertyChange<T> property) {
-			return property.After?.Equals(property.Before)
-				?? true;
+			if (property is null)
+				{ return false; }
+			
+			if (property.After is not null) {
+				return !property.After.Equals(property.Before);
+			}
+			if (property.Before is not null) {
+				return !property.Before.Equals(property.After);
+			}
+
+			// If the logic reaches this point, then the property must
+			// always be null, and not have changed.
+			return false;
 		}
 		
 		// Prints the list of permissions (indented twice).
@@ -262,7 +273,7 @@ namespace Irene.Modules {
 					{ continue; }
 
 				if (perms.HasPermission(perms_i)) {
-					text.WriteLine($"{t}{t}{perms_i.description()}");
+					text.WriteLine($"{t}{t}{b} {perms_i.description()}");
 				}
 			}
 		}
