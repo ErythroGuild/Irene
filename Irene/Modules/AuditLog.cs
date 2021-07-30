@@ -141,6 +141,11 @@ namespace Irene.Modules {
 						find_entry(AuditLogActionType.MemberRoleUpdate)
 						as DiscordAuditLogMemberUpdateEntry;
 
+					// Only print this event if an audit log entry was found,
+					// meaning the change was significant:
+					if (entry is null && entry_roles is null)
+						{ return; }
+
 					// Format output.
 					StringWriter text = new ();
 					text.WriteLine($"**Member info updated:** {member_string(member)}");
