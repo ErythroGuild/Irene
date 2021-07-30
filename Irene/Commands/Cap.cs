@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -102,14 +102,12 @@ namespace Irene.Commands {
 			if (date > date_patch_910) {
 				TimeSpan duration = date - date_patch_910;
 				int week = duration.Days / 7;
-				int cap;
-				if (week < 8) {
-					cap = 42 + week * 3;
-				} else if (week < 16) {
-					cap = 65 + (week - 8) * 2;
-				} else {
-					cap = 80;
-				}
+				int cap = week switch {
+					<  1 => 42,
+					<  9 => 45 + 3 * (week - 1),
+					< 16 => 66 + 2 * (week - 9),
+					_ => 80,
+				};
 
 				log.info($"  Current renowon cap: {cap}, week {week + 1}");
 				_ = cmd.msg.RespondAsync($"Current Renown cap: **{cap}** (week {week + 1})");
