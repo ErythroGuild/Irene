@@ -83,17 +83,14 @@ namespace Irene.Commands {
 			// Patch 9.0.
 			if (date < date_patch_910) {
 				TimeSpan duration = date - date_patch_902;
-				int week = duration.Days / 7;
-				int cap;
-				if (week < 8) {
-					cap = 3 + week * 3;
-				} else if (week < 16) {
-					cap = 26 + (week - 8) * 2;
-				} else {
-					cap = 40;
-				}
+				int week = duration.Days / 7;  // int division!
+				int cap = week switch {
+					<  8 =>  3 + 3 * week,
+					< 16 => 26 + 2 * (week - 8),
+					_ => 40,
+				};
 
-				log.info($"  Current renowon cap: {cap}, week {week + 1}");
+				log.info($"  Current renown cap: {cap}, week {week + 1}");
 				_ = cmd.msg.RespondAsync($"Current Renown cap: **{cap}** (week {week + 1})");
 				return;
 			}
@@ -101,7 +98,7 @@ namespace Irene.Commands {
 			// Patch 9.1.
 			if (date > date_patch_910) {
 				TimeSpan duration = date - date_patch_910;
-				int week = duration.Days / 7;
+				int week = duration.Days / 7;  // int division!
 				int cap = week switch {
 					<  1 => 42,
 					<  9 => 45 + 3 * (week - 1),
