@@ -545,8 +545,9 @@ namespace Irene.Modules {
 		// Blocks the thread while it fetches the entry.
 		// Returns null if entries cannot be searched.
 		static DiscordAuditLogEntry? find_entry(AuditLogActionType type) {
-			const int retry_interval = 500; // msec
-			const int retry_count = 5;
+			const int retry_interval_init = 50; // msec
+			const int retry_interval_exp = 2;
+			const int retry_count = 6;	// ~3000 msec
 
 			// Exit early if guilds aren't loaded.
 			if (!is_guild_loaded) {
@@ -561,7 +562,13 @@ namespace Irene.Modules {
 
 			// Repeatedly try to find the updated entry.
 			DiscordGuild erythro = irene.GetGuildAsync(id_g_erythro).Result;
+			int retry_interval = retry_interval_init;
 			for (int i=0; i<retry_count; i++) {
+				// Pause slightly before trying.
+				retry_interval *= retry_interval_exp;
+				Thread.Sleep(retry_interval);
+
+				// Attempt to fetch entry.
 				DiscordAuditLogEntry? entry = erythro.last_audit_entry(type).Result;
 
 				// Return the entry if one was found and is new.
@@ -572,9 +579,6 @@ namespace Irene.Modules {
 						return entry;
 					}
 				}
-
-				// Pause slightly before retrying.
-				Thread.Sleep(retry_interval);
 			}
 
 			// Return null if nothing could be found.
