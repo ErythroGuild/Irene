@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -31,6 +31,7 @@ namespace Irene.Modules {
 			DiscordGuild erythro = await irene.GetGuildAsync(id_g_erythro);
 
 			List<AuditLogActionType> types = new () {
+				AuditLogActionType.BotAdd,
 				AuditLogActionType.Ban,
 				AuditLogActionType.Unban,
 				AuditLogActionType.MemberUpdate,
@@ -77,7 +78,18 @@ namespace Irene.Modules {
 			irene.GuildMemberAdded += (irene, e) => {
 				_ = Task.Run(() => {
 					DiscordMember member = e.Member;
-					log_entry($"**Member joined:** {member_string(member)}");
+
+					// Fetch additional data.
+					DiscordAuditLogBotAddEntry? entry =
+						find_entry(AuditLogActionType.BotAdd).Result
+						as DiscordAuditLogBotAddEntry;
+
+					// Format output.
+					StringWriter text = new ();
+					string type_join_str = member.IsBot ? "Bot added" : "Member joined";
+					text.WriteLine($"**{type_join_str} joined:** {member_string(member)}");
+					try_add_data(ref text, entry);
+					log_entry(text.output());
 				});
 				return Task.CompletedTask;
 			};
