@@ -393,8 +393,6 @@ namespace Irene.Modules {
 						entry_delete = null,
 						entry_update = null;
 					List<Task> tasks = new ();
-
-					task_join(tasks);
 					tasks.Add(Task.Run(async () => {
 						entry_create = await
 							find_entry(AuditLogActionType.EmojiCreate)
@@ -410,6 +408,7 @@ namespace Irene.Modules {
 							find_entry(AuditLogActionType.EmojiUpdate)
 							as DiscordAuditLogEmojiEntry;
 					}));
+					task_join(tasks);
 
 					// Format output.
 					StringWriter text = new ();
