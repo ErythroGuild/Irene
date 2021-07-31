@@ -631,7 +631,6 @@ namespace Irene.Modules {
 			}
 
 			// Return null if nothing could be found.
-			log.debug("    No new corresponding audit logs found.");
 			return null;
 		}
 
