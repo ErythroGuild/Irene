@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -32,6 +32,8 @@ namespace Irene.Modules {
 
 			List<AuditLogActionType> types = new () {
 				AuditLogActionType.BotAdd,
+				AuditLogActionType.Kick,
+				AuditLogActionType.Prune,
 				AuditLogActionType.Ban,
 				AuditLogActionType.Unban,
 				AuditLogActionType.MemberUpdate,
@@ -98,7 +100,36 @@ namespace Irene.Modules {
 			irene.GuildMemberRemoved += (irene, e) => {
 				_ = Task.Run(() => {
 					DiscordMember member = e.Member;
-					log_entry($"**Member left:** {member_string(member)}");
+
+					// Fetch additional data.
+					DiscordAuditLogKickEntry? entry_kick = null;
+					DiscordAuditLogPruneEntry? entry_prune = null;
+					List<Task> tasks = new ();
+					tasks.Add(Task.Run(async () => {
+						entry_kick = await
+							find_entry(AuditLogActionType.Kick)
+							as DiscordAuditLogKickEntry;
+					}));
+					tasks.Add(Task.Run(async () => {
+						entry_prune = await
+							find_entry(AuditLogActionType.Prune)
+							as DiscordAuditLogPruneEntry;
+					}));
+					task_join(tasks);
+
+					// Format output.
+					StringWriter text = new ();
+					if (entry_prune is not null) {
+						text.WriteLine($"**Members pruned:** {member_string(member)}");
+						text.WriteLine($"{entry_prune.Toll} members inactive for {entry_prune.Days}+ days.");
+						try_add_data(ref text, entry_prune);
+					} else if (entry_kick is not null) {
+						text.WriteLine($"**Member removed:** {member_string(member)}");
+						try_add_data(ref text, entry_kick);
+					} else {
+						text.WriteLine($"**Member left:** {member_string(member)}");
+					}
+					log_entry(text.output());
 				});
 				return Task.CompletedTask;
 			};
