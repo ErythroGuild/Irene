@@ -33,8 +33,6 @@ namespace Irene {
 		internal const string
 			path_token   = @"config/token.txt",
 			path_ak      = @"config/path_ak.txt",
-			path_build   = @"config/commit.txt",
-			path_version = @"config/tag.txt",
 			path_serilog = @"logs_D#+/serilog.txt",
 			dir_logs = @"logs";
 
@@ -235,9 +233,9 @@ namespace Irene {
 				_ = Task.Run(() => {
 					DiscordActivity helptext =
 #if RELEASE
-						new ("@Irene -help", ActivityType.Watching);
+						new ("Sylvanas' redemption arc", ActivityType.Watching);
 #else
-						new ("DEBUG MODE", ActivityType.Playing);
+						new ("with fire - DEBUGGING", ActivityType.Playing);
 #endif
 					irene.UpdateStatusAsync(helptext);
 
