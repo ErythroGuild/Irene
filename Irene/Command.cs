@@ -20,6 +20,9 @@ namespace Irene {
 			{ "help", Help.run },
 			{ "h"   , Help.run },
 			{ "?"   , Help.run },
+			{ "version", About.run },
+			{ "v"      , About.run },
+			{ "build"  , About.run },
 
 			{ "roles"      , Roles.set   },
 			{ "r"          , Roles.set   },
@@ -80,7 +83,8 @@ namespace Irene {
 			{ "rand"  , Roll.run },
 		};
 		static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
-			{ Help.run, Help.help },
+			{ Help.run , Help.help  },
+			{ About.run, About.help },
 
 			{ Roles.set  , Roles.help },
 			{ Roles.list , Roles.help },
@@ -110,7 +114,8 @@ namespace Irene {
 			{ Roll.run, Roll.help },
 		};
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
-			{ Help.run, AccessLevel.None },
+			{ Help.run , AccessLevel.None },
+			{ About.run, AccessLevel.None },
 
 			{ Roles.set  , AccessLevel.Guest },
 			{ Roles.list , AccessLevel.None  },

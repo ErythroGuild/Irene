@@ -33,8 +33,6 @@ namespace Irene {
 		internal const string
 			path_token   = @"config/token.txt",
 			path_ak      = @"config/path_ak.txt",
-			path_build   = @"config/commit.txt",
-			path_version = @"config/tag.txt",
 			path_serilog = @"logs_D#+/serilog.txt",
 			dir_logs = @"logs";
 
