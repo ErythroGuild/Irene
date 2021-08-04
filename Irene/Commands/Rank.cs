@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -326,6 +326,15 @@ namespace Irene.Commands {
 				_ = cmd.msg.RespondAsync("No Trial members found for **<Erythro>**.");
 				return;
 			}
+
+			// Sort list by days elapsed.
+			trials.Sort(delegate (DiscordMember x, DiscordMember y) {
+				DateTimeOffset now = DateTimeOffset.Now;
+				TimeSpan x_time = now - x.JoinedAt;
+				TimeSpan y_time = now - y.JoinedAt;
+				return - x_time.CompareTo(y_time);
+				// negative -> sorts from longest to shortest
+			});
 
 			// Display list of trial members.
 			StringWriter text = new ();
