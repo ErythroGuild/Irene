@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -314,8 +314,12 @@ namespace Irene.Commands {
 			log.info($"  Assigning new rank to {member.DisplayName}.");
 			Type rank_prev = sanitize_ranks(member);
 			Type rank_new = rank[0];
-			_ = member.GrantRoleAsync(roles[rank_to_id[rank_new]]);
-			_ = member.RevokeRoleAsync(roles[rank_to_id[rank_prev]]);
+			if (rank_to_id.ContainsKey(rank_new)) {
+				_ = member.GrantRoleAsync(roles[rank_to_id[rank_new]]);
+			}
+			if (rank_to_id.ContainsKey(rank_prev)) {
+				_ = member.RevokeRoleAsync(roles[rank_to_id[rank_prev]]);
+			}
 			sanitize_ranks(member);	// remove potential "officer" roles
 
 			// Send congrats message.
