@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
+
+using static Irene.Program;
 
 namespace Irene {
 	static class Util {
@@ -87,6 +90,18 @@ namespace Irene {
 			return text;
 		}
 
+		// Returns the functional inverse of a given Dictionary.
+		public static Dictionary<T2, T1> inverse<T1, T2>(this Dictionary<T1, T2> dict)
+			where T1 : notnull
+			where T2 : notnull
+		{
+			Dictionary<T2, T1> dict_inverse = new ();
+			foreach(T1 key in dict.Keys) {
+				dict_inverse.Add(dict[key], key);
+			}
+			return dict_inverse;
+		}
+
 		// Convenience extension method to implicitly flush StringWriter.
 		public static string output(this StringWriter writer) {
 			writer.Flush();
@@ -115,6 +130,28 @@ namespace Irene {
 		// (Also works for `DiscordMember`s, of course.)
 		public static string tag(this DiscordUser user) {
 			return $"{user.Username}#{user.Discriminator}";
+		}
+
+		// Returns the DiscordMember equivalent of the DiscordUser.
+		// Returns null if the conversion wasn't possible.
+		public static async Task<DiscordMember?> member(this DiscordUser user) {
+			// Check if trivially convertible.
+			DiscordMember? member_n = user as DiscordMember;
+			if (member_n is not null)
+				{ return member_n; }
+
+			// Check if guild is loaded (to convert users with).
+			if (!is_guild_loaded)
+				{ return null; }
+
+			// Fetch the member by user ID.
+			DiscordGuild erythro = await irene.GetGuildAsync(id_g_erythro);
+			try {
+				DiscordMember member = await erythro.GetMemberAsync(user.Id);
+				return member;
+			} catch (ServerErrorException) {
+				return null;
+			}
 		}
 
 		// Fetches audit log entries, but wrapping the call in a

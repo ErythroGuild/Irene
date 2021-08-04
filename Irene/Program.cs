@@ -210,6 +210,7 @@ namespace Irene {
 			// Initialize commands.
 			Help.init();
 			Roles.init();
+			Rank.init();
 
 			log.info("Irene initialized.");
 		}

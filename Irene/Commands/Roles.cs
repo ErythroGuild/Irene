@@ -1,17 +1,12 @@
-﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Timers;
 
-using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-using Emzi0767.Utilities;
 
 using static Irene.Program;
 
 namespace Irene.Commands {
-	using DropdownLambda = AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
+	using Entry = Selection<Roles.PingRole>.Entry;
 	using id_r = RoleIDs;
 	using id_e = EmojiIDs;
 
@@ -22,163 +17,45 @@ namespace Irene.Commands {
 			Events, Herald,
 		}
 
-		class RoleDropdown {
-			static readonly TimeSpan timeout = TimeSpan.FromMinutes(5);
-			static readonly List<RoleDropdown> handlers = new ();
-
-			static readonly Dictionary<PingRole, string> dict_ids = new () {
-				{ PingRole.Raid   , "option_raid"    },
-				{ PingRole.Mythics, "option_mythics" },
-				{ PingRole.KSM    , "option_ksm"     },
-				{ PingRole.Gearing, "option_gearing" },
-				{ PingRole.Events , "option_events"  },
-				{ PingRole.Herald , "option_herald"  },
-			};
-			static readonly Dictionary<PingRole, DiscordComponentEmoji> dict_emojis = new () {
-				{ PingRole.Raid   , new ("\U0001F409") },   // :dragon:
-				{ PingRole.Mythics, new ("\U0001F5FA") },   // :map:
-				{ PingRole.KSM    , new ("\U0001F94B") },   // :martial_arts_uniform:
-				{ PingRole.Gearing, new ("\U0001F392") },   // :school_satchel:
-				{ PingRole.Events , new ("\U0001F938\u200D\u2640\uFE0F") }, // :woman_cartwheeling:
-				// { PingRole.Events , new ("\U0001FA97") },   // :accordion:
-				{ PingRole.Herald , new ("\u2604"    ) },   // :comet:
-			};
-
-			public readonly List<PingRole> roles;
-			public readonly DiscordMember author;
-			public DiscordMessage? msg;
-
-			readonly Timer timer;
-			readonly DropdownLambda handler;
-
-			public RoleDropdown(List<PingRole> roles, DiscordMember author) {
-				// Initialize members.
-				this.roles = roles;
-				this.author = author;
-
-				timer = new Timer(timeout.TotalMilliseconds) {
-					AutoReset = false,
-				};
-
-				handler = async (irene, e) => {
-					// Ignore triggers from the wrong message.
-					if (e.Message != msg) {
-						return;
-					}
-
-					// Ignore people who aren't the original user.
-					if (e.User != author) {
-						await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-						return;
-					}
-
-					// Set roles.
-					roles = str_to_roles(new List<string>(e.Values));
-					log.info($"Updating roles for {author.DisplayName}.");
-					assign(author, roles);
-
-					// Update page content.
-					await e.Interaction.CreateResponseAsync(
-						InteractionResponseType.UpdateMessage,
-						new DiscordInteractionResponseBuilder()
-						.WithContent(display_roles(roles))
-						.AddComponents(get_dropdown(roles))
-					);
-
-					// Refresh deactivation timer.
-					timer.Stop();
-					timer.Start();
-				};
-
-				// Configure timeout event listener.
-				timer.Elapsed += async (s, e) => {
-					irene.ComponentInteractionCreated -= handler;
-					if (msg is not null) {
-						await msg.ModifyAsync(
-							new DiscordMessageBuilder()
-							.WithContent(msg.Content)
-							.AddComponents(get_dropdown(roles, false))
-						);
-					}
-					handlers.Remove(this);
-				};
-
-				// Attach handler to client and start deactivation timer.
-				handlers.Add(this);
-				irene.ComponentInteractionCreated += handler;
-				timer.Start();
-			}
-
-			// Returns a standalone DiscordMessage to init with.
-			public DiscordMessageBuilder init_msg() {
-				return new DiscordMessageBuilder()
-					.WithContent(display_roles(roles))
-					.AddComponents(get_dropdown(roles));
-			}
-
-			// Formats the given list of roles into a string.
-			static string display_roles(List<PingRole> roles) {
-				// Special cases for none/singular.
-				if (roles.Count == 0) {
-					return "No roles currently set.";
-				}
-				if (roles.Count == 1) {
-					return $"Role currently set: **{dict_names[roles[0]]}**";
-				}
-
-				// Construct list of role names.
-				StringWriter text = new ();
-				text.Write("Roles currently set:  ");
-				foreach (PingRole role in roles) {
-					text.Write($"**{dict_names[role]}**  ");
-				}
-				return text.output()[..^2];
-			}
-
-			// Returns a dropdown of all roles; some of them pre-selected.
-			static DiscordSelectComponent get_dropdown(List<PingRole> roles, bool is_enabled = true) {
-				return new DiscordSelectComponent(
-					id_dropdown,
-					"No roles selected",
-					get_dropdown_options(roles),
-					!is_enabled,
-					0, dict_ids.Count
-				);
-			}
-
-			// Returns an option list of all available roles to select.
-			static DiscordSelectComponentOption[] get_dropdown_options(List<PingRole> roles) {
-				DiscordSelectComponentOption option(PingRole role) {
-					return new DiscordSelectComponentOption(
-						dict_names[role],
-						dict_ids[role],
-						dict_summaries[role],
-						roles.Contains(role),
-						dict_emojis[role]
-					);
-				}
-
-				return new DiscordSelectComponentOption[] {
-				option(PingRole.Raid   ),
-				option(PingRole.Mythics),
-				option(PingRole.KSM    ),
-				option(PingRole.Gearing),
-				option(PingRole.Events ),
-				option(PingRole.Herald ),
-			};
-			}
-
-			// Convert the returned event arg IDs to `PingRole`s.
-			static List<PingRole> str_to_roles(List<string> ids) {
-				List<PingRole> list = new ();
-				foreach (PingRole role in dict_ids.Keys) {
-					if (ids.Contains(dict_ids[role])) {
-						list.Add(role);
-					}
-				}
-				return list;
-			}
-		}
+		static readonly Dictionary<PingRole, Entry> options = new () {
+			{ PingRole.Raid, new Entry {
+				label = "Raid",
+				id = "option_raid",
+				emoji = new ("\U0001F409"), // :dragon:
+				description = "Raid announcements.",
+			} },
+			{ PingRole.Mythics, new Entry {
+				label = "M+",
+				id = "option_mythics",
+				emoji = new ("\U0001F5FA"), // :map:
+				description = "M+ keys in general.",
+			} },
+			{ PingRole.KSM, new Entry {
+				label = "KSM",
+				id = "option_ksm",
+				emoji = new ("\U0001F94B"), // :martial_arts_uniform:
+				description = "Higher keys requiring more focus.",
+			} },
+			{ PingRole.Gearing, new Entry {
+				label = "Gearing",
+				id = "option_gearing",
+				emoji = new ("\U0001F392"), // :school_satchel:
+				description = "Lower keys / M0s to help gear people.",
+			} },
+			{ PingRole.Events, new Entry {
+				label = "Events",
+				id = "option_events",
+				emoji = new ("\U0001F938\u200D\u2640\uFE0F"), // :woman_cartwheeling:
+				//emoji = new ("\U0001FA97"), // :accordion:
+				description = "Social event announcements.",
+			} },
+			{ PingRole.Herald, new Entry {
+				label = "Herald",
+				id = "option_herald",
+				emoji = new ("\u2604"), // :comet:
+				description = "Herald of the Titans announcements.",
+			} },
+		};
 
 		static readonly Dictionary<PingRole, ulong> pingRole_to_discordRole = new () {
 			{ PingRole.Raid   , id_r.raid    },
@@ -189,51 +66,14 @@ namespace Irene.Commands {
 			{ PingRole.Herald , id_r.herald  },
 		};
 		static readonly Dictionary<ulong, PingRole> discordRole_to_pingRole;
-		static readonly Dictionary<string, PingRole> dict_pingRoles = new () {
-			{ "raid"   , PingRole.Raid },
-			{ "raids"  , PingRole.Raid },
-			{ "raiding", PingRole.Raid },
 
-			{ "m+"     , PingRole.Mythics },
-			{ "mythic+", PingRole.Mythics },
-			{ "mythics", PingRole.Mythics },
-			{ "keys"   , PingRole.Mythics },
-			{ "ksm"    , PingRole.KSM     },
-			{ "gearing", PingRole.Gearing },
-			{ "gear"   , PingRole.Gearing },
-
-			{ "events", PingRole.Events },
-			{ "event" , PingRole.Events },
-			{ "herald", PingRole.Herald },
-		};
-		static readonly Dictionary<PingRole, string> dict_names = new () {
-			{ PingRole.Raid   , "Raid"    },
-			{ PingRole.Mythics, "M+"      },
-			{ PingRole.KSM    , "KSM"     },
-			{ PingRole.Gearing, "Gearing" },
-			{ PingRole.Events , "Events"  },
-			{ PingRole.Herald , "Herald"  },
-		};
-		static readonly Dictionary<PingRole, string> dict_summaries = new () {
-			{ PingRole.Raid   , "Raid announcements." },
-			{ PingRole.Mythics, "M+ keys in general." },
-			{ PingRole.KSM    , "Higher keys requiring more focus." },
-			{ PingRole.Gearing, "Lower keys / M0s to help gear people." },
-			{ PingRole.Events , "Social event announcements." },
-			{ PingRole.Herald , "Herald of the Titans announcements." },
-		};
-
-		const string id_dropdown = "dropdown_roles";
 		const string path_intros = @"data/roles_intros.txt";
 		const string delim = "=";
 
 		// Force static initializer to run.
 		public static void init() { return; }
 		static Roles() {
-			discordRole_to_pingRole = new Dictionary<ulong, PingRole>();
-			foreach (PingRole role in pingRole_to_discordRole.Keys) {
-				discordRole_to_pingRole.Add(pingRole_to_discordRole[role], role);
-			}
+			discordRole_to_pingRole = pingRole_to_discordRole.inverse();
 		}
 
 		public static string help() {
@@ -266,10 +106,19 @@ namespace Irene.Commands {
 
 			// Send message with selection menu.
 			log.info("  Sending role selection menu.");
-			RoleDropdown dropdown = new (roles_current, member);
-			DiscordMessage msg =
-				cmd.msg.RespondAsync(dropdown.init_msg()).Result;
-			dropdown.msg = msg;
+			Selection<PingRole> dropdown = new (
+				options,
+				assign,
+				member,
+				"No roles selected",
+				true
+			);
+			DiscordMessageBuilder response =
+				new DiscordMessageBuilder()
+				.WithContent(print_roles(roles_current))
+				.AddComponents(dropdown.get(roles_current));
+			dropdown.msg =
+				cmd.msg.RespondAsync(response).Result;
 		}
 
 		public static void list(Command cmd) {
@@ -279,8 +128,8 @@ namespace Irene.Commands {
 			text.WriteLine("*Available roles:*");
 			foreach (PingRole role in pingRole_to_discordRole.Keys) {
 				ulong role_id = pingRole_to_discordRole[role];
-				string name = roles[role_id].Name;
-				string summary = dict_summaries[role];
+				string name = options[role].label;
+				string summary = options[role].description ?? "";
 				text.WriteLine($"**{name}:** {summary}");
 			}
 			text.WriteLine("*Use `@Irene -roles` to assign yourself roles.*");
@@ -297,7 +146,15 @@ namespace Irene.Commands {
 		// Assigns the list of roles to the member, and removes any
 		// that aren't on the list.
 		// Also sends welcome messages for relevant roles.
-		static async void assign(DiscordMember member, List<PingRole> roles) {
+		static async void assign(List<PingRole> roles, DiscordUser user) {
+			// Convert DiscordUser to DiscordMember.
+			DiscordMember? member = await user.member();
+			if (member is null) {
+				log.error("Could not find DiscordMember to assign roles.");
+				log.endl();
+				return;
+			}
+
 			// Update member so its associated roles are current.
 			member = await member.Guild.GetMemberAsync(member.Id);
 
@@ -335,6 +192,25 @@ namespace Irene.Commands {
 			log.endl();
 		}
 
+		// Formats the given list of roles into a string.
+		static string print_roles(List<PingRole> roles) {
+			// Special cases for none/singular.
+			if (roles.Count == 0) {
+				return "No roles previously set.";
+			}
+			if (roles.Count == 1) {
+				return $"Role previously set:\n**{options[roles[0]].label}**";
+			}
+
+			// Construct list of role names.
+			StringWriter text = new ();
+			text.WriteLine("Roles previously set:");
+			foreach (PingRole role in roles) {
+				text.Write($"**{options[role].label}**  ");
+			}
+			return text.output()[..^2];
+		}
+
 		// Read through data file to find matching welcome message.
 		static string get_welcome(PingRole role) {
 			string content = "";
@@ -344,7 +220,7 @@ namespace Irene.Commands {
 				string line = data.ReadLine() ?? "";
 				if (line.Contains(delim)) {
 					string[] split = line.Split(delim, 2);
-					if (dict_pingRoles[split[0]] == role) {
+					if (split[0] == options[role].id) {
 						content = split[1];
 						break;
 					}

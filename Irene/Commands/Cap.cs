@@ -11,12 +11,13 @@ namespace Irene.Commands {
 		}
 
 		static readonly Dictionary<string, Type> dict_type = new () {
-			{ "renown"        , Type.Renown         },
-			{ "valor"         , Type.Valor          },
-			{ "conquest"      , Type.Conquest       },
-			{ "honor"         , Type.Conquest       },
-			{ "towerknowledge", Type.TowerKnowledge },
-			{ "torghast"      , Type.TowerKnowledge },
+			{ "renown"         , Type.Renown         },
+			{ "valor"          , Type.Valor          },
+			{ "conquest"       , Type.Conquest       },
+			{ "honor"          , Type.Conquest       },
+			{ "tower knowledge", Type.TowerKnowledge },
+			{ "towerknowledge" , Type.TowerKnowledge },
+			{ "torghast"       , Type.TowerKnowledge },
 		};
 		static readonly Dictionary<Type, Action<DateTime, Command>> dict_func = new () {
 			{ Type.Renown        , cap_renown   },
