@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Timers;
 
@@ -128,6 +128,9 @@ namespace Irene {
 
 		// Returns a message component with the specified selected
 		// options.
+		public DiscordSelectComponent get(T selected, bool is_enabled = true) {
+			return get(new List<T>() { selected }, is_enabled);
+		}
 		public DiscordSelectComponent get(List<T> selected, bool is_enabled = true) {
 			// Reset the "selected" options member.
 			this.selected = selected;
