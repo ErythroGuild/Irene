@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
 using static Irene.Program;
 
@@ -136,7 +137,7 @@ namespace Irene {
 			try {
 				DiscordMember member = await erythro.GetMemberAsync(user.Id);
 				return member;
-			} catch {
+			} catch (ServerErrorException) {
 				return null;
 			}
 		}
