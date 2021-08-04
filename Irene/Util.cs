@@ -127,20 +127,18 @@ namespace Irene {
 			if (member_n is not null)
 				{ return member_n; }
 
-			// Fetch the list of all guild members and match on ID.
+			// Check if guild is loaded (to convert users with).
 			if (!is_guild_loaded)
 				{ return null; }
 
+			// Fetch the member by user ID.
 			DiscordGuild erythro = await irene.GetGuildAsync(id_g_erythro);
-			List<DiscordMember> members = new (await erythro.GetAllMembersAsync());
-			foreach (DiscordMember member in members) {
-				if (member.Id == user.Id) {
-					return member;
-				}
+			try {
+				DiscordMember member = await erythro.GetMemberAsync(user.Id);
+				return member;
+			} catch {
+				return null;
 			}
-
-			// Return null; no matches found.
-			return null;
 		}
 
 		// Fetches audit log entries, but wrapping the call in a
