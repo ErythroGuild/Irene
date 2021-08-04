@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 
 using DSharpPlus.Entities;
@@ -136,7 +136,7 @@ namespace Irene.Commands {
 			);
 			DiscordMessageBuilder response =
 				new DiscordMessageBuilder()
-				.WithContent("")
+				.WithContent(print_roles(roles_current))
 				.AddComponents(dropdown.get(roles_current));
 			dropdown.msg =
 				cmd.msg.RespondAsync(response).Result;
@@ -209,6 +209,25 @@ namespace Irene.Commands {
 				_ = member.SendMessageAsync(welcome);
 			}
 			log.endl();
+		}
+
+		// Formats the given list of roles into a string.
+		static string print_roles(List<PingRole> roles) {
+			// Special cases for none/singular.
+			if (roles.Count == 0) {
+				return "No roles previously set.";
+			}
+			if (roles.Count == 1) {
+				return $"Role previously set:\n**{options[roles[0]].label}**";
+			}
+
+			// Construct list of role names.
+			StringWriter text = new ();
+			text.WriteLine("Roles previously set:");
+			foreach (PingRole role in roles) {
+				text.Write($"**{options[role].label}**  ");
+			}
+			return text.output()[..^2];
 		}
 
 		// Read through data file to find matching welcome message.
