@@ -4,10 +4,9 @@ using System.IO;
 using DSharpPlus.Entities;
 
 using static Irene.Program;
-using static Irene.Commands.Roles;
 
 namespace Irene.Commands {
-	using Entry = Selection<PingRole>.Entry;
+	using Entry = Selection<Roles.PingRole>.Entry;
 	using id_r = RoleIDs;
 	using id_e = EmojiIDs;
 
