@@ -33,6 +33,7 @@ namespace Irene {
 		public readonly string placeholder;
 		public readonly bool is_multiple;
 		public readonly Action<List<T>, DiscordUser> action;
+		public readonly DiscordUser action_user;
 		public readonly DiscordUser author;
 		public DiscordMessage? msg; // may not be set immediately
 
@@ -46,12 +47,21 @@ namespace Irene {
 			Action<List<T>, DiscordUser> action,
 			DiscordUser author,
 			string placeholder,
+			bool is_multiple = false ) :
+			this(options, action, author, author, placeholder, is_multiple) { }
+		public Selection(
+			Dictionary<T, Entry> options,
+			Action<List<T>, DiscordUser> action,
+			DiscordUser action_user,
+			DiscordUser author,
+			string placeholder,
 			bool is_multiple = false ) {
 			// Initialize members.
 			this.options = options;
 			this.placeholder = placeholder;
 			this.is_multiple = is_multiple;
 			this.action = action;
+			this.action_user = action_user;
 			this.author = author;
 
 			timer = new Timer(timeout.TotalMilliseconds) {
@@ -79,7 +89,7 @@ namespace Irene {
 						selected.Add(entry);
 					}
 				}
-				action(selected, author);
+				action(selected, action_user);
 
 				// Respond to interaction event.
 				await e.Interaction.CreateResponseAsync(
