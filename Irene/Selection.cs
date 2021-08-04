@@ -16,8 +16,8 @@ namespace Irene {
 		public record Entry {
 			public string label = "";
 			public string id = "";
-			public string? description;
 			public DiscordComponentEmoji? emoji;
+			public string? description;
 		}
 
 		// protected (overrideable) properties
