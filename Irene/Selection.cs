@@ -81,6 +81,14 @@ namespace Irene {
 				}
 				action(selected, author);
 
+				// Respond to interaction event.
+				await e.Interaction.CreateResponseAsync(
+					InteractionResponseType.UpdateMessage,
+					new DiscordInteractionResponseBuilder()
+					.WithContent(e.Message.Content)
+					.AddComponents(get(selected))
+				);
+
 				// Mark event as handled.
 				e.Handled = true;
 
