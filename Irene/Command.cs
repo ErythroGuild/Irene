@@ -188,18 +188,7 @@ namespace Irene {
 			// Parse the user.
 			// If private channel, search through member list.
 			if (msg.Channel.IsPrivate) {
-				DiscordGuild erythro =
-					irene.GetGuildAsync(id_g_erythro)
-					.Result;
-				List<DiscordMember> members = new (
-					erythro.GetAllMembersAsync()
-					.Result );
-				foreach (DiscordMember member in members) {
-					if (member.Id == msg.Author.Id) {
-						user = member;
-						break;
-					}
-				}
+				user = msg.Author.member().Result;
 			} else {
 				user = msg.Author as DiscordMember;
 			}

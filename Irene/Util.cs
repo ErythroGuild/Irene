@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
+using static Irene.Program;
+
 namespace Irene {
 	static class Util {
 		static readonly Dictionary<string, string> escape_codes = new () {
@@ -115,6 +117,30 @@ namespace Irene {
 		// (Also works for `DiscordMember`s, of course.)
 		public static string tag(this DiscordUser user) {
 			return $"{user.Username}#{user.Discriminator}";
+		}
+
+		// Returns the DiscordMember equivalent of the DiscordUser.
+		// Returns null if the conversion wasn't possible.
+		public static async Task<DiscordMember?> member(this DiscordUser user) {
+			// Check if trivially convertible.
+			DiscordMember? member_n = user as DiscordMember;
+			if (member_n is not null)
+				{ return member_n; }
+
+			// Fetch the list of all guild members and match on ID.
+			if (!is_guild_loaded)
+				{ return null; }
+
+			DiscordGuild erythro = await irene.GetGuildAsync(id_g_erythro);
+			List<DiscordMember> members = new (await erythro.GetAllMembersAsync());
+			foreach (DiscordMember member in members) {
+				if (member.Id == user.Id) {
+					return member;
+				}
+			}
+
+			// Return null; no matches found.
+			return null;
 		}
 
 		// Fetches audit log entries, but wrapping the call in a
