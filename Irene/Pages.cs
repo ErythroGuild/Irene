@@ -86,6 +86,9 @@ namespace Irene {
 					.AddComponents(buttons(page, page_count))
 				);
 
+				// Mark event as handled.
+				e.Handled = true;
+
 				// Refresh deactivation timer.
 				timer.Stop();
 				timer.Start();
