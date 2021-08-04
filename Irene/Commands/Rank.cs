@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -8,40 +8,82 @@ using DSharpPlus.Entities;
 using static Irene.Program;
 
 namespace Irene.Commands {
+	using RankEntry = Selection<Rank.Type>.Entry;
+	using GuildEntry = Selection<Rank.Guild>.Entry;
 	using id_r = RoleIDs;
+
 	class Rank : ICommands {
 		public enum Type {
 			None,
 			Guest, Member, Officer,
-			// Admin,
+			Admin,
 		};
 		public enum Guild {
 			Erythro,
 			Glaive, Dragons, Angels, Asgard, Enclave,
 		};
 
+		static readonly Dictionary<Type, RankEntry> options_rank = new () {
+			{ Type.None, new RankEntry {
+				label = "No Rank",
+				id = "option_none",
+				emoji = new ("\U0001F401"), // :mouse2:
+				description = "No rank assigned.",
+			} },
+			{ Type.Guest, new RankEntry {
+				label = "Guest",
+				id = "option_guest",
+				emoji = new ("\U0001F41B"), // :bug:
+				description = "Verified member (newer member).",
+			} },
+			{ Type.Member, new RankEntry {
+				label = "Member",
+				id = "option_member",
+				emoji = new ("\U0001F98B"), // :butterfly:
+				description = "Trusted member (older member).",
+			} },
+			{ Type.Officer, new RankEntry {
+				label = "Officer",
+				id = "option_officer",
+				emoji = new ("\U0001F426"), // :bird:
+				description = "Officer / moderator.",
+			} },
+		};
+		static readonly Dictionary<Guild, GuildEntry> options_guild = new () {
+			{ Guild.Erythro, new GuildEntry {
+				label = "<Erythro>",
+				id = "option_erythro",
+			} },
+			{ Guild.Glaive, new GuildEntry {
+				label = "<Glaive of Mother Moon>",
+				id = "option_glaive",
+			} },
+			{ Guild.Dragons, new GuildEntry {
+				label = "<Dragon's Reach>",
+				id = "option_dragons",
+			} },
+			{ Guild.Angels, new GuildEntry {
+				label = "<Hooved Angels>",
+				id = "option_angels",
+			} },
+			{ Guild.Asgard, new GuildEntry {
+				label = "<Asgard>",
+				id = "option_asgard",
+			} },
+			{ Guild.Enclave, new GuildEntry {
+				label = "<Kalimdor Enclave>",
+				id = "option_enclave",
+			} },
+		};
+
 		// Conversions / definitions.
-		static readonly List<ulong> roles_officer = new () {
-			id_r.raidOfficer,
-			id_r.mythicOfficer,
-			id_r.eventPlanner,
-			id_r.recruiter,
-			id_r.banker,
+		static readonly Dictionary<Type, ulong> rank_to_id = new () {
+			{ Type.Guest  , id_r.guest   },
+			{ Type.Member , id_r.member  },
+			{ Type.Officer, id_r.officer },
+			{ Type.Admin  , id_r.admin   },
 		};
-		static readonly List<ulong> roles_guild = new () {
-			id_r.erythro,
-			id_r.glaive,
-			id_r.dragons,
-			id_r.angels,
-			id_r.asgard,
-			id_r.enclave,
-		};
-		static readonly Dictionary<ulong, Type> id_to_rank = new () {
-			{ id_r.guest  , Type.Guest   },
-			{ id_r.member , Type.Member  },
-			{ id_r.officer, Type.Officer },
-			// { id_r.admin  , Type.Admin   },
-		};
+		static readonly Dictionary<ulong, Type> id_to_rank;
 		static readonly Dictionary<Guild, ulong> guild_to_id = new () {
 			{ Guild.Erythro, id_r.erythro },
 			{ Guild.Glaive , id_r.glaive  },
@@ -50,50 +92,125 @@ namespace Irene.Commands {
 			{ Guild.Asgard , id_r.asgard  },
 			{ Guild.Enclave, id_r.enclave },
 		};
-		static readonly Dictionary<string, Guild> dict_guilds = new () {
-			{ "erythro"         , Guild.Erythro },
-			{ "ery"             , Guild.Erythro },
-			{ "uwupizza"        , Guild.Erythro },
-			{ "uwupizzadelivery", Guild.Erythro },
-
-			{ "glaiveofmothermoon", Guild.Glaive },
-			{ "glaive"            , Guild.Glaive },
-
-			{ "dragon'sreach", Guild.Dragons },
-			{ "dragonsreach" , Guild.Dragons },
-			{ "dragon's"     , Guild.Dragons },
-			{ "dragons"      , Guild.Dragons },
-
-			{ "hoovedangels", Guild.Angels },
-			{ "hooved"      , Guild.Angels },
-			{ "angels"      , Guild.Angels },
-
-			{ "asgard", Guild.Asgard },
-
-			{ "kalimdorenclave", Guild.Enclave },
-			{ "enclave"        , Guild.Enclave },
+		static readonly Dictionary<ulong, Guild> id_to_guild;
+		static readonly HashSet<ulong> roles_officer = new () {
+			id_r.raidOfficer,
+			id_r.mythicOfficer,
+			id_r.eventPlanner,
+			id_r.recruiter,
+			id_r.banker,
 		};
 
 		// Formatting tokens.
 		const string em = "\u2003";
+
+		// Force static initializer to run.
+		public static void init() { return; }
+		static Rank() {
+			id_to_rank = rank_to_id.inverse();
+			id_to_guild = guild_to_id.inverse();
+		}
 
 		public static string help() {
 			StringWriter text = new ();
 
 			text.WriteLine("It is recommended to use user IDs to specify members.");
 			text.WriteLine("Although nicknames can be used instead of user ID, the nickname often contains special characters.");
+			text.WriteLine(":lock: `@Irene -rank` Displays the user's rank, and lets you update them.");
+			text.WriteLine(":lock: `@Irene -guild` Displays the user's guilds, and lets you modify them.");
 			text.WriteLine(":lock: `@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
 			text.WriteLine(":lock: `@Irene -trials` lists all current trials (**Guest** *and* **<Erythro>**.");
-			text.WriteLine(":lock: `@Irene -promote <user-id>` promotes the user from **None** -> **Guest** -> **Member**;");
-			text.WriteLine(":lock: `@Irene -demote <user-id>` demotes the user from **Member** -> **Guest** -> **None**.");
-			text.WriteLine(":lock: `@Irene -add-guilds <user-id> <guild1> [<guild2> ...]` gives the user the requested guild tags;");
-			text.WriteLine(":lock: `@Irene -clear-guilds <user-id>` clears all guild tags from the user.");
-			text.WriteLine(":lock: `@Irene -rank-strip-all-roles <user-id>` removes **ALL** roles from the user.");
 
 			return text.output();
 		}
 
-		// Grant Guest permissions and tag as <Erythro>.
+		// Grant specific permissions to a user, with some restrictions.
+		// Officers can only set ranks lower than Officer.
+		// Only Admin can modify the Officer rank.
+		public static void set_rank(Command cmd) {
+			// Handle ambiguous / unspecified / illegal cases.
+			List<DiscordMember> members = parse_member(cmd.args);
+			bool do_exit_early = check_member_unique(members, cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_caller_member(cmd);
+			if (do_exit_early)
+				{ return; }
+
+			// Calculate the allowed modifiable ranks.
+			DiscordMember member = members[0];
+			Type rank = sanitize_ranks(member);
+			string rank_str = $"Previous rank: **{options_rank[rank].label}**";
+			Dictionary<Type, RankEntry> options = new () {
+				{ Type.None  , options_rank[Type.None  ] },
+				{ Type.Guest , options_rank[Type.Guest ] },
+				{ Type.Member, options_rank[Type.Member] },
+			};
+			if ( highest_rank(cmd.user!) == Type.Admin ||
+				cmd.user!.Id == member.Id ) {
+				options.Add(Type.Officer, options_rank[Type.Officer]);
+			}
+
+			// Send message with selection menu.
+			log.info("  Sending rank selection menu.");
+			Selection<Type> dropdown = new (
+				options,
+				set_rank,
+				member,
+				cmd.user!,
+				"Select a rank to set",
+				false
+			);
+			DiscordMessageBuilder response =
+				new DiscordMessageBuilder()
+				.WithContent(rank_str)
+				.AddComponents(dropdown.get(rank));
+			dropdown.msg =
+				cmd.msg.RespondAsync(response).Result;
+		}
+
+		// Set the guild tags for a specific user.
+		// Cannot modify guild tags of another user if their highest
+		// rank is not lower than the user's own highest rank.
+		public static void set_guilds(Command cmd) {
+			// Handle ambiguous / unspecified cases.
+			List<DiscordMember> members = parse_member(cmd.args);
+			bool do_exit_early = check_member_unique(members, cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_caller_member(cmd);
+			if (do_exit_early)
+				{ return; }
+
+			// Fetch the current guilds of the member.
+			DiscordMember member = members[0];
+			List<Guild> guilds_current = new ();
+			foreach (DiscordRole role in member.Roles) {
+				ulong role_id = role.Id;
+				if (id_to_guild.ContainsKey(role_id)) {
+					guilds_current.Add(id_to_guild[role_id]);
+				}
+			}
+
+			// Send message with selection menu.
+			log.info("  Sending guild selection menu.");
+			Selection<Guild> dropdown = new (
+				options_guild,
+				set_guilds,
+				member,
+				cmd.user!,
+				"No guilds selected",
+				true
+			);
+			DiscordMessageBuilder response =
+				new DiscordMessageBuilder()
+				.WithContent(print_guilds(guilds_current))
+				.AddComponents(dropdown.get(guilds_current));
+			dropdown.msg =
+				cmd.msg.RespondAsync(response).Result;
+		}
+
+		// Shortcut to grant Guest rank and tag as <Erythro>.
 		public static void set_erythro(Command cmd) {
 			// Handle ambiguous / unspecified cases.
 			List<DiscordMember> members = parse_member(cmd.args);
@@ -125,172 +242,7 @@ namespace Irene.Commands {
 			_ = cmd.msg.RespondAsync(text.output());
 		}
 
-		public static void add_guilds(Command cmd) {
-			// Parse arguments.
-			string[] split = cmd.args.Split(' ', 2);
-			string user_str = split[0].Trim();
-			string guilds_str = split[1].Trim();
-
-			// Handle ambiguous / unspecified users.
-			List<DiscordMember> members = parse_member(user_str);
-			bool do_exit_early = check_member_unique(members, cmd);
-			if (do_exit_early)
-				{ return; }
-
-			// Assign requested guild tags.
-			DiscordMember member = members[0];
-			List<Guild> guilds = parse_guilds(guilds_str);
-			log.info($"  Adding guild tags to {member.DisplayName}.");
-			foreach (Guild guild in guilds) {
-				DiscordRole role = roles[guild_to_id[guild]];
-				log.debug($"    Added role @{role.Name}.");
-				_ = member.GrantRoleAsync(role);
-			}
-			_ = cmd.msg.RespondAsync($"Added requested guild tags to {member.Mention}.");
-		}
-		public static void clear_guilds(Command cmd) {
-			// Handle ambiguous / unspecified cases.
-			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
-			if (do_exit_early)
-				{ return; }
-
-			// Clear guild role tags from the member.
-			DiscordMember member = members[0];
-			List<DiscordRole> member_roles = new (member.Roles);
-			log.info($"  Clearing guild tags from {member.DisplayName}.");
-			foreach (DiscordRole role in member_roles) {
-				if (roles_guild.Contains(role.Id)) {
-					log.debug($"    Removed role @{role.Name}.");
-					_ = member.RevokeRoleAsync(role);
-				}
-			}
-			_ = cmd.msg.RespondAsync($"Cleared all guild tags from {member.Mention}.");
-		}
-
-		public static void promote(Command cmd) {
-			// Handle ambiguous / unspecified cases.
-			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
-			if (do_exit_early)
-				{ return; }
-
-			// Promote the unambiguous member.
-			DiscordMember member = members[0];
-			Type rank = sanitize_ranks(member);
-			if (rank == Type.None) {
-				log.info($"  Promoting {member.DisplayName} to Guest.");
-				_ = member.GrantRoleAsync(roles[id_r.guest]);
-				_ = cmd.msg.RespondAsync($"Promoted {member.Mention} to **Guest**.");
-				return;
-			}
-			if (rank == Type.Guest) {
-				log.info($"  Promoting {member.DisplayName} from Guest to Member.");
-				_ = member.GrantRoleAsync(roles[id_r.member]);
-				_ = member.RevokeRoleAsync(roles[id_r.guest]);
-				_ = cmd.msg.RespondAsync($"Promoted {member.Mention} from **Guest** to **Member**.");
-				return;
-			}
-			log.info($"  {member.DisplayName} is already {rank} rank.");
-			_ = cmd.msg.RespondAsync($"{member.Mention} could not be promoted.");
-		}
-		public static void demote(Command cmd) {
-			// Handle ambiguous / unspecified cases.
-			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
-			if (do_exit_early)
-				{ return; }
-
-			// Demote the unambiguous member.
-			DiscordMember member = members[0];
-			Type rank = sanitize_ranks(member);
-			if (rank == Type.Member) {
-				log.info($"  Demoting {member.DisplayName} from Member to Guest.");
-				_ = member.GrantRoleAsync(roles[id_r.guest]);
-				_ = member.RevokeRoleAsync(roles[id_r.member]);
-				_ = cmd.msg.RespondAsync($"Demoted {member.Mention} from **Member** to **Guest**.");
-				return;
-			}
-			if (rank == Type.Guest) {
-				log.info($"  Demoting {member.DisplayName} from Guest.");
-				_ = member.RevokeRoleAsync(roles[id_r.guest]);
-				_ = cmd.msg.RespondAsync($"Demoted {member.Mention} from **Guest**.");
-				return;
-			}
-			log.info($"  {member.DisplayName} could not be demoted.");
-			_ = cmd.msg.RespondAsync($"{member.Mention} could not be demoted.");
-		}
-
-		public static void promote_officer(Command cmd) {
-			// Handle ambiguous / unspecified cases.
-			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
-			if (do_exit_early)
-				{ return; }
-
-			// Promote the unambiguous member.
-			DiscordMember member = members[0];
-			Type rank = sanitize_ranks(member);
-			if (rank == Type.Member) {
-				log.info($"  Promoting {member.DisplayName} from Member to Officer.");
-				_ = member.GrantRoleAsync(roles[id_r.officer]);
-				_ = member.RevokeRoleAsync(roles[id_r.member]);
-				_ = cmd.msg.RespondAsync($"Promoted {member.Mention} from **Member** to **Officer**.");
-			} else {
-				log.info($"  {member.DisplayName} is not a Member.");
-				_ = cmd.msg.RespondAsync($"{member.Mention} could not be promoted.");
-			}
-		}
-		public static void demote_officer(Command cmd) {
-			// Handle ambiguous / unspecified cases.
-			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
-			if (do_exit_early)
-				{ return; }
-
-			// Demote the unambiguous member.
-			DiscordMember member = members[0];
-			Type rank = sanitize_ranks(member);
-			List<DiscordRole> member_roles = new (member.Roles);
-			if (rank == Type.Officer) {
-				log.info($"  Demoting {member.DisplayName} from Officer to Member.");
-				_ = member.GrantRoleAsync(roles[id_r.member]);
-				_ = member.RevokeRoleAsync(roles[id_r.officer]);
-				_ = cmd.msg.RespondAsync($"Demoted {member.Mention} from **Officer** to **Member**.");
-				
-				// Remove officer roles.
-				foreach (DiscordRole role in member_roles) {
-					if (roles_officer.Contains(role.Id)) {
-						log.info($"    Removing @{role.Name}.");
-						_ = member.RevokeRoleAsync(role);
-					}
-				}
-			} else {
-				log.info($"  {member.DisplayName} is not an Officer.");
-				_ = cmd.msg.RespondAsync($"{member.Mention} could not be demoted.");
-			}
-		}
-		
-		public static void strip(Command cmd) {
-			// Handle ambiguous / unspecified cases.
-			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
-			if (do_exit_early)
-				{ return; }
-
-			// Demote the unambiguous member.
-			DiscordMember member = members[0];
-			List<DiscordRole> member_roles = new (member.Roles);
-			if (member_roles.Count > 0) {
-				log.info($"  Stripping {member.DisplayName} of ALL roles.");
-				_ = member.ReplaceRolesAsync(new List<DiscordRole>());
-				_ = cmd.msg.RespondAsync($"Stripped {member.Mention} of **ALL** roles.");
-			} else {
-				log.info($"  {member.DisplayName} has no roles to strip.");
-				_ = cmd.msg.RespondAsync($"{member.Mention} has no roles to strip.");
-			}
-		}
-
+		// List all server Guest members and tagged as <Erythro>.
 		public static void list_trials(Command cmd) {
 			// Can't search for member if guilds aren't even loaded.
 			if (!is_guild_loaded) {
@@ -346,24 +298,77 @@ namespace Irene.Commands {
 			_ = cmd.msg.RespondAsync(text.output());
 		}
 
-		// Returns a list of all Guilds with recognized strings.
-		// The list can be empty.
-		static List<Guild> parse_guilds(string arg) {
-			List<Guild> guilds = new ();
-
-			// Parse through all guild strings.
-			Regex regex_guild = new (@"<(?<name>[\w'\s]+)>");
-			MatchCollection matches = regex_guild.Matches(arg);
-			foreach (Match match in matches) {
-				string guild = match.Groups["name"].Value;
-				guild = guild.Trim().ToLower();
-				guild = guild.Replace(" ", "");
-				if (dict_guilds.ContainsKey(guild)) {
-					guilds.Add(dict_guilds[guild]);
-				}
+		// Callback from the Selection to set member's rank.
+		static async void set_rank(List<Type> rank, DiscordUser user) {
+			DiscordMember? member = await user.member();
+			if (member is null) {
+				log.error("Could not find DiscordMember to assign roles.");
+				log.endl();
+				return;
 			}
 
-			return guilds;
+			// Update member so its associated roles are current.
+			member = await member.Guild.GetMemberAsync(member.Id);
+
+			// Assign updated rank.
+			log.info($"  Assigning new rank to {member.DisplayName}.");
+			Type rank_prev = sanitize_ranks(member);
+			Type rank_new = rank[0];
+			_ = member.GrantRoleAsync(roles[rank_to_id[rank_new]]);
+			_ = member.RevokeRoleAsync(roles[rank_to_id[rank_prev]]);
+			sanitize_ranks(member);	// remove potential "officer" roles
+
+			// Send congrats message.
+			if (rank_new > rank_prev && rank_new >= Type.Member) {
+				StringWriter text = new ();
+				text.WriteLine($"Congrats! You've been promoted to **{options_rank[rank_new].label}**.");
+				text.WriteLine("If your in-game ranks haven't been updated, just ask an Officer to update them.");
+				_ = member.SendMessageAsync(text.output());
+			}
+		}
+
+		// Callback from the Selection to set the member's guilds.
+		static async void set_guilds(List<Guild> guilds, DiscordUser user) {
+			DiscordMember? member = await user.member();
+			if (member is null) {
+				log.error("Could not find DiscordMember to assign roles.");
+				log.endl();
+				return;
+			}
+
+			// Update member so its associated roles are current.
+			member = await member.Guild.GetMemberAsync(member.Id);
+
+			// Initialize comparison sets.
+			HashSet<Guild> guilds_prev = new ();
+			foreach (DiscordRole role in member.Roles) {
+				ulong role_id = role.Id;
+				if (id_to_guild.ContainsKey(role_id)) {
+					guilds_prev.Add(id_to_guild[role_id]);
+				}
+			}
+			HashSet<Guild> guilds_new = new (guilds);
+
+			// Find removed/added guilds.
+			HashSet<Guild> guilds_removed = new (guilds_prev);
+			guilds_removed.ExceptWith(guilds_new);
+			HashSet<Guild> guilds_added = new (guilds_new);
+			guilds_added.ExceptWith(guilds_prev);
+
+			// Remove/add guild roles.
+			log.info($"  Removing {guilds_removed.Count} guild role(s).");
+			foreach (Guild guild in guilds_removed) {
+				ulong role_id = guild_to_id[guild];
+				log.debug($"    Removing {roles[role_id]}.");
+				_ = member.RevokeRoleAsync(roles[role_id]);
+			}
+			log.info($"  Adding {guilds_added.Count} guild role(s).");
+			foreach (Guild guild in guilds_added) {
+				ulong role_id = guild_to_id[guild];
+				log.debug($"    Adding {roles[role_id]}.");
+				_ = member.GrantRoleAsync(roles[role_id]);
+			}
+			log.endl();
 		}
 
 		// Ensures that a member only has a single (their highest)
@@ -372,6 +377,21 @@ namespace Irene.Commands {
 		static Type sanitize_ranks(DiscordMember member) {
 			List<DiscordRole> member_roles = new (member.Roles);
 			Type rank = highest_rank(member);
+
+			// Only sanitize ranks lower than Officer for Admin.
+			if (rank == Type.Admin) {
+				rank = Type.Officer;
+			}
+
+			// Clear Officer role ranks, if applicable.
+			if (rank != Type.Officer) {
+				foreach (DiscordRole role in member_roles) {
+					if (roles_officer.Contains(role.Id)) {
+						log.info($"    Rank sanitizer: removing role {role.Name}");
+						member.RevokeRoleAsync(role);
+					}
+				}
+			}
 
 			// Clear all ranks lower than the highest.
 			foreach (DiscordRole role in member_roles) {
@@ -407,12 +427,32 @@ namespace Irene.Commands {
 			return rank_highest;
 		}
 
+		// Formats the given list of guilds into a string.
+		static string print_guilds(List<Guild> guilds) {
+			// Special cases for none/singular.
+			if (guilds.Count == 0) {
+				return "Not a member of any guilds.";
+			}
+			if (roles.Count == 1) {
+				return $"Guild previously set:\n**{options_guild[guilds[0]].label}**";
+			}
+
+			// Construct list of guild names.
+			StringWriter text = new ();
+			text.WriteLine("Guilds previously set:");
+			foreach (Guild guild in guilds) {
+				text.Write($"**{options_guild[guild].label}**  ");
+			}
+			return text.output()[..^2];
+		}
+
 		// Properly log/respond if the member list isn't singular.
 		// Returns true if parent function should exit early, and
 		// returns false otherwise.
 		static bool check_member_unique(List<DiscordMember> members, Command cmd) {
 			if (members.Count == 0) {
 				log.info($"  Could not find any members matching {cmd.args}.");
+				log.endl();
 				StringWriter text = new ();
 				text.WriteLine($"Could not find any members matching `{cmd.args}`.");
 				text.WriteLine("If their display name doesn't work, try their user ID instead.");
@@ -421,6 +461,7 @@ namespace Irene.Commands {
 			}
 			if (members.Count > 1) {
 				log.info($"  Found multiple members matching {cmd.args}.");
+				log.endl();
 				StringWriter text = new ();
 				text.WriteLine($"Found multiple members matching `{cmd.args}`.");
 				foreach (DiscordMember member_i in members) {
@@ -431,6 +472,24 @@ namespace Irene.Commands {
 				return true;
 			}
 			return false;
+		}
+
+		// Properly log/respond if the `DiscordMember` of the caller
+		// couldn't be determined.
+		// Returns true if parent function should exit early, and
+		// returns false otherwise.
+		static bool check_caller_member(Command cmd) {
+			if (cmd.user is not null)
+				{ return false; }
+
+			log.warning("  Could not determine caller's DiscordMember value.");
+			log.endl();
+			StringWriter text = new ();
+			text.WriteLine("Could not determine your guild rank.");
+			text.WriteLine("This is probably an internal error; contact Ernie for more info.");
+			_ = cmd.msg.RespondAsync(text.output());
+
+			return true;
 		}
 
 		// Returns a (possibly empty) list of matching members.
@@ -445,8 +504,8 @@ namespace Irene.Commands {
 			// If guild is loaded, `Program.guild` has been initialized.
 			DiscordGuild erythro = guild!;
 			List<DiscordMember> members = new (
-				erythro.GetAllMembersAsync()
-				.Result );
+				erythro.GetAllMembersAsync().Result
+			);
 
 			// Set up variables.
 			arg = arg.Trim();
