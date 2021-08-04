@@ -57,24 +57,7 @@ namespace Irene.Commands {
 				description = "Herald of the Titans announcements.",
 			} },
 		};
-		
-		static readonly Dictionary<string, PingRole> dict_pingRoles = new () {
-			{ "raid"   , PingRole.Raid },
-			{ "raids"  , PingRole.Raid },
-			{ "raiding", PingRole.Raid },
 
-			{ "m+"     , PingRole.Mythics },
-			{ "mythic+", PingRole.Mythics },
-			{ "mythics", PingRole.Mythics },
-			{ "keys"   , PingRole.Mythics },
-			{ "ksm"    , PingRole.KSM     },
-			{ "gearing", PingRole.Gearing },
-			{ "gear"   , PingRole.Gearing },
-
-			{ "events", PingRole.Events },
-			{ "event" , PingRole.Events },
-			{ "herald", PingRole.Herald },
-		};
 		static readonly Dictionary<PingRole, ulong> pingRole_to_discordRole = new () {
 			{ PingRole.Raid   , id_r.raid    },
 			{ PingRole.Mythics, id_r.mythics },
@@ -239,7 +222,7 @@ namespace Irene.Commands {
 				string line = data.ReadLine() ?? "";
 				if (line.Contains(delim)) {
 					string[] split = line.Split(delim, 2);
-					if (dict_pingRoles[split[0]] == role) {
+					if (split[0] == options[role].id) {
 						content = split[1];
 						break;
 					}
