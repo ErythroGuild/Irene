@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Timers;
 
@@ -47,7 +47,7 @@ namespace Irene {
 			Action<List<T>, DiscordUser> action,
 			DiscordUser author,
 			string placeholder,
-			bool is_multiple = false ) :
+			bool is_multiple ) :
 			this(options, action, author, author, placeholder, is_multiple) { }
 		public Selection(
 			Dictionary<T, Entry> options,
@@ -55,7 +55,7 @@ namespace Irene {
 			DiscordUser action_user,
 			DiscordUser author,
 			string placeholder,
-			bool is_multiple = false ) {
+			bool is_multiple ) {
 			// Initialize members.
 			this.options = options;
 			this.placeholder = placeholder;
