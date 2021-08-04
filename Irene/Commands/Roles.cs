@@ -74,10 +74,7 @@ namespace Irene.Commands {
 		// Force static initializer to run.
 		public static void init() { return; }
 		static Roles() {
-			discordRole_to_pingRole = new Dictionary<ulong, PingRole>();
-			foreach (PingRole role in pingRole_to_discordRole.Keys) {
-				discordRole_to_pingRole.Add(pingRole_to_discordRole[role], role);
-			}
+			discordRole_to_pingRole = pingRole_to_discordRole.inverse();
 		}
 
 		public static string help() {
