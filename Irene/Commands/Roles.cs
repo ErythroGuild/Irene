@@ -154,6 +154,8 @@ namespace Irene.Commands {
 			// Convert DiscordUser to DiscordMember.
 			DiscordMember? member = await user.member();
 			if (member is null) {
+				log.error("Could not find DiscordMember to assign roles.");
+				log.endl();
 				return;
 			}
 
