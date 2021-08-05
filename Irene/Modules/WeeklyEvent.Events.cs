@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
+using DSharpPlus.Net.Models;
 
 using static Irene.Program;
 
@@ -14,6 +15,35 @@ namespace Irene.Modules {
 	using id_e = EmojiIDs;
 
 	partial class WeeklyEvent {
+		const string
+			path_meme_ch = @"data/meme-ch.txt";
+
+		static void e_cycle_meme_ch() {
+			if (!is_guild_loaded) {
+				log.error("Guild not loaded for event execution.");
+				return;
+			}
+
+			// Read in all non-empty lines.
+			List<string> names = new (File.ReadAllLines(path_meme_ch));
+			foreach(string name_i in names) {
+				if (name_i == "") {
+					names.Remove(name_i);
+				}
+			}
+
+			// Randomly select a name.
+			// Creating a new PRNG each time is suboptimal, but for our
+			// needs here it suffices.
+			Random rng = new ();
+			int i = rng.Next(names.Count);
+			string name = names[i];
+
+			channels[id_ch.memes].ModifyAsync((ChannelEditModel editor) => {
+				editor.Name = name;
+			});
+		}
+
 		static void e_weekly_raid_info_announce() {
 
 		}

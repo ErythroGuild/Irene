@@ -34,6 +34,7 @@ namespace Irene.Modules {
 
 		// Event times.
 		static readonly TimeSpan
+			t_cycle_meme_ch          = new ( 6,  0, 0),
 			t_morning_announce       = new ( 8, 30, 0),
 			t_pin_affixes            = new (10,  0, 0),
 			t_raid_soon_announce     = new (17, 10, 0),
@@ -48,6 +49,12 @@ namespace Irene.Modules {
 		public static void init() { return; }
 		static WeeklyEvent() {
 			events = new () {
+				new WeeklyEvent(
+					"update meme channel name",
+					"Update Meme Channel Name",
+					new Time(DayOfWeek.Monday, t_cycle_meme_ch),
+					e_cycle_meme_ch
+				),
 				new WeeklyEvent(
 					"weekly raid info announcement",
 					"Weekly Raid Info Announcement",
