@@ -133,7 +133,10 @@ namespace Irene.Commands {
 			bool do_exit_early = check_member_unique(members, cmd);
 			if (do_exit_early)
 				{ return; }
-			do_exit_early = check_caller_member(cmd);
+			do_exit_early = check_caller_membership(cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -178,7 +181,10 @@ namespace Irene.Commands {
 			bool do_exit_early = check_member_unique(members, cmd);
 			if (do_exit_early)
 				{ return; }
-			do_exit_early = check_caller_member(cmd);
+			do_exit_early = check_caller_membership(cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -215,6 +221,12 @@ namespace Irene.Commands {
 			// Handle ambiguous / unspecified cases.
 			List<DiscordMember> members = parse_member(cmd.args);
 			bool do_exit_early = check_member_unique(members, cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_caller_membership(cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -482,7 +494,7 @@ namespace Irene.Commands {
 		// couldn't be determined.
 		// Returns true if parent function should exit early, and
 		// returns false otherwise.
-		static bool check_caller_member(Command cmd) {
+		static bool check_caller_membership(Command cmd) {
 			if (cmd.user is not null)
 				{ return false; }
 
@@ -492,6 +504,23 @@ namespace Irene.Commands {
 			text.WriteLine("Could not determine your guild rank.");
 			text.WriteLine("This is probably an internal error; contact Ernie for more info.");
 			_ = cmd.msg.RespondAsync(text.output());
+
+			return true;
+		}
+
+		// Ensure a target user exists.
+		// Returns true if parent function should exit early, and
+		// returns false otherwise.
+		static bool check_arg_exists(Command cmd) {
+			if (cmd.args.Trim() != "")
+				{ return false; }
+
+			log.info("No target user argument specified.");
+			log.endl();
+			StringWriter text = new StringWriter();
+			text.WriteLine("You must specify a user to modify the rank of.");
+			text.WriteLine("This can be an `@mention`, their user ID, or their username, if it's unambiguous.");
+			text.WriteLine("See also: `@Irene -help rank`.");
 
 			return true;
 		}
