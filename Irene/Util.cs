@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -88,6 +89,17 @@ namespace Irene {
 				text = text.Replace(escape_code, codepoint);
 			}
 			return text;
+		}
+
+		// Returns the date of the next weekday (at 0:00), using local time.
+		// Returns the same day if the day of the week is the same.
+		// (This means it can return a time in the past.)
+		public static DateTimeOffset next_weekday(this DateTimeOffset time, DayOfWeek day) {
+			DateTime date = time.LocalDateTime;
+			int days_added = (int) day - (int) date.DayOfWeek;
+			days_added = (days_added + 7) % 7;	// ensure result falls in [0,6]
+			date = (date - date.TimeOfDay).AddDays(days_added);
+			return new DateTimeOffset(date);
 		}
 
 		// Returns the functional inverse of a given Dictionary.
