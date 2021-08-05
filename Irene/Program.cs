@@ -287,6 +287,7 @@ namespace Irene {
 
 					// Initialize modules.
 					AuditLog.init();
+					WeeklyEvent.init();
 					Welcome.init();
 					Starboard.init();
 
