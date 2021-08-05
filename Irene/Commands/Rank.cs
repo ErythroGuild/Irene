@@ -531,6 +531,7 @@ namespace Irene.Commands {
 			text.WriteLine("You must specify a user to modify the rank of.");
 			text.WriteLine("This can be an `@mention`, their user ID, or their username, if it's unambiguous.");
 			text.WriteLine("See also: `@Irene -help rank`.");
+			_ = cmd.msg.RespondAsync(text.output());
 
 			return true;
 		}
