@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -119,7 +119,7 @@ namespace Irene.Commands {
 			text.WriteLine(":lock: `@Irene -rank` Displays the user's rank, and lets you update them.");
 			text.WriteLine(":lock: `@Irene -guild` Displays the user's guilds, and lets you modify them.");
 			text.WriteLine(":lock: `@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
-			text.WriteLine(":lock: `@Irene -trials` lists all current trials (**Guest** *and* **<Erythro>**.");
+			text.WriteLine(":lock: `@Irene -list-trials` lists all current trials (**Guest** *and* **<Erythro>**.");
 
 			return text.output();
 		}
@@ -133,7 +133,10 @@ namespace Irene.Commands {
 			bool do_exit_early = check_member_unique(members, cmd);
 			if (do_exit_early)
 				{ return; }
-			do_exit_early = check_caller_member(cmd);
+			do_exit_early = check_caller_membership(cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -178,7 +181,10 @@ namespace Irene.Commands {
 			bool do_exit_early = check_member_unique(members, cmd);
 			if (do_exit_early)
 				{ return; }
-			do_exit_early = check_caller_member(cmd);
+			do_exit_early = check_caller_membership(cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -215,6 +221,12 @@ namespace Irene.Commands {
 			// Handle ambiguous / unspecified cases.
 			List<DiscordMember> members = parse_member(cmd.args);
 			bool do_exit_early = check_member_unique(members, cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_caller_membership(cmd);
+			if (do_exit_early)
+				{ return; }
+			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -314,12 +326,17 @@ namespace Irene.Commands {
 			log.info($"  Assigning new rank to {member.DisplayName}.");
 			Type rank_prev = sanitize_ranks(member);
 			Type rank_new = rank[0];
-			_ = member.GrantRoleAsync(roles[rank_to_id[rank_new]]);
-			_ = member.RevokeRoleAsync(roles[rank_to_id[rank_prev]]);
+			if (rank_to_id.ContainsKey(rank_new)) {
+				_ = member.GrantRoleAsync(roles[rank_to_id[rank_new]]);
+			}
+			if (rank_to_id.ContainsKey(rank_prev)) {
+				_ = member.RevokeRoleAsync(roles[rank_to_id[rank_prev]]);
+			}
 			sanitize_ranks(member);	// remove potential "officer" roles
 
 			// Send congrats message.
 			if (rank_new > rank_prev && rank_new >= Type.Member) {
+				log.info("  Sending promotion congrats message.");
 				StringWriter text = new ();
 				text.WriteLine($"Congrats! You've been promoted to **{options_rank[rank_new].label}**.");
 				text.WriteLine("If your in-game ranks haven't been updated, just ask an Officer to update them.");
@@ -464,8 +481,16 @@ namespace Irene.Commands {
 				log.endl();
 				StringWriter text = new ();
 				text.WriteLine($"Found multiple members matching `{cmd.args}`.");
+				bool is_elided = false;
+				if (members.Count > 8) {
+					is_elided = true;
+					members = members.GetRange(0, 8);
+				}
 				foreach (DiscordMember member_i in members) {
 					text.WriteLine($"{em}{member_i.Mention}: `{member_i.Id}`");
+				}
+				if (is_elided) {
+					text.WriteLine($"{em}...");
 				}
 				text.WriteLine("Try specifying a user ID instead.");
 				_ = cmd.msg.RespondAsync(text.output());
@@ -478,7 +503,7 @@ namespace Irene.Commands {
 		// couldn't be determined.
 		// Returns true if parent function should exit early, and
 		// returns false otherwise.
-		static bool check_caller_member(Command cmd) {
+		static bool check_caller_membership(Command cmd) {
 			if (cmd.user is not null)
 				{ return false; }
 
@@ -488,6 +513,23 @@ namespace Irene.Commands {
 			text.WriteLine("Could not determine your guild rank.");
 			text.WriteLine("This is probably an internal error; contact Ernie for more info.");
 			_ = cmd.msg.RespondAsync(text.output());
+
+			return true;
+		}
+
+		// Ensure a target user exists.
+		// Returns true if parent function should exit early, and
+		// returns false otherwise.
+		static bool check_arg_exists(Command cmd) {
+			if (cmd.args.Trim() != "")
+				{ return false; }
+
+			log.info("No target user argument specified.");
+			log.endl();
+			StringWriter text = new StringWriter();
+			text.WriteLine("You must specify a user to modify the rank of.");
+			text.WriteLine("This can be an `@mention`, their user ID, or their username, if it's unambiguous.");
+			text.WriteLine("See also: `@Irene -help rank`.");
 
 			return true;
 		}

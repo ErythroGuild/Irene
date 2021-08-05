@@ -125,6 +125,13 @@ namespace Irene.Commands {
 
 			s = new StringWriter();
 			s.WriteLine("**:lock: Ranks**");
+			s.WriteLine($"`{m} -rank <user-id>`: Select a rank for the given user.");
+			s.WriteLine($"{t}*aliases:* `-set-rank`, `-promote`");
+			s.WriteLine($"`{m} -guilds <user-id>`: Select guilds to assign to the given user.");
+			s.WriteLine($"{t}*aliases:* `-set-guilds`");
+			s.WriteLine($"`{m} -set-erythro <user-id>`: Gives user Guest permissions and assigns them to <Erythro>.");
+			s.WriteLine($"`{m} -list-trials`: List all Guest users who are tagged as <Erythro>.");
+			s.WriteLine($"{t}*aliases:* `-trials`");
 			list_officer.Add(s.output());
 
 			s = new StringWriter();
