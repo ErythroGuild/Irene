@@ -119,7 +119,7 @@ namespace Irene.Commands {
 			text.WriteLine(":lock: `@Irene -rank` Displays the user's rank, and lets you update them.");
 			text.WriteLine(":lock: `@Irene -guild` Displays the user's guilds, and lets you modify them.");
 			text.WriteLine(":lock: `@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
-			text.WriteLine(":lock: `@Irene -trials` lists all current trials (**Guest** *and* **<Erythro>**.");
+			text.WriteLine(":lock: `@Irene -list-trials` lists all current trials (**Guest** *and* **<Erythro>**.");
 
 			return text.output();
 		}
