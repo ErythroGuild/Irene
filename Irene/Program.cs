@@ -202,16 +202,6 @@ namespace Irene {
 				TokenType = TokenType.Bot
 			});
 
-			// Initialize modules.
-			AuditLog.init();
-			Welcome.init();
-			Starboard.init();
-
-			// Initialize commands.
-			Help.init();
-			Roles.init();
-			Rank.init();
-
 			log.info("Irene initialized.");
 		}
 
@@ -294,6 +284,16 @@ namespace Irene {
 
 					is_guild_loaded = true;
 					log.endl();
+
+					// Initialize modules.
+					AuditLog.init();
+					Welcome.init();
+					Starboard.init();
+
+					// Initialize commands.
+					Help.init();
+					Roles.init();
+					Rank.init();
 				});
 				return Task.CompletedTask;
 			};

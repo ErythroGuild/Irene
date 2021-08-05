@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -16,11 +15,12 @@ namespace Irene.Modules {
 		static AuditLogEntryTable audit_log_base = new ();
 		static bool is_audit_log_loaded = false;
 
-		const string t = "\u2003";
-		const string b = "\u2022";
-		const string l = "\u2B9A";
-		const string r = "\u21A6";
-		const string n = "`N/A`";
+		const string
+			t = "\u2003",
+			b = "\u2022",
+			l = "\u2B9A",
+			r = "\u21A6",
+			n = "`N/A`";
 
 		// Force static initializer to run.
 		public static void init() { return; }
@@ -64,16 +64,13 @@ namespace Irene.Modules {
 			}
 
 			is_audit_log_loaded = true;
-			log.debug("AuditLog module initialized.");
+			log.debug("Initialized module: AuditLog");
 			log.endl();
 		}
 
 		static AuditLog() {
 			// Get a baseline for most recent audit log entries of each type.
-			irene.GuildDownloadCompleted += (irene, e) => {
-				_ = Task.Run(init_audit_log_base);
-				return Task.CompletedTask;
-			};
+			_ = Task.Run(init_audit_log_base);
 
 			// New member joined server.
 			// (Includes bots being added to the server.)
