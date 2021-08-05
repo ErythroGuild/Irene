@@ -336,6 +336,7 @@ namespace Irene.Commands {
 
 			// Send congrats message.
 			if (rank_new > rank_prev && rank_new >= Type.Member) {
+				log.info("  Sending promotion congrats message.");
 				StringWriter text = new ();
 				text.WriteLine($"Congrats! You've been promoted to **{options_rank[rank_new].label}**.");
 				text.WriteLine("If your in-game ranks haven't been updated, just ask an Officer to update them.");
