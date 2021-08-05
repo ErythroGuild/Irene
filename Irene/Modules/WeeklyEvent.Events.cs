@@ -31,14 +31,6 @@ namespace Irene.Modules {
 
 		}
 
-		static void e_raid_set_logs_remind() {
-
-		}
-
-		static void e_raid_break_remind() {
-
-		}
-
 		static void e_raid2_day_announce() {
 
 		}
@@ -48,6 +40,14 @@ namespace Irene.Modules {
 		}
 
 		static void e_raid2_now_announce() {
+
+		}
+
+		static void e_raid_set_logs_remind() {
+
+		}
+
+		static void e_raid_break_remind() {
 
 		}
 
