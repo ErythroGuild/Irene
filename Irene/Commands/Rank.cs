@@ -197,6 +197,7 @@ namespace Irene.Commands {
 					guilds_current.Add(id_to_guild[role_id]);
 				}
 			}
+			guilds_current.Sort();
 
 			// Send message with selection menu.
 			log.info("  Sending guild selection menu.");

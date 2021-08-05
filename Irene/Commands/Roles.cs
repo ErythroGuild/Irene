@@ -103,6 +103,7 @@ namespace Irene.Commands {
 					roles_current.Add(discordRole_to_pingRole[role_id]);
 				}
 			}
+			roles_current.Sort();
 
 			// Send message with selection menu.
 			log.info("  Sending role selection menu.");
