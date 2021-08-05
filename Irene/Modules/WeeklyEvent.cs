@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -53,7 +53,8 @@ namespace Irene.Modules {
 					"update meme channel name",
 					"Update Meme Channel Name",
 					new Time(DayOfWeek.Monday, t_cycle_meme_ch),
-					e_cycle_meme_ch
+					e_cycle_meme_ch,
+					true
 				),
 				new WeeklyEvent(
 					"weekly raid info announcement",
@@ -65,7 +66,8 @@ namespace Irene.Modules {
 					"pin weekly affixes",
 					"Pin Weekly Affixes",
 					new Time(DayOfWeek.Tuesday, t_pin_affixes),
-					e_pin_affixes
+					e_pin_affixes,
+					true
 				),
 				new WeeklyEvent(
 					"raid 1 day announcement",
