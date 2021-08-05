@@ -111,7 +111,7 @@ namespace Irene {
 			};
 			string entry = $"{time_str} > {tag} {text}";
 
-			lock (new object()) {
+			lock (lock_file) {
 				StreamWriter writer = File.AppendText(file);
 				writer.WriteLine(entry);
 				writer.Close();
