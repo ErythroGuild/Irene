@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -150,6 +150,7 @@ namespace Irene.Modules {
 			};
 
 			log.debug("Initialized module: WeeklyEvent");
+			log.debug($"  {events.Count} event(s) registered.");
 			log.endl();
 		}
 
