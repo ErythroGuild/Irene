@@ -481,8 +481,16 @@ namespace Irene.Commands {
 				log.endl();
 				StringWriter text = new ();
 				text.WriteLine($"Found multiple members matching `{cmd.args}`.");
+				bool is_elided = false;
+				if (members.Count > 8) {
+					is_elided = true;
+					members = members.GetRange(0, 8);
+				}
 				foreach (DiscordMember member_i in members) {
 					text.WriteLine($"{em}{member_i.Mention}: `{member_i.Id}`");
+				}
+				if (is_elided) {
+					text.WriteLine($"{em}...");
 				}
 				text.WriteLine("Try specifying a user ID instead.");
 				_ = cmd.msg.RespondAsync(text.output());
