@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -77,11 +77,32 @@ namespace Irene.Modules {
 		}
 
 		static void e_raid_set_logs_remind() {
+			if (!is_guild_loaded) {
+				log.error("Guild not loaded for event execution.");
+				return;
+			}
 
+			StringWriter text = new ();
+			text.WriteLine($"{roles[id_r.raidOfficer].Mention} -");
+			text.WriteLine("  Reminder to set logs for tonight. :ok_hand: :card_box:");
+			text.WriteLine("  `@Irene -logs-set`");
+
+			DiscordChannel ch = channels[id_ch.officerBots];
+			_ = ch.SendMessageAsync(text.output());
 		}
 
 		static void e_raid_break_remind() {
+			if (!is_guild_loaded) {
+				log.error("Guild not loaded for event execution.");
+				return;
+			}
 
+			StringWriter text = new ();
+			text.WriteLine($"{roles[id_r.raidOfficer].Mention} -");
+			text.WriteLine("  Raid break soon. :slight_smile: :tropical_drink:");
+
+			DiscordChannel ch = channels[id_ch.officer];
+			_ = ch.SendMessageAsync(text.output());
 		}
 
 		static void e_weekly_officer_meeting() {
