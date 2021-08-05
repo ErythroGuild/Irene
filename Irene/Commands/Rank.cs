@@ -129,14 +129,14 @@ namespace Irene.Commands {
 		// Only Admin can modify the Officer rank.
 		public static void set_rank(Command cmd) {
 			// Handle ambiguous / unspecified / illegal cases.
+			bool do_exit_early = check_arg_exists(cmd);
+			if (do_exit_early)
+				{ return; }
 			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
+			do_exit_early = check_member_unique(members, cmd);
 			if (do_exit_early)
 				{ return; }
 			do_exit_early = check_caller_membership(cmd);
-			if (do_exit_early)
-				{ return; }
-			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -177,14 +177,14 @@ namespace Irene.Commands {
 		// rank is not lower than the user's own highest rank.
 		public static void set_guilds(Command cmd) {
 			// Handle ambiguous / unspecified cases.
+			bool do_exit_early = check_arg_exists(cmd);
+			if (do_exit_early)
+				{ return; }
 			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
+			do_exit_early = check_member_unique(members, cmd);
 			if (do_exit_early)
 				{ return; }
 			do_exit_early = check_caller_membership(cmd);
-			if (do_exit_early)
-				{ return; }
-			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -197,6 +197,7 @@ namespace Irene.Commands {
 					guilds_current.Add(id_to_guild[role_id]);
 				}
 			}
+			guilds_current.Sort();
 
 			// Send message with selection menu.
 			log.info("  Sending guild selection menu.");
@@ -219,14 +220,14 @@ namespace Irene.Commands {
 		// Shortcut to grant Guest rank and tag as <Erythro>.
 		public static void set_erythro(Command cmd) {
 			// Handle ambiguous / unspecified cases.
+			bool do_exit_early = check_arg_exists(cmd);
+			if (do_exit_early)
+				{ return; }
 			List<DiscordMember> members = parse_member(cmd.args);
-			bool do_exit_early = check_member_unique(members, cmd);
+			do_exit_early = check_member_unique(members, cmd);
 			if (do_exit_early)
 				{ return; }
 			do_exit_early = check_caller_membership(cmd);
-			if (do_exit_early)
-				{ return; }
-			do_exit_early = check_arg_exists(cmd);
 			if (do_exit_early)
 				{ return; }
 
@@ -530,6 +531,7 @@ namespace Irene.Commands {
 			text.WriteLine("You must specify a user to modify the rank of.");
 			text.WriteLine("This can be an `@mention`, their user ID, or their username, if it's unambiguous.");
 			text.WriteLine("See also: `@Irene -help rank`.");
+			_ = cmd.msg.RespondAsync(text.output());
 
 			return true;
 		}
