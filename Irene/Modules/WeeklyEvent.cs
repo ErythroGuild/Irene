@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Timers;
 
 using static Irene.Program;
+using static Irene.Util;
 
 namespace Irene.Modules {
 	// All times are local time (Pacific Time).
@@ -24,7 +25,7 @@ namespace Irene.Modules {
 
 		// Static data.
 		static readonly List<WeeklyEvent> events;
-		static readonly object lock_data = new ();
+		static object lock_data = new ();
 
 		const string
 			path_data = @"data/weekly.txt",
@@ -223,7 +224,7 @@ namespace Irene.Modules {
 
 		// Read the specified id's time from the datafile.
 		static DateTimeOffset? parse_last_executed(string id) {
-			ensure_datafile_exists();
+			ensure_file_exists(path_data, ref lock_data);
 
 			lock (lock_data) {
 				StreamReader file = new (path_data);
@@ -250,7 +251,7 @@ namespace Irene.Modules {
 
 		// Write the current id-time pair to the datafile.
 		static void update_executed(string id, DateTimeOffset time) {
-			ensure_datafile_exists();
+			ensure_file_exists(path_data, ref lock_data);
 
 			// Read in all current data; replacing appropriate line.
 			StringWriter buffer = new ();
@@ -279,15 +280,6 @@ namespace Irene.Modules {
 				File.WriteAllText(path_buffer, buffer.output());
 				File.Delete(path_data);
 				File.Move(path_buffer, path_data);
-			}
-		}
-
-		// Creates an empty file if none exists at the specified path.
-		static void ensure_datafile_exists() {
-			lock (lock_data) {
-				if (!File.Exists(path_data)) {
-					File.Create(path_data).Close();
-				}
 			}
 		}
 

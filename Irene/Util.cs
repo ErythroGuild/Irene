@@ -102,6 +102,19 @@ namespace Irene {
 			return new DateTimeOffset(date);
 		}
 
+		// Create a blank file at the given path, if it doesn't exist.
+		// Returns true if file was created, false otherwise.
+		public static bool ensure_file_exists(string path, ref object @lock) {
+			bool did_create = false;
+			lock (@lock) {
+				if (!File.Exists(path)) {
+					File.Create(path).Close();
+					did_create = true;
+				}
+			}
+			return did_create;
+		}
+
 		// Returns the functional inverse of a given Dictionary.
 		public static Dictionary<T2, T1> inverse<T1, T2>(this Dictionary<T1, T2> dict)
 			where T1 : notnull
