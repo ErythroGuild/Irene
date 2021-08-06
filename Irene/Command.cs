@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
@@ -99,19 +99,19 @@ namespace Irene {
 			{ Roll.run, Roll.help },
 		};
 		static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
-			{ Help.run , AccessLevel.None },
-			{ About.run, AccessLevel.None },
+			{ Help.run , AccessLevel.None  },
+			{ About.run, AccessLevel.Guest },
 
 			{ Roles.set  , AccessLevel.Guest },
 			{ Roles.list , AccessLevel.None  },
-			{ Roles.royce, AccessLevel.None  },
+			{ Roles.royce, AccessLevel.Guest },
 
 			{ Rank.set_rank   , AccessLevel.Officer },
 			{ Rank.set_guilds , AccessLevel.Officer },
 			{ Rank.set_erythro, AccessLevel.Officer },
 			{ Rank.list_trials, AccessLevel.Officer },
 
-			{ Tags.run   , AccessLevel.None    },
+			{ Tags.run   , AccessLevel.Guest   },
 			{ Tags.add   , AccessLevel.Officer },
 			{ Tags.edit  , AccessLevel.Officer },
 			{ Tags.remove, AccessLevel.Officer },
@@ -120,9 +120,9 @@ namespace Irene {
 
 			{ ClassDiscords.run, AccessLevel.None },
 
-			{ Invite.run, AccessLevel.None },
+			{ Invite.run, AccessLevel.Guest },
 
-			{ Roll.run, AccessLevel.None },
+			{ Roll.run, AccessLevel.Guest },
 		};
 
 		// Properties
