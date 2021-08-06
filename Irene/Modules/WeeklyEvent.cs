@@ -36,7 +36,7 @@ namespace Irene.Modules {
 		static readonly TimeSpan
 			t_cycle_meme_ch          = new ( 6,  0, 0),
 			t_morning_announce       = new ( 8, 30, 0),
-			t_pin_affixes            = new (10,  0, 0),
+			t_pin_affixes            = new ( 9,  0, 0),
 			t_raid_soon_announce     = new (17, 10, 0),
 			t_raid_now_announce      = new (18, 10, 0),
 			t_set_logs_remind        = new (18, 20, 0),
