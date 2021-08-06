@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -16,7 +16,7 @@ namespace Irene.Modules {
 
 	partial class WeeklyEvent {
 		const string
-			path_meme_ch = @"data/meme-ch.txt";
+			path_meme_ch = @"data/memes.txt";
 
 		static void e_cycle_meme_ch() {
 			if (!is_guild_loaded) {
