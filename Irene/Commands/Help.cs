@@ -4,6 +4,7 @@ using System.IO;
 
 using DSharpPlus.Entities;
 
+using Irene.Components;
 using static Irene.Program;
 
 namespace Irene.Commands {

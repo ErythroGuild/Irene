@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 
 using DSharpPlus.Entities;
 
+using Irene.Components;
 using static Irene.Program;
 
 namespace Irene.Commands {

@@ -10,7 +10,7 @@ using Emzi0767.Utilities;
 
 using static Irene.Program;
 
-namespace Irene {
+namespace Irene.Components {
 	using ButtonLambda = AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
 
 	class Pages {
