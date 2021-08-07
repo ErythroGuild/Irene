@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
+using static Irene.Const;
 using static Irene.Util;
 
 namespace Irene.Modules {
@@ -57,6 +58,13 @@ namespace Irene.Modules {
 			key_group   = "group",
 			key_summary = "summary",
 			key_log_id  = "log-id";
+
+		// Returns the current week, calculated based on local time.
+		public static int current_week() {
+			TimeSpan duration = DateTime.UtcNow - date_season_2;
+			int week = (duration.Days / 7) + 1;   // int division
+			return week;
+		}
 
 		// Replace the previous raid entry with the same hash as
 		// the new one if one exists; otherwise prepends the raid
