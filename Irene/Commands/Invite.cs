@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using static Irene.Const;
 using static Irene.Program;
 
 namespace Irene.Commands {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using DSharpPlus.Entities;
 
+using static Irene.Const;
 using static Irene.Program;
 using Irene.Commands;
 
