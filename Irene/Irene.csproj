@@ -47,7 +47,7 @@
     <None Update="config\token.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="data\meme-ch.txt">
+    <None Update="data\memes.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="data\roles_intros.txt">
