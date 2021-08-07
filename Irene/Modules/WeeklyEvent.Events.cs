@@ -1,9 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 using DSharpPlus.Entities;
-using DSharpPlus.Net.Models;
 
 using static Irene.Const;
 using static Irene.Program;
@@ -40,9 +39,7 @@ namespace Irene.Modules {
 			int i = rng.Next(names.Count);
 			string name = names[i];
 
-			channels[id_ch.memes].ModifyAsync((ChannelEditModel editor) => {
-				editor.Name = name;
-			});
+			channels[id_ch.memes].ModifyAsync(ch => ch.Name = name);
 		}
 
 		static void e_weekly_raid_info_announce() {
