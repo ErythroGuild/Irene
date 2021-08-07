@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -14,6 +14,54 @@ namespace Irene.Modules {
 
 	partial class WeeklyEvent {
 		static Dictionary<Raid.Date, ulong> msgs_raid_forming = new ();
+
+		public static void update_raid_logs(Raid raid) {
+			if (!is_guild_loaded) {
+				log.warning("    Could not update announcement post: guild not loaded.");
+				return;
+			}
+			if (!msgs_raid_forming.ContainsKey(raid.date)) {
+				log.warning("    Could not update announcement post: announcement not posted.");
+				return;
+			}
+
+			// Prepare data.
+			ulong msg_id = msgs_raid_forming[raid.date];
+			DiscordMessage msg =
+				channels[id_ch.announce]
+				.GetMessageAsync(msg_id)
+				.Result;
+			string content = msg.Content;
+			string
+				emoji_logs     = emojis[id_e.warcraftlogs].ToString(),
+				emoji_wipefest = emojis[id_e.wipefest    ].ToString(),
+				emoji_analyzer = emojis[id_e.wowanalyzer ].ToString();
+
+			// Update message content with new log links.
+			StringReader text_in = new StringReader(content);
+			StringWriter text_out = new ();
+			string? line;
+			do {
+				line = text_in.ReadLine();
+				if (line is not null &&
+					line != "" &&
+					!line.StartsWith(emoji_logs) &&
+					!line.StartsWith(emoji_wipefest) &&
+					!line.StartsWith(emoji_analyzer)
+				) {
+					text_out.WriteLine(line);
+				}
+			} while (line is not null);
+			if (raid.log_id is not null) {
+				text_out.WriteLine();
+				text_out.WriteLine($"{emoji_wipefest} - <{raid.get_link_wipefest()}>");
+				text_out.WriteLine($"{emoji_analyzer} - <{raid.get_link_analyzer()}>");
+				text_out.WriteLine($"{emoji_logs} - <{raid.get_link_logs()}>");
+			}
+
+			// Update message.
+			msg.ModifyAsync(text_out.output());
+		}
 
 		const string
 			path_meme_ch = @"data/memes.txt";
