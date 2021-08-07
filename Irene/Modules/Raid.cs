@@ -58,7 +58,49 @@ namespace Irene.Modules {
 			key_summary = "summary",
 			key_log_id  = "log-id";
 
+		// Replace the previous raid entry with the same hash as
+		// the new one if one exists; otherwise prepends the raid
+		// entry.
+		public static void update(Raid raid) {
+			ensure_file_exists(path_data, ref lock_data);
+
+			// Replace in-place the entry if it's an update to an
+			// existing entry.
+			List<FileEntry> entries = get_file_entries();
+			string hash = raid.hash();
+			bool is_update = false;
+			for (int i=0; i<entries.Count; i++) {
+				FileEntry entry = entries[i];
+				if (entry[0] == hash) {
+					is_update = true;
+					entries[i] = raid.file_entry();
+					break;
+				}
+			}
+
+			// If the entry is a new entry, add it at the start.
+			if (!is_update) {
+				entries.Insert(0, raid.file_entry());
+			}
+
+			// Flatten list of entries.
+			List<string> output = new ();
+			foreach (FileEntry entry in entries) {
+				foreach (string line in entry) {
+					output.Add(line);
+				}
+			}
+
+			// Update text file.
+			lock (lock_data) {
+				File.WriteAllLines(path_buffer, output);
+				File.Delete(path_data);
+				File.Move(path_buffer, path_data);
+			}
+		}
+
 		// Fetch raid data from saved datafile.
+		// Returns null if a matching entry could not be found.
 		public static Raid? get(int week, Day day) {
 			return get(week, day, default_group);
 		}
@@ -140,47 +182,6 @@ namespace Irene.Modules {
 			}
 		}
 
-		// Replace the previous raid entry with the same hash as
-		// the new one if one exists; otherwise prepends the raid
-		// entry.
-		static void update(Raid raid) {
-			ensure_file_exists(path_data, ref lock_data);
-
-			// Replace in-place the entry if it's an update to an
-			// existing entry.
-			List<FileEntry> entries = get_file_entries();
-			string hash = raid.hash();
-			bool is_update = false;
-			for (int i=0; i<entries.Count; i++) {
-				FileEntry entry = entries[i];
-				if (entry[0] == hash) {
-					is_update = true;
-					entries[i] = raid.file_entry();
-					break;
-				}
-			}
-
-			// If the entry is a new entry, add it at the start.
-			if (!is_update) {
-				entries.Insert(0, raid.file_entry());
-			}
-
-			// Flatten list of entries.
-			List<string> output = new ();
-			foreach (FileEntry entry in entries) {
-				foreach (string line in entry) {
-					output.Add(line);
-				}
-			}
-
-			// Update text file.
-			lock (lock_data) {
-				File.WriteAllLines(path_buffer, output);
-				File.Delete(path_data);
-				File.Move(path_buffer, path_data);
-			}
-		}
-
 		static Raid? from_file_entry(FileEntry entry) {
 			// Remove hash line.
 			if (!entry[0].StartsWith(indent)) {
@@ -244,17 +245,15 @@ namespace Irene.Modules {
 		public readonly Tier tier;
 		public readonly Date date;
 		public readonly Group group;
+		public string? summary;
+		public string? log_id;
 
-		public string? summary { get; private set; }
-		public string? log_id { get; private set; }
-
-		// Constructors are private; instances should be instantiated
-		// via static methods.
-		Raid(int week, Day day) :
+		// Constructors.
+		public Raid(int week, Day day) :
 			this (week, day, default_group) { }
-		Raid(int week, Day day, Group group) :
+		public Raid(int week, Day day, Group group) :
 			this (current_tier, week, day, group) { }
-		Raid(Tier tier, int week, Day day, Group group) {
+		public Raid(Tier tier, int week, Day day, Group group) {
 			this.tier = tier;
 			date = new Date() { week = week, day = day };
 			this.group = group;
