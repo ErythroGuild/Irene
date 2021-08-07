@@ -13,6 +13,8 @@ namespace Irene.Modules {
 	using id_e = EmojiIDs;
 
 	partial class WeeklyEvent {
+		static Dictionary<Raid.Date, ulong> msgs_raid_forming = new ();
+
 		const string
 			path_meme_ch = @"data/memes.txt";
 		const string
@@ -50,28 +52,84 @@ namespace Irene.Modules {
 
 		}
 
-		static void e_raid1_day_announce() {
+		static void e_raid_day_announce() {
 
 		}
 
-		static void e_raid1_soon_announce() {
+		static async void e_raid_soon_announce() {
+			if (!is_guild_loaded) {
+				log.warning("Could not announce raid: guild not loaded.");
+				return;
+			}
 
+			// Find/construct raid object.
+			int week = Raid.current_week();
+			Raid.Day? day = DateTimeOffset.Now.DayOfWeek switch {
+				DayOfWeek.Friday   => Raid.Day.Fri,
+				DayOfWeek.Saturday => Raid.Day.Sat,
+				_ => null,
+			};
+			if (day is null) {
+				log.error("Raid announcements can only made on Fri/Sat.");
+				log.endl();
+				return;
+			}
+			Raid raid = Raid.get(week, (Raid.Day)day)
+				?? new Raid(week, (Raid.Day) day);
+
+			// Send raid announcement.
+			DateTimeOffset time = DateTimeOffset.Now + t_raid_now_announce;
+			StringWriter text = new ();
+			text.Write($"{raid.emoji()} {roles[id_r.raid].Mention} - ");
+			text.Write($"Forming for raid ~{time.timestamp("R")}.");
+			if (raid.summary is not null) {
+				text.WriteLine(raid.summary);
+			}
+			DiscordMessage msg = await
+				channels[id_ch.announce]
+				.SendMessageAsync(text.output());
+
+			// React to raid announcement.
+			await msg.CreateReactionAsync(DiscordEmoji.FromName(irene, raid.emoji()));
 		}
 
-		static void e_raid1_now_announce() {
+		static async void e_raid_now_announce() {
+			if (!is_guild_loaded) {
+				log.warning("Could not announce raid: guild not loaded.");
+				return;
+			}
 
-		}
+			// Find/construct raid object.
+			int week = Raid.current_week();
+			Raid.Day? day = DateTimeOffset.Now.DayOfWeek switch {
+				DayOfWeek.Friday   => Raid.Day.Fri,
+				DayOfWeek.Saturday => Raid.Day.Sat,
+				_ => null,
+			};
+			if (day is null) {
+				log.error("Raid announcements can only made on Fri/Sat.");
+				return;
+			}
+			Raid raid = Raid.get(week, (Raid.Day)day)
+				?? new Raid(week, (Raid.Day) day);
 
-		static void e_raid2_day_announce() {
+			// Send raid announcement.
+			StringWriter text = new ();
+			text.WriteLine($"{raid.emoji()} {roles[id_r.raid]} - Forming now!");
+			if (raid.summary is not null) {
+				text.WriteLine(raid.summary);
+			}
+			DiscordMessage msg = await
+				channels[id_ch.announce]
+				.SendMessageAsync(text.output());
+			msgs_raid_forming.Add(raid.date, msg.Id);
 
-		}
-
-		static void e_raid2_soon_announce() {
-
-		}
-
-		static void e_raid2_now_announce() {
-
+			// React to raid announcement.
+			await msg.CreateReactionAsync(DiscordEmoji.FromName(irene, raid.emoji()));
+			await msg.CreateReactionAsync(emojis[id_e.kyrian]);
+			await msg.CreateReactionAsync(emojis[id_e.necrolord]);
+			await msg.CreateReactionAsync(emojis[id_e.nightfae]);
+			await msg.CreateReactionAsync(emojis[id_e.venthyr]);
 		}
 
 		static void e_raid_set_logs_remind() {

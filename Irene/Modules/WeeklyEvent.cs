@@ -74,19 +74,19 @@ namespace Irene.Modules {
 					"raid 1 day announcement",
 					"Raid 1 Morning Announcement",
 					new Time(DayOfWeek.Friday, t_morning_announce),
-					e_raid1_day_announce
+					e_raid_day_announce
 				),
 				new WeeklyEvent(
 					"raid 1 soon announcement",
 					"Raid 1 Soon Announcement",
 					new Time(DayOfWeek.Friday, t_raid_soon_announce),
-					e_raid1_soon_announce
+					e_raid_soon_announce
 				),
 				new WeeklyEvent(
 					"raid 1 now announcement",
 					"Raid 1 Forming Announcement",
 					new Time(DayOfWeek.Friday, t_raid_now_announce),
-					e_raid1_now_announce
+					e_raid_now_announce
 				),
 				new WeeklyEvent(
 					"raid 1 set logs reminder",
@@ -104,19 +104,19 @@ namespace Irene.Modules {
 					"raid 2 day announcement",
 					"Raid 2 Morning Announcement",
 					new Time(DayOfWeek.Saturday, t_morning_announce),
-					e_raid2_day_announce
+					e_raid_day_announce
 				),
 				new WeeklyEvent(
 					"raid 2 soon announcement",
 					"Raid 2 Soon Announcement",
 					new Time(DayOfWeek.Saturday, t_raid_soon_announce),
-					e_raid2_soon_announce
+					e_raid_soon_announce
 				),
 				new WeeklyEvent(
 					"raid 2 now announcement",
 					"Raid 2 Forming Announcement",
 					new Time(DayOfWeek.Saturday, t_raid_now_announce),
-					e_raid2_now_announce
+					e_raid_now_announce
 				),
 				new WeeklyEvent(
 					"raid 2 set logs reminder",
