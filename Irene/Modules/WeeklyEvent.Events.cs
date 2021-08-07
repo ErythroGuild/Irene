@@ -1,8 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Models;
@@ -17,6 +15,8 @@ namespace Irene.Modules {
 	partial class WeeklyEvent {
 		const string
 			path_meme_ch = @"data/memes.txt";
+		const string
+			em = "\u2003";
 
 		static void e_cycle_meme_ch() {
 			if (!is_guild_loaded) {
@@ -84,8 +84,8 @@ namespace Irene.Modules {
 
 			StringWriter text = new ();
 			text.WriteLine($"{roles[id_r.raidOfficer].Mention} -");
-			text.WriteLine("  Reminder to set logs for tonight. :ok_hand: :card_box:");
-			text.WriteLine("  `@Irene -logs-set`");
+			text.WriteLine($"{em}Reminder to set logs for tonight. :ok_hand: :card_box:");
+			text.WriteLine($"{em}`@Irene -logs-set`");
 
 			DiscordChannel ch = channels[id_ch.officerBots];
 			_ = ch.SendMessageAsync(text.output());
@@ -99,7 +99,7 @@ namespace Irene.Modules {
 
 			StringWriter text = new ();
 			text.WriteLine($"{roles[id_r.raidOfficer].Mention} -");
-			text.WriteLine("  Raid break soon. :slight_smile: :tropical_drink:");
+			text.WriteLine($"{em}Raid break soon. :slight_smile: :tropical_drink:");
 
 			DiscordChannel ch = channels[id_ch.officer];
 			_ = ch.SendMessageAsync(text.output());
@@ -126,8 +126,8 @@ namespace Irene.Modules {
 
 			StringWriter text = new ();
 			text.WriteLine($"{roles[id_r.raidOfficer].Mention} -");
-			text.WriteLine("  Decide on the raid plans for next week (if you haven't already). :ok_hand:");
-			text.WriteLine("  `@Irene -raid-set`");
+			text.WriteLine($"{em}Decide on the raid plans for next week (if you haven't already). :ok_hand:");
+			text.WriteLine($"{em}`@Irene -raid-set-F`, `@Irene -raid-set-S`");
 
 			DiscordChannel ch = channels[id_ch.officerBots];
 			_ = ch.SendMessageAsync(text.output());
@@ -141,8 +141,8 @@ namespace Irene.Modules {
 
 			StringWriter text = new ();
 			text.WriteLine($"{roles[id_r.recruiter].Mention} -");
-			text.WriteLine("  Go over the 2-week+-trials this week (if there are any). :seedling:");
-			text.WriteLine("  `@Irene -trials`");
+			text.WriteLine($"{em}Go over the 2-week+-trials this week (if there are any). :seedling:");
+			text.WriteLine($"{em}`@Irene -trials`");
 
 			DiscordChannel ch = channels[id_ch.officerBots];
 			_ = ch.SendMessageAsync(text.output());
