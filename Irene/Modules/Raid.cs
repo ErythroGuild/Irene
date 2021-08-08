@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -277,7 +277,7 @@ namespace Irene.Modules {
 		// Returns a different emoji for each week of the tier.
 		// The order is fixed between tiers.
 		public string emoji() {
-			int i = date.week % raid_emojis.Count;
+			int i = (date.week - 1) % raid_emojis.Count;
 			return raid_emojis[i];
 		}
 
