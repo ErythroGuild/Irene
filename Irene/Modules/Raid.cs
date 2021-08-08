@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -28,6 +28,7 @@ namespace Irene.Modules {
 
 		public static readonly Group default_group = Group.Spaghetti;
 		public static readonly Tier current_tier = Tier.SoD;
+		public static readonly TimeSpan time = new (18, 30, 0);
 
 		static readonly List<string> raid_emojis = new () {
 			":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,

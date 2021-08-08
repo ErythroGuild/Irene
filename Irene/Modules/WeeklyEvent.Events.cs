@@ -126,10 +126,13 @@ namespace Irene.Modules {
 				?? new Raid(week, (Raid.Day) day);
 
 			// Send raid announcement.
-			DateTimeOffset time = DateTimeOffset.Now + t_raid_now_announce;
+			DateTimeOffset now = DateTimeOffset.Now;
+			DateTimeOffset time_forming = now - now.TimeOfDay + t_raid_now_announce;
+			DateTimeOffset time_raid = now - now.TimeOfDay + Raid.time;
 			StringWriter text = new ();
 			text.Write($"{raid.emoji()} {roles[id_r.raid].Mention} - ");
-			text.Write($"Forming for raid ~{time.timestamp("R")}.");
+			text.WriteLine($"Forming for raid ~{time_forming.timestamp("R")}.");
+			text.WriteLine($"(raid starts at ~{time_raid.timestamp("t")})");
 			if (raid.summary is not null) {
 				text.WriteLine(raid.summary);
 			}
