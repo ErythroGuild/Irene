@@ -166,7 +166,7 @@ namespace Irene.Modules {
 
 			// Send raid announcement.
 			StringWriter text = new ();
-			text.WriteLine($"{raid.emoji()} {roles[id_r.raid]} - Forming now!");
+			text.WriteLine($"{raid.emoji()} {roles[id_r.raid].Mention} - Forming now!");
 			if (raid.summary is not null) {
 				text.WriteLine(raid.summary);
 			}
