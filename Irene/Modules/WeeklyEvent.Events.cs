@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -24,6 +24,10 @@ namespace Irene.Modules {
 				log.warning("    Could not update announcement post: announcement not posted.");
 				return;
 			}
+			if (raid.log_id is null) {
+				log.debug("  Log ID not set.");
+				return;
+			}
 
 			// Prepare data.
 			ulong msg_id = msgs_raid_forming[raid.date];
@@ -38,7 +42,7 @@ namespace Irene.Modules {
 				emoji_analyzer = emojis[id_e.wowanalyzer ].ToString();
 
 			// Update message content with new log links.
-			StringReader text_in = new StringReader(content);
+			StringReader text_in = new (content);
 			StringWriter text_out = new ();
 			string? line;
 			do {
@@ -52,12 +56,10 @@ namespace Irene.Modules {
 					text_out.WriteLine(line);
 				}
 			} while (line is not null);
-			if (raid.log_id is not null) {
-				text_out.WriteLine();
-				text_out.WriteLine($"{emoji_wipefest} - <{raid.get_link_wipefest()}>");
-				text_out.WriteLine($"{emoji_analyzer} - <{raid.get_link_analyzer()}>");
-				text_out.WriteLine($"{emoji_logs} - <{raid.get_link_logs()}>");
-			}
+			text_out.WriteLine();
+			text_out.WriteLine($"{emoji_wipefest} - <{raid.get_link_wipefest()}>");
+			text_out.WriteLine($"{emoji_analyzer} - <{raid.get_link_analyzer()}>");
+			text_out.WriteLine($"{emoji_logs} - <{raid.get_link_logs()}>");
 
 			// Update message.
 			msg.ModifyAsync(text_out.output());
@@ -139,6 +141,10 @@ namespace Irene.Modules {
 			DiscordMessage msg = await
 				channels[id_ch.announce]
 				.SendMessageAsync(text.output());
+
+			// Update post with logs.
+			// Called here so code doesn't need to be repeated.
+			update_raid_logs(raid);
 
 			// React to raid announcement.
 			await msg.CreateReactionAsync(DiscordEmoji.FromName(irene, raid.emoji()));
