@@ -130,11 +130,12 @@ namespace Irene.Modules {
 			DateTimeOffset time_raid = now - now.TimeOfDay + Raid.time;
 			StringWriter text = new ();
 			text.Write($"{raid.emoji()} {roles[id_r.raid].Mention} - ");
-			text.WriteLine($"Forming for raid ~{time_forming.timestamp("R")}.");
-			text.WriteLine($"(raid starts at ~{time_raid.timestamp("t")})");
+			text.Write($"Forming for raid ~{time_forming.timestamp("R")}");
+			text.WriteLine($" (pulling at ~{time_raid.timestamp("t")}).");
 			if (raid.summary is not null) {
 				text.WriteLine(raid.summary);
 			}
+			text.WriteLine("If you're unsure, check the pinned posts for raid reqs. :thumbsup:");
 			DiscordMessage msg = await
 				channels[id_ch.announce]
 				.SendMessageAsync(text.output());
