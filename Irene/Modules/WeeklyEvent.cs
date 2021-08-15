@@ -212,8 +212,8 @@ namespace Irene.Modules {
 
 				// Run the scheduled action.
 				log.info($"Firing scheduled event: {name}");
-				log.endl();
 				await Task.Run(action);
+				log.endl();
 
 				// Update saved values.
 				last_executed = time_now;

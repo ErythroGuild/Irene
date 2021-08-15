@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -70,7 +70,7 @@ namespace Irene.Modules {
 
 		static void e_cycle_meme_ch() {
 			if (!is_guild_loaded) {
-				log.error("Guild not loaded for event execution.");
+				log.error("  Guild not loaded for event execution.");
 				return;
 			}
 
@@ -106,7 +106,7 @@ namespace Irene.Modules {
 
 		static async void e_raid_soon_announce() {
 			if (!is_guild_loaded) {
-				log.warning("Could not announce raid: guild not loaded.");
+				log.warning("  Could not announce raid: guild not loaded.");
 				return;
 			}
 
@@ -118,8 +118,7 @@ namespace Irene.Modules {
 				_ => null,
 			};
 			if (day is null) {
-				log.error("Raid announcements can only made on Fri/Sat.");
-				log.endl();
+				log.error("  Raid announcements can only made on Fri/Sat.");
 				return;
 			}
 			Raid raid = Raid.get(week, (Raid.Day)day)
@@ -146,7 +145,7 @@ namespace Irene.Modules {
 
 		static async void e_raid_now_announce() {
 			if (!is_guild_loaded) {
-				log.warning("Could not announce raid: guild not loaded.");
+				log.warning("  Could not announce raid: guild not loaded.");
 				return;
 			}
 
@@ -158,7 +157,7 @@ namespace Irene.Modules {
 				_ => null,
 			};
 			if (day is null) {
-				log.error("Raid announcements can only made on Fri/Sat.");
+				log.error("  Raid announcements can only made on Fri/Sat.");
 				return;
 			}
 			Raid raid = Raid.get(week, (Raid.Day)day)
@@ -185,7 +184,7 @@ namespace Irene.Modules {
 
 		static void e_raid_set_logs_remind() {
 			if (!is_guild_loaded) {
-				log.error("Guild not loaded for event execution.");
+				log.error("  Guild not loaded for event execution.");
 				return;
 			}
 
@@ -200,7 +199,7 @@ namespace Irene.Modules {
 
 		static void e_raid_break_remind() {
 			if (!is_guild_loaded) {
-				log.error("Guild not loaded for event execution.");
+				log.error("  Guild not loaded for event execution.");
 				return;
 			}
 
@@ -214,7 +213,7 @@ namespace Irene.Modules {
 
 		static void e_weekly_officer_meeting() {
 			if (!is_guild_loaded) {
-				log.error("Guild not loaded for event execution.");
+				log.error("  Guild not loaded for event execution.");
 				return;
 			}
 
@@ -227,7 +226,7 @@ namespace Irene.Modules {
 
 		static void e_update_raid_plans() {
 			if (!is_guild_loaded) {
-				log.error("Guild not loaded for event execution.");
+				log.error("  Guild not loaded for event execution.");
 				return;
 			}
 
@@ -242,7 +241,7 @@ namespace Irene.Modules {
 
 		static void e_promote_remind() {
 			if (!is_guild_loaded) {
-				log.error("Guild not loaded for event execution.");
+				log.error("  Guild not loaded for event execution.");
 				return;
 			}
 
