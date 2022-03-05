@@ -16,7 +16,10 @@ static class Const {
 		date_season_1  = new (2020, 12,  8, 15, 0, 0, DateTimeKind.Utc),
 		date_patch_905 = new (2021,  3,  9, 15, 0, 0, DateTimeKind.Utc),
 		date_patch_910 = new (2021,  6, 29, 15, 0, 0, DateTimeKind.Utc),
-		date_season_2  = new (2021,  7,  6, 15, 0, 0, DateTimeKind.Utc);
+		date_season_2  = new (2021,  7,  6, 15, 0, 0, DateTimeKind.Utc),
+		date_patch_915 = new (2021, 11,  2, 15, 0, 0, DateTimeKind.Utc),
+		date_patch_920 = new (2022,  2, 22, 15, 0, 0, DateTimeKind.Utc),
+		date_season_3  = new (2022,  3,  1, 15, 0, 0, DateTimeKind.Utc);
 
 	// Discord entity IDs
 	public static class RoleIDs {
