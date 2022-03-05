@@ -34,9 +34,10 @@ static class Const {
 			guest      = 452299336123023360,
 
 			// Titles
-			acclaimed = 780161029111021630,
-			beloved   = 780159178202284053,
-			esteemed  = 780159754676338700,
+			beloved    = 780159178202284053,
+			acclaimed  = 780161029111021630,
+			celebrated = 780159754676338700,
+			chosen     = 903853996714913834,
 
 			// Officers
 			raidOfficer   = 723061867127373874,
@@ -104,6 +105,7 @@ static class Const {
 			erythro = 651475835387248660,
 
 			wooloo   = 588112288628604928,
+			cupcake  = 777925283499737138,
 			toxic    = 839929134326349825,
 			pooh     = 756560918208446514,
 			mrrogers = 777861300423884803,
@@ -113,6 +115,7 @@ static class Const {
 			warcraftlogs = 699709399094132884,
 			wipefest     = 699647884819169700,
 			wowanalyzer  = 699648774099828796,
+			lorrgs       = 946214790043410462,
 
 			// Roles
 			tank = 708431859369115790,
