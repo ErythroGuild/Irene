@@ -109,6 +109,11 @@ static class Util {
 		return new DateTimeOffset(date);
 	}
 
+	// Directly returns the TimeOnly from a TimeSpan of a DateTimeOffset.
+	public static TimeOnly TimeOnly(this DateTimeOffset dateTime) {
+		return System.TimeOnly.FromTimeSpan(dateTime.TimeOfDay);
+	}
+
 	// Create a blank file at the given path, if it doesn't exist.
 	// Returns true if file was created, false otherwise.
 	public static bool ensure_file_exists(string path, ref object @lock) {
