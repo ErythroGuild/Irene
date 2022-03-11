@@ -108,6 +108,16 @@ static class Util {
 		date = (date - date.TimeOfDay).AddDays(days_added);
 		return new DateTimeOffset(date);
 	}
+	
+	// Returns which (Nth) DayOfWeek it is this month (e.g. 1st Tuesday).
+	public static int NthDayOfWeek(this DateOnly date) {
+		// Find the whole number of weeks to have passed.
+		// (e.g. on day 7, we are still on the 0th week)
+		int n = (date.Day - 1) / 7; // int division
+		// Output is 1-indexed (e.g. 1st Tuesday, 5th Sunday).
+		n += 1;
+		return n;
+	}
 
 	// Directly returns the TimeOnly from a TimeSpan of a DateTimeOffset.
 	public static TimeOnly TimeOnly(this DateTimeOffset dateTime) {
