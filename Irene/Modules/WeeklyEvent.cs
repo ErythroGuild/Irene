@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Timers;
 
 using static Irene.Program;
+using static Irene.Util;
 
 namespace Irene.Modules {
 	// All times are local time (Pacific Time).
@@ -24,7 +25,7 @@ namespace Irene.Modules {
 
 		// Static data.
 		static readonly List<WeeklyEvent> events;
-		static readonly object lock_data = new ();
+		static object lock_data = new ();
 
 		const string
 			path_data = @"data/weekly.txt",
@@ -36,14 +37,14 @@ namespace Irene.Modules {
 		static readonly TimeSpan
 			t_cycle_meme_ch          = new ( 6,  0, 0),
 			t_morning_announce       = new ( 8, 30, 0),
-			t_pin_affixes            = new (10,  0, 0),
-			t_raid_soon_announce     = new (17, 10, 0),
-			t_raid_now_announce      = new (18, 10, 0),
-			t_set_logs_remind        = new (18, 20, 0),
-			t_raid_break_remind      = new (19, 20, 0),
-			t_weekly_officer_meeting = new (20, 35, 0),
-			t_raid_plans_remind      = new (20, 40, 0),
-			t_promote_remind         = new (20, 45, 0);
+			t_pin_affixes            = new ( 9,  0, 0),
+			t_raid_soon_announce     = new (17, 40, 0),
+			t_raid_now_announce      = new (18, 40, 0),
+			t_set_logs_remind        = new (18, 50, 0),
+			t_raid_break_remind      = new (19, 50, 0),
+			t_weekly_officer_meeting = new (21,  5, 0),
+			t_raid_plans_remind      = new (21, 10, 0),
+			t_promote_remind         = new (21, 15, 0);
 
 		// Force static initializer to run.
 		public static void init() { return; }
@@ -53,7 +54,8 @@ namespace Irene.Modules {
 					"update meme channel name",
 					"Update Meme Channel Name",
 					new Time(DayOfWeek.Monday, t_cycle_meme_ch),
-					e_cycle_meme_ch
+					e_cycle_meme_ch,
+					true
 				),
 				new WeeklyEvent(
 					"weekly raid info announcement",
@@ -65,25 +67,26 @@ namespace Irene.Modules {
 					"pin weekly affixes",
 					"Pin Weekly Affixes",
 					new Time(DayOfWeek.Tuesday, t_pin_affixes),
-					e_pin_affixes
+					e_pin_affixes,
+					true
 				),
 				new WeeklyEvent(
 					"raid 1 day announcement",
 					"Raid 1 Morning Announcement",
 					new Time(DayOfWeek.Friday, t_morning_announce),
-					e_raid1_day_announce
+					e_raid_day_announce
 				),
 				new WeeklyEvent(
 					"raid 1 soon announcement",
 					"Raid 1 Soon Announcement",
 					new Time(DayOfWeek.Friday, t_raid_soon_announce),
-					e_raid1_soon_announce
+					e_raid_soon_announce
 				),
 				new WeeklyEvent(
 					"raid 1 now announcement",
 					"Raid 1 Forming Announcement",
 					new Time(DayOfWeek.Friday, t_raid_now_announce),
-					e_raid1_now_announce
+					e_raid_now_announce
 				),
 				new WeeklyEvent(
 					"raid 1 set logs reminder",
@@ -101,19 +104,19 @@ namespace Irene.Modules {
 					"raid 2 day announcement",
 					"Raid 2 Morning Announcement",
 					new Time(DayOfWeek.Saturday, t_morning_announce),
-					e_raid2_day_announce
+					e_raid_day_announce
 				),
 				new WeeklyEvent(
 					"raid 2 soon announcement",
 					"Raid 2 Soon Announcement",
 					new Time(DayOfWeek.Saturday, t_raid_soon_announce),
-					e_raid2_soon_announce
+					e_raid_soon_announce
 				),
 				new WeeklyEvent(
 					"raid 2 now announcement",
 					"Raid 2 Forming Announcement",
 					new Time(DayOfWeek.Saturday, t_raid_now_announce),
-					e_raid2_now_announce
+					e_raid_now_announce
 				),
 				new WeeklyEvent(
 					"raid 2 set logs reminder",
@@ -148,6 +151,7 @@ namespace Irene.Modules {
 			};
 
 			log.debug("Initialized module: WeeklyEvent");
+			log.debug($"  {events.Count} event(s) registered.");
 			log.endl();
 		}
 
@@ -208,8 +212,8 @@ namespace Irene.Modules {
 
 				// Run the scheduled action.
 				log.info($"Firing scheduled event: {name}");
-				log.endl();
 				await Task.Run(action);
+				log.endl();
 
 				// Update saved values.
 				last_executed = time_now;
@@ -220,7 +224,7 @@ namespace Irene.Modules {
 
 		// Read the specified id's time from the datafile.
 		static DateTimeOffset? parse_last_executed(string id) {
-			ensure_datafile_exists();
+			ensure_file_exists(path_data, ref lock_data);
 
 			lock (lock_data) {
 				StreamReader file = new (path_data);
@@ -247,7 +251,7 @@ namespace Irene.Modules {
 
 		// Write the current id-time pair to the datafile.
 		static void update_executed(string id, DateTimeOffset time) {
-			ensure_datafile_exists();
+			ensure_file_exists(path_data, ref lock_data);
 
 			// Read in all current data; replacing appropriate line.
 			StringWriter buffer = new ();
@@ -276,15 +280,6 @@ namespace Irene.Modules {
 				File.WriteAllText(path_buffer, buffer.output());
 				File.Delete(path_data);
 				File.Move(path_buffer, path_data);
-			}
-		}
-
-		// Creates an empty file if none exists at the specified path.
-		static void ensure_datafile_exists() {
-			lock (lock_data) {
-				if (!File.Exists(path_data)) {
-					File.Create(path_data).Close();
-				}
 			}
 		}
 

@@ -5,7 +5,9 @@ using System.Text.RegularExpressions;
 
 using DSharpPlus.Entities;
 
+using static Irene.Const;
 using static Irene.Program;
+using Irene.Components;
 
 namespace Irene.Commands {
 	using RankEntry = Selection<Rank.Type>.Entry;

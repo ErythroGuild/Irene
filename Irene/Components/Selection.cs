@@ -9,7 +9,7 @@ using Emzi0767.Utilities;
 
 using static Irene.Program;
 
-namespace Irene {
+namespace Irene.Components {
 	using DropdownLambda = AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
 
 	class Selection<T> where T : Enum {
@@ -48,7 +48,7 @@ namespace Irene {
 			DiscordUser author,
 			string placeholder,
 			bool is_multiple ) :
-			this(options, action, author, author, placeholder, is_multiple) { }
+			this (options, action, author, author, placeholder, is_multiple) { }
 		public Selection(
 			Dictionary<T, Entry> options,
 			Action<List<T>, DiscordUser> action,

@@ -3,7 +3,9 @@ using System.IO;
 
 using DSharpPlus.Entities;
 
+using static Irene.Const;
 using static Irene.Program;
+using Irene.Components;
 
 namespace Irene.Commands {
 	using Entry = Selection<Roles.PingRole>.Entry;

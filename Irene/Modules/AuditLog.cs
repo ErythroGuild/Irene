@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
 
+using static Irene.Const;
 using static Irene.Program;
 
 namespace Irene.Modules {
@@ -86,7 +87,7 @@ namespace Irene.Modules {
 					// Format output.
 					StringWriter text = new ();
 					string type_join_str = member.IsBot ? "Bot added" : "Member joined";
-					text.WriteLine($"**{type_join_str} joined:** {member_string(member)}");
+					text.WriteLine($"**{type_join_str}:** {member_string(member)}");
 					try_add_data(ref text, entry);
 					log_entry(text.output());
 				});

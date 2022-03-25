@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using static Irene.Const;
 using static Irene.Program;
 
 namespace Irene.Commands {
@@ -29,14 +30,6 @@ namespace Irene.Commands {
 		// Weekly increases
 		static readonly int weekly_valor = 750;
 		static readonly int weekly_conquest = 550;
-
-		// Patch release days
-		// 7:00 PST = 8:00 PDT = 15:00 UTC
-		static readonly DateTime date_patch_902 = new (2020, 11, 17, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_season_1  = new (2020, 12,  8, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_patch_905 = new (2021,  3,  9, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_patch_910 = new (2021,  6, 29, 15, 0, 0, DateTimeKind.Utc);
-		static readonly DateTime date_season_2  = new (2021,  7,  6, 15, 0, 0, DateTimeKind.Utc);
 
 		public static string help() {
 			StringWriter text = new ();

@@ -5,6 +5,7 @@ using System.IO;
 using DSharpPlus.Entities;
 
 using static Irene.Program;
+using Irene.Components;
 
 namespace Irene.Commands {
 	class Help : ICommands {
