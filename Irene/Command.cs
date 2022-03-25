@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
@@ -31,9 +31,21 @@ namespace Irene {
 			{ "rinfo"      , Roles.list  },
 			{ "roles-royce", Roles.royce },
 
+			{ "raid-time" , Raid.get_time   },
+			{ "raid"      , Raid.get_info   },
+			{ "raid-info" , Raid.get_info   },
+			{ "raid-set-f", Raid.set_info_F },
+			{ "raid-set-s", Raid.set_info_S },
+			{ "logs"    , Raid.get_logs },
+			{ "l"       , Raid.get_logs },
+			{ "logs-set", Raid.set_logs },
+			{ "lset"    , Raid.set_logs },
+			{ "set-logs", Raid.set_logs },
+
 			{ "rank"       , Rank.set_rank    },
 			{ "set-rank"   , Rank.set_rank    },
 			{ "promote"    , Rank.set_rank    },
+			{ "demote"     , Rank.set_rank    },
 			{ "guilds"     , Rank.set_guilds  },
 			{ "set-guilds" , Rank.set_guilds  },
 			{ "set-erythro", Rank.set_erythro },
@@ -81,6 +93,13 @@ namespace Irene {
 			{ Roles.list , Roles.help },
 			{ Roles.royce, Roles.help },
 
+			{ Raid.get_time  , Raid.help_raid },
+			{ Raid.get_info  , Raid.help_raid },
+			{ Raid.set_info_F, Raid.help_raid },
+			{ Raid.set_info_S, Raid.help_raid },
+			{ Raid.get_logs  , Raid.help_logs },
+			{ Raid.set_logs  , Raid.help_logs },
+
 			{ Rank.set_rank   , Rank.help },
 			{ Rank.set_guilds , Rank.help },
 			{ Rank.set_erythro, Rank.help },
@@ -106,6 +125,13 @@ namespace Irene {
 			{ Roles.set  , AccessLevel.Guest },
 			{ Roles.list , AccessLevel.None  },
 			{ Roles.royce, AccessLevel.Guest },
+
+			{ Raid.get_time  , AccessLevel.None    },
+			{ Raid.get_info  , AccessLevel.None    },
+			{ Raid.set_info_F, AccessLevel.Officer },
+			{ Raid.set_info_S, AccessLevel.Officer },
+			{ Raid.get_logs  , AccessLevel.Guest   },
+			{ Raid.set_logs  , AccessLevel.Officer },
 
 			{ Rank.set_rank   , AccessLevel.Officer },
 			{ Rank.set_guilds , AccessLevel.Officer },
