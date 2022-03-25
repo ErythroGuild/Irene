@@ -38,13 +38,13 @@ namespace Irene.Modules {
 			t_cycle_meme_ch          = new ( 6,  0, 0),
 			t_morning_announce       = new ( 8, 30, 0),
 			t_pin_affixes            = new ( 9,  0, 0),
-			t_raid_soon_announce     = new (17, 10, 0),
-			t_raid_now_announce      = new (18, 10, 0),
-			t_set_logs_remind        = new (18, 20, 0),
-			t_raid_break_remind      = new (19, 20, 0),
-			t_weekly_officer_meeting = new (20, 35, 0),
-			t_raid_plans_remind      = new (20, 40, 0),
-			t_promote_remind         = new (20, 45, 0);
+			t_raid_soon_announce     = new (17, 40, 0),
+			t_raid_now_announce      = new (18, 40, 0),
+			t_set_logs_remind        = new (18, 50, 0),
+			t_raid_break_remind      = new (19, 50, 0),
+			t_weekly_officer_meeting = new (21,  5, 0),
+			t_raid_plans_remind      = new (21, 10, 0),
+			t_promote_remind         = new (21, 15, 0);
 
 		// Force static initializer to run.
 		public static void init() { return; }
