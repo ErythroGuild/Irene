@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Timers;
 
-namespace Irene; 
+namespace Irene;
 
 class Logger {
 	public enum Severity { Error, Warning, Info, Debug }
