@@ -6,6 +6,7 @@ using DSharpPlus.Entities;
 using static Irene.Const;
 using static Irene.Program;
 using Irene.Components;
+using Irene.Utils;
 
 namespace Irene.Commands;
 
@@ -76,7 +77,7 @@ class Roles : ICommands {
 	// Force static initializer to run.
 	public static void init() { return; }
 	static Roles() {
-		discordRole_to_pingRole = pingRole_to_discordRole.inverse();
+		discordRole_to_pingRole = pingRole_to_discordRole.Inverse();
 	}
 
 	public static string help() {

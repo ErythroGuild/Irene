@@ -111,8 +111,8 @@ class Rank : ICommands {
 	// Force static initializer to run.
 	public static void init() { return; }
 	static Rank() {
-		id_to_rank = rank_to_id.inverse();
-		id_to_guild = guild_to_id.inverse();
+		id_to_rank = rank_to_id.Inverse();
+		id_to_guild = guild_to_id.Inverse();
 	}
 
 	public static string help() {
