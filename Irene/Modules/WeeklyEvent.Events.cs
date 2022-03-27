@@ -6,7 +6,7 @@ using DSharpPlus.Entities;
 
 using static Irene.Const;
 using static Irene.Program;
-using static Irene.Utils.DiscordFormat;
+using static Irene.Util;
 
 namespace Irene.Modules;
 

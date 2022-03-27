@@ -6,7 +6,6 @@ using DSharpPlus.Entities;
 
 using static Irene.Program;
 using static Irene.Util;
-using Irene.Utils;
 
 namespace Irene.Modules;
 

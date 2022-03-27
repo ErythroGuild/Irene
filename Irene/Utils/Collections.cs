@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Irene.Utils;
+namespace Irene;
 
-static class Collections {
+static partial class Util {
 	// Returns the functional inverse of a given Dictionary.
 	public static Dictionary<T2, T1> Inverse<T1, T2>(this Dictionary<T1, T2> dict)
 		where T1 : notnull

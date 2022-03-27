@@ -12,7 +12,6 @@ using Serilog;
 using static Irene.Const;
 using Irene.Commands;
 using Irene.Modules;
-using Irene.Utils;
 
 namespace Irene;
 

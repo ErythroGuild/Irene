@@ -5,7 +5,6 @@ using DSharpPlus.Entities;
 
 using static Irene.Const;
 using static Irene.Program;
-using Irene.Utils;
 
 namespace Irene.Modules;
 

@@ -8,7 +8,6 @@ using DSharpPlus.Entities;
 using static Irene.Const;
 using static Irene.Program;
 using Irene.Components;
-using Irene.Utils;
 
 namespace Irene.Commands;
 

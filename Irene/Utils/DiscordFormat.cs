@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 using DSharpPlus.Entities;
 
-namespace Irene.Utils;
+namespace Irene;
 
-static class DiscordFormat {
+static partial class Util {
 	// Basic text formatting (single-line).
 	public static string Bold(this string input) =>
 		$"**{input}**";

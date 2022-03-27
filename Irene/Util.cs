@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -11,7 +11,7 @@ using static Irene.Program;
 
 namespace Irene;
 
-static class Util {
+static partial class Util {
 	static readonly Dictionary<string, string> escape_codes = new () {
 		{ @"\n"    , "\n"     },
 		{ @":bbul:", "\u2022" },
