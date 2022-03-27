@@ -6,6 +6,26 @@ using DSharpPlus.Entities;
 namespace Irene.Utils;
 
 static class DiscordFormat {
+	// Basic text formatting (single-line).
+	public static string Bold(this string input) =>
+		$"**{input}**";
+	public static string Italicize(this string input) =>
+		$"*{input}*";
+	public static string Underline(this string input) =>
+		$"__{input}__";
+	public static string Monospace(this string input) =>
+		$"`{input}`";
+	public static string Quote(this string input) =>
+		$"> {input}";
+	public static string Spoiler(this string input) =>
+		$"||{input}||";
+
+	// Block text formatting.
+	public static string QuoteBlock(this string input) =>
+		$">>> {input}";
+	public static string CodeBock(this string input, string language="") =>
+		$"```{language}\n{input}\n```";
+
 	// Adjusts to 12-/24-hour clock based on user's client locale.
 	// Default style (no format specifier) is equivalent to ":f"
 	// (DateTimeShort).
