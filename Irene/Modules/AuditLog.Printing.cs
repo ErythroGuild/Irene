@@ -4,6 +4,7 @@ using System.IO;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
+using Irene.Utils;
 using static Irene.Program;
 using static Irene.Util;
 
@@ -298,8 +299,8 @@ static partial class AuditLog {
 		print_change_string(
 			ref text,
 			label,
-			color.Before?.color_code() ?? n,
-			color.After ?.color_code() ?? n
+			color.Before?.HexCode() ?? n,
+			color.After ?.HexCode() ?? n
 		);
 	}
 	static void print_change_color(
@@ -311,8 +312,8 @@ static partial class AuditLog {
 		print_change_string(
 			ref text,
 			label,
-			color_before?.color_code() ?? n,
-			color_after ?.color_code() ?? n
+			color_before?.HexCode() ?? n,
+			color_after ?.HexCode() ?? n
 		);
 	}
 	static void print_change_member(

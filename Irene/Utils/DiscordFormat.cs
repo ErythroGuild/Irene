@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using DSharpPlus.Entities;
+
 namespace Irene.Utils;
 
 static class DiscordFormat {
@@ -31,4 +33,8 @@ static class DiscordFormat {
 		{ TimestampStyle.DateTimeShort, "f" },
 		{ TimestampStyle.DateTimeLong,  "F" },
 	};
+
+	// Prints a DiscordColor in "#RRGGBB" format.
+	public static string HexCode(this DiscordColor color) =>
+		$"#{color:X6}";
 }
