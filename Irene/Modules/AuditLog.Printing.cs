@@ -4,9 +4,9 @@ using System.IO;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
-using Irene.Utils;
 using static Irene.Program;
 using static Irene.Util;
+using Irene.Utils;
 
 namespace Irene.Modules;
 

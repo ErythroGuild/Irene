@@ -4,16 +4,15 @@ using System.IO;
 
 using DSharpPlus.Entities;
 
-using Irene.Utils;
 using static Irene.Const;
 using static Irene.Program;
+using static Irene.Utils.DiscordFormat;
 
 namespace Irene.Modules;
 
 using id_r = RoleIDs;
 using id_ch = ChannelIDs;
 using id_e = EmojiIDs;
-using static Irene.Utils.DiscordFormat;
 
 partial class WeeklyEvent {
 	static Dictionary<Raid.Date, ulong> msgs_raid_forming = new ();
