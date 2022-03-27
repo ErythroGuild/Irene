@@ -6,6 +6,7 @@ using DSharpPlus.Entities;
 using static Irene.Const;
 using static Irene.Program;
 using Irene.Commands;
+using Irene.Utils;
 
 namespace Irene;
 
@@ -227,7 +228,7 @@ class Command {
 			} else {
 				AccessLevel access = dict_access[dict_cmd[cmd]];
 				msg.RespondAsync($"Sorry, this command requires the {access} role to use. :lock:");
-				log.warning($"  {user?.tag() ?? "<unknown user>"} does not have access to this command.");
+				log.warning($"  {user?.Tag() ?? "<unknown user>"} does not have access to this command.");
 			}
 		} else {
 			dict_cmd["help"](this);

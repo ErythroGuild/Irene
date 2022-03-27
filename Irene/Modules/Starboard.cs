@@ -8,6 +8,7 @@ using DSharpPlus.Entities;
 
 using static Irene.Const;
 using static Irene.Program;
+using Irene.Utils;
 
 namespace Irene.Modules;
 
@@ -102,7 +103,7 @@ static class Starboard {
 					return;
 				}
 				log.info("Popular post detected; checking starboard.");
-				log.debug($"  #{channel.Name} - {author.tag()}");
+				log.debug($"  #{channel.Name} - {author.Tag()}");
 
 				// Check if message is already pinned.
 				bool is_update = false;
@@ -219,7 +220,7 @@ static class Starboard {
 			}
 		} else {
 			DiscordUser author = msg.Author;
-			author_name = $"{author.tag()}";
+			author_name = $"{author.Tag()}";
 		}
 
 		// Get content strings.

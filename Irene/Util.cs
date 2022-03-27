@@ -215,12 +215,6 @@ static class Util {
 		}
 	}
 
-	// Prints the "user#tag" of the user.
-	// (Also works for `DiscordMember`s, of course.)
-	public static string tag(this DiscordUser user) {
-		return $"{user.Username}#{user.Discriminator}";
-	}
-
 	// Returns the DiscordMember equivalent of the DiscordUser.
 	// Returns null if the conversion wasn't possible.
 	public static async Task<DiscordMember?> member(this DiscordUser user) {

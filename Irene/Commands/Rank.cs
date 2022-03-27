@@ -8,6 +8,7 @@ using DSharpPlus.Entities;
 using static Irene.Const;
 using static Irene.Program;
 using Irene.Components;
+using Irene.Utils;
 
 namespace Irene.Commands;
 
@@ -308,7 +309,7 @@ class Rank : ICommands {
 		StringWriter text = new ();
 		foreach (DiscordMember trial in trials) {
 			TimeSpan time = DateTimeOffset.Now - trial.JoinedAt;
-			log.debug($"    {trial.tag()} - {time.Days} days old");
+			log.debug($"    {trial.Tag()} - {time.Days} days old");
 			text.WriteLine($"{trial.Mention} - {time.Days} days old");
 		}
 		_ = cmd.msg.RespondAsync(text.output());

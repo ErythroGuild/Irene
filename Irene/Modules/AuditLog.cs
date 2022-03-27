@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 
 using static Irene.Const;
 using static Irene.Program;
+using Irene.Utils;
 
 namespace Irene.Modules;
 
@@ -492,7 +493,7 @@ static partial class AuditLog {
 				// Format output.
 				StringWriter text = new ();
 				text.WriteLine($"**Invite created:** `{inv.Code}`");
-				text.WriteLine($"Created by {user.tag()}, can be used {inv.MaxUses} times, expires in {expiry:g}.`");
+				text.WriteLine($"Created by {user.Tag()}, can be used {inv.MaxUses} times, expires in {expiry:g}.`");
 				text.WriteLine($"This invite grants {(inv.IsTemporary ? "temporary" : "normal")} access.");
 				try_add_data(ref text, entry);
 				log_entry(text.output());
@@ -514,7 +515,7 @@ static partial class AuditLog {
 				// Format output.
 				StringWriter text = new ();
 				text.WriteLine($"**Invite deleted:** `{inv.Code}`");
-				text.WriteLine($"Created by {user.tag()}, expired in {expiry:g}.`");
+				text.WriteLine($"Created by {user.Tag()}, expired in {expiry:g}.`");
 				text.WriteLine($"This invite granted {(inv.IsTemporary ? "temporary" : "normal")} access.");
 				try_add_data(ref text, entry);
 				log_entry(text.output());
@@ -714,7 +715,7 @@ static partial class AuditLog {
 
 	// String representation of a user, without needing to ping them.
 	static string member_string(DiscordMember member) {
-		return $"{member.DisplayName} ({member.tag()})";
+		return $"{member.DisplayName} ({member.Tag()})";
 	}
 	// String representation of an emoji.
 	static string emoji_string(DiscordEmoji emoji) {

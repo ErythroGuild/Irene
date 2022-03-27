@@ -5,6 +5,7 @@ using DSharpPlus.Entities;
 
 using static Irene.Const;
 using static Irene.Program;
+using Irene.Utils;
 
 namespace Irene.Modules;
 
@@ -32,7 +33,7 @@ static class Welcome {
 
 				// Send welcome message to new member.
 				log.info("Sending welcome message to new member.");
-				log.debug($"  {member.tag()}");
+				log.debug($"  {member.Tag()}");
 				await member.SendMessageAsync(welcome);
 				await member.SendMessageAsync(url_mascot);
 

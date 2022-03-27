@@ -192,7 +192,7 @@ static partial class AuditLog {
 		};
 		ulong entity_id = overwrite.Id;
 		entity_str += overwrite.Type switch {
-			OverwriteType.Member => $"`{irene.GetUserAsync(overwrite.Id).Result.tag()}`",
+			OverwriteType.Member => $"`{irene.GetUserAsync(overwrite.Id).Result.Tag()}`",
 			OverwriteType.Role   => $"`@{erythro.GetRole(entity_id).Name}`",
 			_ => "",
 		};

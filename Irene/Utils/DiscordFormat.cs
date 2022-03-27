@@ -34,6 +34,12 @@ static class DiscordFormat {
 		{ TimestampStyle.DateTimeLong,  "F" },
 	};
 
+	// Prints the "user#tag" of a user.
+	public static string Tag(this DiscordUser user) =>
+		$"{user.Username}#{user.Discriminator}";
+	public static string Tag(this DiscordMember user) =>
+		$"{user.Username}#{user.Discriminator}";
+
 	// Prints a DiscordColor in "#RRGGBB" format.
 	public static string HexCode(this DiscordColor color) =>
 		$"#{color:X6}";
