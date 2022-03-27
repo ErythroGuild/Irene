@@ -92,12 +92,6 @@ static class Util {
 		return text;
 	}
 
-	// Returns a discord formatted timestamp from a given DateTimeOffset.
-	// Valid format strings are currently found through trial-and-error.
-	public static string timestamp(this DateTimeOffset time, string format) {
-		return $"<t:{time.ToUnixTimeSeconds()}:{format}>";
-	}
-
 	// Returns the date of the next weekday (at 0:00), using local time.
 	// Returns the same day if the day of the week is the same.
 	// (This means it can return a time in the past.)

@@ -4,6 +4,7 @@ using System.IO;
 
 using DSharpPlus.Entities;
 
+using Irene.Utils;
 using static Irene.Const;
 using static Irene.Program;
 
@@ -12,6 +13,7 @@ namespace Irene.Modules;
 using id_r = RoleIDs;
 using id_ch = ChannelIDs;
 using id_e = EmojiIDs;
+using static Irene.Utils.DiscordFormat;
 
 partial class WeeklyEvent {
 	static Dictionary<Raid.Date, ulong> msgs_raid_forming = new ();
@@ -133,8 +135,8 @@ partial class WeeklyEvent {
 		DateTimeOffset time_raid = now - now.TimeOfDay + Raid.time;
 		StringWriter text = new ();
 		text.Write($"{raid.emoji()} {roles[id_r.raid].Mention} - ");
-		text.Write($"Forming for raid ~{time_forming.timestamp("R")}");
-		text.WriteLine($" (pulling at ~{time_raid.timestamp("t")}).");
+		text.Write($"Forming for raid ~{time_forming.Timestamp(TimestampStyle.Relative)}");
+		text.WriteLine($" (pulling at ~{time_raid.Timestamp(TimestampStyle.TimeShort)}).");
 		if (raid.summary is not null) {
 			text.WriteLine(raid.summary);
 		}
