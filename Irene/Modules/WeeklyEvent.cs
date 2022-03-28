@@ -287,7 +287,7 @@ partial class WeeklyEvent {
 	// Returns the next scheduled DateTimeOffset after the given time.
 	static DateTimeOffset get_next_time(Time time, DateTimeOffset time_from) {
 		DateTimeOffset time_next = time_from;
-		time_next = time_next.next_weekday(time.day);
+		time_next = next_weekday(time_next, time.day);
 		time_next += time.time;
 		time_next += (time.week_multiple - 1) * TimeSpan.FromDays(7);
 
@@ -299,6 +299,17 @@ partial class WeeklyEvent {
 		}
 
 		return time_next;
+	}
+
+	// Returns the date of the next weekday (at 0:00), using local time.
+	// Returns the same day if the day of the week is the same.
+	// (This means it can return a time in the past.)
+	static DateTimeOffset next_weekday(DateTimeOffset time, DayOfWeek day) {
+		DateTime date = time.LocalDateTime;
+		int days_added = (int)day - (int)date.DayOfWeek;
+		days_added = (days_added + 7) % 7;  // ensure result falls in [0,6]
+		date = (date - date.TimeOfDay).AddDays(days_added);
+		return new DateTimeOffset(date);
 	}
 
 	// Returns the scheduled DateTimeOffset immediately prior to the given time.
