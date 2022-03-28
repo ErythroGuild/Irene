@@ -90,7 +90,7 @@ static partial class AuditLog {
 				string type_join_str = member.IsBot ? "Bot added" : "Member joined";
 				text.WriteLine($"**{type_join_str}:** {member_string(member)}");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -128,7 +128,7 @@ static partial class AuditLog {
 				} else {
 					text.WriteLine($"**Member left:** {member_string(member)}");
 				}
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -147,7 +147,7 @@ static partial class AuditLog {
 				StringWriter text = new ();
 				text.WriteLine($"**User banned:** {member_string(member)}");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -165,7 +165,7 @@ static partial class AuditLog {
 				StringWriter text = new ();
 				text.WriteLine($"**User unbanned:** {member_string(member)}");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -208,7 +208,7 @@ static partial class AuditLog {
 					print_changes(ref text, entry);
 					try_add_data(ref text, entry_roles);
 				}
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -231,7 +231,7 @@ static partial class AuditLog {
 				text.WriteLine("**Server settings updated.**");
 				print_changes(ref text, entry);
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -250,7 +250,7 @@ static partial class AuditLog {
 				StringWriter text = new ();
 				text.WriteLine($"**New role created:** {role.Name} (`{role.Id}`)");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -268,7 +268,7 @@ static partial class AuditLog {
 				StringWriter text = new ();
 				text.WriteLine($"**Role deleted:** {role.Name} (`{role.Id}`)");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -288,7 +288,7 @@ static partial class AuditLog {
 				text.WriteLine($"**Role settings updated:** {role_after.Name} (`{role_after.Id}`)");
 				print_changes(ref text, entry);
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -312,7 +312,7 @@ static partial class AuditLog {
 				text.WriteLine($"**New channel{(ch.IsCategory ? " category " : " ")}created:** {ch.Mention}");
 				text.WriteLine($"{ch.Name} (type: {ch.Type}): `{ch.Id}`");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -335,7 +335,7 @@ static partial class AuditLog {
 				text.WriteLine($"**Channel{(ch.IsCategory ? " category " : " ")}deleted:** {ch.Mention}");
 				text.WriteLine($"{ch.Name} (type: {ch.Type}): `{ch.Id}`");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -399,7 +399,7 @@ static partial class AuditLog {
 					print_changes(ref text, entry_perms_update);
 					try_add_data(ref text, entry_perms_update);
 				}
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -469,7 +469,7 @@ static partial class AuditLog {
 					print_changes(ref text, entry_update);
 					try_add_data(ref text, entry_update);
 				}
-				log_entry(text.output());
+				log_entry(text.ToString());
 
 			});
 			return Task.CompletedTask;
@@ -495,7 +495,7 @@ static partial class AuditLog {
 				text.WriteLine($"Created by {user.Tag()}, can be used {inv.MaxUses} times, expires in {expiry:g}.`");
 				text.WriteLine($"This invite grants {(inv.IsTemporary ? "temporary" : "normal")} access.");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -517,7 +517,7 @@ static partial class AuditLog {
 				text.WriteLine($"Created by {user.Tag()}, expired in {expiry:g}.`");
 				text.WriteLine($"This invite granted {(inv.IsTemporary ? "temporary" : "normal")} access.");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -553,7 +553,7 @@ static partial class AuditLog {
 				string timestamp = $"<t:{msg.Timestamp.ToUnixTimeSeconds()}:f>";
 				text.WriteLine($"Originally posted in {msg.Channel.Mention}, on {timestamp}.");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -572,7 +572,7 @@ static partial class AuditLog {
 				text.WriteLine("**Messages bulk deleted.**");
 				text.WriteLine($"Removed `{messages.Count}` message(s).");
 				try_add_data(ref text, entry);
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -593,7 +593,7 @@ static partial class AuditLog {
 				text.WriteLine("**All reactions cleared from message.**");
 				text.WriteLine($"{t}message ID:`{msg.Id}`");
 				text.WriteLine($"{t}<{msg.JumpLink}>");
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};
@@ -614,7 +614,7 @@ static partial class AuditLog {
 				text.WriteLine($"**Specific emoji reactions cleared from message:** `{emoji.GetDiscordName()}`");
 				text.WriteLine($"{t}message ID:`{msg.Id}`");
 				text.WriteLine($"{t}<{msg.JumpLink}>");
-				log_entry(text.output());
+				log_entry(text.ToString());
 			});
 			return Task.CompletedTask;
 		};

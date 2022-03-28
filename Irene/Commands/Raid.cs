@@ -23,7 +23,7 @@ class Raid {
 		text.WriteLine(":lock: `@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
 		text.WriteLine(":lock: `@Irene -list-trials` lists all current trials (**Guest** & **<Erythro>**).");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	public static string help_logs() {
@@ -34,7 +34,7 @@ class Raid {
 		text.WriteLine("`@Irene -logs [group] [date]` fetches the logs for the given date.");
 		text.WriteLine(":lock: `@Irene -logs-set [group] [day] <link>|<id>` sets the logs for the current week.");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	public static void get_time(Command cmd) {
@@ -63,7 +63,7 @@ class Raid {
 			StringWriter text_err = new ();
 			text_err.WriteLine("No arguments specified; you must at least provide a link.");
 			text_err.WriteLine("See `@Irene -help logs-set` for more help.");
-			_ = cmd.msg.RespondAsync(text_err.output());
+			_ = cmd.msg.RespondAsync(text_err.ToString());
 			return;
 		}
 
@@ -103,7 +103,7 @@ class Raid {
 			StringWriter text_err = new ();
 			text_err.WriteLine("Couldn't (completely) parse the given arguments.");
 			text_err.WriteLine("See `@Irene -help logs-set` for more help.");
-			_ = cmd.msg.RespondAsync(text_err.output());
+			_ = cmd.msg.RespondAsync(text_err.ToString());
 			return;
 		}
 
@@ -125,7 +125,7 @@ class Raid {
 			text.WriteLine("**This has been overwritten.**");
 		}
 		text.WriteLine($"Updating announcement post.");
-		_ = cmd.msg.RespondAsync(text.output());
+		_ = cmd.msg.RespondAsync(text.ToString());
 
 		// Edit corresponding announcement post.
 		Modules.WeeklyEvent.update_raid_logs(raid);

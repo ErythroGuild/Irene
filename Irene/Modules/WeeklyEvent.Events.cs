@@ -6,10 +6,10 @@ using DSharpPlus.Entities;
 
 using static Irene.Const;
 using static Irene.Program;
-using static Irene.Util;
 
 namespace Irene.Modules;
 
+using TimestampStyle = Util.TimestampStyle;
 using id_r = RoleIDs;
 using id_ch = ChannelIDs;
 using id_e = EmojiIDs;
@@ -64,7 +64,7 @@ partial class WeeklyEvent {
 		text_out.WriteLine($"{emoji_logs} - <{raid.get_link_logs()}>");
 
 		// Update message.
-		msg.ModifyAsync(text_out.output());
+		msg.ModifyAsync(text_out.ToString());
 	}
 
 	const string
@@ -142,7 +142,7 @@ partial class WeeklyEvent {
 		text.WriteLine("If you're unsure, check the pinned posts for raid reqs. :thumbsup:");
 		DiscordMessage msg = await
 			channels[id_ch.announce]
-			.SendMessageAsync(text.output());
+			.SendMessageAsync(text.ToString());
 
 		// Update post with logs.
 		// Called here so code doesn't need to be repeated.
@@ -180,7 +180,7 @@ partial class WeeklyEvent {
 		}
 		DiscordMessage msg = await
 			channels[id_ch.announce]
-			.SendMessageAsync(text.output());
+			.SendMessageAsync(text.ToString());
 		msgs_raid_forming.Add(raid.date, msg.Id);
 
 		// React to raid announcement.
@@ -203,7 +203,7 @@ partial class WeeklyEvent {
 		text.WriteLine($"{em}`@Irene -logs-set`");
 
 		DiscordChannel ch = channels[id_ch.officerBots];
-		_ = ch.SendMessageAsync(text.output());
+		_ = ch.SendMessageAsync(text.ToString());
 	}
 
 	static void e_raid_break_remind() {
@@ -217,7 +217,7 @@ partial class WeeklyEvent {
 		text.WriteLine($"{em}Raid break soon. :slight_smile: :tropical_drink:");
 
 		DiscordChannel ch = channels[id_ch.officer];
-		_ = ch.SendMessageAsync(text.output());
+		_ = ch.SendMessageAsync(text.ToString());
 	}
 
 	static void e_weekly_officer_meeting() {
@@ -230,7 +230,7 @@ partial class WeeklyEvent {
 		text.WriteLine($"Weekly {roles[id_r.officer].Mention} meeting after raid. :slight_smile:");
 
 		DiscordChannel ch = channels[id_ch.officer];
-		_ = ch.SendMessageAsync(text.output());
+		_ = ch.SendMessageAsync(text.ToString());
 	}
 
 	static void e_update_raid_plans() {
@@ -245,7 +245,7 @@ partial class WeeklyEvent {
 		text.WriteLine($"{em}`@Irene -raid-set-F`, `@Irene -raid-set-S`");
 
 		DiscordChannel ch = channels[id_ch.officerBots];
-		_ = ch.SendMessageAsync(text.output());
+		_ = ch.SendMessageAsync(text.ToString());
 	}
 
 	static void e_promote_remind() {
@@ -260,6 +260,6 @@ partial class WeeklyEvent {
 		text.WriteLine($"{em}`@Irene -trials`");
 
 		DiscordChannel ch = channels[id_ch.officerBots];
-		_ = ch.SendMessageAsync(text.output());
+		_ = ch.SendMessageAsync(text.ToString());
 	}
 }

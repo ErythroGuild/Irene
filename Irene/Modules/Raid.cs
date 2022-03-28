@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 
 using static Irene.Const;
-using static Irene.Util;
 
 namespace Irene.Modules;
 
@@ -72,7 +71,7 @@ class Raid {
 	// the new one if one exists; otherwise prepends the raid
 	// entry.
 	public static void update(Raid raid) {
-		ensure_file_exists(path_data, ref lock_data);
+		Util.CreateIfMissing(path_data, ref lock_data);
 
 		// Replace in-place the entry if it's an update to an
 		// existing entry.
@@ -118,7 +117,7 @@ class Raid {
 		return get(current_tier, week, day, group);
 	}
 	public static Raid? get(Tier tier, int week, Day day, Group group) {
-		ensure_file_exists(path_data, ref lock_data);
+		Util.CreateIfMissing(path_data, ref lock_data);
 
 		string hash = new Raid(tier, week, day, group).hash();
 		FileEntry? entry = get_file_entry(hash);
@@ -132,7 +131,7 @@ class Raid {
 
 	// Reads the entire datafile and groups them into entries.
 	static List<FileEntry> get_file_entries() {
-		ensure_file_exists(path_data, ref lock_data);
+		Util.CreateIfMissing(path_data, ref lock_data);
 
 		List<FileEntry> entries = new ();
 		FileEntry? entry = null;
@@ -159,7 +158,7 @@ class Raid {
 	// Fetch a single file entry matching the given hash.
 	// This function exits early when possible.
 	static FileEntry? get_file_entry(string hash) {
-		ensure_file_exists(path_data, ref lock_data);
+		Util.CreateIfMissing(path_data, ref lock_data);
 
 		bool was_found = false;
 		FileEntry entry = new ();

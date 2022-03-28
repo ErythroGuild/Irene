@@ -27,7 +27,7 @@ class Invite : ICommands {
 		text.WriteLine("and `@Irene -inv` fetches both server invites.");
 		text.WriteLine($"These invite links can also be found in {channels[id_ch.resources]}.");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	public static void run(Command cmd) {
@@ -44,6 +44,6 @@ class Invite : ICommands {
 			text.WriteLine(invite_leuko);
 		}
 
-		_ = cmd.msg.RespondAsync(text.output());
+		_ = cmd.msg.RespondAsync(text.ToString());
 	}
 }

@@ -12,7 +12,7 @@ class About {
 	public static string help() {
 		StringWriter text = new ();
 		text.WriteLine("Prints the most recent release version and build the bot is running.");
-		return text.output();
+		return text.ToString();
 	}
 
 	public static void run(Command cmd) {

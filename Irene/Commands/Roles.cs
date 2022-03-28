@@ -86,7 +86,7 @@ class Roles : ICommands {
 		text.WriteLine("`@Irene -roles-info` Lists available roles and also shows a brief description.");
 		text.WriteLine("Any member can view available roles, but you must be at least a Guest to update them.");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	public static void set(Command cmd) {
@@ -138,7 +138,7 @@ class Roles : ICommands {
 		}
 		text.WriteLine("*Use `@Irene -roles` to assign yourself roles.*");
 
-		_ = cmd.msg.RespondAsync(text.output());
+		_ = cmd.msg.RespondAsync(text.ToString());
 	}
 
 	public static void royce(Command cmd) {
@@ -212,7 +212,7 @@ class Roles : ICommands {
 		foreach (PingRole role in roles) {
 			text.Write($"**{options[role].label}**  ");
 		}
-		return text.output()[..^2];
+		return text.ToString()[..^2];
 	}
 
 	// Read through data file to find matching welcome message.
@@ -232,7 +232,7 @@ class Roles : ICommands {
 		}
 		data.Close();
 
-		content = content.unescape();
+		content = content.Unescape();
 		content = $"{emojis[id_e.erythro]} {content}";
 		return content;
 	}

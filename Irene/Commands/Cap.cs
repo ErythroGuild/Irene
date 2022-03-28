@@ -38,7 +38,7 @@ class Cap : ICommands {
 		text.WriteLine("`@Irene -cap <type>` shows the current cap of the given resource.");
 		text.WriteLine("E.g.: `renown`, `valor`, `conquest`.");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	// Parse the argument and dispatch the correct handler.
@@ -52,7 +52,7 @@ class Cap : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("You must specify the cap you're looking for (e.g. `renown`).");
 			text.WriteLine("See `@Irene -help cap` for more help.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 			return;
 		}
 
@@ -62,7 +62,7 @@ class Cap : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("Could not recognize the requested info type.");
 			text.WriteLine("See `@Irene -help cap` for more help.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 			return;
 		}
 

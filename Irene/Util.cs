@@ -12,15 +12,6 @@ using static Irene.Program;
 namespace Irene;
 
 static partial class Util {
-	static readonly Dictionary<string, string> escape_codes = new () {
-		{ @"\n"    , "\n"     },
-		{ @":bbul:", "\u2022" },
-		{ @":wbul:", "\u25E6" },
-		{ @":emsp:", "\u2003" },
-		{ @":ensp:", "\u2022" },
-		{ @":nbsp:", "\u00A0" },
-		{ @":+-:"  , "\u00B1" },
-	};
 	static readonly Dictionary<Permissions, string> perms_descriptions = new () {
 		// General permissions
 		{ Permissions.AccessChannels, "View channels"   },
@@ -72,44 +63,6 @@ static partial class Util {
 		{ Permissions.All , "All"  },
 		{ Permissions.None, "None" },
 	};
-
-	// Extension methods for converting discord messages to/from
-	// single-line easily parseable text.
-	public static string escape(this string str) {
-		string text = str;
-		foreach (string escape_code in escape_codes.Keys) {
-			string codepoint = escape_codes[escape_code];
-			text = text.Replace(codepoint, escape_code);
-		}
-		return text;
-	}
-	public static string unescape(this string str) {
-		string text = str;
-		foreach (string escape_code in escape_codes.Keys) {
-			string codepoint = escape_codes[escape_code];
-			text = text.Replace(escape_code, codepoint);
-		}
-		return text;
-	}
-
-	// Create a blank file at the given path, if it doesn't exist.
-	// Returns true if file was created, false otherwise.
-	public static bool ensure_file_exists(string path, ref object @lock) {
-		bool did_create = false;
-		lock (@lock) {
-			if (!File.Exists(path)) {
-				File.Create(path).Close();
-				did_create = true;
-			}
-		}
-		return did_create;
-	}
-
-	// Convenience extension method to implicitly flush StringWriter.
-	public static string output(this StringWriter writer) {
-		writer.Flush();
-		return writer.ToString();
-	}
 
 	// Returns a list of permission flags.
 	public static List<Permissions> permissions_flags() {

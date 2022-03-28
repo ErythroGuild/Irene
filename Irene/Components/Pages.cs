@@ -133,7 +133,7 @@ class Pages {
 			text.WriteLine(list[i]);
 		}
 
-		return text.output();
+		return text.ToString();
 	}
 
 	// Returns a row of buttons for paginating the data.

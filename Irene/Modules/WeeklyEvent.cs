@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Timers;
 
 using static Irene.Program;
-using static Irene.Util;
 
 namespace Irene.Modules;
 
@@ -225,7 +224,7 @@ partial class WeeklyEvent {
 
 	// Read the specified id's time from the datafile.
 	static DateTimeOffset? parse_last_executed(string id) {
-		ensure_file_exists(path_data, ref lock_data);
+		Util.CreateIfMissing(path_data, ref lock_data);
 
 		lock (lock_data) {
 			StreamReader file = new (path_data);
@@ -252,7 +251,7 @@ partial class WeeklyEvent {
 
 	// Write the current id-time pair to the datafile.
 	static void update_executed(string id, DateTimeOffset time) {
-		ensure_file_exists(path_data, ref lock_data);
+		Util.CreateIfMissing(path_data, ref lock_data);
 
 		// Read in all current data; replacing appropriate line.
 		StringWriter buffer = new ();
@@ -278,7 +277,7 @@ partial class WeeklyEvent {
 
 		// Update files.
 		lock (lock_data) {
-			File.WriteAllText(path_buffer, buffer.output());
+			File.WriteAllText(path_buffer, buffer.ToString());
 			File.Delete(path_data);
 			File.Move(path_buffer, path_data);
 		}

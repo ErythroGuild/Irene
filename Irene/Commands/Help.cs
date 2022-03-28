@@ -45,7 +45,7 @@ class Help : ICommands {
 		text.WriteLine("`@Irene -help <command>` displays help for that specific command.");
 		text.WriteLine("If you need more help, ask, or shoot Ernie a message! :+1:");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	public static void run(Command cmd) {
@@ -89,7 +89,7 @@ class Help : ICommands {
 		s.WriteLine($"`{m} -help`: Display this help text.");
 		s.WriteLine($"`{m} -help <command>`: Display help for a specific command.");
 		s.WriteLine($"{t}*aliases:* `-h`, `-?`");
-		list_general.Add(s.output());
+		list_general.Add(s.ToString());
 
 		s = new StringWriter();
 		s.WriteLine("**Roles**");
@@ -102,7 +102,7 @@ class Help : ICommands {
 		s.WriteLine($"`{m} -tags <tag>`: Display the named tag.");
 		s.WriteLine($"`{m} -tags`: List all available tags.");
 		s.WriteLine($"{t}*aliases:* `-t`, `-tag`");
-		list_general.Add(s.output());
+		list_general.Add(s.ToString());
 
 		s = new StringWriter();
 		s.WriteLine("**Reference**");
@@ -112,13 +112,13 @@ class Help : ICommands {
 		s.WriteLine($"{t}*aliases:* `-cd`, `-classdiscords`, `-class-discord`");
 		s.WriteLine($"`{m} -invite [erythro|leuko]`: Display the server invite link.");
 		s.WriteLine($"{t}*aliases:* `-i`, `-inv`");
-		list_general.Add(s.output());
+		list_general.Add(s.ToString());
 
 		s = new StringWriter();
 		s.WriteLine("**Miscellaneous**");
 		s.WriteLine($"`{m} -roll [x] [y]`: Generates a random, positive integer.");
 		s.WriteLine($"{t}*aliases:* `-dice`, `-random`, `-rand`");
-		list_general.Add(s.output());
+		list_general.Add(s.ToString());
 	}
 
 	// Populate `list_officer`.
@@ -134,7 +134,7 @@ class Help : ICommands {
 		s.WriteLine($"`{m} -set-erythro <user-id>`: Gives user Guest permissions and assigns them to <Erythro>.");
 		s.WriteLine($"`{m} -list-trials`: List all Guest users who are tagged as <Erythro>.");
 		s.WriteLine($"{t}*aliases:* `-trials`");
-		list_officer.Add(s.output());
+		list_officer.Add(s.ToString());
 
 		s = new StringWriter();
 		s.WriteLine("**:lock: Tags**");
@@ -144,6 +144,6 @@ class Help : ICommands {
 		s.WriteLine($"{t}*aliases:* `-tedit`, `-tag-edit`, `-edit-tag`");
 		s.WriteLine($"`{m} -tags-remove <tag>`: Remove the existing tag.");
 		s.WriteLine($"{t}*aliases:* `-tremove`, `-tag-remove`, `-remove-tag`");
-		list_officer.Add(s.output());
+		list_officer.Add(s.ToString());
 	}
 }

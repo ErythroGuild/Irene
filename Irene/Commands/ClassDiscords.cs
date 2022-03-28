@@ -30,7 +30,7 @@ class ClassDiscords : ICommands {
 		text.WriteLine("Link the server invite for the given class discord.");
 		text.WriteLine("`@Irene -classdiscord <class>`");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	public static void run(Command cmd) {
@@ -43,7 +43,7 @@ class ClassDiscords : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("Could not determine a class from the command.");
 			text.WriteLine("See also: `@Irene -help classdiscord`");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 			return;
 		}
 		Class @class = (Class)class_n;
@@ -52,7 +52,7 @@ class ClassDiscords : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("Found multiple classes in the command; try a more specific term.");
 			text.WriteLine("See also: `@Irene -help classdiscord`");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 			return;
 		}
 

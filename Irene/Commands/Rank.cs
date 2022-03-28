@@ -124,7 +124,7 @@ class Rank : ICommands {
 		text.WriteLine(":lock: `@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
 		text.WriteLine(":lock: `@Irene -list-trials` lists all current trials (**Guest** *and* **<Erythro>**.");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	// Grant specific permissions to a user, with some restrictions.
@@ -255,7 +255,7 @@ class Rank : ICommands {
 			log.info($"  {member.DisplayName} does not need to be tagged.");
 			text.WriteLine($"{member.Mention} is already tagged as **<Erythro>**.");
 		}
-		_ = cmd.msg.RespondAsync(text.output());
+		_ = cmd.msg.RespondAsync(text.ToString());
 	}
 
 	// List all server Guest members and tagged as <Erythro>.
@@ -311,7 +311,7 @@ class Rank : ICommands {
 			log.debug($"    {trial.Tag()} - {time.Days} days old");
 			text.WriteLine($"{trial.Mention} - {time.Days} days old");
 		}
-		_ = cmd.msg.RespondAsync(text.output());
+		_ = cmd.msg.RespondAsync(text.ToString());
 	}
 
 	// Callback from the Selection to set member's rank.
@@ -345,7 +345,7 @@ class Rank : ICommands {
 			text.WriteLine("Congrats! :tada:");
 			text.WriteLine($"You've been promoted to **{options_rank[rank_new].label}**.");
 			text.WriteLine("If your in-game ranks haven't been updated, just ask an Officer to update them.");
-			_ = member.SendMessageAsync(text.output());
+			_ = member.SendMessageAsync(text.ToString());
 		}
 	}
 
@@ -465,7 +465,7 @@ class Rank : ICommands {
 		foreach (Guild guild in guilds) {
 			text.Write($"**{options_guild[guild].label}**  ");
 		}
-		return text.output()[..^2];
+		return text.ToString()[..^2];
 	}
 
 	// Properly log/respond if the member list isn't singular.
@@ -478,7 +478,7 @@ class Rank : ICommands {
 			StringWriter text = new ();
 			text.WriteLine($"Could not find any members matching `{cmd.args}`.");
 			text.WriteLine("If their display name doesn't work, try their user ID instead.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 			return true;
 		}
 		if (members.Count > 1) {
@@ -498,7 +498,7 @@ class Rank : ICommands {
 				text.WriteLine($"{em}...");
 			}
 			text.WriteLine("Try specifying a user ID instead.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 			return true;
 		}
 		return false;
@@ -517,7 +517,7 @@ class Rank : ICommands {
 		StringWriter text = new ();
 		text.WriteLine("Could not determine your guild rank.");
 		text.WriteLine("This is probably an internal error; contact Ernie for more info.");
-		_ = cmd.msg.RespondAsync(text.output());
+		_ = cmd.msg.RespondAsync(text.ToString());
 
 		return true;
 	}
@@ -535,7 +535,7 @@ class Rank : ICommands {
 		text.WriteLine("You must specify a user to modify the rank of.");
 		text.WriteLine("This can be an `@mention`, their user ID, or their username, if it's unambiguous.");
 		text.WriteLine("See also: `@Irene -help rank`.");
-		_ = cmd.msg.RespondAsync(text.output());
+		_ = cmd.msg.RespondAsync(text.ToString());
 
 		return true;
 	}

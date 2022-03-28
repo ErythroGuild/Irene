@@ -25,7 +25,7 @@ class Tags : ICommands {
 		text.WriteLine("Only officers can add, edit, and remove tags.");
 		text.WriteLine("If you'd like a tag added/edited/removed, message an officer.");
 
-		return text.output();
+		return text.ToString();
 	}
 
 	public static void run(Command cmd) {
@@ -68,12 +68,12 @@ class Tags : ICommands {
 			text.WriteLine($"Tag `{arg}` not found.");
 			text.WriteLine("Ask an officer to add a tag, or use `@Irene -tags-list` to view available tags.");
 			text.WriteLine("Also see: `@Irene -help tags`.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 			return;
 		}
 
 		// Display tag.
-		content = content.unescape();
+		content = content.Unescape();
 		log.debug($"  {content}");
 		_ = cmd.msg.RespondAsync(content);
 	}
@@ -96,7 +96,7 @@ class Tags : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("No tags currently saved.");
 			text.WriteLine("Maybe ask an officer to add a tag?");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 			return;
 		} else {
 			log.debug("  Tag list created.");
@@ -121,7 +121,7 @@ class Tags : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("Cannot add a tag with no content.");
 			text.WriteLine("See `@Irene -help tags` for syntax help.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 
 			return;
 		}
@@ -134,7 +134,7 @@ class Tags : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("Cannot add a tag with no content.");
 			text.WriteLine("See `@Irene -help tags` for syntax help.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 
 			return;
 		}
@@ -160,7 +160,7 @@ class Tags : ICommands {
 				text.WriteLine($"Tag `{tag}` already exists.");
 				text.WriteLine("Use `@Irene -tags-edit <tag>=<content>` to edit existing tags.");
 				text.WriteLine("Also see: `@Irene -help tags`.");
-				_ = cmd.msg.RespondAsync(text.output());
+				_ = cmd.msg.RespondAsync(text.ToString());
 
 				data.Close();
 				return;
@@ -170,7 +170,7 @@ class Tags : ICommands {
 		data.Close();
 
 		// Add the tag.
-		content = content.escape();
+		content = content.Escape();
 		tags.Add($"{tag}{delim}{content}", null);
 
 		// Write the file (to a buffer first, then overwrite).
@@ -191,7 +191,7 @@ class Tags : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("A tag cannot be empty.");
 			text.WriteLine("See `@Irene -help tags` for syntax help.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 
 			return;
 		}
@@ -204,7 +204,7 @@ class Tags : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("Cannot edit a tag with no content.");
 			text.WriteLine("See `@Irene -help tags` for syntax help.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 
 			return;
 		}
@@ -242,7 +242,7 @@ class Tags : ICommands {
 			text.WriteLine($"No tag `{arg}` exists yet.");
 			text.WriteLine("Use `@Irene -tags-add <tag>=<content>` to add a new tag.");
 			text.WriteLine("See also: `@Irene -help tags`.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 
 			return;
 		}
@@ -272,7 +272,7 @@ class Tags : ICommands {
 			StringWriter text = new ();
 			text.WriteLine($"Tag names cannot contain `{delim}`.");
 			text.WriteLine("Did you mean to add or update a tag instead?");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 
 			return;
 		}
@@ -284,7 +284,7 @@ class Tags : ICommands {
 			StringWriter text = new ();
 			text.WriteLine("Specify a tag to remove.");
 			text.WriteLine("See `@Irene -help tags` for syntax help.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 
 			return;
 		}
@@ -314,7 +314,7 @@ class Tags : ICommands {
 			text.WriteLine($"No tag `{arg}` exists.");
 			text.WriteLine("You can add a new tag instead.");
 			text.WriteLine("See also: `@Irene -help tags`.");
-			_ = cmd.msg.RespondAsync(text.output());
+			_ = cmd.msg.RespondAsync(text.ToString());
 
 			return;
 		}
@@ -328,7 +328,7 @@ class Tags : ICommands {
 		StringWriter text_respond = new ();
 		text_respond.WriteLine($"Removed tag: `{arg}`");
 		text_respond.WriteLine(content);
-		_ = cmd.msg.RespondAsync(text_respond.output());
+		_ = cmd.msg.RespondAsync(text_respond.ToString());
 	}
 
 	// Make sure the data file (and its directory) exists.

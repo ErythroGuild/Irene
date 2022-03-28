@@ -42,7 +42,7 @@ static class Welcome {
 					StringWriter text = new ();
 					text.WriteLine($"{roles[r_recruiter].Mention} - " +
 						$"New member {e.Member.Mention} joined the server. :tada:");
-					_ = channels[ch_notify].SendMessageAsync(text.output());
+					_ = channels[ch_notify].SendMessageAsync(text.ToString());
 				}
 
 				log.endl();
