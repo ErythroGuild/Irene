@@ -44,7 +44,7 @@ static partial class Util {
 		$"<t:{time.ToUnixTimeSeconds()}:{_timestampTable[style]}>";
 	public static string Timestamp(this DateTimeOffset time, string format="f") =>
 		$"<t:{time.ToUnixTimeSeconds()}:{format}>";
-	private readonly static Dictionary<TimestampStyle, string> _timestampTable = new () {
+	private static readonly Dictionary<TimestampStyle, string> _timestampTable = new () {
 		{ TimestampStyle.Relative,  "R" },
 		{ TimestampStyle.TimeShort, "t" },
 		{ TimestampStyle.TimeLong,  "T" },

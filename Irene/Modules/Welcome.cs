@@ -8,8 +8,8 @@ using static Irene.Program;
 
 namespace Irene.Modules;
 
-using id_r = RoleIDs;
 using id_ch = ChannelIDs;
+using id_r = RoleIDs;
 
 static class Welcome {
 	const string path_message = @"data/welcome.txt";

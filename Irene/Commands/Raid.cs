@@ -8,8 +8,8 @@ using static Irene.Program;
 
 namespace Irene.Commands;
 
-using RaidObj = Modules.Raid;
 using RaidGroup = Modules.Raid.Group;
+using RaidObj = Modules.Raid;
 
 class Raid {
 

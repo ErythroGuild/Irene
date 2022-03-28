@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Irene.Commands;
+using Irene.Modules;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
 using static Irene.Const;
-using Irene.Commands;
-using Irene.Modules;
 
 namespace Irene;
 

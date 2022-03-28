@@ -2,16 +2,16 @@ using System.Collections.Generic;
 using System.IO;
 
 using DSharpPlus.Entities;
+using Irene.Components;
 
 using static Irene.Const;
 using static Irene.Program;
-using Irene.Components;
 
 namespace Irene.Commands;
 
-using Entry = Selection<Roles.PingRole>.Entry;
-using id_r = RoleIDs;
 using id_e = EmojiIDs;
+using id_r = RoleIDs;
+using Entry = Selection<Roles.PingRole>.Entry;
 
 class Roles : ICommands {
 	public enum PingRole {

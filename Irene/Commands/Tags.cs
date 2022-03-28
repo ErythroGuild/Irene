@@ -2,9 +2,9 @@
 using System.IO;
 
 using DSharpPlus.Entities;
+using Irene.Components;
 
 using static Irene.Program;
-using Irene.Components;
 
 namespace Irene.Commands;
 

@@ -9,10 +9,10 @@ namespace Irene.Commands;
 using id_ch = ChannelIDs;
 
 class Invite : ICommands {
-	readonly static List<string> token_erythro = new () {
+	static readonly List<string> token_erythro = new () {
 		"erythro", "ery", "wow"
 	};
-	readonly static List<string> token_leuko = new () {
+	static readonly List<string> token_leuko = new () {
 		"leuko", "ffxiv", "ff14"
 	};
 

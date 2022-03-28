@@ -9,10 +9,10 @@ using static Irene.Program;
 
 namespace Irene.Modules;
 
-using TimestampStyle = Util.TimestampStyle;
-using id_r = RoleIDs;
 using id_ch = ChannelIDs;
 using id_e = EmojiIDs;
+using id_r = RoleIDs;
+using TimestampStyle = Util.TimestampStyle;
 
 partial class WeeklyEvent {
 	static Dictionary<Raid.Date, ulong> msgs_raid_forming = new ();

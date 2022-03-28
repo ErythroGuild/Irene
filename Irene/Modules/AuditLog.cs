@@ -10,8 +10,8 @@ using static Irene.Program;
 
 namespace Irene.Modules;
 
-using AuditLogEntryTable = Dictionary<AuditLogActionType, DiscordAuditLogEntry?>;
 using id_ch = ChannelIDs;
+using AuditLogEntryTable = Dictionary<AuditLogActionType, DiscordAuditLogEntry?>;
 
 static partial class AuditLog {
 	static AuditLogEntryTable audit_log_base = new ();
