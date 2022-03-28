@@ -266,7 +266,7 @@ static partial class AuditLog {
 	static void print_perms(
 		ref StringWriter text,
 		Permissions perms ) {
-		List<Permissions> perms_list = PermissionsFlags();
+		List<Permissions> perms_list = Util.PermissionsFlags();
 		foreach (Permissions perms_i in perms_list) {
 			// Do not print "None" ever, as a changed field.
 			if (perms_i == Permissions.None)
