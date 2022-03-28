@@ -19,15 +19,15 @@ class Program {
 	public static bool is_guild_loaded = false;
 
 	// File paths for config files.
-	internal const string
+	public const string
 		path_token   = @"config/token.txt",
 		path_ak      = @"config/path_ak.txt",
 		path_serilog = @"logs_D#+/serilog.txt",
 		dir_logs = @"logs";
 
 	// Discord IDs of various components.
-	internal const ulong id_g_erythro = 317723973968461824;
-	internal const string str_mention_n = @"<@!609752546994683911>";
+	public const ulong id_g_erythro = 317723973968461824;
+	public const string str_mention_n = @"<@!609752546994683911>";
 
 	static Program() {
 		log = new Logger(dir_logs, TimeSpan.FromDays(1));
