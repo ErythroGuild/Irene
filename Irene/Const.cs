@@ -1,19 +1,21 @@
-namespace Irene;
+﻿namespace Irene;
 
 using RecurTime = RecurringEvent.RecurTime;
 
 static class Const {
 	// Patch release days
 	// 7:00 PST = 8:00 PDT = 15:00 UTC
-	public static readonly DateTime
-		date_patch_902 = new (2020, 11, 17, 15, 0, 0, DateTimeKind.Utc),
-		date_season_1  = new (2020, 12,  8, 15, 0, 0, DateTimeKind.Utc),
-		date_patch_905 = new (2021,  3,  9, 15, 0, 0, DateTimeKind.Utc),
-		date_patch_910 = new (2021,  6, 29, 15, 0, 0, DateTimeKind.Utc),
-		date_season_2  = new (2021,  7,  6, 15, 0, 0, DateTimeKind.Utc),
-		date_patch_915 = new (2021, 11,  2, 15, 0, 0, DateTimeKind.Utc),
-		date_patch_920 = new (2022,  2, 22, 15, 0, 0, DateTimeKind.Utc),
-		date_season_3  = new (2022,  3,  1, 15, 0, 0, DateTimeKind.Utc);
+	public static readonly RecurTime Time_ServerReset =
+		new (new TimeOnly(15, 0), TimeZoneInfo.Utc);
+	public static readonly DateOnly
+		Date_Patch902 = new (2020, 11, 17),
+		Date_Season1  = new (2020, 12,  8),
+		Date_Patch905 = new (2020,  3,  9),
+		Date_Patch910 = new (2020,  6, 29),
+		Date_Season2  = new (2020,  7,  6),
+		Date_Patch915 = new (2020, 11,  2),
+		Date_Patch920 = new (2020,  2, 22),
+		Date_Season3  = new (2020,  3,  1);
 
 	// Discord entity IDs
 	public static class ChannelIDs {
