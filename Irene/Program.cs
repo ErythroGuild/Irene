@@ -9,14 +9,14 @@ namespace Irene;
 
 class Program {
 	// Discord client objects.
-	internal static readonly DiscordClient irene;
-	internal static DiscordGuild? guild;
-	internal static readonly Dictionary<ulong, DiscordRole> roles = new ();
-	internal static readonly Dictionary<ulong, DiscordChannel> channels = new ();
-	internal static readonly Dictionary<ulong, DiscordGuildEmoji> emojis = new ();
-	internal static readonly Logger log;
+	public static readonly DiscordClient irene;
+	public static DiscordGuild? guild;
+	public static readonly Dictionary<ulong, DiscordRole> roles = new ();
+	public static readonly Dictionary<ulong, DiscordChannel> channels = new ();
+	public static readonly Dictionary<ulong, DiscordGuildEmoji> emojis = new ();
+	public static readonly Logger log;
 	static readonly Stopwatch stopwatch_connect;
-	internal static bool is_guild_loaded = false;
+	public static bool is_guild_loaded = false;
 
 	// File paths for config files.
 	internal const string
