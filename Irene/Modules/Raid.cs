@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-using static Irene.Const;
-
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 using FileEntry = List<string>;
 

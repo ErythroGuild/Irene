@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using static Irene.Modules.Raid;
-using static Irene.Program;
 
 namespace Irene.Commands;
 

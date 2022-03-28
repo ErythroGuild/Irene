@@ -1,12 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-using DSharpPlus;
-using DSharpPlus.Entities;
-
-using static Irene.Program;
-
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 static partial class AuditLog {
 

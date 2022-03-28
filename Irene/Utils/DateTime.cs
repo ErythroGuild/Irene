@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Irene;
+﻿namespace Irene.Utils;
 
 static partial class Util {
 	// Directly returns the TimeOnly from a TimeSpan of a DateTime(Offset).

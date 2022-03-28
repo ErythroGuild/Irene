@@ -1,12 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-using static Irene.Const;
-using static Irene.Program;
-
-namespace Irene.Commands;
-
-using id_ch = ChannelIDs;
+﻿namespace Irene.Commands;
 
 class Invite : ICommands {
 	static readonly List<string> token_erythro = new () {

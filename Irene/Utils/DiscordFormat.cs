@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using DSharpPlus.Entities;
-
-namespace Irene;
+﻿namespace Irene.Utils;
 
 static partial class Util {
 	// Basic text formatting (single-line).

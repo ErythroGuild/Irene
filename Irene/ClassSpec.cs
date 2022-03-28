@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-using DSharpPlus.Entities;
-
-using static Irene.Const;
-using static Irene.Program;
+﻿using System.Diagnostics;
 
 namespace Irene;
-
-using id_e = EmojiIDs;
 
 class ClassSpec {
 	// "Multiple" is public-only. Private methods will always

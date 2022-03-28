@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿namespace Irene.Modules;
 
-using DSharpPlus.Entities;
-
-using static Irene.Const;
-using static Irene.Program;
-
-namespace Irene.Modules;
-
-using id_ch = ChannelIDs;
-using id_e = EmojiIDs;
-using id_r = RoleIDs;
 using TimestampStyle = Util.TimestampStyle;
 
 partial class WeeklyEvent {

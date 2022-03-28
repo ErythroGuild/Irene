@@ -1,16 +1,7 @@
-using System.Collections.Generic;
-using System.IO;
-
-using DSharpPlus.Entities;
 using Irene.Components;
-
-using static Irene.Const;
-using static Irene.Program;
 
 namespace Irene.Commands;
 
-using id_e = EmojiIDs;
-using id_r = RoleIDs;
 using Entry = Selection<Roles.PingRole>.Entry;
 
 class Roles : ICommands {

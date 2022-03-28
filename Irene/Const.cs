@@ -1,12 +1,6 @@
-﻿using System;
-
-using static Irene.Const;
-
 namespace Irene;
 
-using id_r = RoleIDs;
-using id_ch = ChannelIDs;
-using id_e = EmojiIDs;
+using RecurTime = RecurringEvent.RecurTime;
 
 static class Const {
 	// Patch release days
@@ -22,46 +16,6 @@ static class Const {
 		date_season_3  = new (2022,  3,  1, 15, 0, 0, DateTimeKind.Utc);
 
 	// Discord entity IDs
-	public static class RoleIDs {
-		public const ulong
-			// Colors
-			ambassador = 724762507612520530,
-			stylist    = 777570683159838760,
-			bot        = 614642181587599439,
-			admin      = 452298394967343105,
-			officer    = 542021861727272981,
-			member     = 452299909371265042,
-			guest      = 452299336123023360,
-
-			// Titles
-			beloved    = 780159178202284053,
-			acclaimed  = 780161029111021630,
-			celebrated = 780159754676338700,
-			chosen     = 903853996714913834,
-
-			// Officers
-			raidOfficer   = 723061867127373874,
-			eventPlanner  = 723061585156898836,
-			mythicOfficer = 824852094493917194,
-			recruiter     = 723060994859073607,
-			banker        = 723061777213947974,
-
-			// Guilds
-			erythro = 542021676884557824,
-			glaive  = 529135445712568323,
-			dragons = 830985516639584257,
-			angels  = 529135186382946345,
-			asgard  = 539515941877448728,
-			enclave = 676356017461919744,
-
-			// Subscriptions
-			raid    = 654062159956803664,
-			mythics = 653334284299534336,
-			ksm     = 665203067767226368,
-			gearing = 854879377930453002,
-			events  = 771584406724935710,
-			herald  = 712469431573544972;
-	}
 	public static class ChannelIDs {
 		public const ulong
 			// Broadcast
@@ -87,18 +41,9 @@ static class Const {
 			officerBots = 779385198533804062,
 			officerInfo = 650603757113049088,
 
-			// Voice chat
-			v_hangout = 442986379392319490,
-			v_request = 854884304362274816,
-			v_raid1   = 443001346678063104,
-			v_raid2   = 670853551869919232,
-			v_officer = 542093594618757140,
-			v_afk     = 545060010967957534,
-
 			// Testing
-			test       = 489274692255875091,
-			ingest     = 777935219193020426,
-			v_heartwood = 498636532530282512;
+			test   = 489274692255875091,
+			ingest = 777935219193020426;
 	}
 	public static class EmojiIDs {
 		public const ulong
@@ -141,5 +86,64 @@ static class Const {
 			shaman  = 676750915843260436,
 			warlock = 676750927889170437,
 			warrior = 676750939910045707;
+	}
+	public static class RoleIDs {
+		public const ulong
+			// Colors
+			ambassador = 724762507612520530,
+			stylist    = 777570683159838760,
+			bot        = 614642181587599439,
+			admin      = 452298394967343105,
+			officer    = 542021861727272981,
+			member     = 452299909371265042,
+			guest      = 452299336123023360,
+
+			// Titles
+			beloved    = 780159178202284053,
+			acclaimed  = 780161029111021630,
+			celebrated = 780159754676338700,
+			chosen     = 903853996714913834,
+
+			// Officers
+			raidOfficer   = 723061867127373874,
+			eventPlanner  = 723061585156898836,
+			mythicOfficer = 824852094493917194,
+			recruiter     = 723060994859073607,
+			banker        = 723061777213947974,
+
+			// Guilds
+			erythro = 542021676884557824,
+			glaive  = 529135445712568323,
+			dragons = 830985516639584257,
+			angels  = 529135186382946345,
+			asgard  = 539515941877448728,
+			enclave = 676356017461919744,
+
+			// Subscriptions
+			raid    = 654062159956803664,
+			mythics = 653334284299534336,
+			ksm     = 665203067767226368,
+			gearing = 854879377930453002,
+			events  = 771584406724935710,
+			herald  = 712469431573544972;
+	}
+	public static class VoiceChatIDs {
+		public const ulong
+			// Social
+			hangout = 442986379392319490,
+			afk     = 545060010967957534,
+
+			// Gaming
+			dungeon1 = 442986315865128960,
+			dungeon2 = 542094075784986654,
+			dungeon3 = 783838007454597121,
+			raid1    = 443001346678063104,
+			raid2    = 670853551869919232,
+
+			// Officer
+			officer = 542093594618757140,
+
+			// Testing
+			heartwood = 498636532530282512;
 	}
 }

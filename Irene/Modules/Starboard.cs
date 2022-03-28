@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-
-using DSharpPlus;
-using DSharpPlus.Entities;
-
-using static Irene.Const;
-using static Irene.Program;
-
-namespace Irene.Modules;
-
-using id_ch = ChannelIDs;
+﻿namespace Irene.Modules;
 
 static class Starboard {
 	// Cache variables.

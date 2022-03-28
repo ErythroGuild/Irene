@@ -1,8 +1,4 @@
-﻿using System.IO;
-
-using static Irene.Program;
-
-namespace Irene.Commands;
+﻿namespace Irene.Commands;
 
 class About {
 	const string

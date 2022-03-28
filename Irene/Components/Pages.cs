@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Timers;
+﻿using System.Timers;
 
-using DSharpPlus;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
-
-using static Irene.Program;
 
 namespace Irene.Components;
 

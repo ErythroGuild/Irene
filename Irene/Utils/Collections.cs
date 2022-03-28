@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Irene;
+﻿namespace Irene.Utils;
 
 static partial class Util {
 	// Returns the functional inverse of a given Dictionary.

@@ -1,17 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 
-using DSharpPlus;
-using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
+
 using Irene.Commands;
 using Irene.Modules;
-using Microsoft.Extensions.Logging;
-using Serilog;
-
-using static Irene.Const;
 
 namespace Irene;
 

@@ -1,15 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-
-using DSharpPlus.Entities;
-
-using static Irene.Const;
-using static Irene.Program;
-
-namespace Irene.Modules;
-
-using id_ch = ChannelIDs;
-using id_r = RoleIDs;
+﻿namespace Irene.Modules;
 
 static class Welcome {
 	const string path_message = @"data/welcome.txt";

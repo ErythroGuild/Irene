@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-using DSharpPlus.Entities;
-using Irene.Commands;
-
-using static Irene.Const;
-using static Irene.Program;
+﻿using Irene.Commands;
 
 namespace Irene;
-
-using id_r = RoleIDs;
 
 class Command {
 	public enum AccessLevel {
