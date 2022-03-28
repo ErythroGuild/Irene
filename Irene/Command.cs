@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
+using Irene.Commands;
 
 using static Irene.Const;
 using static Irene.Program;
-using Irene.Commands;
 
-namespace Irene; 
+namespace Irene;
 
-using id_r  = RoleIDs;
+using id_r = RoleIDs;
 
 class Command {
 	public enum AccessLevel {
@@ -196,7 +196,7 @@ class Command {
 		// Parse the user.
 		// If private channel, search through member list.
 		if (msg.Channel.IsPrivate) {
-			user = msg.Author.member().Result;
+			user = msg.Author.ToMember().Result;
 		} else {
 			user = msg.Author as DiscordMember;
 		}
@@ -227,7 +227,7 @@ class Command {
 			} else {
 				AccessLevel access = dict_access[dict_cmd[cmd]];
 				msg.RespondAsync($"Sorry, this command requires the {access} role to use. :lock:");
-				log.warning($"  {user?.tag() ?? "<unknown user>"} does not have access to this command.");
+				log.warning($"  {user?.Tag() ?? "<unknown user>"} does not have access to this command.");
 			}
 		} else {
 			dict_cmd["help"](this);

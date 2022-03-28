@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Irene.Commands;
+using Irene.Modules;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
 using static Irene.Const;
-using Irene.Modules;
-using Irene.Commands;
 
 namespace Irene;
 
@@ -201,7 +201,7 @@ class Program {
 						log.debug("[DM command]");
 					}
 					DiscordUser author = msg.Author;
-					log.debug($"  {author.tag()}: {msg_text}");
+					log.debug($"  {author.Tag()}: {msg_text}");
 					msg_text = msg_text.ToLower().Replace("/roll", "-roll");
 					Command cmd = new (msg_text, msg);
 					cmd.invoke();
@@ -234,7 +234,7 @@ class Program {
 						log.debug("[DM command]");
 					}
 					DiscordUser author = msg.Author;
-					log.debug($"  {author.tag()}: {msg_text}");
+					log.debug($"  {author.Tag()}: {msg_text}");
 					Command cmd = new (msg_text, msg);
 					cmd.invoke();
 					log.endl();

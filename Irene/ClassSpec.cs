@@ -7,7 +7,7 @@ using DSharpPlus.Entities;
 using static Irene.Const;
 using static Irene.Program;
 
-namespace Irene; 
+namespace Irene;
 
 using id_e = EmojiIDs;
 

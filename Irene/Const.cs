@@ -2,7 +2,7 @@
 
 using static Irene.Const;
 
-namespace Irene; 
+namespace Irene;
 
 using id_r = RoleIDs;
 using id_ch = ChannelIDs;
