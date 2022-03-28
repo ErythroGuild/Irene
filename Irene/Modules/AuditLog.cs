@@ -61,7 +61,7 @@ static partial class AuditLog {
 
 		foreach (AuditLogActionType type in types) {
 			DiscordAuditLogEntry? entry =
-				erythro.last_audit_entry(type).Result;
+				erythro.LatestAuditLogEntry(type).Result;
 			audit_log_base.Add(type, entry);
 		}
 
@@ -648,7 +648,8 @@ static partial class AuditLog {
 			await Task.Delay(retry_interval);
 
 			// Attempt to fetch entry.
-			DiscordAuditLogEntry? entry = await erythro.last_audit_entry(type);
+			DiscordAuditLogEntry? entry =
+				await erythro.LatestAuditLogEntry(type);
 
 			// Return the entry if one was found and is new.
 			// Also update the "most recent" audit log entry of that type.

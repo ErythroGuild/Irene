@@ -152,7 +152,7 @@ class Roles : ICommands {
 	// Also sends welcome messages for relevant roles.
 	static async void assign(List<PingRole> roles, DiscordUser user) {
 		// Convert DiscordUser to DiscordMember.
-		DiscordMember? member = await user.member();
+		DiscordMember? member = await user.ToMember();
 		if (member is null) {
 			log.error("Could not find DiscordMember to assign roles.");
 			log.endl();

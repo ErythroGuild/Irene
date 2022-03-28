@@ -196,7 +196,7 @@ class Command {
 		// Parse the user.
 		// If private channel, search through member list.
 		if (msg.Channel.IsPrivate) {
-			user = msg.Author.member().Result;
+			user = msg.Author.ToMember().Result;
 		} else {
 			user = msg.Author as DiscordMember;
 		}

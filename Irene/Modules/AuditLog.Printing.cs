@@ -5,7 +5,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 
 using static Irene.Program;
-using static Irene.Util;
 
 namespace Irene.Modules;
 
@@ -267,14 +266,14 @@ static partial class AuditLog {
 	static void print_perms(
 		ref StringWriter text,
 		Permissions perms ) {
-		List<Permissions> perms_list = permissions_flags();
+		List<Permissions> perms_list = PermissionsFlags();
 		foreach (Permissions perms_i in perms_list) {
 			// Do not print "None" ever, as a changed field.
 			if (perms_i == Permissions.None)
 				{ continue; }
 
 			if (perms.HasPermission(perms_i)) {
-				text.WriteLine($"{t}{t}{b} {perms_i.description()}");
+				text.WriteLine($"{t}{t}{b} {perms_i.Description()}");
 			}
 		}
 	}

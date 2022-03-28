@@ -316,7 +316,7 @@ class Rank : ICommands {
 
 	// Callback from the Selection to set member's rank.
 	static async void set_rank(List<Type> rank, DiscordUser user) {
-		DiscordMember? member = await user.member();
+		DiscordMember? member = await user.ToMember();
 		if (member is null) {
 			log.error("Could not find DiscordMember to assign roles.");
 			log.endl();
@@ -351,7 +351,7 @@ class Rank : ICommands {
 
 	// Callback from the Selection to set the member's guilds.
 	static async void set_guilds(List<Guild> guilds, DiscordUser user) {
-		DiscordMember? member = await user.member();
+		DiscordMember? member = await user.ToMember();
 		if (member is null) {
 			log.error("Could not find DiscordMember to assign roles.");
 			log.endl();
