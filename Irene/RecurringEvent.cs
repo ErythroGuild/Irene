@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Irene;
 
-namespace Irene;
-
-// Abbreviations.
+// Type aliases.
 using ArgExcept = ArgumentException;
 using ArgOORExcept = ArgumentOutOfRangeException;
 using InvalidOpExcept = InvalidOperationException;

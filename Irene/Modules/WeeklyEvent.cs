@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using System.Timers;
-
-using static Irene.Program;
+﻿using System.Timers;
 
 namespace Irene.Modules;
 

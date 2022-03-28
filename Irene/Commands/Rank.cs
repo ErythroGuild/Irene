@@ -1,17 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text.RegularExpressions;
 
-using DSharpPlus.Entities;
 using Irene.Components;
-
-using static Irene.Const;
-using static Irene.Program;
 
 namespace Irene.Commands;
 
-using id_r = RoleIDs;
 using RankEntry = Selection<Rank.Type>.Entry;
 using GuildEntry = Selection<Rank.Guild>.Entry;
 

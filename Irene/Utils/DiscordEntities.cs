@@ -1,13 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using DSharpPlus;
-using DSharpPlus.Entities;
-using DSharpPlus.Exceptions;
-
-using static Irene.Program;
-
-namespace Irene;
+﻿namespace Irene.Utils;
 
 static partial class Util {
 	// A table of all (non-deprecated) permissions, categorized and

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace Irene;
+﻿namespace Irene.Utils;
 
 static partial class Util {
 	// Converting strings to/from single-line, easily parseable text.

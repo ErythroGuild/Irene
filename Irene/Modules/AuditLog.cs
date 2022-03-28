@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+﻿namespace Irene.Modules;
 
-using DSharpPlus.Entities;
-
-using static Irene.Const;
-using static Irene.Program;
-
-namespace Irene.Modules;
-
-using id_ch = ChannelIDs;
 using AuditLogEntryTable = Dictionary<AuditLogActionType, DiscordAuditLogEntry?>;
 
 static partial class AuditLog {

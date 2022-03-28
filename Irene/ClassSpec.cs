@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-using DSharpPlus.Entities;
-
-using static Irene.Const;
-using static Irene.Program;
+﻿using System.Diagnostics;
 
 namespace Irene;
-
-using id_e = EmojiIDs;
 
 class ClassSpec {
 	// "Multiple" is public-only. Private methods will always
@@ -209,7 +200,7 @@ class ClassSpec {
 	// The maximum number of separate tokens allowed.
 	// Any further tokens past the last one will be treated as a
 	// single token.
-	internal const int token_cap = 8;
+	private const int token_cap = 8;
 
 	// Initialize dictionary caches with redundant indices
 	// (improves performance at the cost of memory space).
