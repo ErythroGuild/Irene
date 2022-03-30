@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 static class Starboard {
 	// Cache variables.
@@ -37,12 +37,11 @@ static class Starboard {
 	public static void init() { return; }
 
 	static Starboard() {
-		irene.MessageReactionAdded += (irene, e) => {
+		Client.MessageReactionAdded += (irene, e) => {
 			_ = Task.Run(async () => {
 				// Exit if guild data isn't loaded yet.
-				if (!is_guild_loaded) {
+				if (Guild is null)
 					return;
-				}
 
 				// Fetch uncached data.
 				DiscordChannel channel = e.Message.Channel ??

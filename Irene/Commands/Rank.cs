@@ -253,7 +253,7 @@ class Rank : ICommands {
 	// List all server Guest members and tagged as <Erythro>.
 	public static void list_trials(Command cmd) {
 		// Can't search for member if guilds aren't even loaded.
-		if (!is_guild_loaded) {
+		if (Program.Guild is null) {
 			log.warning("  Guild data not loaded yet, cannot list members.");
 			_ = cmd.msg.RespondAsync("Guild data not loaded yet; please retry in a moment.");
 			return;
@@ -263,7 +263,7 @@ class Rank : ICommands {
 		// If guild is loaded, `Program.guild` has been initialized.
 		DiscordGuild erythro = guild!;
 		List<DiscordMember> members = new (
-			erythro.GetAllMembersAsync()
+			Program.Guild.GetAllMembersAsync()
 			.Result );
 
 		// Fetch reference roles.
@@ -535,7 +535,7 @@ class Rank : ICommands {
 	// Returns a (possibly empty) list of matching members.
 	static List<DiscordMember> parse_member(string arg) {
 		// Can't search for member if guilds aren't even loaded.
-		if (!is_guild_loaded) {
+		if (Program.Guild is null) {
 			log.warning("    Attempted to parse DiscordMember before guild data loaded.");
 			return new List<DiscordMember>();
 		}
@@ -544,7 +544,7 @@ class Rank : ICommands {
 		// If guild is loaded, `Program.guild` has been initialized.
 		DiscordGuild erythro = guild!;
 		List<DiscordMember> members = new (
-			erythro.GetAllMembersAsync().Result
+			Program.Guild!.GetAllMembersAsync().Result
 		);
 
 		// Set up variables.

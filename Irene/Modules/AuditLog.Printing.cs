@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 static partial class AuditLog {
 
@@ -165,14 +165,14 @@ static partial class AuditLog {
 	static void print_changes(ref StringWriter text, DiscordAuditLogOverwriteEntry? entry) {
 		if (entry is null)
 			{ return; }
-		if (!is_guild_loaded)
+		if (Guild is null)
 			{ return; }
 
 		// N.B.: The "After" fields in the OverwriteEntry are always copied
 		// of the "Before" fields; we must use the `entry.Target` fields in
 		// place of the "After" fields.
 		DiscordOverwrite overwrite = entry.Target;
-		DiscordGuild erythro = irene.GetGuildAsync(id_g_erythro).Result;
+		UpdateGuild().RunSynchronously();
 
 		// Display which entity is having their permissions changed.
 		string entity_str = overwrite.Type switch {
@@ -182,8 +182,8 @@ static partial class AuditLog {
 		};
 		ulong entity_id = overwrite.Id;
 		entity_str += overwrite.Type switch {
-			OverwriteType.Member => $"`{irene.GetUserAsync(overwrite.Id).Result.Tag()}`",
-			OverwriteType.Role   => $"`@{erythro.GetRole(entity_id).Name}`",
+			OverwriteType.Member => $"`{Client.GetUserAsync(overwrite.Id).Result.Tag()}`",
+			OverwriteType.Role   => $"`@{Guild.GetRole(entity_id).Name}`",
 			_ => "",
 		};
 		text.WriteLine($"Permissions updated for {entity_str}.");

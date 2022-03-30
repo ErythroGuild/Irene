@@ -9,8 +9,8 @@ namespace Irene;
 
 class Program {
 	// Discord client objects.
-	public static readonly DiscordClient irene;
-	public static DiscordGuild? guild;
+	public static DiscordClient Client { get; private set; }
+	public static DiscordGuild? Guild  { get; private set; }
 	public static readonly Dictionary<ulong, DiscordRole> roles = new ();
 	public static readonly Dictionary<ulong, DiscordChannel> channels = new ();
 	public static readonly Dictionary<ulong, DiscordGuildEmoji> emojis = new ();
@@ -26,12 +26,19 @@ class Program {
 		dir_logs = @"logs";
 
 	// Discord IDs of various components.
-	public const ulong id_g_erythro = 317723973968461824;
+	private const ulong id_g_erythro = 317723973968461824;
 	public const string str_mention_n = @"<@!609752546994683911>";
 
+	public static async Task UpdateGuild() =>
+		Guild = await Client.GetGuildAsync(id_g_erythro);
+
+	// Construct all static members.
 	static Program() {
 		log = new Logger(dir_logs, TimeSpan.FromDays(1));
 		log.info("Initializing Irene...");
+
+		// Initialize static members.
+		Guild = null;
 
 		// Parse authentication token from file.
 		log.info("  Reading auth token...");
@@ -92,7 +99,7 @@ class Program {
 	}
 	static async Task MainAsync() {
 		// Connected to discord servers (but not necessarily guilds yet!).
-		irene.Ready += (irene, e) => {
+		Client.Ready += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordActivity helptext =
 #if RELEASE
@@ -114,10 +121,10 @@ class Program {
 		};
 
 		// Guild data has finished downloading.
-		irene.GuildDownloadCompleted += (irene, e) => {
+		Client.GuildDownloadCompleted += (irene, e) => {
 			_ = Task.Run(async () => {
 				// Initialize guild.
-				guild = await irene.GetGuildAsync(id_g_erythro);
+				Guild = await irene.GetGuildAsync(id_g_erythro);
 				log.debug("Guild fetched.");
 
 				// Initialize roles.
@@ -133,14 +140,14 @@ class Program {
 				var channel_ids = typeof(ChannelIDs).GetFields();
 				foreach (var channel_id in channel_ids) {
 					ulong id = (ulong)channel_id.GetValue(null)!;
-					DiscordChannel channel = guild.GetChannel(id);
+					DiscordChannel channel = Guild.GetChannel(id);
 					channels.Add(id, channel);
 				}
 				log.debug("Channels fetched.");
 
 				// Initialize emojis.
 				List<DiscordGuildEmoji> emojis =
-					new (await guild.GetEmojisAsync());
+					new (await Guild.GetEmojisAsync());
 				var emoji_ids = typeof(EmojiIDs).GetFields();
 				foreach (var emoji_id in emoji_ids) {
 					ulong id = (ulong)emoji_id.GetValue(null)!;
@@ -154,7 +161,7 @@ class Program {
 				}
 				log.debug("Emojis fetched.");
 
-				is_guild_loaded = true;
+				// Stop data initialization timer.
 				log.endl();
 
 				// Initialize modules.
@@ -172,7 +179,7 @@ class Program {
 		};
 
 		// (Any) message has been received.
-		irene.MessageCreated += (irene, e) => {
+		Client.MessageCreated += (irene, e) => {
 			_ = Task.Run(async () => {
 				DiscordMessage msg = e.Message;
 
@@ -235,7 +242,8 @@ class Program {
 			return Task.CompletedTask;
 		};
 
-		await irene.ConnectAsync();
+		// Stop configuration timer.
+		await Client.ConnectAsync();
 		await Task.Delay(-1);
 	}
 }

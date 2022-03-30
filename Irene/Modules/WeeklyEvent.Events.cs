@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 using TimestampStyle = Util.TimestampStyle;
 
@@ -6,7 +6,7 @@ partial class WeeklyEvent {
 	static Dictionary<Raid.Date, ulong> msgs_raid_forming = new ();
 
 	public static void update_raid_logs(Raid raid) {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.warning("    Could not update announcement post: guild not loaded.");
 			return;
 		}
@@ -61,7 +61,7 @@ partial class WeeklyEvent {
 		em = "\u2003";
 
 	static void e_cycle_meme_ch() {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.error("  Guild not loaded for event execution.");
 			return;
 		}
@@ -97,7 +97,7 @@ partial class WeeklyEvent {
 	}
 
 	static async void e_raid_soon_announce() {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.warning("  Could not announce raid: guild not loaded.");
 			return;
 		}
@@ -137,11 +137,11 @@ partial class WeeklyEvent {
 		update_raid_logs(raid);
 
 		// React to raid announcement.
-		await msg.CreateReactionAsync(DiscordEmoji.FromName(irene, raid.emoji()));
+		await msg.CreateReactionAsync(DiscordEmoji.FromName(Client, raid.emoji()));
 	}
 
 	static async void e_raid_now_announce() {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.warning("  Could not announce raid: guild not loaded.");
 			return;
 		}
@@ -172,7 +172,7 @@ partial class WeeklyEvent {
 		msgs_raid_forming.Add(raid.date, msg.Id);
 
 		// React to raid announcement.
-		await msg.CreateReactionAsync(DiscordEmoji.FromName(irene, raid.emoji()));
+		await msg.CreateReactionAsync(DiscordEmoji.FromName(Client, raid.emoji()));
 		await msg.CreateReactionAsync(emojis[id_e.kyrian]);
 		await msg.CreateReactionAsync(emojis[id_e.necrolord]);
 		await msg.CreateReactionAsync(emojis[id_e.nightfae]);
@@ -180,7 +180,7 @@ partial class WeeklyEvent {
 	}
 
 	static void e_raid_set_logs_remind() {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.error("  Guild not loaded for event execution.");
 			return;
 		}
@@ -195,7 +195,7 @@ partial class WeeklyEvent {
 	}
 
 	static void e_raid_break_remind() {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.error("  Guild not loaded for event execution.");
 			return;
 		}
@@ -209,7 +209,7 @@ partial class WeeklyEvent {
 	}
 
 	static void e_weekly_officer_meeting() {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.error("  Guild not loaded for event execution.");
 			return;
 		}
@@ -222,7 +222,7 @@ partial class WeeklyEvent {
 	}
 
 	static void e_update_raid_plans() {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.error("  Guild not loaded for event execution.");
 			return;
 		}
@@ -237,7 +237,7 @@ partial class WeeklyEvent {
 	}
 
 	static void e_promote_remind() {
-		if (!is_guild_loaded) {
+		if (Guild is null) {
 			log.error("  Guild not loaded for event execution.");
 			return;
 		}

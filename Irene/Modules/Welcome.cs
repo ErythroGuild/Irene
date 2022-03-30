@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 static class Welcome {
 	const string path_message = @"data/welcome.txt";
@@ -10,7 +10,7 @@ static class Welcome {
 	public static void init() { return; }
 
 	static Welcome() {
-		irene.GuildMemberAdded += (irene, e) => {
+		Client.GuildMemberAdded += (irene, e) => {
 			_ = Task.Run(async () => {
 				DiscordMember member = e.Member;
 
@@ -26,7 +26,7 @@ static class Welcome {
 				await member.SendMessageAsync(url_mascot);
 
 				// Notify recruitment officer.
-				if (is_guild_loaded) {
+				if (Guild is not null) {
 					log.debug("  Notifying recruitment officer.");
 					StringWriter text = new ();
 					text.WriteLine($"{roles[r_recruiter].Mention} - " +

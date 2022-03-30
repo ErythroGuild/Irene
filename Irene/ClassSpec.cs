@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace Irene;
 
@@ -240,7 +240,7 @@ class ClassSpec {
 		if (role == Role.Multiple)
 			{ return ""; }
 
-		if (!is_guild_loaded)
+		if (Guild is null)
 			{ return ""; }
 
 		ulong id = dict_emoji_role[role];
@@ -255,7 +255,7 @@ class ClassSpec {
 		if (@class == Class.Multiple)
 			{ return ""; }
 
-		if (!is_guild_loaded)
+		if (Guild is null)
 			{ return ""; }
 
 		ulong id = dict_emoji_class[@class];
