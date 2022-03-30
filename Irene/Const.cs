@@ -16,6 +16,9 @@ static class Const {
 		Date_Patch915 = new (2020, 11,  2),
 		Date_Patch920 = new (2020,  2, 22),
 		Date_Season3  = new (2020,  3,  1);
+	// Convenience function to get the DateTime (in UTC) of a given date.
+	public static DateTime UtcResetTime(this DateOnly date) =>
+		date.ToDateTime(Time_ServerReset.TimeOnly, DateTimeKind.Utc);
 
 	// Discord entity IDs
 	public static class ChannelIDs {

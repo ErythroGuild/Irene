@@ -65,15 +65,15 @@ class Cap : ICommands {
 
 	static void cap_renown(DateTime date, Command cmd) {
 		// Pre-Shadowlands launch.
-		if (date < ServerResetTime(Date_Patch902)) {
+		if (date < Date_Patch902.UtcResetTime()) {
 			log.warning("  Attempt to query renown cap pre-9.0.2.");
 			_ = cmd.msg.RespondAsync("Renown did not take effect until Patch 9.0.2.");
 			return;
 		}
 
 		// Patch 9.0.
-		if (date < ServerResetTime(Date_Patch910)) {
-			TimeSpan duration = date - ServerResetTime(Date_Patch902);
+		if (date < Date_Patch910.UtcResetTime()) {
+			TimeSpan duration = date - Date_Patch902.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = week switch {
 				<  8 =>  3 + 3 * week,
@@ -87,8 +87,8 @@ class Cap : ICommands {
 		}
 
 		// Patch 9.1.
-		if (date > ServerResetTime(Date_Patch910)) {
-			TimeSpan duration = date - ServerResetTime(Date_Patch910);
+		if (date > Date_Patch910.UtcResetTime()) {
+			TimeSpan duration = date - Date_Patch910.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = week switch {
 				<  1 => 42,
@@ -105,15 +105,15 @@ class Cap : ICommands {
 
 	static void cap_valor(DateTime date, Command cmd) {
 		// Pre-9.0.5 launch.
-		if (date < ServerResetTime(Date_Patch905)) {
+		if (date < Date_Patch905.UtcResetTime()) {
 			log.warning("  Attempt to query valor cap pre-9.0.5.");
 			_ = cmd.msg.RespondAsync("Valor did not take effect until Patch 9.0.5.");
 			return;
 		}
 
 		// Season 1 (post-9.0.5).
-		if (date < ServerResetTime(Date_Season2)) {
-			TimeSpan duration = date - ServerResetTime(Date_Patch905);
+		if (date < Date_Season2.UtcResetTime()) {
+			TimeSpan duration = date - Date_Patch905.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 5000 + week * weekly_valor;
 
@@ -123,8 +123,8 @@ class Cap : ICommands {
 		}
 
 		// Season 2 (9.1.0).
-		if (date > ServerResetTime(Date_Season2)) {
-			TimeSpan duration = date - ServerResetTime(Date_Season2);
+		if (date > Date_Season2.UtcResetTime()) {
+			TimeSpan duration = date - Date_Season2.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 750 + week * weekly_valor;
 
@@ -136,22 +136,22 @@ class Cap : ICommands {
 
 	static void cap_conquest(DateTime date, Command cmd) {
 		// Pre-Shadowlands launch.
-		if (date < ServerResetTime(Date_Patch902)) {
+		if (date < Date_Patch902.UtcResetTime()) {
 			log.warning("  Attempt to query conquest cap pre-9.0.2.");
 			_ = cmd.msg.RespondAsync("Shadowlands did not start until Patch 9.0.2.");
 			return;
 		}
 
 		// Season 1 preseason (9.0.2).
-		if (date < ServerResetTime(Date_Season1)) {
+		if (date < Date_Season1.UtcResetTime()) {
 			log.info("  Current conquest cap: 0 (pre-season)");
 			_ = cmd.msg.RespondAsync("Current Conquest cap: **0** (pre-season)");
 			return;
 		}
 
 		// Season 1 (9.0.2).
-		if (date < ServerResetTime(Date_Season2)) {
-			TimeSpan duration = date - ServerResetTime(Date_Season1);
+		if (date < Date_Season2.UtcResetTime()) {
+			TimeSpan duration = date - Date_Season1.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 550 + week * weekly_conquest;
 
@@ -161,8 +161,8 @@ class Cap : ICommands {
 		}
 
 		// Season 2 (9.1.0).
-		if (date > ServerResetTime(Date_Season2)) {
-			TimeSpan duration = date - ServerResetTime(Date_Season2);
+		if (date > Date_Season2.UtcResetTime()) {
+			TimeSpan duration = date - Date_Season2.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 550 + week * weekly_conquest;
 
@@ -174,15 +174,15 @@ class Cap : ICommands {
 
 	static void cap_torghast(DateTime date, Command cmd) {
 		// Pre-Shadowlands launch.
-		if (date < ServerResetTime(Date_Patch910)) {
+		if (date < Date_Patch910.UtcResetTime()) {
 			log.warning("  Attempt to query tower knowledge cap pre-9.1.0.");
 			_ = cmd.msg.RespondAsync("Tower Knowledge did not take effect until Patch 9.1.0.");
 			return;
 		}
 
 		// Patch 9.1.
-		if (date > ServerResetTime(Date_Patch910)) {
-			TimeSpan duration = date - ServerResetTime(Date_Patch910);
+		if (date > Date_Patch910.UtcResetTime()) {
+			TimeSpan duration = date - Date_Patch910.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = week switch {
 				<  1 =>  180, // 90x2
@@ -197,7 +197,4 @@ class Cap : ICommands {
 			return;
 		}
 	}
-
-	static DateTimeOffset ServerResetTime(DateOnly date) =>
-		date.ToDateTime(Time_ServerReset.TimeOnly, DateTimeKind.Utc);
 }
