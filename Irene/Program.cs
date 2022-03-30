@@ -48,11 +48,11 @@ class Program {
 		_templateFile           = @"{Timestamp:yyyy-MM-dd HH:mm:ss.fff} > [{Level:u3}] {Message:j}{NewLine}{Exception}";
 
 	// Discord IDs of various components.
-	private const ulong id_g_erythro = 317723973968461824;
+	private const ulong _id_Erythro = 317723973968461824;
 	public const string str_mention_n = @"<@!609752546994683911>";
 
 	public static async Task UpdateGuild() =>
-		Guild = await Client.GetGuildAsync(id_g_erythro);
+		Guild = await Client.GetGuildAsync(_id_Erythro);
 
 	// Construct all static members.
 	static Program() {
@@ -151,7 +151,7 @@ class Program {
 			)
 			// New directories are created for every month of logs.
 			.WriteTo.Map(
-				e => DateTime.UtcNow.ToString(_formatLogs),
+				e => DateTime.Now.ToString(_formatLogs),
 				(prefix, writeTo) => writeTo.File(
 					$"{_pathLogs}{prefix}.txt",
 					outputTemplate: _templateFile,
@@ -166,7 +166,7 @@ class Program {
 			// New directories are created for every month of logs.
 			.WriteTo.Map(
 				e => {
-					string prefix = DateTime.UtcNow.ToString(_formatLogs);
+					string prefix = DateTime.Now.ToString(_formatLogs);
 					return prefix.Replace(@"logs-", @"logs-DSharpPlus-");
 				},
 				(prefix, writeTo) => writeTo.File(
@@ -220,7 +220,7 @@ class Program {
 				Log.Debug("    Took {DownloadTime} msec.", download_time);
 
 				// Initialize guild.
-				Guild = await irene.GetGuildAsync(id_g_erythro);
+				Guild = await irene.GetGuildAsync(_id_Erythro);
 				Log.Information("  Guild fetched and initialized.");
 
 				// Start data initialization timer.
