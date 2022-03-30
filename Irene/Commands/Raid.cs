@@ -55,7 +55,7 @@ class Raid {
 	public static void set_logs(Command cmd) {
 		string args = cmd.args.Trim();
 		if (args == "") {
-			log.info("  No arguments provided.");
+			Log.Information("  No arguments provided.");
 			StringWriter text_err = new ();
 			text_err.WriteLine("No arguments specified; you must at least provide a link.");
 			text_err.WriteLine("See `@Irene -help logs-set` for more help.");
@@ -95,7 +95,7 @@ class Raid {
 
 		// Validate arguments.
 		if (group is null || day is null || log_id is null) {
-			log.info("  Insufficient information provided.");
+			Log.Information("  Insufficient information provided.");
 			StringWriter text_err = new ();
 			text_err.WriteLine("Couldn't (completely) parse the given arguments.");
 			text_err.WriteLine("See `@Irene -help logs-set` for more help.");
@@ -112,11 +112,11 @@ class Raid {
 		update(raid);
 
 		// Respond.
-		log.info($"  Updating log id: {log_id}");
+		Log.Information($"  Updating log id: {log_id}");
 		StringWriter text = new ();
 		text.WriteLine($"The logs have been successfully set to `{log_id}`.");
 		if (log_id_prev is not null) {
-			log.info($"    previous logs overwritten: {log_id_prev}");
+			Log.Information($"    previous logs overwritten: {log_id_prev}");
 			text.WriteLine($"A previous log already existed: `{log_id_prev}`.");
 			text.WriteLine("**This has been overwritten.**");
 		}

@@ -17,7 +17,7 @@ class Invite : ICommands {
 		text.WriteLine("`@Irene -inv erythro` fetches the server invite for this server,");
 		text.WriteLine("`@Irene -inv leuko` fetches the server invite for the FFXIV sister server,");
 		text.WriteLine("and `@Irene -inv` fetches both server invites.");
-		text.WriteLine($"These invite links can also be found in {channels[id_ch.resources]}.");
+		text.WriteLine($"These invite links can also be found in {Channels[id_ch.resources]}.");
 
 		return text.ToString();
 	}

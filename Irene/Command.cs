@@ -2,6 +2,8 @@
 
 namespace Irene;
 
+using CmdRoles = Irene.Commands.Roles;
+
 class Command {
 	public enum AccessLevel {
 		None,
@@ -17,11 +19,11 @@ class Command {
 		{ "v"      , About.run },
 		{ "build"  , About.run },
 
-		{ "roles"      , Roles.set   },
-		{ "r"          , Roles.set   },
-		{ "roles-info" , Roles.list  },
-		{ "rinfo"      , Roles.list  },
-		{ "roles-royce", Roles.royce },
+		{ "roles"      , CmdRoles.set   },
+		{ "r"          , CmdRoles.set   },
+		{ "roles-info" , CmdRoles.list  },
+		{ "rinfo"      , CmdRoles.list  },
+		{ "roles-royce", CmdRoles.royce },
 
 		{ "raid-time" , Raid.get_time   },
 		{ "raid"      , Raid.get_info   },
@@ -81,9 +83,9 @@ class Command {
 		{ Help.run , Help.help  },
 		{ About.run, About.help },
 
-		{ Roles.set  , Roles.help },
-		{ Roles.list , Roles.help },
-		{ Roles.royce, Roles.help },
+		{ CmdRoles.set  , CmdRoles.help },
+		{ CmdRoles.list , CmdRoles.help },
+		{ CmdRoles.royce, CmdRoles.help },
 
 		{ Raid.get_time  , Raid.help_raid },
 		{ Raid.get_info  , Raid.help_raid },
@@ -114,9 +116,9 @@ class Command {
 		{ Help.run , AccessLevel.None  },
 		{ About.run, AccessLevel.Guest },
 
-		{ Roles.set  , AccessLevel.Guest },
-		{ Roles.list , AccessLevel.None  },
-		{ Roles.royce, AccessLevel.Guest },
+		{ CmdRoles.set  , AccessLevel.Guest },
+		{ CmdRoles.list , AccessLevel.None  },
+		{ CmdRoles.royce, AccessLevel.Guest },
 
 		{ Raid.get_time  , AccessLevel.None    },
 		{ Raid.get_info  , AccessLevel.None    },
@@ -195,14 +197,14 @@ class Command {
 		// Assign permissions.
 		if (user is null) {
 			access = AccessLevel.None;
-			log.warning("  Could not convert message author to DiscordMember.");
+			Log.Warning("  Could not convert message author to DiscordMember.");
 		} else {
 			List<DiscordRole> roles_user = new (user.Roles);
 			access = roles_user switch {
-				List<DiscordRole> r when r.Contains(roles[id_r.admin])   => AccessLevel.Admin,
-				List<DiscordRole> r when r.Contains(roles[id_r.officer]) => AccessLevel.Officer,
-				List<DiscordRole> r when r.Contains(roles[id_r.member])  => AccessLevel.Member,
-				List<DiscordRole> r when r.Contains(roles[id_r.guest])   => AccessLevel.Guest,
+				List<DiscordRole> r when r.Contains(Program.Roles[id_r.admin])   => AccessLevel.Admin,
+				List<DiscordRole> r when r.Contains(Program.Roles[id_r.officer]) => AccessLevel.Officer,
+				List<DiscordRole> r when r.Contains(Program.Roles[id_r.member])  => AccessLevel.Member,
+				List<DiscordRole> r when r.Contains(Program.Roles[id_r.guest])   => AccessLevel.Guest,
 				_ => AccessLevel.None,
 			};
 		}
@@ -218,7 +220,7 @@ class Command {
 			} else {
 				AccessLevel access = dict_access[dict_cmd[cmd]];
 				msg.RespondAsync($"Sorry, this command requires the {access} role to use. :lock:");
-				log.warning($"  {user?.Tag() ?? "<unknown user>"} does not have access to this command.");
+				Log.Warning($"  {user?.Tag() ?? "<unknown user>"} does not have access to this command.");
 			}
 		} else {
 			dict_cmd["help"](this);

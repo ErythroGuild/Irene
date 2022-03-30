@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 static partial class AuditLog {
 
@@ -164,9 +164,9 @@ static partial class AuditLog {
 	}
 	static void print_changes(ref StringWriter text, DiscordAuditLogOverwriteEntry? entry) {
 		if (entry is null)
-			{ return; }
+			return;
 		if (Guild is null)
-			{ return; }
+			return;
 
 		// N.B.: The "After" fields in the OverwriteEntry are always copied
 		// of the "Before" fields; we must use the `entry.Target` fields in

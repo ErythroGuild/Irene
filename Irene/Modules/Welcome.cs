@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 static class Welcome {
 	const string path_message = @"data/welcome.txt";
@@ -20,21 +20,19 @@ static class Welcome {
 				data.Close();
 
 				// Send welcome message to new member.
-				log.info("Sending welcome message to new member.");
-				log.debug($"  {member.Tag()}");
+				Log.Information("Sending welcome message to new member.");
+				Log.Debug($"  {member.Tag()}");
 				await member.SendMessageAsync(welcome);
 				await member.SendMessageAsync(url_mascot);
 
 				// Notify recruitment officer.
 				if (Guild is not null) {
-					log.debug("  Notifying recruitment officer.");
+					Log.Debug("  Notifying recruitment officer.");
 					StringWriter text = new ();
-					text.WriteLine($"{roles[r_recruiter].Mention} - " +
+					text.WriteLine($"{Roles[r_recruiter].Mention} - " +
 						$"New member {e.Member.Mention} joined the server. :tada:");
-					_ = channels[ch_notify].SendMessageAsync(text.ToString());
+					_ = Channels[ch_notify].SendMessageAsync(text.ToString());
 				}
-
-				log.endl();
 			});
 			return Task.CompletedTask;
 		};

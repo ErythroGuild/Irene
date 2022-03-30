@@ -41,7 +41,7 @@ class Cap : ICommands {
 
 		// Notify if no command is specified.
 		if (arg == "") {
-			log.info("  No cap type specified.");
+			Log.Information("  No cap type specified.");
 			StringWriter text = new ();
 			text.WriteLine("You must specify the cap you're looking for (e.g. `renown`).");
 			text.WriteLine("See `@Irene -help cap` for more help.");
@@ -51,7 +51,7 @@ class Cap : ICommands {
 
 		// Notify if command not recognized.
 		if (!dict_type.ContainsKey(arg)) {
-			log.info($"  Cap type not recognized: {arg}");
+			Log.Information($"  Cap type not recognized: {arg}");
 			StringWriter text = new ();
 			text.WriteLine("Could not recognize the requested info type.");
 			text.WriteLine("See `@Irene -help cap` for more help.");
@@ -66,7 +66,7 @@ class Cap : ICommands {
 	static void cap_renown(DateTime date, Command cmd) {
 		// Pre-Shadowlands launch.
 		if (date < Date_Patch902.UtcResetTime()) {
-			log.warning("  Attempt to query renown cap pre-9.0.2.");
+			Log.Warning("  Attempt to query renown cap pre-9.0.2.");
 			_ = cmd.msg.RespondAsync("Renown did not take effect until Patch 9.0.2.");
 			return;
 		}
@@ -81,7 +81,7 @@ class Cap : ICommands {
 				_ => 40,
 			};
 
-			log.info($"  Current renown cap: {cap}, week {week + 1}");
+			Log.Information($"  Current renown cap: {cap}, week {week + 1}");
 			_ = cmd.msg.RespondAsync($"Current Renown cap: **{cap}** (week {week + 1})");
 			return;
 		}
@@ -97,7 +97,7 @@ class Cap : ICommands {
 				_ => 80,
 			};
 
-			log.info($"  Current renowon cap: {cap}, week {week + 1}");
+			Log.Information($"  Current renowon cap: {cap}, week {week + 1}");
 			_ = cmd.msg.RespondAsync($"Current Renown cap: **{cap}** (week {week + 1})");
 			return;
 		}
@@ -106,7 +106,7 @@ class Cap : ICommands {
 	static void cap_valor(DateTime date, Command cmd) {
 		// Pre-9.0.5 launch.
 		if (date < Date_Patch905.UtcResetTime()) {
-			log.warning("  Attempt to query valor cap pre-9.0.5.");
+			Log.Warning("  Attempt to query valor cap pre-9.0.5.");
 			_ = cmd.msg.RespondAsync("Valor did not take effect until Patch 9.0.5.");
 			return;
 		}
@@ -117,7 +117,7 @@ class Cap : ICommands {
 			int week = duration.Days / 7;  // int division!
 			int cap = 5000 + week * weekly_valor;
 
-			log.info($"  Current valor cap: {cap}, week {week + 1}");
+			Log.Information($"  Current valor cap: {cap}, week {week + 1}");
 			_ = cmd.msg.RespondAsync($"Current Valor cap: **{cap}** (week {week + 1})");
 			return;
 		}
@@ -128,7 +128,7 @@ class Cap : ICommands {
 			int week = duration.Days / 7;  // int division!
 			int cap = 750 + week * weekly_valor;
 
-			log.info($"  Current valor cap: {cap}, week {week + 1}");
+			Log.Information($"  Current valor cap: {cap}, week {week + 1}");
 			_ = cmd.msg.RespondAsync($"Current Valor cap: **{cap}** (week {week + 1})");
 			return;
 		}
@@ -137,14 +137,14 @@ class Cap : ICommands {
 	static void cap_conquest(DateTime date, Command cmd) {
 		// Pre-Shadowlands launch.
 		if (date < Date_Patch902.UtcResetTime()) {
-			log.warning("  Attempt to query conquest cap pre-9.0.2.");
+			Log.Warning("  Attempt to query conquest cap pre-9.0.2.");
 			_ = cmd.msg.RespondAsync("Shadowlands did not start until Patch 9.0.2.");
 			return;
 		}
 
 		// Season 1 preseason (9.0.2).
 		if (date < Date_Season1.UtcResetTime()) {
-			log.info("  Current conquest cap: 0 (pre-season)");
+			Log.Information("  Current conquest cap: 0 (pre-season)");
 			_ = cmd.msg.RespondAsync("Current Conquest cap: **0** (pre-season)");
 			return;
 		}
@@ -155,7 +155,7 @@ class Cap : ICommands {
 			int week = duration.Days / 7;  // int division!
 			int cap = 550 + week * weekly_conquest;
 
-			log.info($"  Current conquest cap: {cap}, week {week + 1}");
+			Log.Information($"  Current conquest cap: {cap}, week {week + 1}");
 			_ = cmd.msg.RespondAsync($"Current Conquest cap: **{cap}** (week {week + 1})");
 			return;
 		}
@@ -166,7 +166,7 @@ class Cap : ICommands {
 			int week = duration.Days / 7;  // int division!
 			int cap = 550 + week * weekly_conquest;
 
-			log.info($"  Current conquest cap: {cap}, week {week + 1}");
+			Log.Information($"  Current conquest cap: {cap}, week {week + 1}");
 			_ = cmd.msg.RespondAsync($"Current Conquest cap: **{cap}** (week {week + 1})");
 			return;
 		}
@@ -175,7 +175,7 @@ class Cap : ICommands {
 	static void cap_torghast(DateTime date, Command cmd) {
 		// Pre-Shadowlands launch.
 		if (date < Date_Patch910.UtcResetTime()) {
-			log.warning("  Attempt to query tower knowledge cap pre-9.1.0.");
+			Log.Warning("  Attempt to query tower knowledge cap pre-9.1.0.");
 			_ = cmd.msg.RespondAsync("Tower Knowledge did not take effect until Patch 9.1.0.");
 			return;
 		}
@@ -192,7 +192,7 @@ class Cap : ICommands {
 				_ => 3510,
 			};
 
-			log.info($"  Current tower knowledge cap: {cap}, week {week + 1}");
+			Log.Information($"  Current tower knowledge cap: {cap}, week {week + 1}");
 			_ = cmd.msg.RespondAsync($"Current Tower Knowledge cap: **{cap}** (week {week + 1})");
 			return;
 		}

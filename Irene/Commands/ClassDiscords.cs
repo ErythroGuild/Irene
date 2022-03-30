@@ -34,7 +34,7 @@ class ClassDiscords : ICommands {
 		// Parse argument and handle errors.
 		Class? class_n = ClassSpec.parse_class(arg);
 		if (class_n is null) {
-			log.info("  No class found in command.");
+			Log.Information("  No class found in command.");
 			StringWriter text = new ();
 			text.WriteLine("Could not determine a class from the command.");
 			text.WriteLine("See also: `@Irene -help classdiscord`");
@@ -43,7 +43,7 @@ class ClassDiscords : ICommands {
 		}
 		Class @class = (Class)class_n;
 		if (@class == Class.Multiple) {
-			log.info("  Multiple classes found in command.");
+			Log.Information("  Multiple classes found in command.");
 			StringWriter text = new ();
 			text.WriteLine("Found multiple classes in the command; try a more specific term.");
 			text.WriteLine("See also: `@Irene -help classdiscord`");
@@ -53,7 +53,7 @@ class ClassDiscords : ICommands {
 
 		// Add class emojis to response and return.
 		string response = invites[@class];
-		log.info($"  Invite fetched: {response}");
+		Log.Information($"  Invite fetched: {response}");
 		string emoji = ClassSpec.class_emoji(@class);
 		response = $"{emoji} {response}";
 		response = response.Replace("\n", $"\n{emoji} ");

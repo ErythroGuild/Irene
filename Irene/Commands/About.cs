@@ -29,8 +29,7 @@ class About {
 		// Respond with data.
 		string output = $"**Irene {version}** build `{build}`";
 		_ = cmd.msg.RespondAsync(output);
-		log.info("Sending version information:");
-		log.debug($"  {output}");
-		log.endl();
+		Log.Information("Sending version information:");
+		Log.Debug($"  {output}");
 	}
 }

@@ -43,9 +43,8 @@ class Roll : ICommands {
 
 			// Both arguments must parse successfully.
 			if (!did_parse) {
-				log.info("  Could not parse argument.");
-				log.debug($"    {arg}");
-				log.endl();
+				Log.Information("  Could not parse argument.");
+				Log.Debug($"    {arg}");
 				_ = cmd.msg.RespondAsync("Invalid number format. (See `@Irene -help roll`.)");
 				return;
 			}
@@ -62,10 +61,9 @@ class Roll : ICommands {
 
 			// Both arguments must parse successfully.
 			if (!did_parse_1 || !did_parse_2) {
-				log.info("  Could not parse arguments.");
-				log.debug($"    {str1}");
-				log.debug($"    {str2}");
-				log.endl();
+				Log.Information("  Could not parse arguments.");
+				Log.Debug($"    {str1}");
+				Log.Debug($"    {str2}");
 				_ = cmd.msg.RespondAsync("Invalid number format. (See `@Irene -help roll`.)");
 				return;
 			}
@@ -80,11 +78,10 @@ class Roll : ICommands {
 		}
 
 		// Get a random number.
-		log.info($"  Generating random number from {low} to {high}.");
+		Log.Information($"  Generating random number from {low} to {high}.");
 		try {
 			ulong x = random(low, high);
-			log.info($"    Result: {x}");
-			log.endl();
+			Log.Information($"    Result: {x}");
 			_ = cmd.msg.RespondAsync($"`{x}`");
 		} catch (TimeoutException) {
 			ulong range = high - low;
@@ -113,15 +110,14 @@ class Roll : ICommands {
 		for (int i=0; i<max_attempts; i++) {
 			ulong raw = get_ulong();
 			if (raw < cutoff) {
-				log.debug($"    Generated in {i+1} attempt(s).");
+				Log.Debug($"    Generated in {i+1} attempt(s).");
 				output = low + raw % range;
 				return output;
 			}
 		}
 
 		// Throw error if could not generate a such a random number.
-		log.error($"  Could not generate unbiased number after {max_attempts} attempts.");
-		log.endl();
+		Log.Error($"  Could not generate unbiased number after {max_attempts} attempts.");
 		throw new TimeoutException("Random number generation timed out.");
 	}
 

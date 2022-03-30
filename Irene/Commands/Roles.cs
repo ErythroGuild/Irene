@@ -83,7 +83,7 @@ class Roles : ICommands {
 	public static void set(Command cmd) {
 		// Make sure user is in the guild (can have roles).
 		if (cmd.user is null) {
-			log.info("  Cannot set roles for non-guild member.");
+			Log.Information("  Cannot set roles for non-guild member.");
 			_ = cmd.msg.RespondAsync("Cannot set roles for people who aren't members of the **<Erythro>** server.");
 			return;
 		}
@@ -100,7 +100,7 @@ class Roles : ICommands {
 		roles_current.Sort();
 
 		// Send message with selection menu.
-		log.info("  Sending role selection menu.");
+		Log.Information("  Sending role selection menu.");
 		Selection<PingRole> dropdown = new (
 			options,
 			assign,
@@ -117,7 +117,7 @@ class Roles : ICommands {
 	}
 
 	public static void list(Command cmd) {
-		log.info("  Listing available roles.");
+		Log.Information("  Listing available roles.");
 		StringWriter text = new ();
 
 		text.WriteLine("*Available roles:*");
@@ -134,7 +134,7 @@ class Roles : ICommands {
 
 	public static void royce(Command cmd) {
 		const string rolls_royce = @"https://i.imgur.com/mTEdYN6.jpeg";
-		log.info("  Sending Rolls Royce.");
+		Log.Information("  Sending Rolls Royce.");
 		_ = cmd.msg.RespondAsync(rolls_royce);
 	}
 
@@ -145,8 +145,7 @@ class Roles : ICommands {
 		// Convert DiscordUser to DiscordMember.
 		DiscordMember? member = await user.ToMember();
 		if (member is null) {
-			log.error("Could not find DiscordMember to assign roles.");
-			log.endl();
+			Log.Error("Could not find DiscordMember to assign roles.");
 			return;
 		}
 
@@ -170,21 +169,20 @@ class Roles : ICommands {
 		roles_added.ExceptWith(roles_prev);
 
 		// Remove/add roles.
-		log.info($"  Removing {roles_removed.Count} role(s).");
+		Log.Information($"  Removing {roles_removed.Count} role(s).");
 		foreach (PingRole role in roles_removed) {
 			ulong role_id = pingRole_to_discordRole[role];
-			log.debug($"    Removing {role}.");
-			_ = member.RevokeRoleAsync(Program.roles[role_id]);
+			Log.Debug($"    Removing {role}.");
+			_ = member.RevokeRoleAsync(Program.Roles[role_id]);
 		}
-		log.info($"  Adding {roles_added.Count} role(s).");
+		Log.Information($"  Adding {roles_added.Count} role(s).");
 		foreach (PingRole role in roles_added) {
 			ulong role_id = pingRole_to_discordRole[role];
-			log.debug($"    Adding {role}.");
-			_ = member.GrantRoleAsync(Program.roles[role_id]);
+			Log.Debug($"    Adding {role}.");
+			_ = member.GrantRoleAsync(Program.Roles[role_id]);
 			string welcome = get_welcome(role);
 			_ = member.SendMessageAsync(welcome);
 		}
-		log.endl();
 	}
 
 	// Formats the given list of roles into a string.
@@ -224,7 +222,7 @@ class Roles : ICommands {
 		data.Close();
 
 		content = content.Unescape();
-		content = $"{emojis[id_e.erythro]} {content}";
+		content = $"{Emojis[id_e.erythro]} {content}";
 		return content;
 	}
 }

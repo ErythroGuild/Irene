@@ -36,7 +36,7 @@ class Tags : ICommands {
 
 		// The delimiter string is not allowed in tag names.
 		if (arg.Contains(delim)) {
-			log.info("  Delimiter in tag name.");
+			Log.Information("  Delimiter in tag name.");
 			_ = cmd.msg.RespondAsync($"Tag names cannot contain `{delim}`.");
 			return;
 		}
@@ -57,7 +57,7 @@ class Tags : ICommands {
 
 		// If tag not found:
 		if (content is null) {
-			log.info($"  Tag not found: {arg}");
+			Log.Information($"  Tag not found: {arg}");
 			StringWriter text = new ();
 			text.WriteLine($"Tag `{arg}` not found.");
 			text.WriteLine("Ask an officer to add a tag, or use `@Irene -tags-list` to view available tags.");
@@ -68,7 +68,7 @@ class Tags : ICommands {
 
 		// Display tag.
 		content = content.Unescape();
-		log.debug($"  {content}");
+		Log.Debug($"  {content}");
 		_ = cmd.msg.RespondAsync(content);
 	}
 
@@ -86,14 +86,14 @@ class Tags : ICommands {
 
 		// Exit early if no tags exist.
 		if (tags.Count == 0) {
-			log.info("  No tags currently saved.");
+			Log.Information("  No tags currently saved.");
 			StringWriter text = new ();
 			text.WriteLine("No tags currently saved.");
 			text.WriteLine("Maybe ask an officer to add a tag?");
 			_ = cmd.msg.RespondAsync(text.ToString());
 			return;
 		} else {
-			log.debug("  Tag list created.");
+			Log.Debug("  Tag list created.");
 		}
 
 		// Construct message and respond.
@@ -102,7 +102,7 @@ class Tags : ICommands {
 		DiscordMessage msg =
 			cmd.msg.RespondAsync(pages.first_page()).Result;
 		pages.msg = msg;
-		log.info("  Tag list sent.");
+		Log.Information("  Tag list sent.");
 	}
 
 	public static void add(Command cmd) {
@@ -110,7 +110,7 @@ class Tags : ICommands {
 
 		// If nothing is specified, redirect user to help.
 		if (arg == "" || arg.StartsWith(delim)) {
-			log.info("  Cannot add an empty tag.");
+			Log.Information("  Cannot add an empty tag.");
 
 			StringWriter text = new ();
 			text.WriteLine("Cannot add a tag with no content.");
@@ -122,8 +122,8 @@ class Tags : ICommands {
 
 		// Don't allow empty tags to be added.
 		if (!arg.Contains(delim) || arg.EndsWith(delim)) {
-			log.info("  Cannot add tag with empty content.");
-			log.debug($"  {cmd.args}");
+			Log.Information("  Cannot add tag with empty content.");
+			Log.Debug($"  {cmd.args}");
 
 			StringWriter text = new ();
 			text.WriteLine("Cannot add a tag with no content.");
@@ -147,8 +147,8 @@ class Tags : ICommands {
 			string line = data.ReadLine() ?? "";
 			// If the tag exists, redirect the user to `-tag-update`.
 			if (line.StartsWith(tag + delim)) {
-				log.info($"  Tag already exists for: {tag}");
-				log.debug($"  {line}");
+				Log.Information($"  Tag already exists for: {tag}");
+				Log.Debug($"  {line}");
 
 				StringWriter text = new ();
 				text.WriteLine($"Tag `{tag}` already exists.");
@@ -170,8 +170,8 @@ class Tags : ICommands {
 		// Write the file (to a buffer first, then overwrite).
 		File.WriteAllLines(path_buffer, tags.Keys);
 		File.Replace(path_buffer, path_data, null);
-		log.info($"  Successfully added new tag: {tag}");
-		log.debug($"  {content}");
+		Log.Information($"  Successfully added new tag: {tag}");
+		Log.Debug($"  {content}");
 		_ = cmd.msg.RespondAsync($"New tag added: `{tag}`");
 	}
 
@@ -180,7 +180,7 @@ class Tags : ICommands {
 
 		// If nothing is specified, redirect user to help.
 		if (arg == "" || arg.StartsWith(delim)) {
-			log.info("  Cannot edit an empty tag.");
+			Log.Information("  Cannot edit an empty tag.");
 
 			StringWriter text = new ();
 			text.WriteLine("A tag cannot be empty.");
@@ -192,8 +192,8 @@ class Tags : ICommands {
 
 		// Don't allow empty tags to be added.
 		if (!arg.Contains(delim) || arg.EndsWith(delim)) {
-			log.info("  Cannot edit tag with empty content.");
-			log.debug($"  {cmd.args}");
+			Log.Information("  Cannot edit tag with empty content.");
+			Log.Debug($"  {cmd.args}");
 
 			StringWriter text = new ();
 			text.WriteLine("Cannot edit a tag with no content.");
@@ -221,7 +221,7 @@ class Tags : ICommands {
 			if (line.StartsWith(tag + delim)) {
 				is_found = true;
 				content_old = line;
-				log.info($"  Tag found: {tag}");
+				Log.Information($"  Tag found: {tag}");
 				continue;
 			}
 			tags.Add(line, null);
@@ -230,7 +230,7 @@ class Tags : ICommands {
 
 		// Notify if tag was not found.
 		if (!is_found) {
-			log.info($"  Could not find tag: {arg}");
+			Log.Information($"  Could not find tag: {arg}");
 
 			StringWriter text = new ();
 			text.WriteLine($"No tag `{arg}` exists yet.");
@@ -247,10 +247,10 @@ class Tags : ICommands {
 		// Write the file (to a buffer first, then overwrite).
 		File.WriteAllLines(path_buffer, tags.Keys);
 		File.Replace(path_buffer, path_data, null);
-		log.info($"  Successfully edited tag: {arg}");
-		log.debug($"  {content}");
-		log.debug("  Original content:");
-		log.debug($"{content_old}");
+		Log.Information($"  Successfully edited tag: {arg}");
+		Log.Debug($"  {content}");
+		Log.Debug("  Original content:");
+		Log.Debug($"{content_old}");
 		_ = cmd.msg.RespondAsync($"Edited tag: `{tag}`");
 	}
 
@@ -261,7 +261,7 @@ class Tags : ICommands {
 
 		// The delimiter string is not allowed in tag names.
 		if (arg.Contains(delim)) {
-			log.info("  Delimiter in tag name.");
+			Log.Information("  Delimiter in tag name.");
 
 			StringWriter text = new ();
 			text.WriteLine($"Tag names cannot contain `{delim}`.");
@@ -273,7 +273,7 @@ class Tags : ICommands {
 
 		// If nothing is specified, redirect user to help.
 		if (arg == "") {
-			log.info("  No tag specified.");
+			Log.Information("  No tag specified.");
 
 			StringWriter text = new ();
 			text.WriteLine("Specify a tag to remove.");
@@ -302,7 +302,7 @@ class Tags : ICommands {
 
 		// Notify if tag was not found.
 		if (!is_found) {
-			log.info($"  Could not find tag: {arg}");
+			Log.Information($"  Could not find tag: {arg}");
 
 			StringWriter text = new ();
 			text.WriteLine($"No tag `{arg}` exists.");
@@ -316,8 +316,8 @@ class Tags : ICommands {
 		// Write the file (to a buffer first, then overwrite).
 		File.WriteAllLines(path_buffer, tags.Keys);
 		File.Replace(path_buffer, path_data, null);
-		log.info($"  Successfully removed tag: {arg}");
-		log.debug($"  {content}");
+		Log.Information($"  Successfully removed tag: {arg}");
+		Log.Debug($"  {content}");
 
 		StringWriter text_respond = new ();
 		text_respond.WriteLine($"Removed tag: `{arg}`");
@@ -330,15 +330,15 @@ class Tags : ICommands {
 		// Make sure directory exists.
 		string? dir = new FileInfo(path_data).DirectoryName;
 		if (dir is null) {
-			log.error("  Tag data directory could not be created.");
-			log.debug($"  Tag data path: {path_data}");
+			Log.Error("  Tag data directory could not be created.");
+			Log.Debug($"  Tag data path: {path_data}");
 			throw new InvalidDataException("Tag data directory could not be created.");
 		}
 		Directory.CreateDirectory(dir);
 
 		// Make sure file exists.
 		if (!File.Exists(path_data)) {
-			log.info("  Creating tag file.");
+			Log.Information("  Creating tag file.");
 			File.Create(path_data).Close();
 		}
 	}

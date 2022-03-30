@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 using AuditLogEntryTable = Dictionary<AuditLogActionType, DiscordAuditLogEntry?>;
 
@@ -20,6 +20,7 @@ static partial class AuditLog {
 	// Compared to later to determine if a new entry was added.
 	static void init_audit_log_base() {
 		if (Guild is null) {
+			Log.Error("  Cannot init audit log without loaded guild.");
 			return;
 		}
 
@@ -57,8 +58,7 @@ static partial class AuditLog {
 		}
 
 		is_audit_log_loaded = true;
-		log.debug("Initialized module: AuditLog");
-		log.endl();
+		Log.Debug("Initialized module: AuditLog");
 	}
 
 	static AuditLog() {
@@ -621,12 +621,12 @@ static partial class AuditLog {
 
 		// Exit early if guilds aren't loaded.
 		if (Guild is null) {
-			log.warning("    Cannot fetch audit logs before guild is ready.");
+			Log.Warning("    Cannot fetch audit logs before guild is ready.");
 			return null;
 		}
 		// Exit early if audit log baseline hasn't been initialized.
 		if (!is_audit_log_loaded) {
-			log.warning("    Must fetch baseline audit logs first.");
+			Log.Warning("    Must fetch baseline audit logs first.");
 			return null;
 		}
 
@@ -685,16 +685,15 @@ static partial class AuditLog {
 	// Convenience function for outputting a log message.
 	static void log_entry(string data) {
 		// Log data to console.
-		log.info("Audit log entry added.");
-		log.debug($"  {data}");
-		log.endl();
+		Log.Information("Audit log entry added.");
+		Log.Debug($"  {data}");
 
 		// Log data to audit log channel.
 		if (Guild is not null) {
 			DateTimeOffset time = DateTimeOffset.UtcNow;
 			string time_str = $"<t:{time.ToUnixTimeSeconds()}:f>";
 			string msg = $"{l} {time_str}\n{data}";
-			_ = channels[id_ch.audit].SendMessageAsync(
+			_ = Channels[id_ch.audit].SendMessageAsync(
 				new DiscordMessageBuilder()
 				.WithContent(msg)
 				.WithAllowedMentions(Mentions.None)
