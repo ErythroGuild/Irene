@@ -63,9 +63,9 @@ static partial class Util {
 	// When called without `isInclusive`, does not return the input date;
 	// returns a year out from the input date instead.
 	public static DateOnly NextLunarPhase(this DateOnly date_in, RecurringEvent.LunarPhase lunarPhase) {
-		throw new Exception("Unimplemented feature: lunar phase calculation.");
+		throw new NotImplementedException("Lunar phase calculations uimplemented.");
 	}
 	public static DateOnly PreviousLunarPhase(this DateOnly date_in, RecurringEvent.LunarPhase lunarPhase) {
-		throw new Exception("Unimplemented feature: lunar phase calculation.");
+		throw new NotImplementedException("Lunar phase calculations uimplemented.");
 	}
 }
