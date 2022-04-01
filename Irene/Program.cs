@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Timers;
 
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
@@ -13,6 +14,7 @@ using CmdRoles = Roles;
 
 class Program {
 	// Discord client objects.
+	public static List<Timer> Timers { get; private set; }
 	public static DiscordClient Client { get; private set; }
 	public static DiscordGuild? Guild  { get; private set; }
 	public static Dictionary<ulong, DiscordChannel> Channels   { get; private set; }
@@ -72,6 +74,7 @@ class Program {
 		Log.Information("Logging initialized (Serilog).");
 
 		// Initialize static members.
+		Timers = new ();
 		Guild = null;
 		Channels = new ();
 		Emojis = new ();
