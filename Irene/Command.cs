@@ -106,11 +106,6 @@ class Command {
 
 		{ "cap", Cap.run },
 		{ "c"  , Cap.run },
-
-		{ "classdiscord"  , ClassDiscords.run },
-		{ "cd"            , ClassDiscords.run },
-		{ "classdiscords" , ClassDiscords.run },
-		{ "class-discord" , ClassDiscords.run },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
@@ -137,8 +132,6 @@ class Command {
 		{ Tags.remove, Tags.help },
 
 		{ Cap.run, Cap.help },
-
-		{ ClassDiscords.run, ClassDiscords.help },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
@@ -165,8 +158,6 @@ class Command {
 		{ Tags.remove, AccessLevel.Officer },
 
 		{ Cap.run, AccessLevel.None },
-
-		{ ClassDiscords.run, AccessLevel.None },
 	};
 
 	// Properties

@@ -285,6 +285,7 @@ class Program {
 				Help.init();
 				CmdRoles.init();
 				Rank.init();
+				ClassDiscord.Init();
 
 				// Register (update-by-overwriting) application commands.
 				_stopwatchRegister.Start();
