@@ -45,7 +45,7 @@ class Version : ICommand {
 
 		// Respond with data.
 		Log.Debug("  Sending version information.");
-		Log.Debug("    {VersionString}", output);
+		Log.Debug("    {Version}, build {Build}", version, build);
 		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 		await interaction.RespondMessageAsync(output);
 		Log.Information("  Version information sent.");

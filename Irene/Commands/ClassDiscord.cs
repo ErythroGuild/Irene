@@ -85,9 +85,18 @@ class ClassDiscord : ICommand {
 
 		// Send invite link.
 		Log.Debug("  Sending invite link.");
-		Log.Debug("    {Link}", invite);
 		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 		await interaction.RespondMessageAsync(invite);
 		Log.Information("  Invite link for \"{Class}\" sent.", @class);
+
+		// Print first line of sent data.
+		string invite_line;
+		if (invite.Contains('\n')) {
+			int i_newline = invite.IndexOf("\n");
+			invite_line = invite[..i_newline] + " [...]";
+		} else {
+			invite_line = invite;
+		}
+		Log.Debug("    {Link}", invite_line);
 	}
 }
