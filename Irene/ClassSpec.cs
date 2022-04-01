@@ -205,7 +205,7 @@ class ClassSpec {
 	// Initialize dictionary caches with redundant indices
 	// (improves performance at the cost of memory space).
 	static ClassSpec() {
-		log.debug("Initializing Role/Spec/Class conversion cache.");
+		Log.Debug("Initializing Role/Spec/Class conversion cache.");
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
 		// Initialize Spec->Class from Class->Specs.
@@ -229,8 +229,8 @@ class ClassSpec {
 		}
 
 		stopwatch.Stop();
-		log.debug("  Conversion cache initialized.");
-		log.debug($"  Took {stopwatch.ElapsedMilliseconds} msec.");
+		Log.Debug("  Conversion cache initialized.");
+		Log.Debug($"  Took {stopwatch.ElapsedMilliseconds} msec.");
 	}
 
 	// Get the emoji associated with the Role.
@@ -238,13 +238,13 @@ class ClassSpec {
 	// if emojis haven't been initialized yet.
 	public static string role_emoji(Role role) {
 		if (role == Role.Multiple)
-			{ return ""; }
+			return "";
 
-		if (!is_guild_loaded)
-			{ return ""; }
+		if (Guild is null)
+			return "";
 
 		ulong id = dict_emoji_role[role];
-		DiscordGuildEmoji emoji = emojis[id];
+		DiscordEmoji emoji = Emojis[id];
 		return emoji.ToString();
 	}
 
@@ -253,13 +253,13 @@ class ClassSpec {
 	// if emojis haven't been initialized yet.
 	public static string class_emoji(Class @class) {
 		if (@class == Class.Multiple)
-			{ return ""; }
+			return "";
 
-		if (!is_guild_loaded)
-			{ return ""; }
+		if (Guild is null)
+			return "";
 
 		ulong id = dict_emoji_class[@class];
-		DiscordGuildEmoji emoji = emojis[id];
+		DiscordEmoji emoji = Emojis[id];
 		return emoji.ToString();
 	}
 

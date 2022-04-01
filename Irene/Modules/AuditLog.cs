@@ -18,8 +18,11 @@ static partial class AuditLog {
 
 	// Initialize the audit log table with "base" values.
 	// Compared to later to determine if a new entry was added.
-	static async void init_audit_log_base() {
-		DiscordGuild erythro = await irene.GetGuildAsync(id_g_erythro);
+	static void init_audit_log_base() {
+		if (Guild is null) {
+			Log.Error("  Cannot init audit log without loaded guild.");
+			return;
+		}
 
 		List<AuditLogActionType> types = new () {
 			AuditLogActionType.BotAdd,
@@ -50,13 +53,12 @@ static partial class AuditLog {
 
 		foreach (AuditLogActionType type in types) {
 			DiscordAuditLogEntry? entry =
-				erythro.LatestAuditLogEntry(type).Result;
+				Guild.LatestAuditLogEntry(type).Result;
 			audit_log_base.Add(type, entry);
 		}
 
 		is_audit_log_loaded = true;
-		log.debug("Initialized module: AuditLog");
-		log.endl();
+		Log.Debug("Initialized module: AuditLog");
 	}
 
 	static AuditLog() {
@@ -65,7 +67,7 @@ static partial class AuditLog {
 
 		// New member joined server.
 		// (Includes bots being added to the server.)
-		irene.GuildMemberAdded += (irene, e) => {
+		Client.GuildMemberAdded += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordMember member = e.Member;
 
@@ -85,7 +87,7 @@ static partial class AuditLog {
 		};
 		// Member left server.
 		// (Includes member pruning and members being kicked.)
-		irene.GuildMemberRemoved += (irene, e) => {
+		Client.GuildMemberRemoved += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordMember member = e.Member;
 
@@ -123,7 +125,7 @@ static partial class AuditLog {
 		};
 
 		// User banned.
-		irene.GuildBanAdded += (irene, e) => {
+		Client.GuildBanAdded += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordMember member = e.Member;
 
@@ -141,7 +143,7 @@ static partial class AuditLog {
 			return Task.CompletedTask;
 		};
 		// User unbanned.
-		irene.GuildBanRemoved += (irene, e) => {
+		Client.GuildBanRemoved += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordMember member = e.Member;
 
@@ -160,7 +162,7 @@ static partial class AuditLog {
 		};
 
 		// User info/roles updated.
-		irene.GuildMemberUpdated += (irene, e) => {
+		Client.GuildMemberUpdated += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordMember member = e.Member;
 
@@ -208,7 +210,7 @@ static partial class AuditLog {
 		//   but there is no easy way to distinguish user-initiated ones.
 
 		// Guild updated.
-		irene.GuildUpdated += (irene, e) => {
+		Client.GuildUpdated += (irene, e) => {
 			_ = Task.Run(() => {
 				// Fetch additional data.
 				DiscordAuditLogGuildEntry? entry =
@@ -226,7 +228,7 @@ static partial class AuditLog {
 		};
 
 		// Role created.
-		irene.GuildRoleCreated += (irene, e) => {
+		Client.GuildRoleCreated += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordRole role = e.Role;
 
@@ -244,7 +246,7 @@ static partial class AuditLog {
 			return Task.CompletedTask;
 		};
 		// Role deleted.
-		irene.GuildRoleDeleted += (irene, e) => {
+		Client.GuildRoleDeleted += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordRole role = e.Role;
 
@@ -262,7 +264,7 @@ static partial class AuditLog {
 			return Task.CompletedTask;
 		};
 		// Role updated.
-		irene.GuildRoleUpdated += (irene, e) => {
+		Client.GuildRoleUpdated += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordRole role_before = e.RoleBefore;
 				DiscordRole role_after = e.RoleAfter;
@@ -283,7 +285,7 @@ static partial class AuditLog {
 		};
 
 		// Channel created.
-		irene.ChannelCreated += (irene, e) => {
+		Client.ChannelCreated += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordChannel ch = e.Channel;
 
@@ -306,7 +308,7 @@ static partial class AuditLog {
 			return Task.CompletedTask;
 		};
 		// Channel deleted.
-		irene.ChannelDeleted += (irene, e) => {
+		Client.ChannelDeleted += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordChannel ch = e.Channel;
 
@@ -330,7 +332,7 @@ static partial class AuditLog {
 		};
 		// Channel settings updated.
 		// (Includes updating channel permission overwrites.)
-		irene.ChannelUpdated += (irene, e) => {
+		Client.ChannelUpdated += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordChannel ch = e.ChannelAfter;
 
@@ -394,7 +396,7 @@ static partial class AuditLog {
 		};
 
 		// Emoji created, deleted, or updated.
-		irene.GuildEmojisUpdated += (irene, e) => {
+		Client.GuildEmojisUpdated += (irene, e) => {
 			_ = Task.Run(() => {
 				// Diff the two lists of emojis.
 				HashSet<ulong> emojis_before = new (e.EmojisBefore.Keys);
@@ -467,7 +469,7 @@ static partial class AuditLog {
 		// sticker create/delete/update
 
 		// Invite created.
-		irene.InviteCreated += (irene, e) => {
+		Client.InviteCreated += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordInvite inv = e.Invite;
 				DiscordUser user = inv.Inviter;
@@ -489,7 +491,7 @@ static partial class AuditLog {
 			return Task.CompletedTask;
 		};
 		// Invite deleted.
-		irene.InviteDeleted += (irene, e) => {
+		Client.InviteDeleted += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordInvite inv = e.Invite;
 				DiscordUser user = inv.Inviter;
@@ -516,7 +518,7 @@ static partial class AuditLog {
 		// integration create/delete/update
 
 		// Message deleted.
-		irene.MessageDeleted += (irene, e) => {
+		Client.MessageDeleted += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordChannel ch = e.Channel;
 				if (ch.IsPrivate)
@@ -547,7 +549,7 @@ static partial class AuditLog {
 			return Task.CompletedTask;
 		};
 		// Messages bulk deleted.
-		irene.MessagesBulkDeleted += (irene, e) => {
+		Client.MessagesBulkDeleted += (irene, e) => {
 			_ = Task.Run(() => {
 				List<DiscordMessage> messages = new (e.Messages);
 
@@ -567,7 +569,7 @@ static partial class AuditLog {
 		};
 
 		// All reactions cleared on message.
-		irene.MessageReactionsCleared += (irene, e) => {
+		Client.MessageReactionsCleared += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordMessage msg = e.Message;
 
@@ -587,7 +589,7 @@ static partial class AuditLog {
 			return Task.CompletedTask;
 		};
 		// All reactions of a specific emoji cleared on message.
-		irene.MessageReactionRemovedEmoji += (irene, e) => {
+		Client.MessageReactionRemovedEmoji += (irene, e) => {
 			_ = Task.Run(() => {
 				DiscordMessage msg = e.Message;
 				DiscordEmoji emoji = e.Emoji;
@@ -618,18 +620,17 @@ static partial class AuditLog {
 		const int retry_count = 6;	// ~3000 msec
 
 		// Exit early if guilds aren't loaded.
-		if (!is_guild_loaded) {
-			log.warning("    Cannot fetch audit logs before guild is ready.");
+		if (Guild is null) {
+			Log.Warning("    Cannot fetch audit logs before guild is ready.");
 			return null;
 		}
 		// Exit early if audit log baseline hasn't been initialized.
 		if (!is_audit_log_loaded) {
-			log.warning("    Must fetch baseline audit logs first.");
+			Log.Warning("    Must fetch baseline audit logs first.");
 			return null;
 		}
 
 		// Repeatedly try to find the updated entry.
-		DiscordGuild erythro = irene.GetGuildAsync(id_g_erythro).Result;
 		int retry_interval = retry_interval_init;
 		for (int i=0; i<retry_count; i++) {
 			// Pause slightly before trying.
@@ -638,7 +639,7 @@ static partial class AuditLog {
 
 			// Attempt to fetch entry.
 			DiscordAuditLogEntry? entry =
-				await erythro.LatestAuditLogEntry(type);
+				await Guild.LatestAuditLogEntry(type);
 
 			// Return the entry if one was found and is new.
 			// Also update the "most recent" audit log entry of that type.
@@ -666,12 +667,11 @@ static partial class AuditLog {
 			{ return; }
 
 		// DiscordMember data
-		if (is_guild_loaded) {
-			DiscordGuild erythro =
-						irene.GetGuildAsync(id_g_erythro).Result;
+		if (Guild is not null) {
+			UpdateGuild().RunSynchronously();
 			DiscordUser user = entry.UserResponsible;
 			DiscordMember member =
-						erythro.GetMemberAsync(user.Id).Result;
+						Guild.GetMemberAsync(user.Id).Result;
 			text.WriteLine($"*Action by:* {member_string(member)}");
 		}
 
@@ -685,16 +685,15 @@ static partial class AuditLog {
 	// Convenience function for outputting a log message.
 	static void log_entry(string data) {
 		// Log data to console.
-		log.info("Audit log entry added.");
-		log.debug($"  {data}");
-		log.endl();
+		Log.Information("Audit log entry added.");
+		Log.Debug($"  {data}");
 
 		// Log data to audit log channel.
-		if (is_guild_loaded) {
+		if (Guild is not null) {
 			DateTimeOffset time = DateTimeOffset.UtcNow;
 			string time_str = $"<t:{time.ToUnixTimeSeconds()}:f>";
 			string msg = $"{l} {time_str}\n{data}";
-			_ = channels[id_ch.audit].SendMessageAsync(
+			_ = Channels[id_ch.audit].SendMessageAsync(
 				new DiscordMessageBuilder()
 				.WithContent(msg)
 				.WithAllowedMentions(Mentions.None)

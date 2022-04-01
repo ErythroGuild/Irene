@@ -56,7 +56,7 @@ class Raid {
 
 	// Returns the current week, calculated based on local time.
 	public static int current_week() {
-		TimeSpan duration = DateTime.UtcNow - date_season_2;
+		TimeSpan duration = DateTime.UtcNow - Date_Season3.UtcResetTime();
 		int week = (duration.Days / 7) + 1;   // int division
 		return week;
 	}

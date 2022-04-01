@@ -37,12 +37,11 @@ static class Starboard {
 	public static void init() { return; }
 
 	static Starboard() {
-		irene.MessageReactionAdded += (irene, e) => {
+		Client.MessageReactionAdded += (irene, e) => {
 			_ = Task.Run(async () => {
 				// Exit if guild data isn't loaded yet.
-				if (!is_guild_loaded) {
+				if (Guild is null)
 					return;
-				}
 
 				// Fetch uncached data.
 				DiscordChannel channel = e.Message.Channel ??
@@ -88,8 +87,8 @@ static class Starboard {
 				if (count < dict_thresholds[channel.Id]) {
 					return;
 				}
-				log.info("Popular post detected; checking starboard.");
-				log.debug($"  #{channel.Name} - {author.Tag()}");
+				Log.Information("Popular post detected; checking starboard.");
+				Log.Debug($"  #{channel.Name} - {author.Tag()}");
 
 				// Check if message is already pinned.
 				bool is_update = false;
@@ -108,11 +107,11 @@ static class Starboard {
 				// Update the existing pin, or add a new message.
 				DiscordEmbed embed = get_embed(msg, counts);
 				if (is_update) {
-					log.debug("  Updating existing pinned embed.");
+					Log.Debug("  Updating existing pinned embed.");
 					_ = pin!.ModifyAsync(embed);
 				} else {
-					log.info("  Adding new pinned embed.");
-					pin = channels[id_ch.starboard].SendMessageAsync(embed).Result;
+					Log.Information("  Adding new pinned embed.");
+					pin = Channels[id_ch.starboard].SendMessageAsync(embed).Result;
 
 					// Update cache.
 					cache.Enqueue(msg_id);
@@ -125,16 +124,15 @@ static class Starboard {
 					// Send message to original author.
 					DiscordMember? author_member = author as DiscordMember;
 					if (author_member is not null) {
-						log.info("  Notifying original message author.");
+						Log.Information("  Notifying original message author.");
 						StringWriter text = new ();
 						text.WriteLine("Congrats! :tada:");
-						string m = channels[id_ch.starboard].Mention;
+						string m = Channels[id_ch.starboard].Mention;
 						text.WriteLine($"Your post was exceptionally popular, and has been added to **<Erythro>**'s {m} channel.");
 						text.WriteLine(":champagne_glass: :champagne:");
 						_ = author_member.SendMessageAsync(text.ToString());
 					}
 				}
-				log.endl();
 			});
 			return Task.CompletedTask;
 		};
@@ -144,7 +142,7 @@ static class Starboard {
 	// pins with the message already.
 	// Returns that message if it exists, or null if it doesn't.
 	static DiscordMessage? fetch_pin(string id) {
-		DiscordChannel ch = channels[id_ch.starboard];
+		DiscordChannel ch = Channels[id_ch.starboard];
 
 		// Fetch the most recent message.
 		// Needed to have a simple loop to search through.

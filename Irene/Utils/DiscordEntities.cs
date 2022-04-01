@@ -78,13 +78,14 @@ static partial class Util {
 			return member_n;
 
 		// Check if guild is loaded (to convert users with).
-		if (!is_guild_loaded)
+		if (Guild is null)
 			return null;
 
 		// Fetch the member by user ID.
-		DiscordGuild erythro = await irene.GetGuildAsync(id_g_erythro);
+		await UpdateGuild();
 		try {
-			DiscordMember member = await erythro.GetMemberAsync(user.Id);
+			DiscordMember member = await
+				Guild.GetMemberAsync(user.Id);
 			return member;
 		}
 		catch (ServerErrorException) {

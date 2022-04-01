@@ -48,7 +48,7 @@ class Help : ICommands {
 		// Display specific help if requested.
 		string? help_cmd = Command.help(arg);
 		if (help_cmd is not null) {
-			log.info("  Returned help string.");
+			Log.Information("  Returned help string.");
 			_ = cmd.msg.RespondAsync(help_cmd);
 			return;
 		}
@@ -62,7 +62,7 @@ class Help : ICommands {
 
 		// Construct the paginated help message.
 		HelpPages pages = new (list_help, cmd.msg.Author);
-		log.info("  Displaying help pages.");
+		Log.Information("  Displaying help pages.");
 		DiscordMessage msg =
 			cmd.msg.RespondAsync(pages.first_page()).Result;
 		pages.msg = msg;

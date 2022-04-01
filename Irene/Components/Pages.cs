@@ -89,7 +89,7 @@ class Pages {
 
 		// Configure timeout event listener.
 		timer.Elapsed += async (s, e) => {
-			irene.ComponentInteractionCreated -= handler;
+			Client.ComponentInteractionCreated -= handler;
 			if (msg is not null) {
 				await msg.ModifyAsync(
 					new DiscordMessageBuilder()
@@ -102,7 +102,7 @@ class Pages {
 
 		// Attach handler to client and start deactivation timer.
 		handlers.Add(this);
-		irene.ComponentInteractionCreated += handler;
+		Client.ComponentInteractionCreated += handler;
 		timer.Start();
 	}
 

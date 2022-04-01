@@ -150,7 +150,7 @@ class Rank : ICommands {
 		}
 
 		// Send message with selection menu.
-		log.info("  Sending rank selection menu.");
+		Log.Information("  Sending rank selection menu.");
 		Selection<Type> dropdown = new (
 			options,
 			set_rank,
@@ -195,7 +195,7 @@ class Rank : ICommands {
 		guilds_current.Sort();
 
 		// Send message with selection menu.
-		log.info("  Sending guild selection menu.");
+		Log.Information("  Sending guild selection menu.");
 		Selection<Guild> dropdown = new (
 			options_guild,
 			set_guilds,
@@ -232,19 +232,19 @@ class Rank : ICommands {
 		List<DiscordRole> member_roles = new (member.Roles);
 		StringWriter text = new ();
 		if (rank == Type.None) {
-			log.info($"  Promoting {member.DisplayName} to Guest.");
-			_ = member.GrantRoleAsync(roles[id_r.guest]);
+			Log.Information($"  Promoting {member.DisplayName} to Guest.");
+			_ = member.GrantRoleAsync(Program.Roles[id_r.guest]);
 			text.WriteLine($"Promoted {member.Mention} to **Guest**.");
 		} else {
-			log.info($"  {member.DisplayName} does not need to be promoted.");
+			Log.Information($"  {member.DisplayName} does not need to be promoted.");
 			text.WriteLine($"{member.Mention} already has basic server permissions.");
 		}
-		if (!member_roles.Contains(roles[id_r.erythro])) {
-			log.info($"  Tagging {member.DisplayName} as <Erythro>.");
-			_ = member.GrantRoleAsync(roles[id_r.erythro]);
+		if (!member_roles.Contains(Program.Roles[id_r.erythro])) {
+			Log.Information($"  Tagging {member.DisplayName} as <Erythro>.");
+			_ = member.GrantRoleAsync(Program.Roles[id_r.erythro]);
 			text.WriteLine($"Tagging {member.Mention} as a member of **<Erythro>**.");
 		} else {
-			log.info($"  {member.DisplayName} does not need to be tagged.");
+			Log.Information($"  {member.DisplayName} does not need to be tagged.");
 			text.WriteLine($"{member.Mention} is already tagged as **<Erythro>**.");
 		}
 		_ = cmd.msg.RespondAsync(text.ToString());
@@ -253,22 +253,20 @@ class Rank : ICommands {
 	// List all server Guest members and tagged as <Erythro>.
 	public static void list_trials(Command cmd) {
 		// Can't search for member if guilds aren't even loaded.
-		if (!is_guild_loaded) {
-			log.warning("  Guild data not loaded yet, cannot list members.");
+		if (Program.Guild is null) {
+			Log.Warning("  Guild data not loaded yet, cannot list members.");
 			_ = cmd.msg.RespondAsync("Guild data not loaded yet; please retry in a moment.");
 			return;
 		}
 
 		// Fetch non-cached members.
-		// If guild is loaded, `Program.guild` has been initialized.
-		DiscordGuild erythro = guild!;
 		List<DiscordMember> members = new (
-			erythro.GetAllMembersAsync()
+			Program.Guild.GetAllMembersAsync()
 			.Result );
 
 		// Fetch reference roles.
-		DiscordRole role_guest = roles[id_r.guest];
-		DiscordRole role_guild = roles[id_r.erythro];
+		DiscordRole role_guest = Program.Roles[id_r.guest];
+		DiscordRole role_guild = Program.Roles[id_r.erythro];
 
 		// Construct list of members who are "trials".
 		// (Guest + <Erythro>)
@@ -282,7 +280,7 @@ class Rank : ICommands {
 
 		// Handle case where no trial members exist.
 		if (trials.Count == 0) {
-			log.info("  No trial members found.");
+			Log.Information("  No trial members found.");
 			_ = cmd.msg.RespondAsync("No Trial members found for **<Erythro>**.");
 			return;
 		}
@@ -300,7 +298,7 @@ class Rank : ICommands {
 		StringWriter text = new ();
 		foreach (DiscordMember trial in trials) {
 			TimeSpan time = DateTimeOffset.Now - trial.JoinedAt;
-			log.debug($"    {trial.Tag()} - {time.Days} days old");
+			Log.Debug($"    {trial.Tag()} - {time.Days} days old");
 			text.WriteLine($"{trial.Mention} - {time.Days} days old");
 		}
 		_ = cmd.msg.RespondAsync(text.ToString());
@@ -310,8 +308,7 @@ class Rank : ICommands {
 	static async void set_rank(List<Type> rank, DiscordUser user) {
 		DiscordMember? member = await user.ToMember();
 		if (member is null) {
-			log.error("Could not find DiscordMember to assign roles.");
-			log.endl();
+			Log.Error("Could not find DiscordMember to assign roles.");
 			return;
 		}
 
@@ -319,20 +316,20 @@ class Rank : ICommands {
 		member = await member.Guild.GetMemberAsync(member.Id);
 
 		// Assign updated rank.
-		log.info($"  Assigning new rank to {member.DisplayName}.");
+		Log.Information($"  Assigning new rank to {member.DisplayName}.");
 		Type rank_prev = sanitize_ranks(member);
 		Type rank_new = rank[0];
 		if (rank_to_id.ContainsKey(rank_new)) {
-			_ = member.GrantRoleAsync(roles[rank_to_id[rank_new]]);
+			_ = member.GrantRoleAsync(Program.Roles[rank_to_id[rank_new]]);
 		}
 		if (rank_to_id.ContainsKey(rank_prev)) {
-			_ = member.RevokeRoleAsync(roles[rank_to_id[rank_prev]]);
+			_ = member.RevokeRoleAsync(Program.Roles[rank_to_id[rank_prev]]);
 		}
 		sanitize_ranks(member);	// remove potential "officer" roles
 
 		// Send congrats message.
 		if (rank_new > rank_prev && rank_new >= Type.Member) {
-			log.info("  Sending promotion congrats message.");
+			Log.Information("  Sending promotion congrats message.");
 			StringWriter text = new ();
 			text.WriteLine("Congrats! :tada:");
 			text.WriteLine($"You've been promoted to **{options_rank[rank_new].label}**.");
@@ -345,8 +342,7 @@ class Rank : ICommands {
 	static async void set_guilds(List<Guild> guilds, DiscordUser user) {
 		DiscordMember? member = await user.ToMember();
 		if (member is null) {
-			log.error("Could not find DiscordMember to assign roles.");
-			log.endl();
+			Log.Error("Could not find DiscordMember to assign roles.");
 			return;
 		}
 
@@ -370,19 +366,18 @@ class Rank : ICommands {
 		guilds_added.ExceptWith(guilds_prev);
 
 		// Remove/add guild roles.
-		log.info($"  Removing {guilds_removed.Count} guild role(s).");
+		Log.Information($"  Removing {guilds_removed.Count} guild role(s).");
 		foreach (Guild guild in guilds_removed) {
 			ulong role_id = guild_to_id[guild];
-			log.debug($"    Removing {roles[role_id]}.");
-			_ = member.RevokeRoleAsync(roles[role_id]);
+			Log.Debug($"    Removing {Program.Roles[role_id]}.");
+			_ = member.RevokeRoleAsync(Program.Roles[role_id]);
 		}
-		log.info($"  Adding {guilds_added.Count} guild role(s).");
+		Log.Information($"  Adding {guilds_added.Count} guild role(s).");
 		foreach (Guild guild in guilds_added) {
 			ulong role_id = guild_to_id[guild];
-			log.debug($"    Adding {roles[role_id]}.");
-			_ = member.GrantRoleAsync(roles[role_id]);
+			Log.Debug($"    Adding {Program.Roles[role_id]}.");
+			_ = member.GrantRoleAsync(Program.Roles[role_id]);
 		}
-		log.endl();
 	}
 
 	// Ensures that a member only has a single (their highest)
@@ -401,7 +396,7 @@ class Rank : ICommands {
 		if (rank != Type.Officer) {
 			foreach (DiscordRole role in member_roles) {
 				if (roles_officer.Contains(role.Id)) {
-					log.info($"    Rank sanitizer: removing role {role.Name}");
+					Log.Information($"    Rank sanitizer: removing role {role.Name}");
 					member.RevokeRoleAsync(role);
 				}
 			}
@@ -412,7 +407,7 @@ class Rank : ICommands {
 			ulong id = role.Id;
 			if (id_to_rank.ContainsKey(id)) {
 				if (id_to_rank[id] < rank) {
-					log.info($"    Rank sanitizer: removing role {role.Name}");
+					Log.Information($"    Rank sanitizer: removing role {role.Name}");
 					member.RevokeRoleAsync(role);
 				}
 			}
@@ -447,7 +442,7 @@ class Rank : ICommands {
 		if (guilds.Count == 0) {
 			return "Not a member of any guilds.";
 		}
-		if (roles.Count == 1) {
+		if (Program.Roles.Count == 1) {
 			return $"Guild previously set:\n**{options_guild[guilds[0]].label}**";
 		}
 
@@ -465,8 +460,7 @@ class Rank : ICommands {
 	// returns false otherwise.
 	static bool check_member_unique(List<DiscordMember> members, Command cmd) {
 		if (members.Count == 0) {
-			log.info($"  Could not find any members matching {cmd.args}.");
-			log.endl();
+			Log.Information($"  Could not find any members matching {cmd.args}.");
 			StringWriter text = new ();
 			text.WriteLine($"Could not find any members matching `{cmd.args}`.");
 			text.WriteLine("If their display name doesn't work, try their user ID instead.");
@@ -474,8 +468,7 @@ class Rank : ICommands {
 			return true;
 		}
 		if (members.Count > 1) {
-			log.info($"  Found multiple members matching {cmd.args}.");
-			log.endl();
+			Log.Information($"  Found multiple members matching {cmd.args}.");
 			StringWriter text = new ();
 			text.WriteLine($"Found multiple members matching `{cmd.args}`.");
 			bool is_elided = false;
@@ -504,8 +497,7 @@ class Rank : ICommands {
 		if (cmd.user is not null)
 			{ return false; }
 
-		log.warning("  Could not determine caller's DiscordMember value.");
-		log.endl();
+		Log.Warning("  Could not determine caller's DiscordMember value.");
 		StringWriter text = new ();
 		text.WriteLine("Could not determine your guild rank.");
 		text.WriteLine("This is probably an internal error; contact Ernie for more info.");
@@ -521,8 +513,7 @@ class Rank : ICommands {
 		if (cmd.args.Trim() != "")
 			{ return false; }
 
-		log.info("No target user argument specified.");
-		log.endl();
+		Log.Information("No target user argument specified.");
 		StringWriter text = new StringWriter();
 		text.WriteLine("You must specify a user to modify the rank of.");
 		text.WriteLine("This can be an `@mention`, their user ID, or their username, if it's unambiguous.");
@@ -535,16 +526,15 @@ class Rank : ICommands {
 	// Returns a (possibly empty) list of matching members.
 	static List<DiscordMember> parse_member(string arg) {
 		// Can't search for member if guilds aren't even loaded.
-		if (!is_guild_loaded) {
-			log.warning("    Attempted to parse DiscordMember before guild data loaded.");
+		if (Program.Guild is null) {
+			Log.Warning("    Attempted to parse DiscordMember before guild data loaded.");
 			return new List<DiscordMember>();
 		}
 
 		// Fetch non-cached members.
 		// If guild is loaded, `Program.guild` has been initialized.
-		DiscordGuild erythro = guild!;
 		List<DiscordMember> members = new (
-			erythro.GetAllMembersAsync().Result
+			Program.Guild!.GetAllMembersAsync().Result
 		);
 
 		// Set up variables.

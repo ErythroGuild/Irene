@@ -144,9 +144,8 @@ partial class WeeklyEvent {
 			),
 		};
 
-		log.debug("Initialized module: WeeklyEvent");
-		log.debug($"  {events.Count} event(s) registered.");
-		log.endl();
+		Log.Debug("Initialized module: WeeklyEvent");
+		Log.Debug($"  {events.Count} event(s) registered.");
 	}
 
 	// Configurable members.
@@ -187,8 +186,7 @@ partial class WeeklyEvent {
 			DateTimeOffset time_retroactive = get_prev_time(schedule, time_next);
 			if (time_prev < time_retroactive) {
 				_ = Task.Run(() => {
-					log.info($"Retroactively scheduled firing event: {name}");
-					log.endl();
+					Log.Information($"Retroactively scheduled firing event: {name}");
 					action();
 					last_executed = time_now;
 					update_executed(id, time_now);
@@ -205,9 +203,8 @@ partial class WeeklyEvent {
 			timer.Interval = (time_next - time_now).TotalMilliseconds;
 
 			// Run the scheduled action.
-			log.info($"Firing scheduled event: {name}");
+			Log.Information($"Firing scheduled event: {name}");
 			await Task.Run(action);
-			log.endl();
 
 			// Update saved values.
 			last_executed = time_now;
