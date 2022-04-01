@@ -4,7 +4,7 @@ namespace Irene.Commands;
 
 using Entry = Selection<Roles.PingRole>.Entry;
 
-class Roles : ICommands {
+class Roles {
 	public enum PingRole {
 		Raid,
 		Mythics, KSM, Gearing,

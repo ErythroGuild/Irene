@@ -27,7 +27,7 @@ class Pages {
 	public int page { get; protected set; }
 	public readonly int page_count;
 	public readonly List<string> list;
-	public readonly DiscordUser author;
+	public DiscordUser author { get; private set; }
 	public DiscordMessage? msg;	// may not be set immediately
 
 	// protected properties/fields

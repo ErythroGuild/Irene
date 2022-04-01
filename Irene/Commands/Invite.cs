@@ -1,41 +1,62 @@
 ﻿namespace Irene.Commands;
 
-class Invite : ICommands {
-	static readonly List<string> token_erythro = new () {
-		"erythro", "ery", "wow"
-	};
-	static readonly List<string> token_leuko = new () {
-		"leuko", "ffxiv", "ff14"
-	};
+class Invite : ICommand {
+	private const string
+		_optErythro = "erythro",
+		_optLeuko   = "leuko";
+	private const string
+		_urlErythro = @"https://discord.gg/ADzEwNS",
+		_urlLeuko   = @"https://discord.gg/zhadQf59xq";
 
-	const string invite_erythro = @"https://discord.gg/ADzEwNS";
-	const string invite_leuko   = @"https://discord.gg/zhadQf59xq";
-
-	public static string help() {
-		StringWriter text = new ();
-
-		text.WriteLine("`@Irene -inv erythro` fetches the server invite for this server,");
-		text.WriteLine("`@Irene -inv leuko` fetches the server invite for the FFXIV sister server,");
-		text.WriteLine("and `@Irene -inv` fetches both server invites.");
-		text.WriteLine($"These invite links can also be found in {Channels[id_ch.resources]}.");
-
-		return text.ToString();
+	public static List<string> HelpPages { get =>
+		new () { string.Join("\n", new List<string> {
+			@"`/invite Erythro` fetches the server invite for this server.",
+			@"`/invite Leuko` fetches the server invite for the FFXIV sister server.",
+			$"These invite links can also be found in {Channels[id_ch.resources]}."
+		} ) };
 	}
 
-	public static void run(Command cmd) {
-		string arg = cmd.args.Trim().ToLower();
+	public static List<InteractionCommand> SlashCommands { get =>
+		new () {
+			new ( new (
+				"invite",
+				"Show invite links for the guild discord servers.",
+				new List<CommandOption> { new (
+					"server",
+					"The server to get an invite link to.",
+					ApplicationCommandOptionType.String,
+					required: false,
+					new List<CommandOptionEnum> {
+						new ("Erythro", _optErythro),
+						new ("Leuko", _optLeuko)
+					} ) },
+				defaultPermission: true,
+				ApplicationCommandType.SlashCommand
+			), RunAsync )
+		};
+	}
 
-		StringWriter text = new ();
-		if (token_erythro.Contains(arg)) {
-			text.WriteLine(invite_erythro);
-		} else if (token_leuko.Contains(arg)) {
-			text.WriteLine(invite_leuko);
-		} else {
-			text.WriteLine("**Erythro** and **Leuko** server invites:");
-			text.WriteLine(invite_erythro);
-			text.WriteLine(invite_leuko);
-		}
+	public static List<InteractionCommand> UserCommands    { get => new (); }
+	public static List<InteractionCommand> MessageCommands { get => new (); }
 
-		_ = cmd.msg.RespondAsync(text.ToString());
+	private static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+		// Select the correct invite to return.
+		List<DiscordInteractionDataOption> args =
+			interaction.GetArgs();
+		string server = (args.Count > 0)
+			? (string)args[0].Value
+			: _optErythro;
+		string invite = server switch {
+			_optErythro => _urlErythro,
+			_optLeuko   => _urlLeuko,
+			_ => throw new ArgumentException("Invalid slash command parameter."),
+		};
+
+		// Send invite link.
+		Log.Debug("  Sending invite link.");
+		Log.Debug("    {Link}", invite);
+		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
+		await interaction.RespondMessageAsync(invite);
+		Log.Information("  Invite link for \"{Server}\" sent.", server);
 	}
 }

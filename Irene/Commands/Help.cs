@@ -2,7 +2,7 @@
 
 namespace Irene.Commands;
 
-class Help : ICommands {
+class Help {
 	// Customize pagination class for help pages.
 	class HelpPages : Pages {
 		protected override int list_page_size

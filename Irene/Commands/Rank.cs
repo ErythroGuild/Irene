@@ -7,7 +7,7 @@ namespace Irene.Commands;
 using RankEntry = Selection<Rank.Type>.Entry;
 using GuildEntry = Selection<Rank.Guild>.Entry;
 
-class Rank : ICommands {
+class Rank {
 	public enum Type {
 		None,
 		Guest, Member, Officer,

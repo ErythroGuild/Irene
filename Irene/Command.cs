@@ -1,10 +1,55 @@
-﻿using Irene.Commands;
+﻿using System.Reflection;
+
+using Irene.Commands;
 
 namespace Irene;
 
-using CmdRoles = Irene.Commands.Roles;
+using CmdRoles = Roles;
 
 class Command {
+	public static List<DiscordApplicationCommand> Commands { get; private set; }
+	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
+
+	// Force static initializer to run.
+	public static void Init() { return; }
+	static Command() {
+		// Set the static properties.
+		Commands = new ();
+		Handlers = new ();
+
+		// Find all classes inheriting from ICommand, and collate their application
+		// commands into a single Dictionary.
+		Type[] types = Assembly.GetExecutingAssembly().GetTypes();
+		foreach (Type type in types) {
+			List<Type> interfaces = new (type.GetInterfaces());
+			if (interfaces.Contains(typeof(ICommand))) {
+				// Fetch the property, null-checking at every step.
+				// If any step fails, simply return early.
+				void AddPropertyInteractions(string name) {
+					PropertyInfo? property =
+						type.GetProperty(name, typeof(List<InteractionCommand>));
+					if (property is null)
+						return;
+
+					List<InteractionCommand>? commands =
+						property?.GetValue(null) as List<InteractionCommand>
+						?? null;
+					if (commands is null)
+						return;
+
+					foreach (InteractionCommand command in commands) {
+						Commands.Add(command.Command);
+						Handlers.Add(command.Command.Name, command.Handler);
+					}
+				}
+
+				AddPropertyInteractions("SlashCommands");
+				AddPropertyInteractions("UserCommands");
+				AddPropertyInteractions("MessageCommands");
+			}
+		}
+	}
+
 	public enum AccessLevel {
 		None,
 		Guest, Member, Officer, Admin,
@@ -15,9 +60,6 @@ class Command {
 		{ "help", Help.run },
 		{ "h"   , Help.run },
 		{ "?"   , Help.run },
-		{ "version", About.run },
-		{ "v"      , About.run },
-		{ "build"  , About.run },
 
 		{ "roles"      , CmdRoles.set   },
 		{ "r"          , CmdRoles.set   },
@@ -64,24 +106,9 @@ class Command {
 
 		{ "cap", Cap.run },
 		{ "c"  , Cap.run },
-
-		{ "classdiscord"  , ClassDiscords.run },
-		{ "cd"            , ClassDiscords.run },
-		{ "classdiscords" , ClassDiscords.run },
-		{ "class-discord" , ClassDiscords.run },
-
-		{ "invite", Invite.run },
-		{ "i"     , Invite.run },
-		{ "inv"   , Invite.run },
-
-		{ "roll"  , Roll.run },
-		{ "dice"  , Roll.run },
-		{ "random", Roll.run },
-		{ "rand"  , Roll.run },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
-		{ About.run, About.help },
 
 		{ CmdRoles.set  , CmdRoles.help },
 		{ CmdRoles.list , CmdRoles.help },
@@ -105,16 +132,9 @@ class Command {
 		{ Tags.remove, Tags.help },
 
 		{ Cap.run, Cap.help },
-
-		{ ClassDiscords.run, ClassDiscords.help },
-
-		{ Invite.run, Invite.help },
-
-		{ Roll.run, Roll.help },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
-		{ About.run, AccessLevel.Guest },
 
 		{ CmdRoles.set  , AccessLevel.Guest },
 		{ CmdRoles.list , AccessLevel.None  },
@@ -138,12 +158,6 @@ class Command {
 		{ Tags.remove, AccessLevel.Officer },
 
 		{ Cap.run, AccessLevel.None },
-
-		{ ClassDiscords.run, AccessLevel.None },
-
-		{ Invite.run, AccessLevel.Guest },
-
-		{ Roll.run, AccessLevel.Guest },
 	};
 
 	// Properties

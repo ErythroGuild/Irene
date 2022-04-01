@@ -197,6 +197,21 @@ class ClassSpec {
 		{ "protection",  new () { Spec.Paladin_Prot, Spec.Warrior_Prot } },
 	};
 
+	private static readonly Dictionary<Class, string> _classNames = new () {
+		{ Class.DK, "Death Knight" },
+		{ Class.DH, "Demon Hunter" },
+		{ Class.Druid  , "Druid"   },
+		{ Class.Hunter , "Hunter"  },
+		{ Class.Mage   , "Mage"    },
+		{ Class.Monk   , "Monk"    },
+		{ Class.Paladin, "Paladin" },
+		{ Class.Priest , "Priest"  },
+		{ Class.Rogue  , "Rogue"   },
+		{ Class.Shaman , "Shaman"  },
+		{ Class.Warlock, "Warlock" },
+		{ Class.Warrior, "Warrior" },
+	};
+
 	// The maximum number of separate tokens allowed.
 	// Any further tokens past the last one will be treated as a
 	// single token.
@@ -232,6 +247,9 @@ class ClassSpec {
 		Log.Debug("  Conversion cache initialized.");
 		Log.Debug($"  Took {stopwatch.ElapsedMilliseconds} msec.");
 	}
+
+	public static string Name(Class @class) =>
+		_classNames[@class];
 
 	// Get the emoji associated with the Role.
 	// Returns an empty string if `Role.Multiple` is passed, or
