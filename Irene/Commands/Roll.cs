@@ -108,7 +108,7 @@ class Roll : ICommand {
 		// Return data.
 		Log.Debug("  Sending random number: {X}", x);
 		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(output);
+		await interaction.RespondMessageAsync($"  {output}");
 		Log.Information("  Random number sent.");
 
 		// If fallback generation was used, calculate the probability
