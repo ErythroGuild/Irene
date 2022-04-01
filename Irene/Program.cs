@@ -30,7 +30,8 @@ class Program {
 		_stopwatchConfig   = new (),
 		_stopwatchConnect  = new (),
 		_stopwatchDownload = new (),
-		_stopwatchInitData = new ();
+		_stopwatchInitData = new (),
+		_stopwatchRegister = new ();
 
 	// File paths for config files.
 	private const string
@@ -293,7 +294,13 @@ class Program {
 				Rank.init();
 
 				// Register (update-by-overwriting) application commands.
+				_stopwatchRegister.Start();
 				await Client.BulkOverwriteGuildApplicationCommandsAsync(_id_Erythro, Command.Commands);
+				_stopwatchRegister.Stop();
+				Log.Information("  Application commands registered.");
+				Log.Debug("    Registered {CommandCount} commands.", Command.Commands.Count);
+				long register_time = GetMsec(_stopwatchRegister);
+				Log.Debug("    Took {RegisterTime} msec.", register_time);
 			});
 			return Task.CompletedTask;
 		};
