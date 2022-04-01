@@ -32,25 +32,28 @@ class Invite : ICommand {
 					} ) },
 				true,
 				ApplicationCommandType.SlashCommand
-			), Run )
+			), RunAsync )
 		};
 	}
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 
-	private static void Run(InteractionCreateEventArgs args) {
-		List<DiscordInteractionDataOption> options = new (args.Interaction.Data.Options);
-		string invite = (string)options[0].Value switch {
+	private static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+		// Select the correct invite to return.
+		List<DiscordInteractionDataOption> options =
+			interaction.GetOptions();
+		string server = (string)options[0].Value;
+		string invite = server switch {
 			_optErythro => _urlErythro,
 			_optLeuko   => _urlLeuko,
-			_ => throw new ArgumentException("Invalid parameter"),
+			_ => throw new ArgumentException("Invalid slash command parameter."),
 		};
-		_ = args.Interaction.CreateResponseAsync(
-			InteractionResponseType.ChannelMessageWithSource,
-			new DiscordInteractionResponseBuilder(
-				new DiscordMessageBuilder()
-				.WithContent(invite)
-			) );
+
+		// Send invite link.
+		Log.Debug("  Sending invite link.");
+		stopwatch.LogMsecDebug("  Responded in {Time} msec.", false);
+		await interaction.RespondMessageAsync(invite);
+		Log.Information("  Invite link for \"{Server}\" sent.", server);
 	}
 }

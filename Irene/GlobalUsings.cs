@@ -1,4 +1,4 @@
-// System.
+﻿// System.
 global using System;
 global using System.Collections.Generic;
 global using System.Diagnostics;
@@ -29,4 +29,4 @@ global using id_vc = Irene.Const.VoiceChatIDs;
 
 global using CommandOption = DSharpPlus.Entities.DiscordApplicationCommandOption;
 global using CommandOptionEnum = DSharpPlus.Entities.DiscordApplicationCommandOptionChoice;
-global using InteractionHandler = System.Action<DSharpPlus.EventArgs.InteractionCreateEventArgs>;
+global using InteractionHandler = System.Func<DSharpPlus.Entities.DiscordInteraction, System.Diagnostics.Stopwatch, System.Threading.Tasks.Task>;

@@ -298,11 +298,19 @@ class Program {
 
 		// Interaction received.
 		Client.InteractionCreated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
+				Stopwatch stopwatch = Stopwatch.StartNew();
+
+				// Match on slash command name.
 				string name = e.Interaction.Data.Name;
+				Log.Information("Command received: /{CommandName}.", name);
+
 				if (Command.Handlers.ContainsKey(name)) {
-					Command.Handlers[name].Invoke(e);
+					await Command.Handlers[name].Invoke(e.Interaction, stopwatch);
 					e.Handled = true;
+					stopwatch.LogMsecDebug("  Command processed in {Time} msec.");
+				} else {
+					Log.Warning("  Unrecognized command.");
 				}
 			});
 			return Task.CompletedTask;
