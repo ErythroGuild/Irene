@@ -7,9 +7,10 @@ class Version : ICommand {
 
 	public static List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
-			@"`/version` displays the most recent release version and currently running build."
-		} )
-	}; }
+			@"`/version` displays the most recent release version and currently running build.",
+			"These values are automatically generated from git when the bot is built."
+		} ) };
+	}
 
 	public static List<InteractionCommand> SlashCommands { get =>
 		new () {

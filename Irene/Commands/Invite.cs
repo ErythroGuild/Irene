@@ -1,4 +1,4 @@
-namespace Irene.Commands;
+﻿namespace Irene.Commands;
 
 class Invite : ICommand {
 	private const string
@@ -12,9 +12,9 @@ class Invite : ICommand {
 		new () { string.Join("\n", new List<string> {
 			@"`/invite Erythro` fetches the server invite for this server.",
 			@"`/invite Leuko` fetches the server invite for the FFXIV sister server.",
-			$@"These invite lines can also be found in {Channels[id_ch.resources]}."
-		} )
-	}; }
+			$"These invite links can also be found in {Channels[id_ch.resources]}."
+		} ) };
+	}
 
 	public static List<InteractionCommand> SlashCommands { get =>
 		new () {
