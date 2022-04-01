@@ -2,7 +2,7 @@
 
 using Class = ClassSpec.Class;
 
-class ClassDiscords : ICommands {
+class ClassDiscords {
 	static readonly Dictionary<Class, string> invites = new () {
 		{ Class.DK     , @"https://discord.gg/acherus"        },
 		{ Class.DH     , @"https://discord.gg/felhammer"      },

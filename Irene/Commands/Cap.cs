@@ -1,6 +1,6 @@
 namespace Irene.Commands;
 
-class Cap : ICommands {
+class Cap {
 	enum Type {
 		Renown, Valor, Conquest, TowerKnowledge,
 	}

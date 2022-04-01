@@ -282,6 +282,7 @@ class Program {
 
 				// Initialize modules.
 				AuditLog.init();
+				Command.Init();
 				WeeklyEvent.init();
 				Welcome.init();
 				Starboard.init();
@@ -290,6 +291,21 @@ class Program {
 				Help.init();
 				CmdRoles.init();
 				Rank.init();
+
+				// Register (update-by-overwriting) application commands.
+				await Client.BulkOverwriteGuildApplicationCommandsAsync(_id_Erythro, Command.Commands);
+			});
+			return Task.CompletedTask;
+		};
+
+		// Interaction received.
+		Client.InteractionCreated += (irene, e) => {
+			_ = Task.Run(() => {
+				string name = e.Interaction.Data.Name;
+				if (Command.Handlers.ContainsKey(name)) {
+					Command.Handlers[name].Invoke(e);
+					e.Handled = true;
+				}
 			});
 			return Task.CompletedTask;
 		};

@@ -5,7 +5,7 @@ namespace Irene.Commands;
 
 using CRNG = RandomNumberGenerator;
 
-class Roll : ICommands {
+class Roll {
 	// Use a single instance of a PRNG to improve the quality of
 	// the results.
 	static readonly ThreadLocal<CRNG> rng = new (CRNG.Create);

@@ -2,7 +2,7 @@
 
 namespace Irene.Commands;
 
-class Tags : ICommands {
+class Tags {
 	const string
 		path_data = @"data/tags.txt",
 		path_buffer = @"data/tags_buffer.txt";
