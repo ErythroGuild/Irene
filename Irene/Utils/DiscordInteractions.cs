@@ -3,7 +3,9 @@
 static partial class Util {
 	// Convenience method for fetching command options.
 	public static List<DiscordInteractionDataOption> GetOptions(this DiscordInteraction interaction) =>
-		new (interaction.Data.Options);
+		(interaction.Data.Options is not null)
+			? new (interaction.Data.Options)
+			: new ();
 
 	// Convenience functions for responding to interactions.
 	public static Task RespondMessageAsync(this DiscordInteraction interaction, string message, bool isEphemeral=false) =>

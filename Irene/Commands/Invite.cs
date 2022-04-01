@@ -1,4 +1,4 @@
-﻿namespace Irene.Commands;
+namespace Irene.Commands;
 
 class Invite : ICommand {
 	private const string
@@ -25,7 +25,7 @@ class Invite : ICommand {
 					"server",
 					"The server to get an invite link to.",
 					ApplicationCommandOptionType.String,
-					true,
+					false,
 					new List<CommandOptionEnum> {
 						new ("Erythro", _optErythro),
 						new ("Leuko", _optLeuko)
@@ -43,7 +43,9 @@ class Invite : ICommand {
 		// Select the correct invite to return.
 		List<DiscordInteractionDataOption> options =
 			interaction.GetOptions();
-		string server = (string)options[0].Value;
+		string server = (options.Count > 0)
+			? (string)options[0].Value
+			: _optErythro;
 		string invite = server switch {
 			_optErythro => _urlErythro,
 			_optLeuko   => _urlLeuko,
