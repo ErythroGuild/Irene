@@ -52,7 +52,7 @@ class Invite : ICommand {
 
 		// Send invite link.
 		Log.Debug("  Sending invite link.");
-		stopwatch.LogMsecDebug("  Responded in {Time} msec.", false);
+		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 		await interaction.RespondMessageAsync(invite);
 		Log.Information("  Invite link for \"{Server}\" sent.", server);
 	}
