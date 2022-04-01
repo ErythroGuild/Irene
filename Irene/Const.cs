@@ -60,6 +60,10 @@ static class Const {
 			pooh     = 756560918208446514,
 			mrrogers = 777861300423884803,
 
+			// Erythro bear
+			eryLove = 860386122566991883,
+			eryWoah = 920545959883202620,
+
 			// Analysis websites
 			raiderio     = 699710975451856967,
 			warcraftlogs = 699709399094132884,
