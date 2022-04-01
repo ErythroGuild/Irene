@@ -111,11 +111,6 @@ class Command {
 		{ "cd"            , ClassDiscords.run },
 		{ "classdiscords" , ClassDiscords.run },
 		{ "class-discord" , ClassDiscords.run },
-
-		{ "roll"  , Roll.run },
-		{ "dice"  , Roll.run },
-		{ "random", Roll.run },
-		{ "rand"  , Roll.run },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
@@ -144,8 +139,6 @@ class Command {
 		{ Cap.run, Cap.help },
 
 		{ ClassDiscords.run, ClassDiscords.help },
-
-		{ Roll.run, Roll.help },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
@@ -174,8 +167,6 @@ class Command {
 		{ Cap.run, AccessLevel.None },
 
 		{ ClassDiscords.run, AccessLevel.None },
-
-		{ Roll.run, AccessLevel.Guest },
 	};
 
 	// Properties
