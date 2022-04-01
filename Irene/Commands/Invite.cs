@@ -25,12 +25,12 @@ class Invite : ICommand {
 					"server",
 					"The server to get an invite link to.",
 					ApplicationCommandOptionType.String,
-					false,
+					required: false,
 					new List<CommandOptionEnum> {
 						new ("Erythro", _optErythro),
 						new ("Leuko", _optLeuko)
 					} ) },
-				true,
+				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
 			), RunAsync )
 		};

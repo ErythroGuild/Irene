@@ -17,8 +17,8 @@ class Version : ICommand {
 			new ( new (
 				"version",
 				"Display the build the bot is currently running.",
-				null,
-				true,
+				options: null,
+				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
 			), RunAsync )
 		};
