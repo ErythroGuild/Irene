@@ -2,7 +2,7 @@
 
 static partial class Util {
 	// Convenience method for fetching command options.
-	public static List<DiscordInteractionDataOption> GetOptions(this DiscordInteraction interaction) =>
+	public static List<DiscordInteractionDataOption> GetArgs(this DiscordInteraction interaction) =>
 		(interaction.Data.Options is not null)
 			? new (interaction.Data.Options)
 			: new ();

@@ -41,10 +41,10 @@ class Invite : ICommand {
 
 	private static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
 		// Select the correct invite to return.
-		List<DiscordInteractionDataOption> options =
-			interaction.GetOptions();
-		string server = (options.Count > 0)
-			? (string)options[0].Value
+		List<DiscordInteractionDataOption> args =
+			interaction.GetArgs();
+		string server = (args.Count > 0)
+			? (string)args[0].Value
 			: _optErythro;
 		string invite = server switch {
 			_optErythro => _urlErythro,
