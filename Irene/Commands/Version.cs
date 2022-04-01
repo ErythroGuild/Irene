@@ -1,35 +1,52 @@
 ﻿namespace Irene.Commands;
 
-class Version {
-	const string
-		path_build   = @"config/commit.txt",
-		path_version = @"config/tag.txt";
+class Version : ICommand {
+	private const string
+		_pathBuild   = @"config/commit.txt",
+		_pathVersion = @"config/tag.txt";
 
-	public static string help() {
-		StringWriter text = new ();
-		text.WriteLine("Prints the most recent release version and build the bot is running.");
-		return text.ToString();
+	public static List<string> HelpPages { get =>
+		new () { string.Join("\n", new List<string> {
+			@"`/version` displays the most recent release version and currently running build."
+		} )
+	}; }
+
+	public static List<InteractionCommand> SlashCommands { get =>
+		new () {
+			new ( new (
+				"version",
+				"Display the build the bot is currently running.",
+				null,
+				true,
+				ApplicationCommandType.SlashCommand
+			), RunAsync )
+		};
 	}
 
-	public static void run(Command cmd) {
+	public static List<InteractionCommand> UserCommands    { get => new (); }
+	public static List<InteractionCommand> MessageCommands { get => new (); }
+
+	private static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
 		StreamReader file;
 
 		// Read in data.
-		file = File.OpenText(path_build);
+		file = File.OpenText(_pathBuild);
 		string build = file.ReadLine() ?? "";
-		if (build.Length > 7) {
+		if (build.Length > 7)
 			build = build[..7];
-		}
 		file.Close();
 
-		file = File.OpenText(path_version);
+		file = File.OpenText(_pathVersion);
 		string version = file.ReadLine() ?? "";
 		file.Close();
 
-		// Respond with data.
 		string output = $"**Irene {version}** build `{build}`";
-		_ = cmd.msg.RespondAsync(output);
-		Log.Information("Sending version information:");
-		Log.Debug($"  {output}");
+
+		// Respond with data.
+		Log.Debug("  Sending version information.");
+		Log.Debug("    {VersionString}", output);
+		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
+		await interaction.RespondMessageAsync(output);
+		Log.Information("  Version information sent.");
 	}
 }

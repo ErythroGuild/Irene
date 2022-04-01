@@ -60,9 +60,6 @@ class Command {
 		{ "help", Help.run },
 		{ "h"   , Help.run },
 		{ "?"   , Help.run },
-		{ "version", Irene.Commands.Version.run },
-		{ "v"      , Irene.Commands.Version.run },
-		{ "build"  , Irene.Commands.Version.run },
 
 		{ "roles"      , CmdRoles.set   },
 		{ "r"          , CmdRoles.set   },
@@ -122,7 +119,6 @@ class Command {
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
-		{ Irene.Commands.Version.run, Irene.Commands.Version.help },
 
 		{ CmdRoles.set  , CmdRoles.help },
 		{ CmdRoles.list , CmdRoles.help },
@@ -153,7 +149,6 @@ class Command {
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
-		{ Irene.Commands.Version.run, AccessLevel.Guest },
 
 		{ CmdRoles.set  , AccessLevel.Guest },
 		{ CmdRoles.list , AccessLevel.None  },
