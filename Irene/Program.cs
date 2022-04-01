@@ -198,13 +198,11 @@ class Program {
 		// Connected to discord servers (but not necessarily guilds yet!).
 		Client.Ready += (irene, e) => {
 			_ = Task.Run(() => {
-				_stopwatchConnect.Stop();
 				Log.Information("  Logged in to Discord servers.");
-				long connect_time = GetMsec(_stopwatchConnect);
-				Log.Debug("    Took {ConnectionTime} msec.", connect_time);
+				_stopwatchConnect.LogMsecDebug("    Took {ConnectionTime} msec.");
 
-				// Update bot status.
 #if DEBUG
+				// Update bot status.
 				DiscordActivity helptext =
 					new(@"with 🔥 - [DEBUG]", ActivityType.Playing);
 				irene.UpdateStatusAsync(helptext);
@@ -217,10 +215,8 @@ class Program {
 		Client.GuildDownloadCompleted += (irene, e) => {
 			_ = Task.Run(async () => {
 				// Stop download timer.
-				_stopwatchDownload.Stop();
 				Log.Information("  Downloaded guild data from Discord.");
-				long download_time = GetMsec(_stopwatchDownload);
-				Log.Debug("    Took {DownloadTime} msec.", download_time);
+				_stopwatchDownload.LogMsecDebug("    Took {DownloadTime} msec.");
 
 				// Initialize guild.
 				Guild = await irene.GetGuildAsync(_id_Erythro);
@@ -275,10 +271,8 @@ class Program {
 				Log.Debug("  Voice chats populated.");
 
 				// Stop data initialization timer.
-				_stopwatchInitData.Stop();
 				Log.Debug("  Discord data initialized and populated.");
-				long dataInit_time = GetMsec(_stopwatchInitData);
-				Log.Debug("    Took {DataInitTime} msec.", dataInit_time);
+				_stopwatchInitData.LogMsecDebug("    Took {DataInitTime} msec.");
 
 				// Initialize modules.
 				AuditLog.init();
@@ -295,11 +289,9 @@ class Program {
 				// Register (update-by-overwriting) application commands.
 				_stopwatchRegister.Start();
 				await Client.BulkOverwriteGuildApplicationCommandsAsync(_id_Erythro, Command.Commands);
-				_stopwatchRegister.Stop();
 				Log.Information("  Application commands registered.");
+				_stopwatchRegister.LogMsecDebug("    Took {RegisterTime} msec.");
 				Log.Debug("    Registered {CommandCount} commands.", Command.Commands.Count);
-				long register_time = GetMsec(_stopwatchRegister);
-				Log.Debug("    Took {RegisterTime} msec.", register_time);
 			});
 			return Task.CompletedTask;
 		};
@@ -379,10 +371,8 @@ class Program {
 		};
 
 		// Stop configuration timer.
-		_stopwatchConfig.Stop();
 		Log.Debug("  Configured Discord client.");
-		long config_time = GetMsec(_stopwatchConfig);
-		Log.Debug("    Took {ConfigTime} msec.", config_time);
+		_stopwatchConfig.LogMsecDebug("    Took {ConfigTime} msec.");
 
 		// Start connection timer and connect.
 		_stopwatchConnect.Start();
@@ -390,8 +380,4 @@ class Program {
 		await Client.ConnectAsync();
 		await Task.Delay(-1);
 	}
-
-	// Syntax sugar for fetching stopwatch time.
-	private static long GetMsec(Stopwatch stopwatch) =>
-		stopwatch.ElapsedMilliseconds;
 }
