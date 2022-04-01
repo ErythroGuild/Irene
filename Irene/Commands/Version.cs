@@ -1,6 +1,6 @@
 ﻿namespace Irene.Commands;
 
-class About {
+class Version {
 	const string
 		path_build   = @"config/commit.txt",
 		path_version = @"config/tag.txt";

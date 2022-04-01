@@ -12,7 +12,6 @@ class Command {
 
 	// Force static initializer to run.
 	public static void Init() { return; }
-
 	static Command() {
 		// Set the static properties.
 		Commands = new ();
@@ -61,9 +60,9 @@ class Command {
 		{ "help", Help.run },
 		{ "h"   , Help.run },
 		{ "?"   , Help.run },
-		{ "version", About.run },
-		{ "v"      , About.run },
-		{ "build"  , About.run },
+		{ "version", Irene.Commands.Version.run },
+		{ "v"      , Irene.Commands.Version.run },
+		{ "build"  , Irene.Commands.Version.run },
 
 		{ "roles"      , CmdRoles.set   },
 		{ "r"          , CmdRoles.set   },
@@ -123,7 +122,7 @@ class Command {
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
-		{ About.run, About.help },
+		{ Irene.Commands.Version.run, Irene.Commands.Version.help },
 
 		{ CmdRoles.set  , CmdRoles.help },
 		{ CmdRoles.list , CmdRoles.help },
@@ -154,7 +153,7 @@ class Command {
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
-		{ About.run, AccessLevel.Guest },
+		{ Irene.Commands.Version.run, AccessLevel.Guest },
 
 		{ CmdRoles.set  , AccessLevel.Guest },
 		{ CmdRoles.list , AccessLevel.None  },
