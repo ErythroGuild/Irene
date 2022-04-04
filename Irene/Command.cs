@@ -103,9 +103,6 @@ class Command {
 		{ "tremove"    , Tags.remove },
 		{ "tag-remove" , Tags.remove },
 		{ "remove-tag" , Tags.remove },
-
-		{ "cap", Cap.run },
-		{ "c"  , Cap.run },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
@@ -130,8 +127,6 @@ class Command {
 		{ Tags.add   , Tags.help },
 		{ Tags.edit  , Tags.help },
 		{ Tags.remove, Tags.help },
-
-		{ Cap.run, Cap.help },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
@@ -156,8 +151,6 @@ class Command {
 		{ Tags.add   , AccessLevel.Officer },
 		{ Tags.edit  , AccessLevel.Officer },
 		{ Tags.remove, AccessLevel.Officer },
-
-		{ Cap.run, AccessLevel.None },
 	};
 
 	// Properties
