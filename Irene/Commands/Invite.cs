@@ -10,8 +10,8 @@ class Invite : ICommand {
 
 	public static List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
-			@"`/invite Erythro` fetches the server invite for this server.",
-			@"`/invite Leuko` fetches the server invite for the FFXIV sister server.",
+			@"`/invite erythro` fetches the server invite for this server.",
+			@"`/invite leuko` fetches the server invite for the FFXIV sister server.",
 			$"These invite links can also be found in {Channels[id_ch.resources]}."
 		} ) };
 	}
@@ -28,7 +28,7 @@ class Invite : ICommand {
 					required: false,
 					new List<CommandOptionEnum> {
 						new ("Erythro", _optErythro),
-						new ("Leuko", _optLeuko)
+						new ("Leuko", _optLeuko),
 					} ) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
