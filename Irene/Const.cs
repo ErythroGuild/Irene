@@ -10,12 +10,12 @@ static class Const {
 	public static readonly DateOnly
 		Date_Patch902 = new (2020, 11, 17),
 		Date_Season1  = new (2020, 12,  8),
-		Date_Patch905 = new (2020,  3,  9),
-		Date_Patch910 = new (2020,  6, 29),
-		Date_Season2  = new (2020,  7,  6),
-		Date_Patch915 = new (2020, 11,  2),
-		Date_Patch920 = new (2020,  2, 22),
-		Date_Season3  = new (2020,  3,  1);
+		Date_Patch905 = new (2021,  3,  9),
+		Date_Patch910 = new (2021,  6, 29),
+		Date_Season2  = new (2021,  7,  6),
+		Date_Patch915 = new (2021, 11,  2),
+		Date_Patch920 = new (2022,  2, 22),
+		Date_Season3  = new (2022,  3,  1);
 	// Convenience function to get the DateTime (in UTC) of a given date.
 	public static DateTime UtcResetTime(this DateOnly date) =>
 		date.ToDateTime(Time_ServerReset.TimeOnly, DateTimeKind.Utc);
