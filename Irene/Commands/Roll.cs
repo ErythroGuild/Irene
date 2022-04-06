@@ -1,4 +1,6 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Irene.Commands;
 
@@ -17,7 +19,35 @@ class Roll : ICommand {
 	// for the number generation intermediary steps.
 	// int: -2,147,483,648 ~ 2,147,483,647
 	private const int _minRange = 1,
-		_maxRange = 1000000000;	// 10^9
+		_maxRange = 1000000000; // 10^9
+
+	private static readonly List<string> _predictions = new () {
+		// Positive
+		"It is certain.",
+		"It is decidedly so.",
+		"Without a doubt.",
+		"Yes definitely.",
+		"You may rely on it.",
+		"As I see it, yes.",
+		"Most likely.",
+		"Outlook good.",
+		"Yes.",
+		"Signs point to yes.",
+
+		// Negative
+		"Don't count on it.",
+		"My reply is no.",
+		"My sources say no.",
+		"Outlook not so good.",
+		"Very doubtful.",
+
+		// Non-committal
+		"Reply hazy, try again.",
+		"Ask again later.",
+		"Better not tell you now.",
+		"Cannot predict now.",
+		"Concentrate and ask again.",
+	};
 
 	public static List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
@@ -53,14 +83,28 @@ class Roll : ICommand {
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), RunRollAsync ),
+			new ( new (
+				"8-ball",
+				@"Forecast the answer to a yes/no question.",
+				new List<CommandOption>() {
+					new (
+						"question",
+						@"A yes/no question to answer.",
+						ApplicationCommandOptionType.String,
+						required: true
+					),
+				},
+				defaultPermission: true,
+				ApplicationCommandType.SlashCommand
+			), Run8BallAsync )
 		};
 	}
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 
-	public static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task RunRollAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
 		int low, high;
@@ -122,6 +166,38 @@ class Roll : ICommand {
 			Log.Debug("    Failed to generate secure number {Attempts} times.", _maxTries);
 			Log.Debug("    Probability of this occuring: {Probability:p}%.", p);
 		}
+	}
+
+	public static async Task Run8BallAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+		List<DiscordInteractionDataOption> args =
+			interaction.GetArgs();
+
+		// Strip input argument (lower case, remove punctuation).
+		// Newlines are converted to spaces.
+		string arg_original = (string)args[0].Value;
+		arg_original = arg_original.Replace('\n', ' ');
+		string arg_stripped = arg_original.ToLower();
+		arg_stripped = Regex.Replace(arg_stripped, @"[^a-zA-Z]", "");
+		arg_stripped += DateTime.Now.ToString(Fmt_IsoDate);
+		
+		// (MD5) Hash input.
+		byte[] arg_raw = Encoding.ASCII.GetBytes(arg_stripped);
+		byte[] hash_raw = MD5.Create().ComputeHash(arg_raw);
+
+		// Calculate result from hash.
+		// This is technically NOT a uniform sample, but it is more
+		// than close enough and not worth implementing a fallback
+		// (which would also need to be deterministic).
+		ulong hash = BitConverter.ToUInt64(hash_raw);
+		int index = (int)(hash % (ulong)_predictions.Count);
+
+		// Respond.
+		string prediction = $"> {arg_original}\n{_predictions[index]}";
+		Log.Debug("  Sending prediction.");
+		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
+		await interaction.RespondMessageAsync(prediction);
+		Log.Information("  Prediction sent.");
+		Log.Debug(@"    ""{Prediction}""", _predictions[index]);
 	}
 
 	// Returns a thread-safe, cryptographically-secure

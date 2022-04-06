@@ -3,6 +3,10 @@
 using RecurTime = RecurringEvent.RecurTime;
 
 static class Const {
+	// Standard formatting strings.
+	public const string
+		Fmt_IsoDate = @"yyyy-MM-dd";
+
 	// Patch release days
 	// 7:00 PST = 8:00 PDT = 15:00 UTC
 	public static readonly RecurTime Time_ServerReset =
