@@ -289,10 +289,15 @@ class Program {
 
 				// Register (update-by-overwriting) application commands.
 				_stopwatchRegister.Start();
-				await Client.BulkOverwriteGuildApplicationCommandsAsync(_id_Erythro, Command.Commands);
-				Log.Information("  Application commands registered.");
-				_stopwatchRegister.LogMsecDebug("    Took {RegisterTime} msec.");
-				Log.Debug("    Registered {CommandCount} commands.", Command.Commands.Count);
+				try {
+					await Client.BulkOverwriteGuildApplicationCommandsAsync(_id_Erythro, Command.Commands);
+					Log.Information("  Application commands registered.");
+					_stopwatchRegister.LogMsecDebug("    Took {RegisterTime} msec.");
+					Log.Debug("    Registered {CommandCount} commands.", Command.Commands.Count);
+				} catch (BadRequestException e) {
+					Log.Error("Failed to register commands.");
+					Log.Error("{@Exception}", e.JsonMessage);
+				}
 			});
 			return Task.CompletedTask;
 		};
