@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -94,6 +94,12 @@ class Roll : ICommand {
 						ApplicationCommandOptionType.String,
 						required: true
 					),
+					new (
+						"private",
+						"Keep response visible only to self.",
+						ApplicationCommandOptionType.Boolean,
+						required: false
+					),
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
@@ -175,6 +181,7 @@ class Roll : ICommand {
 
 		// Strip input argument (lower case, remove punctuation).
 		// Newlines are converted to spaces.
+		// (Format question for output.)
 		string arg_original = (string)args[0].Value;
 		arg_original = arg_original.Replace('\n', ' ');
 		string arg_stripped = arg_original.ToLower();
@@ -192,11 +199,16 @@ class Roll : ICommand {
 		ulong hash = BitConverter.ToUInt64(hash_raw);
 		int index = (int)(hash % (ulong)_predictions.Count);
 
+		// Check for "private" response option.
+		bool doHide = false;
+		if (args.Count > 1)
+			doHide = (bool)args[1].Value;
+
 		// Respond.
 		string prediction = $"> {arg_original}\n{_predictions[index]}";
 		Log.Debug("  Sending prediction.");
 		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(prediction);
+		await interaction.RespondMessageAsync(prediction, doHide);
 		Log.Information("  Prediction sent.");
 		Log.Debug(@"    ""{Prediction}""", _predictions[index]);
 	}
