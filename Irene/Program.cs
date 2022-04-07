@@ -306,18 +306,30 @@ class Program {
 		Client.InteractionCreated += (irene, e) => {
 			_ = Task.Run(async () => {
 				Stopwatch stopwatch = Stopwatch.StartNew();
-
-				// Match on slash command name.
 				string name = e.Interaction.Data.Name;
-				Log.Information("Command received: /{CommandName}.", name);
 
-				if (Command.Handlers.ContainsKey(name)) {
-					await Command.Handlers[name].Invoke(e.Interaction, stopwatch);
-					e.Handled = true;
-					stopwatch.LogMsecDebug("  Command processed in {Time} msec.");
-				} else {
-					Log.Warning("  Unrecognized command.");
+				switch (e.Interaction.Type) {
+				case InteractionType.ApplicationCommand:
+					Log.Information("Command received: /{CommandName}.", name);
+					if (Command.Handlers.ContainsKey(name)) {
+						await Command.Handlers[name].Invoke(e.Interaction, stopwatch);
+						e.Handled = true;
+						stopwatch.LogMsecDebug("  Command processed in {Time} msec.");
+					}
+					else {
+						Log.Warning("  Unrecognized command.");
+					}
+					break;
+				case InteractionType.AutoComplete:
+					if (Command.AutoCompletes.ContainsKey(name)) {
+						await Command.AutoCompletes[name].Invoke(e.Interaction, stopwatch);
+						e.Handled = true;
+					} else {
+						Log.Warning("  Unrecognized auto-complete.");
+					}
+					break;
 				}
+
 			});
 			return Task.CompletedTask;
 		};

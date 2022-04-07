@@ -1,4 +1,4 @@
-﻿namespace Irene.Utils;
+namespace Irene.Utils;
 
 static partial class Util {
 	// Convenience method for fetching command options.
@@ -15,4 +15,21 @@ static partial class Util {
 				new DiscordMessageBuilder().WithContent(message)
 			).AsEphemeral(isEphemeral)
 		);
+
+	public static Task AutoCompleteResultsAsync(
+		this DiscordInteraction interaction,
+		List<string> choices
+	) {
+		// Convert list of strings to list of discord choices.
+		List<DiscordAutoCompleteChoice> choices_discord = new ();
+		foreach (string choice in choices)
+			choices_discord.Add(new (choice, choice));
+
+		return interaction.CreateResponseAsync(
+			InteractionResponseType.AutoCompleteResult,
+			new DiscordInteractionResponseBuilder()
+				.AddAutoCompleteChoices(choices_discord)
+		);
+	}
+
 }

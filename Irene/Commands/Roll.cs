@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -103,6 +103,7 @@ class Roll : ICommand {
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
 	public static List<InteractionCommand> MessageCommands { get => new (); }
+	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task RunRollAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
 		List<DiscordInteractionDataOption> args =

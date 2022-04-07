@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using Irene.Commands;
 
@@ -9,6 +9,7 @@ using CmdRoles = Roles;
 class Command {
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
 	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
+	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
 
 	// Force static initializer to run.
 	public static void Init() { return; }
@@ -16,6 +17,7 @@ class Command {
 		// Set the static properties.
 		Commands = new ();
 		Handlers = new ();
+		AutoCompletes = new ();
 
 		// Find all classes inheriting from ICommand, and collate their application
 		// commands into a single Dictionary.
@@ -42,10 +44,27 @@ class Command {
 						Handlers.Add(command.Command.Name, command.Handler);
 					}
 				}
+				void AddAutoCompletes() {
+					PropertyInfo? property =
+						type.GetProperty("AutoComplete", typeof(List<AutoCompleteHandler>));
+					if (property is null)
+						return;
+
+					List<AutoCompleteHandler>? handlers =
+						property?.GetValue(null) as List<AutoCompleteHandler>
+						?? null;
+					if (handlers is null)
+						return;
+
+					foreach (AutoCompleteHandler handler in handlers) {
+						AutoCompletes.Add(handler.CommandName, handler.Handler);
+					}
+				}
 
 				AddPropertyInteractions("SlashCommands");
 				AddPropertyInteractions("UserCommands");
 				AddPropertyInteractions("MessageCommands");
+				AddAutoCompletes();
 			}
 		}
 	}
