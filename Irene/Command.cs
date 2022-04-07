@@ -5,8 +5,14 @@ using Irene.Commands;
 namespace Irene;
 
 using CmdRoles = Roles;
+using RoleList = List<DiscordRole>;
 
 class Command {
+	public enum AccessLevel {
+		None,
+		Guest, Member, Officer, Admin,
+	};
+
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
 	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
 	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
@@ -69,10 +75,40 @@ class Command {
 		}
 	}
 
-	public enum AccessLevel {
-		None,
-		Guest, Member, Officer, Admin,
-	};
+	// Returns the highest available access level of the user who invoked the
+	// the interaction.
+	public static async Task<AccessLevel> GetAccessLevel(DiscordInteraction interaction) {
+		// Extract channel/user data.
+		DiscordChannel channel = interaction.Channel;
+		DiscordUser user = interaction.User;
+		DiscordMember? member = channel.IsPrivate
+			? await user.ToMember()
+			: user as DiscordMember;
+
+		// Warn if could not cast to DiscordMember.
+		if (member is null) {
+			Log.Warning("    Could not convert user ({UserTag}) to member.", user.Tag());
+			return AccessLevel.None;
+		}
+
+		// Return no results if guild not initialized yet.
+		if (Guild is null) {
+			Log.Warning("    Guild not initialized yet. Assigning default permissions.");
+			return AccessLevel.None;
+		}
+
+		// Assign highest access level found.
+		static bool HasRole(RoleList r, ulong id) =>
+			r.Contains(Program.Roles[id]);
+		RoleList roles = new (member.Roles);
+		return roles switch {
+			RoleList r when HasRole(r, id_r.admin  ) => AccessLevel.Admin,
+			RoleList r when HasRole(r, id_r.officer) => AccessLevel.Officer,
+			RoleList r when HasRole(r, id_r.member ) => AccessLevel.Member,
+			RoleList r when HasRole(r, id_r.guest  ) => AccessLevel.Guest,
+			_ => AccessLevel.None,
+		};
+	}
 
 	// Command data
 	static readonly Dictionary<string, Action<Command>> dict_cmd = new () {

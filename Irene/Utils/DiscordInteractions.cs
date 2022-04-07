@@ -32,4 +32,36 @@ static partial class Util {
 		);
 	}
 
+	// Syntax sugar for getting the access level of the user who invoked
+	// the interaction.
+	public static async Task<AccessLevel> AccessLevel(this DiscordInteraction interaction) =>
+		await Command.GetAccessLevel(interaction);
+	// Syntax sugar for checking if the user who invoked the interaction
+	// has the specified access level.
+	public static async Task<bool> HasAccess(this DiscordInteraction interaction, AccessLevel level) {
+		AccessLevel level_user = await Command.GetAccessLevel(interaction);
+		return level_user >= level;
+	}
+
+	// Checks if the user who invoked the interaction has the specified
+	// access level, logs, then sends a response.
+	public static async Task<bool> CheckAccessAsync(
+		this DiscordInteraction interaction,
+		Stopwatch stopwatch,
+		AccessLevel level
+	) {
+		bool hasAccess = await interaction.HasAccess(level);
+		if (hasAccess) {
+			return true;
+		} else {
+			Log.Information("  Access denied (insufficient permissions).");
+			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
+			string response =
+				$"Sorry, you don't have the permissions ({level}) to run that command.\n" +
+				$"See `/help {interaction.Data.Name}` for more info.";
+			await interaction.RespondMessageAsync(response, true);
+			Log.Information("  Response sent.");
+			return false;
+		}
+	}
 }
