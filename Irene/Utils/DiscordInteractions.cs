@@ -1,4 +1,4 @@
-namespace Irene.Utils;
+﻿namespace Irene.Utils;
 
 static partial class Util {
 	// Convenience method for fetching command options.
@@ -6,14 +6,32 @@ static partial class Util {
 		(interaction.Data.Options is not null)
 			? new (interaction.Data.Options)
 			: new ();
+	public static List<DiscordInteractionDataOption> GetArgs(this DiscordInteractionDataOption option) =>
+		(option.Options is not null)
+			? new (option.Options)
+			: new ();
 
 	// Convenience functions for responding to interactions.
-	public static Task RespondMessageAsync(this DiscordInteraction interaction, string message, bool isEphemeral=false) =>
+	public static Task RespondMessageAsync(
+		this DiscordInteraction interaction,
+		string message,
+		bool isEphemeral=false
+	) =>
 		interaction.CreateResponseAsync(
 			InteractionResponseType.ChannelMessageWithSource,
 			new DiscordInteractionResponseBuilder(
 				new DiscordMessageBuilder().WithContent(message)
 			).AsEphemeral(isEphemeral)
+		);
+	public static Task RespondMessageAsync(
+		this DiscordInteraction interaction,
+		DiscordMessageBuilder message,
+		bool isEphemeral=false
+	) =>
+		interaction.CreateResponseAsync(
+			InteractionResponseType.ChannelMessageWithSource,
+			new DiscordInteractionResponseBuilder(message)
+				.AsEphemeral(isEphemeral)
 		);
 
 	public static Task AutoCompleteResultsAsync(
