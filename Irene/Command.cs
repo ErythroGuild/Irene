@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using Irene.Commands;
 
@@ -142,22 +142,6 @@ class Command {
 		{ "set-erythro", Rank.set_erythro },
 		{ "list-trials", Rank.list_trials },
 		{ "trials"     , Rank.list_trials },
-
-		{ "tags"       , Tags.run    },
-		{ "t"          , Tags.run    },
-		{ "tag"        , Tags.run    },
-		{ "tags-add"   , Tags.add    },
-		{ "tadd"       , Tags.add    },
-		{ "tag-add"    , Tags.add    },
-		{ "add-tag"    , Tags.add    },
-		{ "tags-edit"  , Tags.edit   },
-		{ "tedit"      , Tags.edit   },
-		{ "tag-edit"   , Tags.edit   },
-		{ "edit-tag"   , Tags.edit   },
-		{ "tags-remove", Tags.remove },
-		{ "tremove"    , Tags.remove },
-		{ "tag-remove" , Tags.remove },
-		{ "remove-tag" , Tags.remove },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
@@ -177,11 +161,6 @@ class Command {
 		{ Rank.set_guilds , Rank.help },
 		{ Rank.set_erythro, Rank.help },
 		{ Rank.list_trials, Rank.help },
-
-		{ Tags.run   , Tags.help },
-		{ Tags.add   , Tags.help },
-		{ Tags.edit  , Tags.help },
-		{ Tags.remove, Tags.help },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
@@ -201,11 +180,6 @@ class Command {
 		{ Rank.set_guilds , AccessLevel.Officer },
 		{ Rank.set_erythro, AccessLevel.Officer },
 		{ Rank.list_trials, AccessLevel.Officer },
-
-		{ Tags.run   , AccessLevel.Guest   },
-		{ Tags.add   , AccessLevel.Officer },
-		{ Tags.edit  , AccessLevel.Officer },
-		{ Tags.remove, AccessLevel.Officer },
 	};
 
 	// Properties
