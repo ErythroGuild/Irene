@@ -11,6 +11,17 @@ static partial class Util {
 			? new (option.Options)
 			: new ();
 
+	// Convenience method for fetching modal field values.
+	public static Dictionary<string, TextInputComponent> GetModalComponents(this DiscordInteraction interaction) {
+		Dictionary<string, TextInputComponent> components = new ();
+		foreach (DiscordActionRowComponent actionRow in interaction.Data.Components)
+			foreach (DiscordComponent component in actionRow.Components)
+				if (component is TextInputComponent)
+					components.Add(component.CustomId, (TextInputComponent)component);
+		return components;
+	}
+
+
 	// Convenience functions for responding to interactions.
 	public static Task RespondMessageAsync(
 		this DiscordInteraction interaction,
