@@ -75,6 +75,7 @@ class ClassDiscord : ICommand {
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
 	public static List<InteractionCommand> MessageCommands { get => new (); }
+	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
 		// Select the correct invite to return.

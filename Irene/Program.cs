@@ -13,7 +13,6 @@ using CmdRoles = Roles;
 
 class Program {
 	// Discord client objects.
-	public static List<Timer> Timers { get; private set; }
 	public static DiscordClient Client { get; private set; }
 	public static DiscordGuild? Guild  { get; private set; }
 	public static Dictionary<ulong, DiscordChannel> Channels   { get; private set; }
@@ -74,7 +73,6 @@ class Program {
 		Log.Information("Logging initialized (Serilog).");
 
 		// Initialize static members.
-		Timers = new ();
 		Guild = null;
 		Channels = new ();
 		Emojis = new ();
@@ -289,10 +287,15 @@ class Program {
 
 				// Register (update-by-overwriting) application commands.
 				_stopwatchRegister.Start();
-				await Client.BulkOverwriteGuildApplicationCommandsAsync(_id_Erythro, Command.Commands);
-				Log.Information("  Application commands registered.");
-				_stopwatchRegister.LogMsecDebug("    Took {RegisterTime} msec.");
-				Log.Debug("    Registered {CommandCount} commands.", Command.Commands.Count);
+				try {
+					await Client.BulkOverwriteGuildApplicationCommandsAsync(_id_Erythro, Command.Commands);
+					Log.Information("  Application commands registered.");
+					_stopwatchRegister.LogMsecDebug("    Took {RegisterTime} msec.");
+					Log.Debug("    Registered {CommandCount} commands.", Command.Commands.Count);
+				} catch (BadRequestException e) {
+					Log.Error("Failed to register commands.");
+					Log.Error("{@Exception}", e.JsonMessage);
+				}
 			});
 			return Task.CompletedTask;
 		};
@@ -301,18 +304,30 @@ class Program {
 		Client.InteractionCreated += (irene, e) => {
 			_ = Task.Run(async () => {
 				Stopwatch stopwatch = Stopwatch.StartNew();
-
-				// Match on slash command name.
 				string name = e.Interaction.Data.Name;
-				Log.Information("Command received: /{CommandName}.", name);
 
-				if (Command.Handlers.ContainsKey(name)) {
-					await Command.Handlers[name].Invoke(e.Interaction, stopwatch);
-					e.Handled = true;
-					stopwatch.LogMsecDebug("  Command processed in {Time} msec.");
-				} else {
-					Log.Warning("  Unrecognized command.");
+				switch (e.Interaction.Type) {
+				case InteractionType.ApplicationCommand:
+					Log.Information("Command received: /{CommandName}.", name);
+					if (Command.Handlers.ContainsKey(name)) {
+						await Command.Handlers[name].Invoke(e.Interaction, stopwatch);
+						e.Handled = true;
+						stopwatch.LogMsecDebug("  Command processed in {Time} msec.");
+					}
+					else {
+						Log.Warning("  Unrecognized command.");
+					}
+					break;
+				case InteractionType.AutoComplete:
+					if (Command.AutoCompletes.ContainsKey(name)) {
+						await Command.AutoCompletes[name].Invoke(e.Interaction, stopwatch);
+						e.Handled = true;
+					} else {
+						Log.Warning("  Unrecognized auto-complete.");
+					}
+					break;
 				}
+
 			});
 			return Task.CompletedTask;
 		};

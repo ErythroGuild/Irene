@@ -5,10 +5,17 @@ using Irene.Commands;
 namespace Irene;
 
 using CmdRoles = Roles;
+using RoleList = List<DiscordRole>;
 
 class Command {
+	public enum AccessLevel {
+		None,
+		Guest, Member, Officer, Admin,
+	};
+
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
 	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
+	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
 
 	// Force static initializer to run.
 	public static void Init() { return; }
@@ -16,6 +23,7 @@ class Command {
 		// Set the static properties.
 		Commands = new ();
 		Handlers = new ();
+		AutoCompletes = new ();
 
 		// Find all classes inheriting from ICommand, and collate their application
 		// commands into a single Dictionary.
@@ -42,18 +50,65 @@ class Command {
 						Handlers.Add(command.Command.Name, command.Handler);
 					}
 				}
+				void AddAutoCompletes() {
+					PropertyInfo? property =
+						type.GetProperty("AutoComplete", typeof(List<AutoCompleteHandler>));
+					if (property is null)
+						return;
+
+					List<AutoCompleteHandler>? handlers =
+						property?.GetValue(null) as List<AutoCompleteHandler>
+						?? null;
+					if (handlers is null)
+						return;
+
+					foreach (AutoCompleteHandler handler in handlers) {
+						AutoCompletes.Add(handler.CommandName, handler.Handler);
+					}
+				}
 
 				AddPropertyInteractions("SlashCommands");
 				AddPropertyInteractions("UserCommands");
 				AddPropertyInteractions("MessageCommands");
+				AddAutoCompletes();
 			}
 		}
 	}
 
-	public enum AccessLevel {
-		None,
-		Guest, Member, Officer, Admin,
-	};
+	// Returns the highest available access level of the user who invoked the
+	// the interaction.
+	public static async Task<AccessLevel> GetAccessLevel(DiscordInteraction interaction) {
+		// Extract channel/user data.
+		DiscordChannel channel = interaction.Channel;
+		DiscordUser user = interaction.User;
+		DiscordMember? member = channel.IsPrivate
+			? await user.ToMember()
+			: user as DiscordMember;
+
+		// Warn if could not cast to DiscordMember.
+		if (member is null) {
+			Log.Warning("    Could not convert user ({UserTag}) to member.", user.Tag());
+			return AccessLevel.None;
+		}
+
+		// Return no results if guild not initialized yet.
+		if (Guild is null) {
+			Log.Warning("    Guild not initialized yet. Assigning default permissions.");
+			return AccessLevel.None;
+		}
+
+		// Assign highest access level found.
+		static bool HasRole(RoleList r, ulong id) =>
+			r.Contains(Program.Roles[id]);
+		RoleList roles = new (member.Roles);
+		return roles switch {
+			RoleList r when HasRole(r, id_r.admin  ) => AccessLevel.Admin,
+			RoleList r when HasRole(r, id_r.officer) => AccessLevel.Officer,
+			RoleList r when HasRole(r, id_r.member ) => AccessLevel.Member,
+			RoleList r when HasRole(r, id_r.guest  ) => AccessLevel.Guest,
+			_ => AccessLevel.None,
+		};
+	}
 
 	// Command data
 	static readonly Dictionary<string, Action<Command>> dict_cmd = new () {
@@ -87,22 +142,6 @@ class Command {
 		{ "set-erythro", Rank.set_erythro },
 		{ "list-trials", Rank.list_trials },
 		{ "trials"     , Rank.list_trials },
-
-		{ "tags"       , Tags.run    },
-		{ "t"          , Tags.run    },
-		{ "tag"        , Tags.run    },
-		{ "tags-add"   , Tags.add    },
-		{ "tadd"       , Tags.add    },
-		{ "tag-add"    , Tags.add    },
-		{ "add-tag"    , Tags.add    },
-		{ "tags-edit"  , Tags.edit   },
-		{ "tedit"      , Tags.edit   },
-		{ "tag-edit"   , Tags.edit   },
-		{ "edit-tag"   , Tags.edit   },
-		{ "tags-remove", Tags.remove },
-		{ "tremove"    , Tags.remove },
-		{ "tag-remove" , Tags.remove },
-		{ "remove-tag" , Tags.remove },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
@@ -122,11 +161,6 @@ class Command {
 		{ Rank.set_guilds , Rank.help },
 		{ Rank.set_erythro, Rank.help },
 		{ Rank.list_trials, Rank.help },
-
-		{ Tags.run   , Tags.help },
-		{ Tags.add   , Tags.help },
-		{ Tags.edit  , Tags.help },
-		{ Tags.remove, Tags.help },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
@@ -146,11 +180,6 @@ class Command {
 		{ Rank.set_guilds , AccessLevel.Officer },
 		{ Rank.set_erythro, AccessLevel.Officer },
 		{ Rank.list_trials, AccessLevel.Officer },
-
-		{ Tags.run   , AccessLevel.Guest   },
-		{ Tags.add   , AccessLevel.Officer },
-		{ Tags.edit  , AccessLevel.Officer },
-		{ Tags.remove, AccessLevel.Officer },
 	};
 
 	// Properties
