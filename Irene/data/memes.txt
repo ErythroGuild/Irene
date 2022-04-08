@@ -58,7 +58,9 @@ memes-haunted
 morally-gray
 nippy-kind-langur
 noice
+oh-heck
 oh-look-a-meme
+oh-no-plateau
 pile-of-honks
 plain-oatmeal
 rendles-wallet
@@ -70,6 +72,7 @@ small-indie-memes
 smelly-memes
 snurch
 spanish-inquisition
+spin-to-win
 surprised-pikachu
 taco-tuesdays
 the-cycle-of-life
