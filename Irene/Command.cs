@@ -4,15 +4,9 @@ using Irene.Commands;
 
 namespace Irene;
 
-using CmdRoles = Roles;
 using RoleList = List<DiscordRole>;
 
 class Command {
-	public enum AccessLevel {
-		None,
-		Guest, Member, Officer, Admin,
-	};
-
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
 	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
 	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
