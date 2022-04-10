@@ -45,6 +45,9 @@ static partial class Util {
 				.AsEphemeral(isEphemeral)
 		);
 
+	public static Task AcknowledgeComponentAsync(this DiscordInteraction interaction) =>
+		interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+
 	public static Task AutoCompleteResultsAsync(
 		this DiscordInteraction interaction,
 		List<string> choices
