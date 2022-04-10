@@ -1,4 +1,4 @@
-using Irene.Components;
+﻿using Irene.Components;
 
 namespace Irene.Commands;
 
@@ -354,7 +354,7 @@ class Tag: ICommand {
 		// Submit modal.
 		Log.Information("  Sending modal to set tag \"{Tag}\".", arg);
 		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await Modal.CreateAsync(interaction, title, components, set_tag);
+		await Modal.RespondAsync(interaction, title, components, set_tag);
 		Log.Information("  Modal created.");
 	}
 
