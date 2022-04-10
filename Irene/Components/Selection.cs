@@ -99,7 +99,7 @@ class Selection {
 			new DiscordWebhookBuilder()
 				.WithContent(_message.Content);
 		List<ComponentRow> rows =
-			UpdateSelect(new (_message.Components), selected);
+			ComponentsSelectUpdated(new (_message.Components), selected);
 		message.AddComponents(rows);
 
 		// Edit original message.
@@ -108,6 +108,33 @@ class Selection {
 		// messages.
 		await _interaction
 			.EditOriginalResponseAsync(message);
+	}
+
+	// Cleanup task to dispose of all resources.
+	// Does not check for _message being completed yet.
+	private async Task Cleanup() {
+		if (_message is null)
+			return;
+
+		// Remove held references.
+		_selections.TryRemove(_message.Id, out _);
+
+		// Update message to disable component, constructing a new
+		// DiscordMessage from the data of the old one.
+		// Interaction responses behave as webhooks and need to be
+		// constructed as such.
+		DiscordWebhookBuilder message_new =
+			new DiscordWebhookBuilder()
+				.WithContent(_message.Content);
+		List<ComponentRow> rows =
+			ComponentsSelectDisabled(new (_message.Components));
+		message_new.AddComponents(rows);
+
+		// Edit original message.
+		// This must be done through the original interaction, as
+		// responses to interactions don't actually "exist" as real
+		// messages.
+		await _interaction.EditOriginalResponseAsync(message_new);
 	}
 
 	public static Selection Create<T>(
@@ -159,38 +186,11 @@ class Selection {
 			selection._timer.Start();
 		});
 		timer.Elapsed += async (obj, e) => {
-			async Task cleanup(Task<DiscordMessage> e) {
-				if (selection._message is null)
-					return;
-				DiscordMessage message = selection._message;
-
-				// Remove held references.
-				_selections.TryRemove(message.Id, out _);
-
-				// Update message to disable component, constructing a new
-				// DiscordMessage from the data of the old one.
-				// Interaction responses behave as webhooks and need to be
-				// constructed as such.
-				DiscordWebhookBuilder message_new =
-					new DiscordWebhookBuilder()
-						.WithContent(message.Content);
-				List<ComponentRow> rows =
-					DisableSelect(new (message.Components));
-				message_new.AddComponents(rows);
-
-				// Edit original message.
-				// This must be done through the original interaction, as
-				// responses to interactions don't actually "exist" as real
-				// messages.
-				await selection._interaction
-					.EditOriginalResponseAsync(message_new);
-			}
-
-			// Run or schedule to run the above.
+			// Run (or schedule to run) cleanup task.
 			if (!messageTask.IsCompleted)
-				await messageTask.ContinueWith(cleanup);
+				await messageTask.ContinueWith((e) => selection.Cleanup());
 			else
-				await cleanup(messageTask);
+				await selection.Cleanup();
 		};
 
 		return selection;
@@ -198,7 +198,7 @@ class Selection {
 
 	// Return a new list of components, with any DiscordSelectComponents
 	// (with a matching ID) disabled.
-	private static List<ComponentRow> DisableSelect(List<ComponentRow> rows) {
+	private static List<ComponentRow> ComponentsSelectDisabled(List<ComponentRow> rows) {
 		List<ComponentRow> rows_new = new ();
 
 		foreach (ComponentRow row in rows) {
@@ -224,7 +224,7 @@ class Selection {
 
 	// Return a new list of components, with any DiscordSelectComponents
 	// (with a matching ID) updated as selected.
-	private static List<ComponentRow> UpdateSelect(
+	private static List<ComponentRow> ComponentsSelectUpdated(
 		List<ComponentRow> rows,
 		List<Option> selected
 	) {
@@ -238,29 +238,7 @@ class Selection {
 					DiscordSelectComponent select &&
 					component.CustomId == _id
 				) {
-					List<SelectOption> options_new = new ();
-					foreach (SelectOption option in select.Options) {
-						bool isSelected = selected.Exists(
-							(option_i) => option_i.Id == option.Value
-						);
-						SelectOption option_new = new (
-							option.Label,
-							option.Value,
-							option.Description,
-							isSelected,
-							option.Emoji
-						);
-						options_new.Add(option_new);
-					}
-					DiscordSelectComponent select_new = new (
-						select.CustomId,
-						select.Placeholder,
-						options_new,
-						select.Disabled,
-						select.MinimumSelectedValues ?? 1,
-						select.MaximumSelectedValues ?? 1
-					);
-					components_new.Add(select_new);
+					components_new.Add(UpdateSelect(select, selected));
 				} else {
 					components_new.Add(component);
 				}
@@ -270,5 +248,42 @@ class Selection {
 		}
 
 		return rows_new;
+	}
+
+	// Convenience function for updating a DiscordSelectComponent with
+	// a new set of options selected.
+	// No checks are made.
+	private static DiscordSelectComponent UpdateSelect(
+		DiscordSelectComponent select,
+		List<Option> selected
+	) {
+		// Create a list of options with updated "selected" state.
+		List<SelectOption> options = new ();
+		foreach (SelectOption option in select.Options) {
+			// Check that the option is selected.
+			bool isSelected = selected.Exists(
+				(option_i) => option_i.Id == option.Value
+			);
+			// Construct a new option, copied from the original, but
+			// with the appropriate "selected" state.
+			SelectOption option_new = new (
+				option.Label,
+				option.Value,
+				option.Description,
+				isSelected,
+				option.Emoji
+			);
+			options.Add(option_new);
+		}
+
+		// Construct new select component with the updated options.
+		return new DiscordSelectComponent(
+			select.CustomId,
+			select.Placeholder,
+			options,
+			select.Disabled,
+			select.MinimumSelectedValues ?? 1,
+			select.MaximumSelectedValues ?? 1
+		);
 	}
 }
