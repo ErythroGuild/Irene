@@ -72,13 +72,13 @@ class Rank {
 	//};
 
 	// Conversions / definitions.
-	static readonly Dictionary<Type, ulong> rank_to_id = new () {
-		{ Type.Guest  , id_r.guest   },
-		{ Type.Member , id_r.member  },
-		{ Type.Officer, id_r.officer },
-		{ Type.Admin  , id_r.admin   },
+	static readonly Dictionary<Level, ulong> rank_to_id = new () {
+		{ Level.Guest  , id_r.guest   },
+		{ Level.Member , id_r.member  },
+		{ Level.Officer, id_r.officer },
+		{ Level.Admin  , id_r.admin   },
 	};
-	static readonly Dictionary<ulong, Type> id_to_rank;
+	static readonly Dictionary<ulong, Level> id_to_rank;
 	static readonly Dictionary<Guild, ulong> guild_to_id = new () {
 		{ Guild.Erythro, id_r.erythro },
 		{ Guild.Glaive , id_r.glaive  },
@@ -228,10 +228,10 @@ class Rank {
 
 		// Grant the applicable roles.
 		DiscordMember member = members[0];
-		Type rank = sanitize_ranks(member);
+		Level rank = sanitize_ranks(member);
 		List<DiscordRole> member_roles = new (member.Roles);
 		StringWriter text = new ();
-		if (rank == Type.None) {
+		if (rank == Level.None) {
 			Log.Information($"  Promoting {member.DisplayName} to Guest.");
 			_ = member.GrantRoleAsync(Program.Roles[id_r.guest]);
 			text.WriteLine($"Promoted {member.Mention} to **Guest**.");
@@ -305,7 +305,7 @@ class Rank {
 	}
 
 	// Callback from the Selection to set member's rank.
-	static async void set_rank(List<Type> rank, DiscordUser user) {
+	static async void set_rank(List<Level> rank, DiscordUser user) {
 		DiscordMember? member = await user.ToMember();
 		if (member is null) {
 			Log.Error("Could not find DiscordMember to assign roles.");
@@ -317,8 +317,8 @@ class Rank {
 
 		// Assign updated rank.
 		Log.Information($"  Assigning new rank to {member.DisplayName}.");
-		Type rank_prev = sanitize_ranks(member);
-		Type rank_new = rank[0];
+		Level rank_prev = sanitize_ranks(member);
+		Level rank_new = rank[0];
 		if (rank_to_id.ContainsKey(rank_new)) {
 			_ = member.GrantRoleAsync(Program.Roles[rank_to_id[rank_new]]);
 		}
@@ -383,17 +383,17 @@ class Rank {
 	// Ensures that a member only has a single (their highest)
 	// "rank" role.
 	// Returns that highest rank.
-	static Type sanitize_ranks(DiscordMember member) {
+	static Level sanitize_ranks(DiscordMember member) {
 		List<DiscordRole> member_roles = new (member.Roles);
-		Type rank = highest_rank(member);
+		Level rank = highest_rank(member);
 
 		// Only sanitize ranks lower than Officer for Admin.
-		if (rank == Type.Admin) {
-			rank = Type.Officer;
+		if (rank == Level.Admin) {
+			rank = Level.Officer;
 		}
 
 		// Clear Officer role ranks, if applicable.
-		if (rank != Type.Officer) {
+		if (rank != Level.Officer) {
 			foreach (DiscordRole role in member_roles) {
 				if (roles_officer.Contains(role.Id)) {
 					Log.Information($"    Rank sanitizer: removing role {role.Name}");
@@ -418,15 +418,15 @@ class Rank {
 
 	// Returns the highest rank of the member, or returns
 	// Type.None if the member has no rank roles.
-	static Type highest_rank(DiscordMember member) {
+	static Level highest_rank(DiscordMember member) {
 		List<DiscordRole> member_roles = new (member.Roles);
-		Type rank_highest = Type.None;
+		Level rank_highest = Level.None;
 
 		// Search through all roles.
 		foreach (DiscordRole role in member_roles) {
 			ulong id = role.Id;
 			if (id_to_rank.ContainsKey(id)) {
-				Type rank = id_to_rank[id];
+				Level rank = id_to_rank[id];
 				if (rank > rank_highest) {
 					rank_highest = rank;
 				}
