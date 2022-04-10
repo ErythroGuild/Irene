@@ -116,12 +116,6 @@ class Command {
 		{ "h"   , Help.run },
 		{ "?"   , Help.run },
 
-		{ "roles"      , CmdRoles.set   },
-		{ "r"          , CmdRoles.set   },
-		{ "roles-info" , CmdRoles.list  },
-		{ "rinfo"      , CmdRoles.list  },
-		{ "roles-royce", CmdRoles.royce },
-
 		{ "raid-time" , Raid.get_time   },
 		{ "raid"      , Raid.get_info   },
 		{ "raid-info" , Raid.get_info   },
@@ -146,10 +140,6 @@ class Command {
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
 
-		{ CmdRoles.set  , CmdRoles.help },
-		{ CmdRoles.list , CmdRoles.help },
-		{ CmdRoles.royce, CmdRoles.help },
-
 		{ Raid.get_time  , Raid.help_raid },
 		{ Raid.get_info  , Raid.help_raid },
 		{ Raid.set_info_F, Raid.help_raid },
@@ -164,10 +154,6 @@ class Command {
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
-
-		{ CmdRoles.set  , AccessLevel.Guest },
-		{ CmdRoles.list , AccessLevel.None  },
-		{ CmdRoles.royce, AccessLevel.Guest },
 
 		{ Raid.get_time  , AccessLevel.None    },
 		{ Raid.get_info  , AccessLevel.None    },
@@ -235,12 +221,12 @@ class Command {
 			access = AccessLevel.None;
 			Log.Warning("  Could not convert message author to DiscordMember.");
 		} else {
-			List<DiscordRole> roles_user = new (user.Roles);
+			RoleList roles_user = new (user.Roles);
 			access = roles_user switch {
-				List<DiscordRole> r when r.Contains(Program.Roles[id_r.admin])   => AccessLevel.Admin,
-				List<DiscordRole> r when r.Contains(Program.Roles[id_r.officer]) => AccessLevel.Officer,
-				List<DiscordRole> r when r.Contains(Program.Roles[id_r.member])  => AccessLevel.Member,
-				List<DiscordRole> r when r.Contains(Program.Roles[id_r.guest])   => AccessLevel.Guest,
+				RoleList r when r.Contains(Program.Roles[id_r.admin])   => AccessLevel.Admin,
+				RoleList r when r.Contains(Program.Roles[id_r.officer]) => AccessLevel.Officer,
+				RoleList r when r.Contains(Program.Roles[id_r.member])  => AccessLevel.Member,
+				RoleList r when r.Contains(Program.Roles[id_r.guest])   => AccessLevel.Guest,
 				_ => AccessLevel.None,
 			};
 		}

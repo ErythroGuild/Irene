@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Timers;
 
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 
 using Irene.Commands;
+using Irene.Components;
 using Irene.Modules;
 
 namespace Irene;
@@ -101,7 +101,7 @@ class Program {
 			throw new FormatException($"Could not find auth token at {_pathToken}.");
 		}
 
-		// Initialize Discord cient.
+		// Initialize Discord client.
 		Client = new DiscordClient(new DiscordConfiguration {
 			Intents = DiscordIntents.All,
 			LoggerFactory = new LoggerFactory().AddSerilog(_loggerDsp),
@@ -272,6 +272,10 @@ class Program {
 				Log.Debug("  Discord data initialized and populated.");
 				_stopwatchInitData.LogMsecDebug("    Took {DataInitTime} msec.");
 
+				// Initialize components.
+				Modal.Init();
+				Selection.Init();
+
 				// Initialize modules.
 				AuditLog.init();
 				Command.Init();
@@ -281,7 +285,7 @@ class Program {
 
 				// Initialize commands.
 				Help.init();
-				CmdRoles.init();
+				CmdRoles.Init();
 				Rank.init();
 				ClassDiscord.Init();
 

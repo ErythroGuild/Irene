@@ -2,227 +2,296 @@ using Irene.Components;
 
 namespace Irene.Commands;
 
-using Entry = Selection<Roles.PingRole>.Entry;
+using Entry = Selection.Option;
 
-class Roles {
+class Roles : ICommand {
 	public enum PingRole {
 		Raid,
 		Mythics, KSM, Gearing,
 		Events, Herald,
 	}
 
-	static readonly Dictionary<PingRole, Entry> options = new () {
-		{ PingRole.Raid, new Entry {
-			label = "Raid",
-			id = "option_raid",
-			emoji = new ("\U0001F409"), // :dragon:
-			description = "Raid announcements.",
-		} },
-		{ PingRole.Mythics, new Entry {
-			label = "M+",
-			id = "option_mythics",
-			emoji = new ("\U0001F5FA"), // :map:
-			description = "M+ keys in general.",
-		} },
-		{ PingRole.KSM, new Entry {
-			label = "KSM",
-			id = "option_ksm",
-			emoji = new ("\U0001F94B"), // :martial_arts_uniform:
-			description = "Higher keys requiring more focus.",
-		} },
-		{ PingRole.Gearing, new Entry {
-			label = "Gearing",
-			id = "option_gearing",
-			emoji = new ("\U0001F392"), // :school_satchel:
-			description = "Lower keys / M0s to help gear people.",
-		} },
-		{ PingRole.Events, new Entry {
-			label = "Events",
-			id = "option_events",
-			emoji = new ("\U0001F938\u200D\u2640\uFE0F"), // :woman_cartwheeling:
-			//emoji = new ("\U0001FA97"), // :accordion:
-			description = "Social event announcements.",
-		} },
-		{ PingRole.Herald, new Entry {
-			label = "Herald",
-			id = "option_herald",
-			emoji = new ("\u2604"), // :comet:
-			description = "Herald of the Titans announcements.",
-		} },
-	};
+	// Selection menus, indexed by the ID of the member accessing them.
+	private static readonly ConcurrentDictionary<ulong, Selection> _selects = new ();
 
-	static readonly Dictionary<PingRole, ulong> pingRole_to_discordRole = new () {
-		{ PingRole.Raid   , id_r.raid    },
-		{ PingRole.Mythics, id_r.mythics },
-		{ PingRole.KSM    , id_r.ksm     },
-		{ PingRole.Gearing, id_r.gearing },
-		{ PingRole.Events , id_r.events  },
-		{ PingRole.Herald , id_r.herald  },
+	private static readonly ConcurrentDictionary<PingRole, Entry> _options = new () {
+		[PingRole.Raid] = new Entry {
+			Label = "Raid",
+			Id = "option_raid",
+			Emoji = new ("\U0001F409"), // :dragon:
+			Description = "Raid announcements.",
+		},
+		[PingRole.Mythics] = new Entry {
+			Label = "M+",
+			Id = "option_mythics",
+			Emoji = new ("\U0001F5FA"), // :map:
+			Description = "M+ keys in general.",
+		},
+		[PingRole.KSM] = new Entry {
+			Label = "KSM",
+			Id = "option_ksm",
+			Emoji = new ("\U0001F94B"), // :martial_arts_uniform:
+			Description = "Higher keys requiring more focus.",
+		},
+		[PingRole.Gearing] = new Entry {
+			Label = "Gearing",
+			Id = "option_gearing",
+			Emoji = new ("\U0001F392"), // :school_satchel:
+			Description = "Lower keys / M0s to help gear people.",
+		},
+		[PingRole.Events] = new Entry {
+			Label = "Events",
+			Id = "option_events",
+			Emoji = new ("\U0001F938\u200D\u2640\uFE0F"), // :woman_cartwheeling:
+			Description = "Social event announcements.",
+		},
+		[PingRole.Herald] = new Entry {
+			Label = "Herald",
+			Id = "option_herald",
+			Emoji = new ("\u2604"), // :comet:
+			Description = "Herald of the Titans announcements.",
+		},
 	};
-	static readonly Dictionary<ulong, PingRole> discordRole_to_pingRole;
+	private static readonly ConcurrentDictionary<PingRole, ulong> _table_RoleToId = new () {
+		[PingRole.Raid   ] = id_r.raid   ,
+		[PingRole.Mythics] = id_r.mythics,
+		[PingRole.KSM    ] = id_r.ksm    ,
+		[PingRole.Gearing] = id_r.gearing,
+		[PingRole.Events ] = id_r.events ,
+		[PingRole.Herald ] = id_r.herald ,
+	};
+	private static readonly ConcurrentDictionary<ulong, PingRole> _table_IdToRole;
 
-	const string path_intros = @"data/roles_intros.txt";
-	const string delim = "=";
+	private static object _lock = new ();
+	const string _pathIntros = @"data/roles_intros.txt";
+	const string _delim = "=";
 
 	// Force static initializer to run.
-	public static void init() { return; }
+	public static void Init() { return; }
 	static Roles() {
-		discordRole_to_pingRole = pingRole_to_discordRole.Inverse();
+		_table_IdToRole = Util.Invert(_table_RoleToId);
+		Util.CreateIfMissing(_pathIntros, ref _lock);
 	}
 
-	public static string help() {
-		StringWriter text = new ();
-
-		text.WriteLine("`@Irene -roles` Shows you your current roles, and lets you modify them.");
-		text.WriteLine("`@Irene -roles-info` Lists available roles and also shows a brief description.");
-		text.WriteLine("Any member can view available roles, but you must be at least a Guest to update them.");
-
-		return text.ToString();
+	public static List<string> HelpPages { get =>
+		new () { string.Join("\n", new List<string> {
+			@"`/roles` shows all available roles, and lets you assign them to yourself.",
+			"You can reassign them at any time.",
+			"You will receive notification pings for the roles you select.",
+			"*(Sometimes Discord will fail to grant you the roles you selected; if that happens, just try again.)*",
+		} ) };
 	}
 
-	public static void set(Command cmd) {
-		// Make sure user is in the guild (can have roles).
-		if (cmd.user is null) {
-			Log.Information("  Cannot set roles for non-guild member.");
-			_ = cmd.msg.RespondAsync("Cannot set roles for people who aren't members of the **<Erythro>** server.");
-			return;
-		}
-
-		// Fetch current roles of the member.
-		DiscordMember member = cmd.user;
-		List<PingRole> roles_current = new ();
-		foreach(DiscordRole role in member.Roles) {
-			ulong role_id = role.Id;
-			if (discordRole_to_pingRole.ContainsKey(role_id)) {
-				roles_current.Add(discordRole_to_pingRole[role_id]);
-			}
-		}
-		roles_current.Sort();
-
-		// Send message with selection menu.
-		Log.Information("  Sending role selection menu.");
-		Selection<PingRole> dropdown = new (
-			options,
-			assign,
-			member,
-			"No roles selected",
-			true
-		);
-		DiscordMessageBuilder response =
-			new DiscordMessageBuilder()
-			.WithContent(print_roles(roles_current))
-			.AddComponents(dropdown.get(roles_current));
-		dropdown.msg =
-			cmd.msg.RespondAsync(response).Result;
+	public static List<InteractionCommand> SlashCommands { get =>
+		new () {
+			new ( new (
+				"roles",
+				"Check and assign roles to receive notifications for.",
+				defaultPermission: true,
+				type: ApplicationCommandType.SlashCommand
+			), RunAsync )
+		};
 	}
 
-	public static void list(Command cmd) {
-		Log.Information("  Listing available roles.");
-		StringWriter text = new ();
+	public static List<InteractionCommand> UserCommands    { get => new (); }
+	public static List<InteractionCommand> MessageCommands { get => new (); }
+	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-		text.WriteLine("*Available roles:*");
-		foreach (PingRole role in pingRole_to_discordRole.Keys) {
-			ulong role_id = pingRole_to_discordRole[role];
-			string name = options[role].label;
-			string summary = options[role].description ?? "";
-			text.WriteLine($"**{name}:** {summary}");
-		}
-		text.WriteLine("*Use `@Irene -roles` to assign yourself roles.*");
-
-		_ = cmd.msg.RespondAsync(text.ToString());
-	}
-
-	public static void royce(Command cmd) {
-		const string rolls_royce = @"https://i.imgur.com/mTEdYN6.jpeg";
-		Log.Information("  Sending Rolls Royce.");
-		_ = cmd.msg.RespondAsync(rolls_royce);
-	}
-
-	// Assigns the list of roles to the member, and removes any
-	// that aren't on the list.
-	// Also sends welcome messages for relevant roles.
-	static async void assign(List<PingRole> roles, DiscordUser user) {
-		// Convert DiscordUser to DiscordMember.
+	public static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+		// Ensure user is a member. (This should always succeed.)
+		// Roles can only be set for users in the same guild.
+		DiscordUser user = interaction.User;
 		DiscordMember? member = await user.ToMember();
 		if (member is null) {
-			Log.Error("Could not find DiscordMember to assign roles.");
+			Log.Warning("  Could not convert {User} to DiscordMember.", user);
+			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
+			string response_error = "Could not determine who you are.";
+			response_error += (Guild is not null && interaction.ChannelId != id_ch.bots)
+				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
+				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
+			await interaction.RespondMessageAsync(response_error, true);
+			Log.Information("  Response sent.");
 			return;
 		}
 
-		// Update member so its associated roles are current.
-		member = await member.Guild.GetMemberAsync(member.Id);
-
-		// Initialize comparison sets.
-		HashSet<PingRole> roles_prev = new ();
+		// Fetch current (ping) roles of the user.
+		List<PingRole> roles = new ();
 		foreach (DiscordRole role in member.Roles) {
 			ulong role_id = role.Id;
-			if (discordRole_to_pingRole.ContainsKey(role_id)) {
-				roles_prev.Add(discordRole_to_pingRole[role_id]);
-			}
+			if (IsPingRole(role_id))
+				roles.Add(ToPingRole(role_id));
 		}
-		HashSet<PingRole> roles_new = new (roles);
+		roles.Sort();
 
-		// Find removed/added roles.
-		HashSet<PingRole> roles_removed = new (roles_prev);
-		roles_removed.ExceptWith(roles_new);
-		HashSet<PingRole> roles_added = new (roles_new);
-		roles_added.ExceptWith(roles_prev);
+		// Create a registered Selection object.
+		TaskCompletionSource<DiscordMessage> message_promise = new ();
+		Selection select = Selection.Create(
+			interaction,
+			AssignRoles,
+			message_promise.Task,
+			_options,
+			roles,
+			"No roles selected",
+			isMultiple: true
+		);
 
-		// Remove/add roles.
-		Log.Information($"  Removing {roles_removed.Count} role(s).");
-		foreach (PingRole role in roles_removed) {
-			ulong role_id = pingRole_to_discordRole[role];
-			Log.Debug($"    Removing {role}.");
-			_ = member.RevokeRoleAsync(Program.Roles[role_id]);
+		// Disable any selections already in-flight.
+		if (_selects.ContainsKey(member.Id)) {
+			await _selects[member.Id].Discard();
+			_selects.TryRemove(member.Id, out _);
 		}
-		Log.Information($"  Adding {roles_added.Count} role(s).");
-		foreach (PingRole role in roles_added) {
-			ulong role_id = pingRole_to_discordRole[role];
-			Log.Debug($"    Adding {role}.");
-			_ = member.GrantRoleAsync(Program.Roles[role_id]);
-			string welcome = get_welcome(role);
-			_ = member.SendMessageAsync(welcome);
-		}
+		_selects.TryAdd(member.Id, select);
+
+		// Send response with selection menu.
+		DiscordMessageBuilder response =
+			new DiscordMessageBuilder()
+			.WithContent(PrintRoles(roles))
+			.AddComponents(select.Component);
+		Log.Information("  Sending role selection menu.");
+		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
+		await interaction.RespondMessageAsync(response, true);
+		Log.Information("  Selection menu sent.");
+
+		// Update DiscordMessage object for Selection.
+		DiscordMessage message = await
+			interaction.GetOriginalResponseAsync();
+		message_promise.SetResult(message);
 	}
 
+	private static async Task AssignRoles(ComponentInteractionCreateEventArgs e) {
+		// Make sure Guild is initialized.
+		if (Guild is null) {
+			Log.Information("Updating user roles.");
+			Log.Error("  Guild not initialized; could not update roles.");
+			await e.Interaction.AcknowledgeComponentAsync();
+			Log.Information("  Failed to update roles. No changes made.");
+			return;
+		}
+
+		// Convert DiscordUser to DiscordMember.
+		DiscordUser user = e.Interaction.User;
+		DiscordMember? member = await user.ToMember();
+		if (member is null) {
+			Log.Information("Updating user roles.");
+			Log.Error("  Could not convert {User} to DiscordMember.", user);
+			await e.Interaction.AcknowledgeComponentAsync();
+			Log.Information("  Failed to update roles. No changes made.");
+			return;
+		}
+
+		// Signal that interaction was received.
+		await e.Interaction.AcknowledgeComponentAsync();
+
+		// Fetch list of desired roles.
+		List<DiscordRole> roles_new = new ();
+		List<string> selected = new (e.Interaction.Data.Values);
+		foreach (PingRole role in _options.Keys) {
+			if (selected.Contains(_options[role].Id))
+				roles_new.Add(Guild.GetRole(ToDiscordId(role)));
+		}
+
+		// Fetch list of current roles.
+		List<DiscordRole> roles_current = new (member.Roles);
+
+		// Add non-PingRole roles list of roles to be assigned, and
+		// compile list of added roles.
+		List<DiscordRole> roles_added = new ();
+		foreach (DiscordRole role in roles_current) {
+			if (!IsPingRole(role.Id)) {
+				roles_new.Add(role);
+			} else if (!roles_current.Contains(role)) {
+				roles_added.Add(role);
+			}
+		}
+
+		// Update member roles.
+		Log.Information("Updating member roles for {Member}.", member.DisplayName);
+		await member.ReplaceRolesAsync(roles_new);
+		Log.Information("  Updated roles successfully.");
+
+		// Send welcome messages (if Guest or lower).
+		await Welcome(member, roles_added, e.Interaction);
+
+		// Update select component.
+		List<Entry> options_updated = new ();
+		foreach (PingRole key in _options.Keys) {
+			DiscordRole role = Guild.GetRole(ToDiscordId(key));
+			if (roles_new.Contains(role))
+				options_updated.Add(_options[key]);
+		}
+		await _selects[user.Id].Update(options_updated);
+		Log.Debug("  Updated select component successfully.");
+	}
+
+	// Syntax sugar for checking if a DiscordRole is a PingRole.
+	private static bool IsPingRole(ulong id) =>
+		_table_IdToRole.ContainsKey(id);
+
+	// Syntax sugar for type conversions.
+	private static PingRole ToPingRole(ulong id) =>
+		_table_IdToRole[id];
+	private static ulong ToDiscordId(PingRole role) =>
+		_table_RoleToId[role];
+
 	// Formats the given list of roles into a string.
-	static string print_roles(List<PingRole> roles) {
+	private static string PrintRoles(List<PingRole> roles) {
 		// Special cases for none/singular.
-		if (roles.Count == 0) {
+		if (roles.Count == 0)
 			return "No roles previously set.";
-		}
-		if (roles.Count == 1) {
-			return $"Role previously set:\n**{options[roles[0]].label}**";
-		}
+		if (roles.Count == 1)
+			return $"Role previously set:\n**{_options[roles[0]].Label}**";
 
 		// Construct list of role names.
 		StringWriter text = new ();
 		text.WriteLine("Roles previously set:");
 		foreach (PingRole role in roles) {
-			text.Write($"**{options[role].label}**  ");
+			text.Write($"**{_options[role].Label}**  ");
 		}
 		return text.ToString()[..^2];
 	}
 
-	// Read through data file to find matching welcome message.
-	static string get_welcome(PingRole role) {
-		string content = "";
-		StreamReader data = File.OpenText(path_intros);
+	// Format and send welcome message to member.
+	// If member has access level above Guest, then skip.
+	private static async Task Welcome(
+		DiscordMember member,
+		List<DiscordRole> roles_added,
+		DiscordInteraction interaction
+	) {
+		// Skip sending message if conditions aren't met.
+		if (Guild is null)
+			return;
+		if (await Util.HasAccess(interaction, AccessLevel.Member))
+			return;
+		if (roles_added.Count == 0)
+			return;
 
-		while(!data.EndOfStream) {
-			string line = data.ReadLine() ?? "";
-			if (line.Contains(delim)) {
-				string[] split = line.Split(delim, 2);
-				if (split[0] == options[role].id) {
-					content = split[1];
-					break;
+		// Convert list of DiscordRoles to their option IDs.
+		List<string> ids_added = new ();
+		foreach (PingRole key in _options.Keys) {
+			DiscordRole role = Guild.GetRole(ToDiscordId(key));
+			if (roles_added.Contains(role))
+				ids_added.Add(_options[key].Id);
+		}
+
+		// Read in selected role intros.
+		List<string> welcomes = new ();
+		lock (_lock) {
+			using StreamReader data = File.OpenText(_pathIntros);
+			while (!data.EndOfStream) {
+				string line = data.ReadLine() ?? "";
+				if (line.Contains(_delim)) {
+					string[] split = line.Split(_delim, 2);
+					if (ids_added.Contains(split[0]))
+						welcomes.Add(split[1].Unescape());
 				}
 			}
 		}
-		data.Close();
 
-		content = content.Unescape();
-		content = $"{Emojis[id_e.erythro]} {content}";
-		return content;
+		// Format welcome message.
+		string response = $"Thank you for subscribing to pings; welcome aboard! :tada:{Emojis[id_e.eryLove]}";
+		foreach (string welcome in welcomes)
+			response += $"\n\u2022 {welcome}";
+		response += "\n*You can unsubscribe at anytime, or temporarily mute a server / channel.*";
+		await member.SendMessageAsync(response);
 	}
 }

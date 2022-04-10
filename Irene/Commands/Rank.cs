@@ -4,8 +4,8 @@ using Irene.Components;
 
 namespace Irene.Commands;
 
-using RankEntry = Selection<Rank.Type>.Entry;
-using GuildEntry = Selection<Rank.Guild>.Entry;
+//using RankEntry = Selection<Rank.Type>.Entry;
+//using GuildEntry = Selection<Rank.Guild>.Entry;
 
 class Rank {
 	public enum Type {
@@ -18,58 +18,58 @@ class Rank {
 		Glaive, Dragons, Angels, Asgard, Enclave,
 	};
 
-	static readonly Dictionary<Type, RankEntry> options_rank = new () {
-		{ Type.None, new RankEntry {
-			label = "No Rank",
-			id = "option_none",
-			emoji = new ("\U0001F401"), // :mouse2:
-			description = "No rank assigned.",
-		} },
-		{ Type.Guest, new RankEntry {
-			label = "Guest",
-			id = "option_guest",
-			emoji = new ("\U0001F41B"), // :bug:
-			description = "Verified member (newer member).",
-		} },
-		{ Type.Member, new RankEntry {
-			label = "Member",
-			id = "option_member",
-			emoji = new ("\U0001F98B"), // :butterfly:
-			description = "Trusted member (older member).",
-		} },
-		{ Type.Officer, new RankEntry {
-			label = "Officer",
-			id = "option_officer",
-			emoji = new ("\U0001F426"), // :bird:
-			description = "Officer / moderator.",
-		} },
-	};
-	static readonly Dictionary<Guild, GuildEntry> options_guild = new () {
-		{ Guild.Erythro, new GuildEntry {
-			label = "<Erythro>",
-			id = "option_erythro",
-		} },
-		{ Guild.Glaive, new GuildEntry {
-			label = "<Glaive of Mother Moon>",
-			id = "option_glaive",
-		} },
-		{ Guild.Dragons, new GuildEntry {
-			label = "<Dragon's Reach>",
-			id = "option_dragons",
-		} },
-		{ Guild.Angels, new GuildEntry {
-			label = "<Hooved Angels>",
-			id = "option_angels",
-		} },
-		{ Guild.Asgard, new GuildEntry {
-			label = "<Asgard>",
-			id = "option_asgard",
-		} },
-		{ Guild.Enclave, new GuildEntry {
-			label = "<Kalimdor Enclave>",
-			id = "option_enclave",
-		} },
-	};
+	//static readonly Dictionary<Type, RankEntry> options_rank = new () {
+	//	{ Type.None, new RankEntry {
+	//		label = "No Rank",
+	//		id = "option_none",
+	//		emoji = new ("\U0001F401"), // :mouse2:
+	//		description = "No rank assigned.",
+	//	} },
+	//	{ Type.Guest, new RankEntry {
+	//		label = "Guest",
+	//		id = "option_guest",
+	//		emoji = new ("\U0001F41B"), // :bug:
+	//		description = "Verified member (newer member).",
+	//	} },
+	//	{ Type.Member, new RankEntry {
+	//		label = "Member",
+	//		id = "option_member",
+	//		emoji = new ("\U0001F98B"), // :butterfly:
+	//		description = "Trusted member (older member).",
+	//	} },
+	//	{ Type.Officer, new RankEntry {
+	//		label = "Officer",
+	//		id = "option_officer",
+	//		emoji = new ("\U0001F426"), // :bird:
+	//		description = "Officer / moderator.",
+	//	} },
+	//};
+	//static readonly Dictionary<Guild, GuildEntry> options_guild = new () {
+	//	{ Guild.Erythro, new GuildEntry {
+	//		label = "<Erythro>",
+	//		id = "option_erythro",
+	//	} },
+	//	{ Guild.Glaive, new GuildEntry {
+	//		label = "<Glaive of Mother Moon>",
+	//		id = "option_glaive",
+	//	} },
+	//	{ Guild.Dragons, new GuildEntry {
+	//		label = "<Dragon's Reach>",
+	//		id = "option_dragons",
+	//	} },
+	//	{ Guild.Angels, new GuildEntry {
+	//		label = "<Hooved Angels>",
+	//		id = "option_angels",
+	//	} },
+	//	{ Guild.Asgard, new GuildEntry {
+	//		label = "<Asgard>",
+	//		id = "option_asgard",
+	//	} },
+	//	{ Guild.Enclave, new GuildEntry {
+	//		label = "<Kalimdor Enclave>",
+	//		id = "option_enclave",
+	//	} },
+	//};
 
 	// Conversions / definitions.
 	static readonly Dictionary<Type, ulong> rank_to_id = new () {
@@ -102,8 +102,8 @@ class Rank {
 	// Force static initializer to run.
 	public static void init() { return; }
 	static Rank() {
-		id_to_rank = rank_to_id.Inverse();
-		id_to_guild = guild_to_id.Inverse();
+		id_to_rank = Util.Invert(rank_to_id);
+		id_to_guild = Util.Invert(guild_to_id);
 	}
 
 	public static string help() {
@@ -135,36 +135,36 @@ class Rank {
 		if (do_exit_early)
 			{ return; }
 
-		// Calculate the allowed modifiable ranks.
-		DiscordMember member = members[0];
-		Type rank = sanitize_ranks(member);
-		string rank_str = $"Previous rank: **{options_rank[rank].label}**";
-		Dictionary<Type, RankEntry> options = new () {
-			{ Type.None  , options_rank[Type.None  ] },
-			{ Type.Guest , options_rank[Type.Guest ] },
-			{ Type.Member, options_rank[Type.Member] },
-		};
-		if ( highest_rank(cmd.user!) == Type.Admin ||
-			cmd.user!.Id == member.Id ) {
-			options.Add(Type.Officer, options_rank[Type.Officer]);
-		}
+		//// Calculate the allowed modifiable ranks.
+		//DiscordMember member = members[0];
+		//Type rank = sanitize_ranks(member);
+		//string rank_str = $"Previous rank: **{options_rank[rank].label}**";
+		//Dictionary<Type, RankEntry> options = new () {
+		//	{ Type.None  , options_rank[Type.None  ] },
+		//	{ Type.Guest , options_rank[Type.Guest ] },
+		//	{ Type.Member, options_rank[Type.Member] },
+		//};
+		//if ( highest_rank(cmd.user!) == Type.Admin ||
+		//	cmd.user!.Id == member.Id ) {
+		//	options.Add(Type.Officer, options_rank[Type.Officer]);
+		//}
 
-		// Send message with selection menu.
-		Log.Information("  Sending rank selection menu.");
-		Selection<Type> dropdown = new (
-			options,
-			set_rank,
-			member,
-			cmd.user!,
-			"Select a rank to set",
-			false
-		);
-		DiscordMessageBuilder response =
-			new DiscordMessageBuilder()
-			.WithContent(rank_str)
-			.AddComponents(dropdown.get(rank));
-		dropdown.msg =
-			cmd.msg.RespondAsync(response).Result;
+		//// Send message with selection menu.
+		//Log.Information("  Sending rank selection menu.");
+		//Selection<Type> dropdown = new (
+		//	options,
+		//	set_rank,
+		//	member,
+		//	cmd.user!,
+		//	"Select a rank to set",
+		//	false
+		//);
+		//DiscordMessageBuilder response =
+		//	new DiscordMessageBuilder()
+		//	.WithContent(rank_str)
+		//	.AddComponents(dropdown.get(rank));
+		//dropdown.msg =
+		//	cmd.msg.RespondAsync(response).Result;
 	}
 
 	// Set the guild tags for a specific user.
@@ -194,22 +194,22 @@ class Rank {
 		}
 		guilds_current.Sort();
 
-		// Send message with selection menu.
-		Log.Information("  Sending guild selection menu.");
-		Selection<Guild> dropdown = new (
-			options_guild,
-			set_guilds,
-			member,
-			cmd.user!,
-			"No guilds selected",
-			true
-		);
-		DiscordMessageBuilder response =
-			new DiscordMessageBuilder()
-			.WithContent(print_guilds(guilds_current))
-			.AddComponents(dropdown.get(guilds_current));
-		dropdown.msg =
-			cmd.msg.RespondAsync(response).Result;
+		//// Send message with selection menu.
+		//Log.Information("  Sending guild selection menu.");
+		//Selection<Guild> dropdown = new (
+		//	options_guild,
+		//	set_guilds,
+		//	member,
+		//	cmd.user!,
+		//	"No guilds selected",
+		//	true
+		//);
+		//DiscordMessageBuilder response =
+		//	new DiscordMessageBuilder()
+		//	.WithContent(print_guilds(guilds_current))
+		//	.AddComponents(dropdown.get(guilds_current));
+		//dropdown.msg =
+		//	cmd.msg.RespondAsync(response).Result;
 	}
 
 	// Shortcut to grant Guest rank and tag as <Erythro>.
@@ -327,15 +327,15 @@ class Rank {
 		}
 		sanitize_ranks(member);	// remove potential "officer" roles
 
-		// Send congrats message.
-		if (rank_new > rank_prev && rank_new >= Type.Member) {
-			Log.Information("  Sending promotion congrats message.");
-			StringWriter text = new ();
-			text.WriteLine("Congrats! :tada:");
-			text.WriteLine($"You've been promoted to **{options_rank[rank_new].label}**.");
-			text.WriteLine("If your in-game ranks haven't been updated, just ask an Officer to update them.");
-			_ = member.SendMessageAsync(text.ToString());
-		}
+		//// Send congrats message.
+		//if (rank_new > rank_prev && rank_new >= Type.Member) {
+		//	Log.Information("  Sending promotion congrats message.");
+		//	StringWriter text = new ();
+		//	text.WriteLine("Congrats! :tada:");
+		//	text.WriteLine($"You've been promoted to **{options_rank[rank_new].label}**.");
+		//	text.WriteLine("If your in-game ranks haven't been updated, just ask an Officer to update them.");
+		//	_ = member.SendMessageAsync(text.ToString());
+		//}
 	}
 
 	// Callback from the Selection to set the member's guilds.
@@ -438,21 +438,22 @@ class Rank {
 
 	// Formats the given list of guilds into a string.
 	static string print_guilds(List<Guild> guilds) {
-		// Special cases for none/singular.
-		if (guilds.Count == 0) {
-			return "Not a member of any guilds.";
-		}
-		if (Program.Roles.Count == 1) {
-			return $"Guild previously set:\n**{options_guild[guilds[0]].label}**";
-		}
+		//// Special cases for none/singular.
+		//if (guilds.Count == 0) {
+		//	return "Not a member of any guilds.";
+		//}
+		//if (Program.Roles.Count == 1) {
+		//	return $"Guild previously set:\n**{options_guild[guilds[0]].label}**";
+		//}
 
-		// Construct list of guild names.
-		StringWriter text = new ();
-		text.WriteLine("Guilds previously set:");
-		foreach (Guild guild in guilds) {
-			text.Write($"**{options_guild[guild].label}**  ");
-		}
-		return text.ToString()[..^2];
+		//// Construct list of guild names.
+		//StringWriter text = new ();
+		//text.WriteLine("Guilds previously set:");
+		//foreach (Guild guild in guilds) {
+		//	text.Write($"**{options_guild[guild].label}**  ");
+		//}
+		//return text.ToString()[..^2];
+		return "";
 	}
 
 	// Properly log/respond if the member list isn't singular.

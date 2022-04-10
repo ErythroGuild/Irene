@@ -1,156 +1,274 @@
 ﻿using System.Timers;
 
-using Emzi0767.Utilities;
-
 namespace Irene.Components;
 
-using DropdownLambda = AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
+using SelectionCallback = Func<ComponentInteractionCreateEventArgs, Task>;
+using ComponentRow = DiscordActionRowComponent;
+using Component = DiscordComponent;
+using SelectOption = DiscordSelectComponentOption;
 
-class Selection<T> where T : Enum {
-	public record Entry {
-		public string label = "";
-		public string id = "";
-		public DiscordComponentEmoji? emoji = null;
-		public string? description = null;
+class Selection {
+	public readonly record struct Option (
+		string Label,
+		string Id,
+		DiscordComponentEmoji? Emoji,
+		string? Description
+	);
+
+	public static TimeSpan DefaultTimeout { get => TimeSpan.FromMinutes(10); }
+
+	// Table of all Selections to handle, indexed by the message ID of
+	// the owning message.
+	// This also serves as a way to "hold" fired timers, preventing them
+	// from going out of scope and being destroyed.
+	private static readonly ConcurrentDictionary<ulong, Selection> _selections = new ();
+	private const string _id = "selection";
+	
+	// Force static initializer to run.
+	public static void Init() { return; }
+	// All events are handled by a single delegate, registered on init.
+	// This means there doesn't need to be a large amount of delegates
+	// that each event has to filter through until it hits the correct
+	// handler.
+	static Selection() {
+		Client.ComponentInteractionCreated += async (client, e) => {
+			ulong id = e.Message.Id;
+
+			// Consume all interactions originating from a registered
+			// message, and created by the corresponding component.
+			if (_selections.ContainsKey(id) && e.Id == _id) {
+				e.Handled = true;
+				Selection selection = _selections[id];
+
+				// Only respond to interactions created by the "owner"
+				// of the component.
+				if (e.User != selection._interaction.User) {
+					await e.Interaction.AcknowledgeComponentAsync();
+					return;
+				}
+				
+				selection._timer.Restart();
+				await selection._callback(e);
+				return;
+			}
+		};
 	}
 
-	// protected (overrideable) properties
-	protected virtual TimeSpan timeout
-		{ get { return TimeSpan.FromMinutes(10); } }
+	public DiscordSelectComponent Component { get; private set; }
 
-	// private static values
-	static readonly List<Selection<T>> handlers = new ();
-	const string id = "select";
+	// Instanced (configuration) properties.
+	private DiscordMessage? _message;
+	private readonly DiscordInteraction _interaction;
+	private readonly Timer _timer;
+	private readonly SelectionCallback _callback;
 
-	// public properties/fields
-	public readonly Dictionary<T, Entry> options;
-	public readonly string placeholder;
-	public readonly bool is_multiple;
-	public readonly Action<List<T>, DiscordUser> action;
-	public readonly DiscordUser action_user;
-	public readonly DiscordUser author;
-	public DiscordMessage? msg; // may not be set immediately
+	// Private constructor.
+	// Use Selection.Create() to create a new instance.
+	private Selection(
+		DiscordSelectComponent component,
+		DiscordInteraction interaction,
+		Timer timer,
+		SelectionCallback callback
+	) {
+		Component = component;
+		_interaction = interaction;
+		_timer = timer;
+		_callback = callback;
+	}
 
-	// protected properties/fields
-	protected List<T> selected = new ();
-	protected readonly Timer timer;
-	protected readonly DropdownLambda handler;
+	// Manually time-out the timer (and fire the elapsed handler).
+	public async Task Discard() {
+		const double delay = 0.1;
+		_timer.Stop();
+		_timer.Interval = delay;	// arbitrarily small interval, must be >0
+		_timer.Start();
+		await Task.Delay(TimeSpan.FromMilliseconds(delay));
+	}
 
-	public Selection(
-		Dictionary<T, Entry> options,
-		Action<List<T>, DiscordUser> action,
-		DiscordUser author,
+	// Update the selected entries of the select component.
+	public async Task Update(List<Option> selected) {
+		// Can only update if message was already created.
+		if (_message is null)
+			return;
+
+		// Update component by constructing a new DiscordMessage
+		// from the data of the old one.
+		// Interaction responses behave as webhooks and need to be
+		// constructed as such.
+		DiscordWebhookBuilder message =
+			new DiscordWebhookBuilder()
+				.WithContent(_message.Content);
+		List<ComponentRow> rows =
+			UpdateSelect(new (_message.Components), selected);
+		message.AddComponents(rows);
+
+		// Edit original message.
+		// This must be done through the original interaction, as
+		// responses to interactions don't actually "exist" as real
+		// messages.
+		await _interaction
+			.EditOriginalResponseAsync(message);
+	}
+
+	public static Selection Create<T>(
+		DiscordInteraction interaction,
+		SelectionCallback callback,
+		Task<DiscordMessage> messageTask,
+		IDictionary<T, Option> optionTable,
+		List<T> selected,
 		string placeholder,
-		bool is_multiple ) :
-		this (options, action, author, author, placeholder, is_multiple) { }
-	public Selection(
-		Dictionary<T, Entry> options,
-		Action<List<T>, DiscordUser> action,
-		DiscordUser action_user,
-		DiscordUser author,
-		string placeholder,
-		bool is_multiple ) {
-		// Initialize members.
-		this.options = options;
-		this.placeholder = placeholder;
-		this.is_multiple = is_multiple;
-		this.action = action;
-		this.action_user = action_user;
-		this.author = author;
-
-		timer = new Timer(timeout.TotalMilliseconds) {
+		bool isMultiple,
+		TimeSpan? timeout=null
+	) where T : Enum {
+		timeout ??= DefaultTimeout;
+		Timer timer = new (timeout.Value.TotalMilliseconds) {
 			AutoReset = false,
 		};
 
-		handler = async (irene, e) => {
-			// Ignore triggers from the wrong message.
-			if (e.Message != msg) {
-				return;
-			}
-
-			// Ignore people who aren't the original user.
-			if (e.User != author) {
-				await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-				return;
-			}
-
-			// Update selection state and invoke delegate.
-			selected = new ();
-			List<string> selected_ids = new (e.Values);
-			foreach (T entry in this.options.Keys) {
-				string id = this.options[entry].id;
-				if (selected_ids.Contains(id)) {
-					selected.Add(entry);
-				}
-			}
-			action(selected, action_user);
-
-			// Respond to interaction event.
-			await e.Interaction.CreateResponseAsync(
-				InteractionResponseType.UpdateMessage,
-				new DiscordInteractionResponseBuilder()
-				.WithContent(e.Message.Content)
-				.AddComponents(get(selected))
+		// Construct select component options.
+		List<SelectOption> options = new ();
+		foreach (T key in optionTable.Keys) {
+			Option option = optionTable[key];
+			SelectOption option_discord = new (
+				option.Label,
+				option.Id,
+				option.Description,
+				selected.Contains(key),
+				option.Emoji
 			);
-
-			// Mark event as handled.
-			e.Handled = true;
-
-			// Refresh deactivation timer.
-			timer.Stop();
-			timer.Start();
-		};
-
-		// Configure timeout event listener.
-		timer.Elapsed += async (s, e) => {
-			Client.ComponentInteractionCreated -= handler;
-			if (msg is not null) {
-				await msg.ModifyAsync(
-					new DiscordMessageBuilder()
-					.WithContent(msg.Content)
-					.AddComponents(get(selected ?? new List<T>(), false))
-				);
-			}
-			handlers.Remove(this);
-		};
-
-		// Attach handler to client and start deactivation timer.
-		handlers.Add(this);
-		Client.ComponentInteractionCreated += handler;
-		timer.Start();
-	}
-
-	// Returns a message component with the specified selected
-	// options.
-	public DiscordSelectComponent get(T selected, bool is_enabled = true) {
-		return get(new List<T>() { selected }, is_enabled);
-	}
-	public DiscordSelectComponent get(List<T> selected, bool is_enabled = true) {
-		// Reset the "selected" options member.
-		this.selected = selected;
-
-		// Construct list of options in the correct format.
-		List<DiscordSelectComponentOption> options = new ();
-		foreach(T option in this.options.Keys) {
-			Entry entry = this.options[option];
-			DiscordSelectComponentOption option_obj = new (
-				entry.label,
-				entry.id,
-				entry.description,
-				selected.Contains(option),
-				entry.emoji
-			);
-			options.Add(option_obj);
+			options.Add(option_discord);
 		}
 
-		// Return the correctly formatted message component.
-		return new DiscordSelectComponent(
-			id,
+		// Construct select component.
+		DiscordSelectComponent component = new (
+			_id,
 			placeholder,
 			options,
-			!is_enabled,
-			(is_multiple ? 0 : 1),
-			(is_multiple ? options.Count : 1)
+			disabled: false,
+			minOptions: isMultiple ? 0 : 1,
+			maxOptions: isMultiple ? options.Count : 1
 		);
+
+		// Construct partial Selection object.
+		Selection selection =
+			new (component, interaction, timer, callback);
+		messageTask.ContinueWith((messageTask) => {
+			DiscordMessage message = messageTask.Result;
+			selection._message = message;
+			_selections.TryAdd(message.Id, selection);
+			selection._timer.Start();
+		});
+		timer.Elapsed += async (obj, e) => {
+			async Task cleanup(Task<DiscordMessage> e) {
+				if (selection._message is null)
+					return;
+				DiscordMessage message = selection._message;
+
+				// Remove held references.
+				_selections.TryRemove(message.Id, out _);
+
+				// Update message to disable component, constructing a new
+				// DiscordMessage from the data of the old one.
+				// Interaction responses behave as webhooks and need to be
+				// constructed as such.
+				DiscordWebhookBuilder message_new =
+					new DiscordWebhookBuilder()
+						.WithContent(message.Content);
+				List<ComponentRow> rows =
+					DisableSelect(new (message.Components));
+				message_new.AddComponents(rows);
+
+				// Edit original message.
+				// This must be done through the original interaction, as
+				// responses to interactions don't actually "exist" as real
+				// messages.
+				await selection._interaction
+					.EditOriginalResponseAsync(message_new);
+			}
+
+			// Run or schedule to run the above.
+			if (!messageTask.IsCompleted)
+				await messageTask.ContinueWith(cleanup);
+			else
+				await cleanup(messageTask);
+		};
+
+		return selection;
+	}
+
+	// Return a new list of components, with any DiscordSelectComponents
+	// (with a matching ID) disabled.
+	private static List<ComponentRow> DisableSelect(List<ComponentRow> rows) {
+		List<ComponentRow> rows_new = new ();
+
+		foreach (ComponentRow row in rows) {
+			List<Component> components_new = new ();
+
+			foreach (Component component in row.Components) {
+				if (component is
+					DiscordSelectComponent select &&
+					component.CustomId == _id
+				) {
+					select.Disable();
+					components_new.Add(select);
+				} else {
+					components_new.Add(component);
+				}
+			}
+
+			rows_new.Add(new ComponentRow(components_new));
+		}
+
+		return rows_new;
+	}
+
+	// Return a new list of components, with any DiscordSelectComponents
+	// (with a matching ID) updated as selected.
+	private static List<ComponentRow> UpdateSelect(
+		List<ComponentRow> rows,
+		List<Option> selected
+	) {
+		List<ComponentRow> rows_new = new ();
+
+		foreach (ComponentRow row in rows) {
+			List<Component> components_new = new ();
+
+			foreach (Component component in row.Components) {
+				if (component is
+					DiscordSelectComponent select &&
+					component.CustomId == _id
+				) {
+					List<SelectOption> options_new = new ();
+					foreach (SelectOption option in select.Options) {
+						bool isSelected = selected.Exists(
+							(option_i) => option_i.Id == option.Value
+						);
+						SelectOption option_new = new (
+							option.Label,
+							option.Value,
+							option.Description,
+							isSelected,
+							option.Emoji
+						);
+						options_new.Add(option_new);
+					}
+					DiscordSelectComponent select_new = new (
+						select.CustomId,
+						select.Placeholder,
+						options_new,
+						select.Disabled,
+						select.MinimumSelectedValues ?? 1,
+						select.MaximumSelectedValues ?? 1
+					);
+					components_new.Add(select_new);
+				} else {
+					components_new.Add(component);
+				}
+			}
+
+			rows_new.Add(new ComponentRow(components_new));
+		}
+
+		return rows_new;
 	}
 }
