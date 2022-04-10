@@ -1,4 +1,3 @@
-﻿using System.Collections.Concurrent;
 using System.Timers;
 
 namespace Irene.Components;
