@@ -1,6 +1,14 @@
-﻿namespace Irene.Utils;
+﻿using System.Timers;
+
+namespace Irene.Utils;
 
 static partial class Util {
+	// Convenience method for "restarting" a timer.
+	public static void Restart(this Timer timer) {
+		timer.Stop();
+		timer.Start();
+	}
+
 	// Convenience  methods for stopping a timer and printing the value.
 	public static void LogMsecDebug(this Stopwatch stopwatch, string template, bool doStopTimer=true) {
 		if (doStopTimer)
