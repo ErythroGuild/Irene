@@ -55,7 +55,7 @@
     <None Update="data\memes.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="data\roles_intros.txt">
+    <None Update="data\role-intros.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="data\tags.txt">
