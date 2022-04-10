@@ -127,10 +127,9 @@ static class Const {
 			// Guilds
 			erythro = 542021676884557824,
 			glaive  = 529135445712568323,
-			dragons = 830985516639584257,
+			sanctum = 830985516639584257,
 			angels  = 529135186382946345,
 			asgard  = 539515941877448728,
-			enclave = 676356017461919744,
 
 			// Subscriptions
 			raid    = 654062159956803664,
