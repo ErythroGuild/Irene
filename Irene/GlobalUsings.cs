@@ -29,6 +29,7 @@ global using id_r  = Irene.Const.RoleIDs;
 global using id_vc = Irene.Const.VoiceChatIDs;
 
 global using AccessLevel = Irene.Commands.Rank.Level;
+global using MessagePromise = System.Threading.Tasks.TaskCompletionSource<DSharpPlus.Entities.DiscordMessage>;
 global using CommandOption = DSharpPlus.Entities.DiscordApplicationCommandOption;
 global using CommandOptionEnum = DSharpPlus.Entities.DiscordApplicationCommandOptionChoice;
 global using InteractionHandler = System.Func<DSharpPlus.Entities.DiscordInteraction, System.Diagnostics.Stopwatch, System.Threading.Tasks.Task>;

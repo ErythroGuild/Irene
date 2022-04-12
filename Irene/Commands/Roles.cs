@@ -124,7 +124,7 @@ class Roles : ICommand {
 		roles.Sort();
 
 		// Create a registered Selection object.
-		TaskCompletionSource<DiscordMessage> message_promise = new ();
+		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
 			interaction,
 			AssignRoles,
