@@ -196,6 +196,37 @@ class Selection {
 		return selection;
 	}
 
+	// Formats the selected roles (from a given list) into a string.
+	// The name to print should be lower case (this is not checked).
+	// Casing will be converted to upper-case if needed, but not the
+	// other way around.
+	public static string PrintRoles<T>(
+		List<T> selected,
+		IDictionary<T, Option> options,
+		string name_singular,
+		string name_plural
+	) {
+		// Casing conversions for names.
+		string name_singular_upper =
+			char.ToUpper(name_singular[0]) + name_singular[1..];
+		string name_plural_upper =
+			char.ToUpper(name_plural[0]) + name_plural[1..];
+
+		// Special cases for none/singular.
+		if (selected.Count == 0)
+			return $"No {name_plural} previously set.";
+		if (selected.Count == 1)
+			return $"{name_singular_upper} previously set:\n**{options[selected[0]].Label}**";
+
+		// Construct list of role names.
+		StringWriter text = new();
+		text.WriteLine("Officer roles previously set:");
+		foreach (T option in selected) {
+			text.Write($"**{options[option].Label}**  ");
+		}
+		return text.ToString()[..^2];
+	}
+
 	// Return a new list of components, with any DiscordSelectComponents
 	// (with a matching ID) disabled.
 	private static List<ComponentRow> ComponentsSelectDisabled(List<ComponentRow> rows) {

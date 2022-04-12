@@ -143,9 +143,11 @@ class Roles : ICommand {
 		_selects.TryAdd(member.Id, select);
 
 		// Send response with selection menu.
+		string roles_str =
+			Selection.PrintRoles(roles, _options, "role", "roles");
 		DiscordMessageBuilder response =
 			new DiscordMessageBuilder()
-			.WithContent(PrintRoles(roles))
+			.WithContent(roles_str)
 			.AddComponents(select.Component);
 		Log.Information("  Sending role selection menu.");
 		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
@@ -232,23 +234,6 @@ class Roles : ICommand {
 		_table_IdToRole[id];
 	private static ulong ToDiscordId(PingRole role) =>
 		_table_RoleToId[role];
-
-	// Formats the given list of roles into a string.
-	private static string PrintRoles(List<PingRole> roles) {
-		// Special cases for none/singular.
-		if (roles.Count == 0)
-			return "No roles previously set.";
-		if (roles.Count == 1)
-			return $"Role previously set:\n**{_options[roles[0]].Label}**";
-
-		// Construct list of role names.
-		StringWriter text = new ();
-		text.WriteLine("Roles previously set:");
-		foreach (PingRole role in roles) {
-			text.Write($"**{_options[role].Label}**  ");
-		}
-		return text.ToString()[..^2];
-	}
 
 	// Format and send welcome message to member.
 	// If member has access level above Guest, then skip.
