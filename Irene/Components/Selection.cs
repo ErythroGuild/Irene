@@ -220,7 +220,7 @@ class Selection {
 
 		// Construct list of role names.
 		StringWriter text = new();
-		text.WriteLine("Officer roles previously set:");
+		text.WriteLine($"{name_plural_upper} previously set:");
 		foreach (T option in selected) {
 			text.Write($"**{options[option].Label}**  ");
 		}
