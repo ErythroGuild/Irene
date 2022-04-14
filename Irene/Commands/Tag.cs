@@ -141,8 +141,8 @@ class Tag: ICommand {
 		switch (command) {
 		case _commandSet:
 		case _commandDelete:
-			bool doContinue =
-				await interaction.CheckAccessAsync(stopwatch, AccessLevel.Officer);
+			bool doContinue = await
+				interaction.CheckAccessAsync(stopwatch, AccessLevel.Officer);
 			if (!doContinue)
 				return;
 			break;
