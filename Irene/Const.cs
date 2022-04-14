@@ -120,7 +120,6 @@ static class Const {
 			// Officers
 			raidOfficer   = 723061867127373874,
 			eventPlanner  = 723061585156898836,
-			mythicOfficer = 824852094493917194,
 			recruiter     = 723060994859073607,
 			banker        = 723061777213947974,
 

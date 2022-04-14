@@ -91,7 +91,10 @@ class Command {
 			return AccessLevel.None;
 		}
 
-		// Assign highest access level found.
+		return GetAccessLevel(member);
+	}
+	// Returns the highest access level the member has access to.
+	public static AccessLevel GetAccessLevel(DiscordMember member) {
 		static bool HasRole(RoleList r, ulong id) =>
 			r.Contains(Program.Roles[id]);
 		RoleList roles = new (member.Roles);
@@ -120,16 +123,6 @@ class Command {
 		{ "logs-set", Raid.set_logs },
 		{ "lset"    , Raid.set_logs },
 		{ "set-logs", Raid.set_logs },
-
-		{ "rank"       , Rank.set_rank    },
-		{ "set-rank"   , Rank.set_rank    },
-		{ "promote"    , Rank.set_rank    },
-		{ "demote"     , Rank.set_rank    },
-		{ "guilds"     , Rank.set_guilds  },
-		{ "set-guilds" , Rank.set_guilds  },
-		{ "set-erythro", Rank.set_erythro },
-		{ "list-trials", Rank.list_trials },
-		{ "trials"     , Rank.list_trials },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
@@ -140,11 +133,6 @@ class Command {
 		{ Raid.set_info_S, Raid.help_raid },
 		{ Raid.get_logs  , Raid.help_logs },
 		{ Raid.set_logs  , Raid.help_logs },
-
-		{ Rank.set_rank   , Rank.help },
-		{ Rank.set_guilds , Rank.help },
-		{ Rank.set_erythro, Rank.help },
-		{ Rank.list_trials, Rank.help },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
@@ -155,11 +143,6 @@ class Command {
 		{ Raid.set_info_S, AccessLevel.Officer },
 		{ Raid.get_logs  , AccessLevel.Guest   },
 		{ Raid.set_logs  , AccessLevel.Officer },
-
-		{ Rank.set_rank   , AccessLevel.Officer },
-		{ Rank.set_guilds , AccessLevel.Officer },
-		{ Rank.set_erythro, AccessLevel.Officer },
-		{ Rank.list_trials, AccessLevel.Officer },
 	};
 
 	// Properties

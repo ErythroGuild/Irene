@@ -9,8 +9,6 @@ using Irene.Modules;
 
 namespace Irene;
 
-using CmdRoles = Roles;
-
 class Program {
 	// Discord client objects.
 	public static DiscordClient Client { get; private set; }
@@ -285,8 +283,8 @@ class Program {
 
 				// Initialize commands.
 				Help.init();
-				CmdRoles.Init();
-				Rank.init();
+				Commands.Roles.Init();
+				Rank.Init();
 				ClassDiscord.Init();
 
 				// Register (update-by-overwriting) application commands.
@@ -332,6 +330,23 @@ class Program {
 					break;
 				}
 
+			});
+			return Task.CompletedTask;
+		};
+		Client.ContextMenuInteractionCreated += (irene, e) => {
+			_ = Task.Run(async () => {
+				Stopwatch stopwatch = Stopwatch.StartNew();
+				string name = e.Interaction.Data.Name;
+
+				Log.Information("Context menu command received: {CommandName}.", name);
+				if (Command.Handlers.ContainsKey(name)) {
+					await Command.Handlers[name].Invoke(e.Interaction, stopwatch);
+					e.Handled = true;
+					stopwatch.LogMsecDebug("  Command processed in {Time} msec.");
+				}
+				else {
+					Log.Warning("  Unrecognized context menu command.");
+				}
 			});
 			return Task.CompletedTask;
 		};
