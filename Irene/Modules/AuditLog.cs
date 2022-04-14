@@ -668,7 +668,7 @@ static partial class AuditLog {
 
 		// DiscordMember data
 		if (Guild is not null) {
-			UpdateGuild().RunSynchronously();
+			//UpdateGuild().RunSynchronously();
 			DiscordUser user = entry.UserResponsible;
 			DiscordMember member =
 						Guild.GetMemberAsync(user.Id).Result;
