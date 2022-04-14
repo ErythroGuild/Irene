@@ -1,6 +1,12 @@
 ﻿namespace Irene.Utils;
 
 static partial class Util {
+	// Convenience method for getting the target user of a user command.
+	// A list of users is provided, but there should only be one.
+	// (This method fetches the first one found.)
+	public static DiscordMember GetTargetMember(this DiscordInteraction interaction) =>
+		new List<DiscordMember>(interaction.Data.Resolved.Members.Values)[0];
+
 	// Convenience method for fetching command options.
 	public static List<DiscordInteractionDataOption> GetArgs(this DiscordInteraction interaction) =>
 		(interaction.Data.Options is not null)
@@ -20,7 +26,6 @@ static partial class Util {
 					components.Add(component.CustomId, (TextInputComponent)component);
 		return components;
 	}
-
 
 	// Convenience functions for responding to interactions.
 	public static Task RespondMessageAsync(
@@ -44,6 +49,27 @@ static partial class Util {
 			new DiscordInteractionResponseBuilder(message)
 				.AsEphemeral(isEphemeral)
 		);
+
+	public static Task DeferMessageAsync(
+		this DiscordInteraction interaction,
+		bool isEphemeral=false
+	) =>
+		interaction.CreateResponseAsync(
+			InteractionResponseType.DeferredChannelMessageWithSource,
+			new DiscordInteractionResponseBuilder()
+				.AsEphemeral(isEphemeral)
+		);
+	public static Task UpdateMessageAsync(
+		this DiscordInteraction interaction,
+		string message
+	) {
+		DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
+			.WithContent(message);
+		return interaction.EditOriginalResponseAsync(builder);
+	}
+
+	public static Task AcknowledgeComponentAsync(this DiscordInteraction interaction) =>
+		interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
 	public static Task AutoCompleteResultsAsync(
 		this DiscordInteraction interaction,

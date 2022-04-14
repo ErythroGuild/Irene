@@ -4,15 +4,9 @@ using Irene.Commands;
 
 namespace Irene;
 
-using CmdRoles = Roles;
 using RoleList = List<DiscordRole>;
 
 class Command {
-	public enum AccessLevel {
-		None,
-		Guest, Member, Officer, Admin,
-	};
-
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
 	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
 	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
@@ -97,7 +91,10 @@ class Command {
 			return AccessLevel.None;
 		}
 
-		// Assign highest access level found.
+		return GetAccessLevel(member);
+	}
+	// Returns the highest access level the member has access to.
+	public static AccessLevel GetAccessLevel(DiscordMember member) {
 		static bool HasRole(RoleList r, ulong id) =>
 			r.Contains(Program.Roles[id]);
 		RoleList roles = new (member.Roles);
@@ -116,12 +113,6 @@ class Command {
 		{ "h"   , Help.run },
 		{ "?"   , Help.run },
 
-		{ "roles"      , CmdRoles.set   },
-		{ "r"          , CmdRoles.set   },
-		{ "roles-info" , CmdRoles.list  },
-		{ "rinfo"      , CmdRoles.list  },
-		{ "roles-royce", CmdRoles.royce },
-
 		{ "raid-time" , Raid.get_time   },
 		{ "raid"      , Raid.get_info   },
 		{ "raid-info" , Raid.get_info   },
@@ -132,23 +123,9 @@ class Command {
 		{ "logs-set", Raid.set_logs },
 		{ "lset"    , Raid.set_logs },
 		{ "set-logs", Raid.set_logs },
-
-		{ "rank"       , Rank.set_rank    },
-		{ "set-rank"   , Rank.set_rank    },
-		{ "promote"    , Rank.set_rank    },
-		{ "demote"     , Rank.set_rank    },
-		{ "guilds"     , Rank.set_guilds  },
-		{ "set-guilds" , Rank.set_guilds  },
-		{ "set-erythro", Rank.set_erythro },
-		{ "list-trials", Rank.list_trials },
-		{ "trials"     , Rank.list_trials },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
 		{ Help.run , Help.help  },
-
-		{ CmdRoles.set  , CmdRoles.help },
-		{ CmdRoles.list , CmdRoles.help },
-		{ CmdRoles.royce, CmdRoles.help },
 
 		{ Raid.get_time  , Raid.help_raid },
 		{ Raid.get_info  , Raid.help_raid },
@@ -156,18 +133,9 @@ class Command {
 		{ Raid.set_info_S, Raid.help_raid },
 		{ Raid.get_logs  , Raid.help_logs },
 		{ Raid.set_logs  , Raid.help_logs },
-
-		{ Rank.set_rank   , Rank.help },
-		{ Rank.set_guilds , Rank.help },
-		{ Rank.set_erythro, Rank.help },
-		{ Rank.list_trials, Rank.help },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Help.run , AccessLevel.None  },
-
-		{ CmdRoles.set  , AccessLevel.Guest },
-		{ CmdRoles.list , AccessLevel.None  },
-		{ CmdRoles.royce, AccessLevel.Guest },
 
 		{ Raid.get_time  , AccessLevel.None    },
 		{ Raid.get_info  , AccessLevel.None    },
@@ -175,11 +143,6 @@ class Command {
 		{ Raid.set_info_S, AccessLevel.Officer },
 		{ Raid.get_logs  , AccessLevel.Guest   },
 		{ Raid.set_logs  , AccessLevel.Officer },
-
-		{ Rank.set_rank   , AccessLevel.Officer },
-		{ Rank.set_guilds , AccessLevel.Officer },
-		{ Rank.set_erythro, AccessLevel.Officer },
-		{ Rank.list_trials, AccessLevel.Officer },
 	};
 
 	// Properties
@@ -235,12 +198,12 @@ class Command {
 			access = AccessLevel.None;
 			Log.Warning("  Could not convert message author to DiscordMember.");
 		} else {
-			List<DiscordRole> roles_user = new (user.Roles);
+			RoleList roles_user = new (user.Roles);
 			access = roles_user switch {
-				List<DiscordRole> r when r.Contains(Program.Roles[id_r.admin])   => AccessLevel.Admin,
-				List<DiscordRole> r when r.Contains(Program.Roles[id_r.officer]) => AccessLevel.Officer,
-				List<DiscordRole> r when r.Contains(Program.Roles[id_r.member])  => AccessLevel.Member,
-				List<DiscordRole> r when r.Contains(Program.Roles[id_r.guest])   => AccessLevel.Guest,
+				RoleList r when r.Contains(Program.Roles[id_r.admin])   => AccessLevel.Admin,
+				RoleList r when r.Contains(Program.Roles[id_r.officer]) => AccessLevel.Officer,
+				RoleList r when r.Contains(Program.Roles[id_r.member])  => AccessLevel.Member,
+				RoleList r when r.Contains(Program.Roles[id_r.guest])   => AccessLevel.Guest,
 				_ => AccessLevel.None,
 			};
 		}

@@ -120,17 +120,15 @@ static class Const {
 			// Officers
 			raidOfficer   = 723061867127373874,
 			eventPlanner  = 723061585156898836,
-			mythicOfficer = 824852094493917194,
 			recruiter     = 723060994859073607,
 			banker        = 723061777213947974,
 
 			// Guilds
 			erythro = 542021676884557824,
 			glaive  = 529135445712568323,
-			dragons = 830985516639584257,
+			sanctum = 830985516639584257,
 			angels  = 529135186382946345,
 			asgard  = 539515941877448728,
-			enclave = 676356017461919744,
 
 			// Subscriptions
 			raid    = 654062159956803664,

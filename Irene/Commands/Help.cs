@@ -56,7 +56,7 @@ class Help {
 		// Fetch the needed help messages depending on user's
 		// access level.
 		List<string> list_help = list_general;
-		if (cmd.access >= Command.AccessLevel.Officer) {
+		if (cmd.access >= AccessLevel.Officer) {
 			list_help.AddRange(list_officer);
 		}
 

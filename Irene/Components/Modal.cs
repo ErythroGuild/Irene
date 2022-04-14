@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Timers;
+﻿using System.Timers;
 
 namespace Irene.Components;
 
@@ -12,6 +11,10 @@ class Modal {
 
 	// Force static initializer to run.
 	public static void Init() { return; }
+	// All events are handled by a single delegate, registered on init.
+	// This means there doesn't need to be a large amount of delegates
+	// that each event has to filter through until it hits the correct
+	// handler.
 	static Modal() {
 		Client.ModalSubmitted += async (client, e) => {
 			string id = e.Interaction.Data.CustomId;
@@ -27,7 +30,7 @@ class Modal {
 	private readonly Timer _timer;
 	private readonly ModalCallback _callback;
 
-	public static async Task<Modal> CreateAsync(
+	public static async Task<Modal> RespondAsync(
 		DiscordInteraction interaction,
 		string title,
 		List<TextInputComponent> components,
@@ -74,7 +77,7 @@ class Modal {
 		interaction.Id.ToString();
 
 	// Private constructor.
-	// Use Modal.CreateAsync() to create a new modal.
+	// Use Modal.RespondAsync() to create a new instance.
 	private Modal(Timer timer, ModalCallback callback) {
 		_timer = timer;
 		_callback = callback;

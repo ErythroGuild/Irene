@@ -1,5 +1,6 @@
 ﻿// System.
 global using System;
+global using System.Collections.Concurrent;
 global using System.Collections.Generic;
 global using System.Diagnostics;
 global using System.IO;
@@ -27,7 +28,8 @@ global using id_e  = Irene.Const.EmojiIDs;
 global using id_r  = Irene.Const.RoleIDs;
 global using id_vc = Irene.Const.VoiceChatIDs;
 
-global using AccessLevel = Irene.Command.AccessLevel;
+global using AccessLevel = Irene.Commands.Rank.Level;
+global using MessagePromise = System.Threading.Tasks.TaskCompletionSource<DSharpPlus.Entities.DiscordMessage>;
 global using CommandOption = DSharpPlus.Entities.DiscordApplicationCommandOption;
 global using CommandOptionEnum = DSharpPlus.Entities.DiscordApplicationCommandOptionChoice;
 global using InteractionHandler = System.Func<DSharpPlus.Entities.DiscordInteraction, System.Diagnostics.Stopwatch, System.Threading.Tasks.Task>;

@@ -1,0 +1,6 @@
+﻿option_raid=**Raid** rules can be found in <#443002035604815872>; reqs. are pinned to <#443001903123791873>.
+option_mythics=**M+** is a general ping for keys (see also: **KSM** or **Gearing**). Happy keying!
+option_ksm=**KSM** is for more serious keys in general (not just +15s). Don't forget to have fun! (see also: `/tag view KSM starter pack`)
+option_gearing=**Gearing** will be pinged when people are gearing through lower keys / M0s / TW. **Thank you** for helping with these runs! :handshake:
+option_events=You'll be pinged for reminders & polls for in-game events, game nights, and movie nights.
+option_herald=Ask an officer for the latest information on any Herald of the Titans runs.
