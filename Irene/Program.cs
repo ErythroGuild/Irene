@@ -199,7 +199,7 @@ class Program {
 #if DEBUG
 				// Update bot status.
 				DiscordActivity helptext =
-					new(@"with 🔥 - [DEBUG]", ActivityType.Playing);
+					new(@"with 🔥 [DEBUG]", ActivityType.Playing);
 				irene.UpdateStatusAsync(helptext);
 #endif
 			});
