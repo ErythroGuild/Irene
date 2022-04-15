@@ -1,11 +1,11 @@
 ﻿using System.Timers;
 
-namespace Irene.Components;
+using SelectionCallback = System.Func<DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, System.Threading.Tasks.Task>;
+using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
+using Component = DSharpPlus.Entities.DiscordComponent;
+using SelectOption = DSharpPlus.Entities.DiscordSelectComponentOption;
 
-using SelectionCallback = Func<ComponentInteractionCreateEventArgs, Task>;
-using ComponentRow = DiscordActionRowComponent;
-using Component = DiscordComponent;
-using SelectOption = DiscordSelectComponentOption;
+namespace Irene.Components;
 
 class Selection {
 	public readonly record struct Option (

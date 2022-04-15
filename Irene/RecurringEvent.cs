@@ -1,13 +1,13 @@
-﻿namespace Irene;
-
 // Type aliases.
-using ArgExcept = ArgumentException;
-using ArgOORExcept = ArgumentOutOfRangeException;
-using InvalidOpExcept = InvalidOperationException;
+using ArgExcept = System.ArgumentException;
+using ArgOORExcept = System.ArgumentOutOfRangeException;
+using InvalidOpExcept = System.InvalidOperationException;
 
-using BasisType = RecurringEvent.RecurBasis.BasisType;
-using RuleType = RecurringEvent.RecurBasis.RuleType;
-using RuleDirection = RecurringEvent.RecurBasis.RuleDirection;
+using BasisType = Irene.RecurringEvent.RecurBasis.BasisType;
+using RuleType = Irene.RecurringEvent.RecurBasis.RuleType;
+using RuleDirection = Irene.RecurringEvent.RecurBasis.RuleDirection;
+
+namespace Irene;
 
 class RecurringEvent {
 	// Types used as indices to define RecurBases.

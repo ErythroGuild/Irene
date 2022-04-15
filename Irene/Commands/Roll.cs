@@ -2,9 +2,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Irene.Commands;
+using CRNG = System.Security.Cryptography.RandomNumberGenerator;
 
-using CRNG = RandomNumberGenerator;
+namespace Irene.Commands;
 
 class Roll : ICommand {
 	private static readonly CRNG _crng = CRNG.Create();

@@ -1,8 +1,8 @@
 using Irene.Components;
 
-namespace Irene.Commands;
+using Entry = Irene.Components.Selection.Option;
 
-using Entry = Selection.Option;
+namespace Irene.Commands;
 
 class Roles : ICommand {
 	public enum PingRole {
