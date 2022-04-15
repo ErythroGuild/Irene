@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 
-using Microsoft.Extensions.Logging;
 using Spectre.Console;
 
 using Irene.Commands;
@@ -200,7 +199,7 @@ class Program {
 #if DEBUG
 				// Update bot status.
 				DiscordActivity helptext =
-					new(@"with 🔥 - [DEBUG]", ActivityType.Playing);
+					new(@"with 🔥 [DEBUG]", ActivityType.Playing);
 				irene.UpdateStatusAsync(helptext);
 #endif
 			});
@@ -305,16 +304,16 @@ class Program {
 		// Interaction received.
 		Client.InteractionCreated += (irene, e) => {
 			_ = Task.Run(async () => {
-				Stopwatch stopwatch = Stopwatch.StartNew();
+				TimedInteraction interaction =
+					new (e.Interaction, Stopwatch.StartNew());
 				string name = e.Interaction.Data.Name;
 
 				switch (e.Interaction.Type) {
 				case InteractionType.ApplicationCommand:
 					Log.Information("Command received: /{CommandName}.", name);
 					if (Command.Handlers.ContainsKey(name)) {
-						await Command.Handlers[name].Invoke(e.Interaction, stopwatch);
 						e.Handled = true;
-						stopwatch.LogMsecDebug("  Command processed in {Time} msec.");
+						await Command.Handlers[name].Invoke(interaction);
 					}
 					else {
 						Log.Warning("  Unrecognized command.");
@@ -322,8 +321,8 @@ class Program {
 					break;
 				case InteractionType.AutoComplete:
 					if (Command.AutoCompletes.ContainsKey(name)) {
-						await Command.AutoCompletes[name].Invoke(e.Interaction, stopwatch);
 						e.Handled = true;
+						await Command.AutoCompletes[name].Invoke(interaction);
 					} else {
 						Log.Warning("  Unrecognized auto-complete.");
 					}
@@ -335,14 +334,14 @@ class Program {
 		};
 		Client.ContextMenuInteractionCreated += (irene, e) => {
 			_ = Task.Run(async () => {
-				Stopwatch stopwatch = Stopwatch.StartNew();
+				TimedInteraction interaction =
+					new (e.Interaction, Stopwatch.StartNew());
 				string name = e.Interaction.Data.Name;
 
 				Log.Information("Context menu command received: {CommandName}.", name);
 				if (Command.Handlers.ContainsKey(name)) {
-					await Command.Handlers[name].Invoke(e.Interaction, stopwatch);
 					e.Handled = true;
-					stopwatch.LogMsecDebug("  Command processed in {Time} msec.");
+					await Command.Handlers[name].Invoke(interaction);
 				}
 				else {
 					Log.Warning("  Unrecognized context menu command.");
@@ -365,18 +364,6 @@ class Program {
 
 				// Handle special commands.
 				if (msg_text.ToLower().StartsWith("!keys")) {
-					return;
-				}
-				if (msg_text.ToLower().StartsWith("/roll")) {
-					Log.Information("Command received.");
-					if (msg.Channel.IsPrivate) {
-						Log.Debug("[DM command]");
-					}
-					DiscordUser author = msg.Author;
-					Log.Debug($"  {author.Tag()}: {msg_text}");
-					msg_text = msg_text.ToLower().Replace("/roll", "-roll");
-					Command cmd = new (msg_text, msg);
-					cmd.invoke();
 					return;
 				}
 				if (msg_text.ToLower().StartsWith($"{irene.CurrentUser.Mention} :wave:")) {

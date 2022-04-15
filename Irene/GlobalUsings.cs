@@ -12,6 +12,9 @@ global using DSharpPlus.Entities;
 global using DSharpPlus.EventArgs;
 global using DSharpPlus.Exceptions;
 
+// Microsoft.
+global using Microsoft.Extensions.Logging;
+
 // Serilog.
 global using Serilog;
 
@@ -32,4 +35,4 @@ global using AccessLevel = Irene.Commands.Rank.Level;
 global using MessagePromise = System.Threading.Tasks.TaskCompletionSource<DSharpPlus.Entities.DiscordMessage>;
 global using CommandOption = DSharpPlus.Entities.DiscordApplicationCommandOption;
 global using CommandOptionEnum = DSharpPlus.Entities.DiscordApplicationCommandOptionChoice;
-global using InteractionHandler = System.Func<DSharpPlus.Entities.DiscordInteraction, System.Diagnostics.Stopwatch, System.Threading.Tasks.Task>;
+global using InteractionHandler = System.Func<Irene.TimedInteraction, System.Threading.Tasks.Task>;

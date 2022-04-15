@@ -1,13 +1,8 @@
-using System.Text.RegularExpressions;
-
 using Irene.Components;
 
+using Entry = Irene.Components.Selection.Option;
+
 namespace Irene.Commands;
-
-using Entry = Selection.Option;
-
-//using RankEntry = Selection<Rank.Type>.Entry;
-//using GuildEntry = Selection<Rank.Guild>.Entry;
 
 class Rank : ICommand {
 	public enum Level {
@@ -235,7 +230,7 @@ class Rank : ICommand {
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	// Check permissions and dispatch subcommand.
-	private static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	private static async Task RunAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
 		string command = args[0].Name;
@@ -246,13 +241,13 @@ class Rank : ICommand {
 		case _commandSetRank:
 		case _commandListTrials:
 			doContinue = await
-				interaction.CheckAccessAsync(stopwatch, AccessLevel.Officer);
+				interaction.CheckAccessAsync(AccessLevel.Officer);
 			if (!doContinue)
 				return;
 			break;
 		case _commandSetOfficer:
 			doContinue = await
-				interaction.CheckAccessAsync(stopwatch, AccessLevel.Admin);
+				interaction.CheckAccessAsync(AccessLevel.Admin);
 			if (!doContinue)
 				return;
 			break;
@@ -266,30 +261,31 @@ class Rank : ICommand {
 			_commandListTrials => ListTrialsAsync,
 			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
 		};
-		await subcommand(interaction, stopwatch);
+		await subcommand(interaction);
 		return;
 	}
 
-	private static async Task SetErythroAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	private static async Task SetErythroAsync(TimedInteraction interaction) {
 		// Check for permissions.
 		bool doContinue = await
-			interaction.CheckAccessAsync(stopwatch, AccessLevel.Officer);
+			interaction.CheckAccessAsync(AccessLevel.Officer);
 		if (!doContinue)
 			return;
 
-		await interaction.DeferMessageAsync(true);
-		List<string> response = new ();
+		await interaction.Interaction.DeferMessageAsync(true);
+		List<string> response_lines = new ();
 
 		// Fetch the first resolved user.
-		DiscordMember member = interaction.GetTargetMember();
-		Log.Information("  Setting {User} as <Erythro> member.", member.DisplayName);
+		DiscordMember member =
+			interaction.Interaction.GetTargetMember();
+		Log.Debug("  Setting {User} as <Erythro> member.", member.DisplayName);
 
 		// Set rank role (Guest).
 		if (Command.GetAccessLevel(member) < AccessLevel.Guest) {
 			await member.GrantRoleAsync(Program.Roles[id_r.guest]);
 			Log.Debug("    User granted guest privileges.");
-			stopwatch.LogMsecDebug("    Granted in {Time} msec.", false);
-			response.Add("Guest role granted.");
+			interaction.Timer.LogMsecDebug("    Granted in {Time} msec.", false);
+			response_lines.Add("Guest role granted.");
 		} else {
 			Log.Debug("    User already had guest privileges.");
 		}
@@ -299,42 +295,53 @@ class Rank : ICommand {
 		if (!roles.Contains(Program.Roles[id_r.erythro])) {
 			await member.GrantRoleAsync(Program.Roles[id_r.erythro]);
 			Log.Debug("    User granted <Erythro> role.");
-			stopwatch.LogMsecDebug("    Granted in {Time} msec.", false);
-			response.Add("Guild role granted.");
+			interaction.Timer.LogMsecDebug("    Granted in {Time} msec.", false);
+			response_lines.Add("Guild role granted.");
 		} else {
 			Log.Debug("    User already had <Erythro> role.");
 		}
 
 		// Add response for no changes needed.
-		if (response.Count == 0)
-			response.Add("No changes necessary; user has required roles already.");
+		if (response_lines.Count == 0)
+			response_lines.Add("No changes necessary; user has required roles already.");
 
 		// Report.
-		await interaction.UpdateMessageAsync(string.Join("\n", response));
+		string response = string.Join("\n", response_lines);
+		await interaction.Interaction.UpdateMessageAsync(response);
+		Log.Debug("  User {Username}#{Discriminator}  set as <Erythro> member.", member.Username, member.Discriminator);
+		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
 	}
 
-	private static async Task SetRankAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	private static async Task SetRankAsync(TimedInteraction interaction) {
 		// Ensure all needed params can be converted to DiscordMembers.
-		DiscordMember? member_caller = await interaction.User.ToMember();
-		DiscordMember? member_target = GetResolvedMember(interaction);
+		DiscordMember? member_caller = await
+			interaction.Interaction.User.ToMember();
+		DiscordMember? member_target =
+			GetResolvedMember(interaction.Interaction);
 		if (member_caller is null || member_target is null) {
-			Log.Warning("  Could not convert user to DiscordMember.");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && interaction.ChannelId != id_ch.bots)
+			response_error += (Program.Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
-			await interaction.RespondMessageAsync(response_error, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response_error, true,
+				"Could not convert user to DiscordMember.",
+				LogLevel.Warning,
+				"Could not fetch member data. Response sent."
+			);
 			return;
 		}
 
 		// Check that the target isn't the caller.
 		if (member_caller == member_target) {
-			Log.Information("  Attempted to set rank for self.");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-			await interaction.RespondMessageAsync("You cannot change your own rank.", true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				"You cannot change your own rank.", true,
+				"Attempted to set rank for self.",
+				LogLevel.Information,
+				"Could not set own rank. Response sent."
+			);
 			return;
 		}
 
@@ -354,7 +361,7 @@ class Rank : ICommand {
 		}
 		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
-			interaction,
+			interaction.Interaction,
 			AssignRank,
 			message_promise.Task,
 			options,
@@ -378,14 +385,17 @@ class Rank : ICommand {
 			new DiscordMessageBuilder()
 			.WithContent(response_str)
 			.AddComponents(select.Component);
-		Log.Information("  Sending rank selection menu.");
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(response, true);
-		Log.Information("  Selection menu sent.");
+		await Command.RespondAsync(
+			interaction,
+			response, true,
+			"Sending rank selection menu.",
+			LogLevel.Debug,
+			"Rank selection menu sent."
+		);
 
 		// Update DiscordMessage object for Selection.
 		DiscordMessage message = await
-			interaction.GetOriginalResponseAsync();
+			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 	private static async Task AssignRank(ComponentInteractionCreateEventArgs e) {
@@ -393,9 +403,8 @@ class Rank : ICommand {
 
 		// Make sure Guild is initialized.
 		if (Program.Guild is null) {
-			Log.Information("Updating user roles.");
-			Log.Error("  Guild not initialized; could not update roles.");
-			Log.Information("  Failed to update roles. No changes made.");
+			Log.Information("Updating user rank.");
+			Log.Warning("  Rank not updated (guild not initialized).");
 			return;
 		}
 
@@ -440,7 +449,7 @@ class Rank : ICommand {
 		}
 
 		// Update member roles.
-		Log.Information("Updating member rank for {Member}.", member.DisplayName);
+		Log.Debug("Updating member rank for {Member}.", member.DisplayName);
 		await member.ReplaceRolesAsync(roles_new);
 		Log.Information("  Updated rank successfully.");
 
@@ -463,23 +472,24 @@ class Rank : ICommand {
 		}
 	}
 
-	private static async Task SetGuildAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	private static async Task SetGuildAsync(TimedInteraction interaction) {
 		// Determine the caller and target of the command.
 		// If a target member (not matching the caller) is specified, check
 		// for permissions.
-		DiscordMember? member_caller = await interaction.User.ToMember();
+		DiscordMember? member_caller = await
+			interaction.Interaction.User.ToMember();
 		DiscordMember? member_target = null;
 		List<DiscordInteractionDataOption> args =
 			new (interaction.GetArgs()[0].Options);
 		if (args.Count > 0) {
-			member_target = GetResolvedMember(interaction);
+			member_target = GetResolvedMember(interaction.Interaction);
 			if (member_caller is not null &&
 				member_target is not null &&
 				member_target.Id != member_caller.Id
 			) {
 				// Check for permissions.
 				bool doContinue = await
-					interaction.CheckAccessAsync(stopwatch, AccessLevel.Officer);
+					interaction.CheckAccessAsync(AccessLevel.Officer);
 				if (!doContinue)
 					return;
 			}
@@ -489,14 +499,17 @@ class Rank : ICommand {
 
 		// Ensure all needed params can be converted to DiscordMembers.
 		if (member_caller is null || member_target is null) {
-			Log.Warning("  Could not convert user to DiscordMember.");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && interaction.ChannelId != id_ch.bots)
+			response_error += (Program.Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
-			await interaction.RespondMessageAsync(response_error, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response_error, true,
+				"Could not convert user to DiscordMember.",
+				LogLevel.Warning,
+				"Could not fetch member data. Response sent."
+			);
 			return;
 		}
 
@@ -514,7 +527,7 @@ class Rank : ICommand {
 		// Construct select component.
 		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
-			interaction,
+			interaction.Interaction,
 			AssignGuild,
 			message_promise.Task,
 			_optionsGuild,
@@ -538,14 +551,17 @@ class Rank : ICommand {
 			new DiscordMessageBuilder()
 			.WithContent(response_str)
 			.AddComponents(select.Component);
-		Log.Information("  Sending guild selection menu.");
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(response, true);
-		Log.Information("  Guild selection menu sent.");
+		await Command.RespondAsync(
+			interaction,
+			response, true,
+			"Sending guild selection menu.",
+			LogLevel.Debug,
+			"Guild selection menu sent."
+		);
 
 		// Update DiscordMessage object for Selection.
 		DiscordMessage message = await
-			interaction.GetOriginalResponseAsync();
+			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 
 	}
@@ -554,9 +570,8 @@ class Rank : ICommand {
 
 		// Make sure Guild is initialized.
 		if (Program.Guild is null) {
-			Log.Information("Updating user roles.");
-			Log.Error("  Guild not initialized; could not update roles.");
-			Log.Information("  Failed to update roles. No changes made.");
+			Log.Information("Updating user guilds.");
+			Log.Warning("  Guilds not updated (guild not initialized).");
 			return;
 		}
 
@@ -582,7 +597,7 @@ class Rank : ICommand {
 		}
 
 		// Update member roles.
-		Log.Information("Updating member roles for {Member}.", member.DisplayName);
+		Log.Debug("Updating member roles for {Member}.", member.DisplayName);
 		await member.ReplaceRolesAsync(roles_new);
 		Log.Information("  Updated roles successfully.");
 
@@ -597,19 +612,24 @@ class Rank : ICommand {
 		Log.Debug("  Updated select component successfully.");
 	}
 
-	private static async Task SetOfficerAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	private static async Task SetOfficerAsync(TimedInteraction interaction) {
 		// Ensure all needed params can be converted to DiscordMembers.
-		DiscordMember? member_caller = await interaction.User.ToMember();
-		DiscordMember? member_target = GetResolvedMember(interaction);
+		DiscordMember? member_caller = await
+			interaction.Interaction.User.ToMember();
+		DiscordMember? member_target =
+			GetResolvedMember(interaction.Interaction);
 		if (member_caller is null || member_target is null) {
-			Log.Warning("  Could not convert user to DiscordMember.");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && interaction.ChannelId != id_ch.bots)
+			response_error += (Program.Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
-			await interaction.RespondMessageAsync(response_error, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response_error, true,
+				"Could not convert user to DiscordMember.",
+				LogLevel.Warning,
+				"Could not fetch member data. Response sent."
+			);
 			return;
 		}
 
@@ -627,7 +647,7 @@ class Rank : ICommand {
 		// Construct select component.
 		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
-			interaction,
+			interaction.Interaction,
 			AssignOfficer,
 			message_promise.Task,
 			_optionsOfficer,
@@ -651,14 +671,17 @@ class Rank : ICommand {
 			new DiscordMessageBuilder()
 			.WithContent(response_str)
 			.AddComponents(select.Component);
-		Log.Information("  Sending officer role selection menu.");
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(response, true);
-		Log.Information("  Role selection menu sent.");
+		await Command.RespondAsync(
+			interaction,
+			response, true,
+			"Sending officer role selection menu.",
+			LogLevel.Debug,
+			"Role selection menu sent."
+		);
 
 		// Update DiscordMessage object for Selection.
 		DiscordMessage message = await
-			interaction.GetOriginalResponseAsync();
+			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 	private static async Task AssignOfficer(ComponentInteractionCreateEventArgs e) {
@@ -666,9 +689,8 @@ class Rank : ICommand {
 
 		// Make sure Guild is initialized.
 		if (Program.Guild is null) {
-			Log.Information("Updating user roles.");
-			Log.Error("  Guild not initialized; could not update roles.");
-			Log.Information("  Failed to update roles. No changes made.");
+			Log.Debug("Updating officer roles.");
+			Log.Warning("  Roles not updated (guild not initialized).");
 			return;
 		}
 
@@ -694,7 +716,7 @@ class Rank : ICommand {
 		}
 
 		// Update member roles.
-		Log.Information("Updating member roles for {Member}.", member.DisplayName);
+		Log.Debug("Updating officer roles for {Member}.", member.DisplayName);
 		await member.ReplaceRolesAsync(roles_new);
 		Log.Information("  Updated roles successfully.");
 
@@ -709,12 +731,15 @@ class Rank : ICommand {
 		Log.Debug("  Updated select component successfully.");
 	}
 
-	private static async Task ListTrialsAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	private static async Task ListTrialsAsync(TimedInteraction interaction) {
 		if (Program.Guild is null) {
-			Log.Warning("    Guild not initialized yet. Assigning default permissions.");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-			await interaction.RespondMessageAsync("Server data not downloaded yet. Try again in a few seconds.", true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				"Server data not downloaded yet. Try again in a few seconds.", true,
+				"Guild not initialized yet.",
+				LogLevel.Warning,
+				"No data fetched (guild not initialized). Response sent."
+			);
 			return;
 		}
 
@@ -735,10 +760,14 @@ class Rank : ICommand {
 
 		// Handle case where no trial members exist.
 		if (trials.Count == 0) {
-			Log.Information("  No trial members found.");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-			await interaction.RespondMessageAsync("All done! No trial members found for **<Erythro>**.");
-			Log.Debug("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				"All done! No trial members found for **<Erythro>**.", false,
+				"No trial members found.",
+				LogLevel.Debug,
+				"Response sent."
+			);
+			return;
 		}
 
 		// Sort list by days elapsed.
@@ -751,15 +780,19 @@ class Rank : ICommand {
 		});
 
 		// Display list of trial members.
-		Log.Information("  Compiling list of trial members.");
 		StringWriter response = new ();
 		foreach (DiscordMember trial in trials) {
 			TimeSpan time = DateTimeOffset.Now - trial.JoinedAt;
 			response.WriteLine($"{trial.Mention} - {time.Days} days old");
 		}
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(response.ToString());
-		Log.Debug("  Response sent.");
+		await Command.RespondAsync(
+			interaction,
+			response.ToString(), false,
+			"Sending list of trial members (@Guest + @<Erythro>).",
+			LogLevel.Debug,
+			"List sent. ({EntryCount} entries)",
+			trials.Count
+		);
 	}
 
 	private static DiscordMember? GetResolvedMember(DiscordInteraction interaction) {

@@ -2,13 +2,13 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Irene.Commands;
+using CRNG = System.Security.Cryptography.RandomNumberGenerator;
 
-using CRNG = RandomNumberGenerator;
+namespace Irene.Commands;
 
 class Roll : ICommand {
 	private static readonly CRNG _crng = CRNG.Create();
-	private static object _lock = new ();
+	private static readonly object _lock = new ();
 
 	// Timeout if this many attempts at generating a random number
 	// were made.
@@ -111,7 +111,7 @@ class Roll : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	public static async Task RunRollAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task RunRollAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
 		int low, high;
@@ -157,10 +157,14 @@ class Roll : ICommand {
 			output += $"    ({low}-{high})";
 
 		// Return data.
-		Log.Debug("  Sending random number: {X}", x);
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync($"  {output}");
-		Log.Information("  Random number sent.");
+		await Command.RespondAsync(
+			interaction,
+			$"  {output}", false,
+			"Sending random number.",
+			LogLevel.Debug,
+			"Random number sent: {X}.",
+			x
+		);
 
 		// If fallback generation was used, calculate the probability
 		// that the fallback was needed.
@@ -170,12 +174,12 @@ class Roll : ICommand {
 			decimal p = max % range / (decimal) max;
 			p = (decimal)Math.Pow((double)p, _maxTries);
 
-			Log.Debug("    Failed to generate secure number {Attempts} times.", _maxTries);
+			Log.Information("    Failed to generate secure number {Attempts} times.", _maxTries);
 			Log.Debug("    Probability of this occuring: {Probability:p}%.", p);
 		}
 	}
 
-	public static async Task Run8BallAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task Run8BallAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
 
@@ -206,11 +210,14 @@ class Roll : ICommand {
 
 		// Respond.
 		string prediction = $"> {arg_original}\n{_predictions[index]}";
-		Log.Debug("  Sending prediction.");
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(prediction, doHide);
-		Log.Information("  Prediction sent.");
-		Log.Debug(@"    ""{Prediction}""", _predictions[index]);
+		await Command.RespondAsync(
+			interaction,
+			prediction, doHide,
+			"Sending prediction.",
+			LogLevel.Debug,
+			"Prediction sent: \"{Prediction}\".",
+			_predictions[index]
+		);
 	}
 
 	// Returns a thread-safe, cryptographically-secure

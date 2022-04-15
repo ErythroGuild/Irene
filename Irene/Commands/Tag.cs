@@ -132,7 +132,7 @@ class Tag: ICommand {
 	}; }
 
 	// Check permissions and dispatch subcommand.
-	public static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task RunAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
 		string command = args[0].Name;
@@ -142,7 +142,7 @@ class Tag: ICommand {
 		case _commandSet:
 		case _commandDelete:
 			bool doContinue = await
-				interaction.CheckAccessAsync(stopwatch, AccessLevel.Officer);
+				interaction.CheckAccessAsync(AccessLevel.Officer);
 			if (!doContinue)
 				return;
 			break;
@@ -156,11 +156,11 @@ class Tag: ICommand {
 			_commandDelete => DeleteAsync,
 			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
 		};
-		await subcommand(interaction, stopwatch);
+		await subcommand(interaction);
 		return;
 	}
 
-	public static async Task AutoCompleteAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task AutoCompleteAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
@@ -188,7 +188,7 @@ class Tag: ICommand {
 		return;
 	}
 
-	public static async Task ViewAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task ViewAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
@@ -196,25 +196,33 @@ class Tag: ICommand {
 
 		// The delimiter is not allowed in tag names.
 		if (arg_stripped.Contains(_delim)) {
-			Log.Information("  Requested tag name \"{Tag}\" contains delimiter.", arg);
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response =
 				$"Due to technical limitations, tag names cannot contain `{_delim}`.";
-			await interaction.RespondMessageAsync(response, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response, true,
+				"Requested tag name with delimiter.",
+				LogLevel.Information,
+				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")",
+				arg, _delim
+			);
 			return;
 		}
 
 		// Respond with info if tag not found.
 		if (!_tagCache.ContainsKey(arg_stripped)) {
-			Log.Information("  Requested tag \"{Tag}\" does not exist.", arg);
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response =
 				$"Tag `{arg}` does not exist.\n" +
 				"Use `/tag list` to view available tags, or see `/help tag` for more info.\n" +
 				"You can also ask an Officer to add a tag, or suggest one with `/suggest tag`.";
-			await interaction.RespondMessageAsync(response, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response, true,
+				"Requested tag does not exist.",
+				LogLevel.Information,
+				"No tag exists with the tag name \"{Name}\".",
+				arg
+			);
 			return;
 		}
 
@@ -223,12 +231,16 @@ class Tag: ICommand {
 
 		// Handle unsuccessful read.
 		if (content is null) {
-			Log.Warning("  Could not find tag \"{Tag}\", despite existence in cache.", arg);
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response =
-				$"Tag `{arg}` was recently erased by someone else. :h_kerri_sad:";
-			await interaction.RespondMessageAsync(response, true);
-			Log.Information("  Response sent.");
+				$"Tag `{arg}` was just now erased by someone else. :h_kerri_sad:";
+			await Command.RespondAsync(
+				interaction,
+				response, true,
+				"Unsuccessful read of tag existing in cache.",
+				LogLevel.Warning,
+				"Error occurred while reading contents of tag \"{Name}\".",
+				arg
+			);
 			return;
 		}
 
@@ -236,38 +248,51 @@ class Tag: ICommand {
 		bool doShare = false;
 		if (args.Count > 1)
 			doShare = (bool)args[1].Value;
-		Log.Debug("  Found tag \"{Tag}\".", arg);
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(content, !doShare);
-		Log.Information("  Tag sent.");
+		await Command.RespondAsync(
+			interaction,
+			content, !doShare,
+			"Tag found. Sending tag content.",
+			LogLevel.Debug,
+			new Lazy<string>(() => {
+				string preview = content.FirstLineElided();
+				return $"Tag \"{arg}\" sent: {preview}";
+			})
+		);
 	}
 
-	public static async Task List(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task List(TimedInteraction interaction) {
 		// Since we only care about the keys, we can read directly from cache.
 		List<string> tags = new (_tagCache.Values);
 
 		// Exit early if no tags exist.
 		if (tags.Count == 0) {
-			Log.Information("  No tags currently saved.");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response = "No tags currently saved.\n" +
 				"Maybe ask an Officer to add a tag, or suggest one with `/suggest tag`?";
-			await interaction.RespondMessageAsync(response, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response, true,
+				"No tags currently defined.",
+				LogLevel.Debug,
+				"Response sent."
+			);
 			return;
 		}
 
 		// Construct response.
 		tags.Sort();
-		Pages pages = new (tags, interaction.User);
-		Log.Debug("  Sending tag list.");
-		stopwatch.LogMsecDebug("    responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(pages.first_page(), true);
-		pages.msg = await interaction.GetOriginalResponseAsync();
-		Log.Information("  Tag list sent.");
+		Pages pages = new (tags, interaction.Interaction.User);
+		await Command.RespondAsync(
+			interaction,
+			pages.first_page(), true,
+			"Sending list of all tags.",
+			LogLevel.Debug,
+			"List sent."
+		);
+		pages.msg = await
+			interaction.Interaction.GetOriginalResponseAsync();
 	}
 
-	public static async Task SetAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task SetAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
@@ -275,12 +300,16 @@ class Tag: ICommand {
 
 		// The delimiter is not allowed in tag names.
 		if (arg_stripped.Contains(_delim)) {
-			Log.Information("  Requested tag name \"{Tag}\" contains delimiter.", arg);
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response =
 				$"Due to technical limitations, tag names cannot contain `{_delim}`.";
-			await interaction.RespondMessageAsync(response, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response, true,
+				"Requested tag name with delimiter.",
+				LogLevel.Information,
+				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")",
+				arg, _delim
+			);
 			return;
 		}
 
@@ -290,7 +319,7 @@ class Tag: ICommand {
 		if (_tagCache.ContainsKey(arg_stripped)) {
 			isUpdate = true;
 			_modalData.TryAdd(
-				Modal.GetId(interaction),
+				Modal.GetId(interaction.Interaction),
 				new ModalData(isUpdate, _tagCache[arg_stripped])
 			);
 			content = ReadTag(arg_stripped) ?? "";
@@ -305,7 +334,7 @@ class Tag: ICommand {
 			new TextInputComponent("Content", _idTagContent, value: content, style: TextInputStyle.Paragraph),
 		};
 
-		static async Task set_tag(ModalSubmitEventArgs e) {
+		async Task set_tag(ModalSubmitEventArgs e) {
 			Stopwatch stopwatch = Stopwatch.StartNew();
 			Log.Information("Modal submission received (id: {Id}).", e.Interaction.Data.CustomId);
 
@@ -344,21 +373,32 @@ class Tag: ICommand {
 			}
 
 			// Handle interaction.
-			Log.Debug("  Responding to modal submission.");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-			await e.Interaction.RespondMessageAsync("Updated tag successfully.", true);
-			Log.Information("  Submission processed.");
-			stopwatch.LogMsecDebug("  Modal submission processed in {Time} msec.");
+			await Command.RespondAsync(
+				new TimedInteraction(e.Interaction, stopwatch),
+				$"Tag `{arg}` updated successfully.", true,
+				"Updated tag successfully.",
+				LogLevel.Debug,
+				new Lazy<string>(() => {
+					string preview = data_content.FirstLineElided();
+					return $"Tag \"{arg}\" updated: {preview}";
+				})
+			);
 		}
 
 		// Submit modal.
-		Log.Information("  Sending modal to set tag \"{Tag}\".", arg);
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await Modal.RespondAsync(interaction, title, components, set_tag);
-		Log.Information("  Modal created.");
+		await Command.RespondAsync(
+			interaction,
+			new Task(async () => await
+				Modal.RespondAsync(interaction.Interaction, title, components, set_tag)
+			),
+			"Creating modal to set tag.",
+			LogLevel.Debug,
+			"Modal created. (editing tag \"{Name}\")",
+			arg
+		);
 	}
 
-	public static async Task DeleteAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task DeleteAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
@@ -366,23 +406,31 @@ class Tag: ICommand {
 
 		// The delimiter is not allowed in tag names.
 		if (arg_stripped.Contains(_delim)) {
-			Log.Information("  Requested tag name \"{Tag}\" contains delimiter.", arg);
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response =
 				$"Due to technical limitations, tag names cannot contain `{_delim}`.";
-			await interaction.RespondMessageAsync(response, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response, true,
+				"Requested tag name with delimiter.",
+				LogLevel.Information,
+				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")",
+				arg, _delim
+			);
 			return;
 		}
 
 		// Exit early if tag doesn't exist.
 		if (!_tagCache.ContainsKey(arg_stripped)) {
-			Log.Information("  \"{Tag}\" not found; no changes made.", arg);
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response =
 				$"Could not find tag `{arg}`; no changes made.";
-			await interaction.RespondMessageAsync(response, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response, true,
+				"Tag not found.",
+				LogLevel.Information,
+				"No tags found matching the name \"{Name}\".",
+				arg
+			);
 			return;
 		}
 
@@ -409,10 +457,14 @@ class Tag: ICommand {
 		}
 
 		// Respond.
-		Log.Information("  Sending response.");
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync("Removed tag successfully.", true);
-		Log.Information("  Deleted tag.");
+		await Command.RespondAsync(
+			interaction,
+			$"Tag `{tag_key}` removed successfully.", true,
+			"Tag removed. Sending response.",
+			LogLevel.Debug,
+			"Tag removed: \"{Name}\".",
+			tag_key
+		);
 	}
 
 	// The standard procedure for stripping a key.

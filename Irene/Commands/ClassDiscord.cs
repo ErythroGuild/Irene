@@ -77,7 +77,7 @@ class ClassDiscord : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	public static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
@@ -85,19 +85,15 @@ class ClassDiscord : ICommand {
 		string invite = _optionsToInvites[@class];
 
 		// Send invite link.
-		Log.Debug("  Sending invite link.");
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(invite);
-		Log.Information("  Invite link for \"{Class}\" sent.", @class);
-
-		// Print first line of sent data.
-		string invite_line;
-		if (invite.Contains('\n')) {
-			int i_newline = invite.IndexOf("\n");
-			invite_line = invite[..i_newline] + " [...]";
-		} else {
-			invite_line = invite;
-		}
-		Log.Debug("    {Link}", invite_line);
+		await Command.RespondAsync(
+			interaction,
+			invite, false,
+			"Sending invite link.",
+			LogLevel.Debug,
+			new Lazy<string>(() => {
+				string invite_line = invite.FirstLineElided();
+				return $"Invite link for \"{@class}\": {invite_line}";
+			})
+		);
 	}
 }

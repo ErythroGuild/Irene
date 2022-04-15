@@ -1,13 +1,13 @@
-﻿namespace Irene;
+﻿// Type aliases.
+using ArgExcept = System.ArgumentException;
+using ArgOORExcept = System.ArgumentOutOfRangeException;
+using InvalidOpExcept = System.InvalidOperationException;
 
-// Type aliases.
-using ArgExcept = ArgumentException;
-using ArgOORExcept = ArgumentOutOfRangeException;
-using InvalidOpExcept = InvalidOperationException;
+using BasisType = Irene.RecurringEvent.RecurBasis.BasisType;
+using RuleType = Irene.RecurringEvent.RecurBasis.RuleType;
+using RuleDirection = Irene.RecurringEvent.RecurBasis.RuleDirection;
 
-using BasisType = RecurringEvent.RecurBasis.BasisType;
-using RuleType = RecurringEvent.RecurBasis.RuleType;
-using RuleDirection = RecurringEvent.RecurBasis.RuleDirection;
+namespace Irene;
 
 class RecurringEvent {
 	// Types used as indices to define RecurBases.
@@ -18,13 +18,15 @@ class RecurringEvent {
 		// Construct a new DateOfYear, checking that values are valid.
 		// Feb. 29th is permitted as a value.
 		public DateOfYear(int month, int day) {
-			if (month is <1 or >12)
+			if (month is <1 or >12) {
 				throw new ArgOORExcept(nameof(month),
 					"Month for DateOfYear was invalid.");
+			}
 			int maxDays = _monthLengths[month];
-			if (day < 1 || day > maxDays)
+			if (day < 1 || day > maxDays) {
 				throw new ArgOORExcept(nameof(day),
 					"Day for DateOfYear was invalid.");
+			}
 
 			Month = month;
 			Day = day;
@@ -98,13 +100,17 @@ class RecurringEvent {
 		public readonly object Index { get; init; }
 
 		public RecurBasis(BasisType basis, RuleType rule, object index) {
-			if (index.GetType() != _typeTable[basis])
+			if (index.GetType() != _typeTable[basis]) {
 				throw new ArgExcept("Index was an invalid type for the BasisType.",
 					nameof(index));
-			if (_typeTable[basis] == typeof(int))
-				if ((int)index < 1)
+			}
+
+			if (_typeTable[basis] == typeof(int)) {
+				if ((int)index < 1) {
 					throw new ArgOORExcept(nameof(index),
 						"Index must be positive.");
+				}
+			}
 
 			Basis = basis;
 			Rule = rule;
@@ -186,24 +192,27 @@ class RecurringEvent {
 		public RecurPattern(RecurTime time, int recurIndex, List<RecurBasis> bases) {
 			// Check that the index is valid.
 			int list_size = bases.Count;
-			if (recurIndex < 0 || recurIndex > list_size)
+			if (recurIndex < 0 || recurIndex > list_size) {
 				throw new ArgOORExcept(nameof(recurIndex),
 					"Basis index points outside the range of the RecurBases list.");
+			}
 
 			// Check that first basis is RuleType.Base.
 			// Previous condition actually guarantees that at least one
 			// basis exists, so there doesn't need to be a separate check.
-			if (bases[0].Rule != RuleType.Base)
+			if (bases[0].Rule != RuleType.Base) {
 				throw new ArgExcept("The first basis was not a Base rule.",
 					nameof(bases));
+			}
 
 			// Check that the only basis with RuleType.Base is at 0.
 			int index_last_base = bases.FindLastIndex(
 				basis => basis.Rule == RuleType.Base
 			);
-			if (index_last_base != 0)
+			if (index_last_base != 0) {
 				throw new ArgExcept("There was more than one Base rule given.",
 					nameof(bases));
+			}
 
 			// Calculate the longest possible recur cycle, and check that
 			// it is greater than zero (it always advances).
@@ -238,9 +247,10 @@ class RecurringEvent {
 
 			// Throw an exception if the given pattern can definitively be
 			// determined as invalid.
-			if (days_cycle <= 0)
+			if (days_cycle <= 0) {
 				throw new ArgExcept("RecurPattern definition will always give earlier dates",
 					nameof(bases));
+			}
 
 			// Assign fields.
 			Time = time;

@@ -29,6 +29,18 @@ static partial class Util {
 		{ @":+-:"  , "\u00B1" },
 	};
 
+	// Returns all of the string up to the first newline if one exists,
+	// and returns the entire string otherwise.
+	public static string FirstLineElided(this string input) {
+		if (input.Contains('\n')) {
+			int i_newline = input.IndexOf("\n");
+			return input[..i_newline] + " [...]";
+		}
+		else {
+			return input;
+		}
+	}
+
 	// Create a blank file at the given path, if it doesn't exist.
 	// Returns true if file was created, false otherwise.
 	public static bool CreateIfMissing(string path, ref object @lock) {
