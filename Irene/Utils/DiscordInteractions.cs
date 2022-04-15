@@ -8,6 +8,8 @@ static partial class Util {
 		new List<DiscordMember>(interaction.Data.Resolved.Members.Values)[0];
 
 	// Convenience method for fetching command options.
+	public static List<DiscordInteractionDataOption> GetArgs(this TimedInteraction interaction) =>
+		interaction.Interaction.GetArgs();
 	public static List<DiscordInteractionDataOption> GetArgs(this DiscordInteraction interaction) =>
 		(interaction.Data.Options is not null)
 			? new (interaction.Data.Options)
@@ -20,10 +22,12 @@ static partial class Util {
 	// Convenience method for fetching modal field values.
 	public static Dictionary<string, TextInputComponent> GetModalComponents(this DiscordInteraction interaction) {
 		Dictionary<string, TextInputComponent> components = new ();
-		foreach (DiscordActionRowComponent actionRow in interaction.Data.Components)
-			foreach (DiscordComponent component in actionRow.Components)
-				if (component is TextInputComponent)
-					components.Add(component.CustomId, (TextInputComponent)component);
+		foreach (DiscordActionRowComponent actionRow in interaction.Data.Components) {
+			foreach (DiscordComponent component in actionRow.Components) {
+				if (component is TextInputComponent text_component)
+					components.Add(component.CustomId, text_component);
+			}
+		}
 		return components;
 	}
 
@@ -72,6 +76,11 @@ static partial class Util {
 		interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
 	public static Task AutoCompleteResultsAsync(
+		this TimedInteraction interaction,
+		List<string> choices
+	) =>
+		interaction.Interaction.AutoCompleteResultsAsync(choices);
+	public static Task AutoCompleteResultsAsync(
 		this DiscordInteraction interaction,
 		List<string> choices
 	) {
@@ -89,33 +98,40 @@ static partial class Util {
 
 	// Syntax sugar for getting the access level of the user who invoked
 	// the interaction.
-	public static async Task<AccessLevel> AccessLevel(this DiscordInteraction interaction) =>
-		await Command.GetAccessLevel(interaction);
+	public static async Task<AccessLevel> AccessLevel(this TimedInteraction interaction) =>
+		await Command.GetAccessLevel(interaction.Interaction);
+	public static AccessLevel AccessLevel(this DiscordMember member) =>
+		Command.GetAccessLevel(member);
 	// Syntax sugar for checking if the user who invoked the interaction
 	// has the specified access level.
-	public static async Task<bool> HasAccess(this DiscordInteraction interaction, AccessLevel level) {
-		AccessLevel level_user = await Command.GetAccessLevel(interaction);
+	public static async Task<bool> HasAccess(this TimedInteraction interaction, AccessLevel level) {
+		AccessLevel level_user = await
+			Command.GetAccessLevel(interaction.Interaction);
 		return level_user >= level;
 	}
-
+	public static bool HasAccess(this DiscordMember member, AccessLevel level) {
+		AccessLevel level_user =
+			Command.GetAccessLevel(member);
+		return level_user >= level;
+	}
 	// Checks if the user who invoked the interaction has the specified
 	// access level, logs, then sends a response.
-	public static async Task<bool> CheckAccessAsync(
-		this DiscordInteraction interaction,
-		Stopwatch stopwatch,
-		AccessLevel level
-	) {
+	public static async Task<bool> CheckAccessAsync(this TimedInteraction interaction, AccessLevel level) {
 		bool hasAccess = await interaction.HasAccess(level);
 		if (hasAccess) {
 			return true;
 		} else {
-			Log.Information("  Access denied (insufficient permissions).");
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response =
 				$"Sorry, you don't have the permissions ({level}) to run that command.\n" +
-				$"See `/help {interaction.Data.Name}` for more info.";
-			await interaction.RespondMessageAsync(response, true);
-			Log.Information("  Response sent.");
+				$"See `/help {interaction.Interaction.Data.Name}` for more info.";
+			await Command.RespondAsync(
+				interaction,
+				response, true,
+				"Access denied (insufficient permissions).",
+				LogLevel.Information,
+				"Information sent. ({Level} required)",
+				level
+			);
 			return false;
 		}
 	}

@@ -40,7 +40,7 @@ class Invite : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	private static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	private static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
@@ -54,10 +54,13 @@ class Invite : ICommand {
 		};
 
 		// Send invite link.
-		Log.Debug("  Sending invite link.");
-		Log.Debug("    {Link}", invite);
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(invite);
-		Log.Information("  Invite link for \"{Server}\" sent.", server);
+		await Command.RespondAsync(
+			interaction,
+			invite, false,
+			"Sending invite link.",
+			LogLevel.Debug,
+			"Invite link for \"{Server}\": {Link}",
+			server, invite
+		);
 	}
 }

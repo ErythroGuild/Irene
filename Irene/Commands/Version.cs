@@ -28,7 +28,7 @@ class Version : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	private static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	private static async Task RunAsync(TimedInteraction interaction) {
 		StreamReader file;
 
 		// Read in data.
@@ -45,10 +45,13 @@ class Version : ICommand {
 		string output = $"**Irene {version}** build `{build}`";
 
 		// Respond with data.
-		Log.Debug("  Sending version information.");
-		Log.Debug("    {Version}, build {Build}", version, build);
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(output);
-		Log.Information("  Version information sent.");
+		await Command.RespondAsync(
+			interaction,
+			output, false,
+			"Sending version information.",
+			LogLevel.Debug,
+			"{Version}, build {Build}",
+			version, build
+		);
 	}
 }

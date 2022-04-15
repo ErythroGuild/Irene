@@ -97,20 +97,24 @@ class Roles : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	public static async Task RunAsync(DiscordInteraction interaction, Stopwatch stopwatch) {
+	public static async Task RunAsync(TimedInteraction interaction) {
 		// Ensure user is a member. (This should always succeed.)
 		// Roles can only be set for users in the same guild.
-		DiscordUser user = interaction.User;
+		DiscordUser user = interaction.Interaction.User;
 		DiscordMember? member = await user.ToMember();
 		if (member is null) {
-			Log.Warning("  Could not convert {User} to DiscordMember.", user);
-			stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
 			string response_error = "Could not determine who you are.";
-			response_error += (Guild is not null && interaction.ChannelId != id_ch.bots)
+			response_error += (Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
-			await interaction.RespondMessageAsync(response_error, true);
-			Log.Information("  Response sent.");
+			await Command.RespondAsync(
+				interaction,
+				response_error, true,
+				"Could not convert DiscordUser to DiscordMember.",
+				LogLevel.Warning,
+				"User: {Username}#{Discriminator}.",
+				user.Username, user.Discriminator
+			);
 			return;
 		}
 
@@ -126,7 +130,7 @@ class Roles : ICommand {
 		// Create a registered Selection object.
 		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
-			interaction,
+			interaction.Interaction,
 			AssignRoles,
 			message_promise.Task,
 			_options,
@@ -149,14 +153,17 @@ class Roles : ICommand {
 			new DiscordMessageBuilder()
 			.WithContent(roles_str)
 			.AddComponents(select.Component);
-		Log.Information("  Sending role selection menu.");
-		stopwatch.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.RespondMessageAsync(response, true);
-		Log.Information("  Selection menu sent.");
+		await Command.RespondAsync(
+			interaction,
+			response, true,
+			"Sending role selection menu.",
+			LogLevel.Debug,
+			"Selection menu sent."
+		);
 
 		// Update DiscordMessage object for Selection.
 		DiscordMessage message = await
-			interaction.GetOriginalResponseAsync();
+			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 
@@ -212,7 +219,7 @@ class Roles : ICommand {
 		Log.Information("  Updated roles successfully.");
 
 		// Send welcome messages (if Guest or lower).
-		await Welcome(member, roles_added, e.Interaction);
+		await Welcome(member, roles_added);
 
 		// Update select component.
 		List<Entry> options_updated = new ();
@@ -237,15 +244,11 @@ class Roles : ICommand {
 
 	// Format and send welcome message to member.
 	// If member has access level above Guest, then skip.
-	private static async Task Welcome(
-		DiscordMember member,
-		List<DiscordRole> roles_added,
-		DiscordInteraction interaction
-	) {
+	private static async Task Welcome(DiscordMember member, List<DiscordRole> roles_added) {
 		// Skip sending message if conditions aren't met.
 		if (Guild is null)
 			return;
-		if (await Util.HasAccess(interaction, AccessLevel.Member))
+		if (member.HasAccess(AccessLevel.Member))
 			return;
 		if (roles_added.Count == 0)
 			return;
