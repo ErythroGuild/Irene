@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using Irene.Commands;
 
@@ -48,8 +48,10 @@ class Command {
 					}
 				}
 				void AddAutoCompletes() {
-					PropertyInfo? property =
-						type.GetProperty("AutoComplete", typeof(List<AutoCompleteHandler>));
+					PropertyInfo? property = type.GetProperty(
+						nameof(ICommand.AutoComplete),
+						typeof(List<AutoCompleteHandler>)
+					);
 					if (property is null)
 						return;
 
@@ -62,10 +64,10 @@ class Command {
 					foreach (AutoCompleteHandler handler in handlers)
 						AutoCompletes.Add(handler.CommandName, handler.Handler);
 				}
-
-				AddPropertyInteractions("SlashCommands");
-				AddPropertyInteractions("UserCommands");
-				AddPropertyInteractions("MessageCommands");
+				
+				AddPropertyInteractions(nameof(ICommand.SlashCommands));
+				AddPropertyInteractions(nameof(ICommand.UserCommands));
+				AddPropertyInteractions(nameof(ICommand.MessageCommands));
 				AddAutoCompletes();
 			}
 		}
