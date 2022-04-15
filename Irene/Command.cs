@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using Irene.Commands;
 
@@ -7,6 +7,9 @@ using RoleList = System.Collections.Generic.List<DSharpPlus.Entities.DiscordRole
 namespace Irene;
 
 class Command {
+	public record class TimedInteraction
+		(DiscordInteraction Interaction, Stopwatch Timer);
+
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
 	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
 	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
@@ -104,6 +107,52 @@ class Command {
 			RoleList r when HasRole(r, id_r.guest  ) => AccessLevel.Guest,
 			_ => AccessLevel.None,
 		};
+	}
+
+	// Logs that a response was sent, sends said response, and logs all
+	// relevant timing information.
+	public static async Task RespondAsync(
+		TimedInteraction command,
+		string response,
+		bool is_ephemeral,
+		string log_summary,
+		string log_preview,
+		LogLevel log_level,
+		params object[] log_params
+	) =>
+		await RespondAsync(
+			command,
+			new DiscordMessageBuilder().WithContent(response),
+			is_ephemeral,
+			log_summary,
+			log_preview,
+			log_level,
+			log_params
+		);
+	public static async Task RespondAsync(
+		TimedInteraction command,
+		DiscordMessageBuilder response,
+		bool is_ephemeral,
+		string log_summary,
+		string log_preview,
+		LogLevel log_level,
+		params object[] log_params
+	) {
+		Log.Debug("  " +  log_summary);
+		command.Timer.LogMsecDebug("    Responded in {Time} msec.", false);
+		await command.Interaction.RespondMessageAsync(response, is_ephemeral);
+		Action<string, object[]> log_fn = log_level switch {
+			LogLevel.Critical    => Log.Fatal,
+			LogLevel.Error       => Log.Error,
+			LogLevel.Warning     => Log.Warning,
+			LogLevel.Information => Log.Information,
+			LogLevel.Debug       => Log.Debug,
+			LogLevel.Trace       => Log.Verbose,
+			LogLevel.None        => (s, o) => { },
+			_ => throw new ArgumentException("Unrecognized log level.", nameof(log_level)),
+		};
+		log_fn("  " + log_preview, log_params);
+		command.Timer.LogMsecDebug("    Response completed in {Time} msec.");
 	}
 
 	// Command data
