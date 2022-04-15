@@ -62,7 +62,7 @@ class Roles : ICommand {
 	};
 	private static readonly ConcurrentDictionary<ulong, PingRole> _table_IdToRole;
 
-	private static object _lock = new ();
+	private static readonly object _lock = new ();
 	const string _pathIntros = @"data/role-intros.txt";
 	const string _delim = "=";
 

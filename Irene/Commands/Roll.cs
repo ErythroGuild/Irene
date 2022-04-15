@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -8,7 +8,7 @@ namespace Irene.Commands;
 
 class Roll : ICommand {
 	private static readonly CRNG _crng = CRNG.Create();
-	private static object _lock = new ();
+	private static readonly object _lock = new ();
 
 	// Timeout if this many attempts at generating a random number
 	// were made.
