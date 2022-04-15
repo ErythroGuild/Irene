@@ -1,10 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using Irene.Commands;
 
-namespace Irene;
+using RoleList = System.Collections.Generic.List<DSharpPlus.Entities.DiscordRole>;
 
-using RoleList = List<DiscordRole>;
+namespace Irene;
 
 class Command {
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
@@ -56,9 +56,8 @@ class Command {
 					if (handlers is null)
 						return;
 
-					foreach (AutoCompleteHandler handler in handlers) {
+					foreach (AutoCompleteHandler handler in handlers)
 						AutoCompletes.Add(handler.CommandName, handler.Handler);
-					}
 				}
 
 				AddPropertyInteractions("SlashCommands");

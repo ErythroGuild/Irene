@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 
-using Microsoft.Extensions.Logging;
 using Spectre.Console;
 
 using Irene.Commands;

@@ -12,6 +12,9 @@ global using DSharpPlus.Entities;
 global using DSharpPlus.EventArgs;
 global using DSharpPlus.Exceptions;
 
+// Microsoft.
+global using Microsoft.Extensions.Logging;
+
 // Serilog.
 global using Serilog;
 

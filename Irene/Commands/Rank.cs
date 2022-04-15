@@ -1,13 +1,8 @@
-using System.Text.RegularExpressions;
-
 using Irene.Components;
 
 namespace Irene.Commands;
 
 using Entry = Selection.Option;
-
-//using RankEntry = Selection<Rank.Type>.Entry;
-//using GuildEntry = Selection<Rank.Guild>.Entry;
 
 class Rank : ICommand {
 	public enum Level {
