@@ -1,4 +1,4 @@
-using System.Timers;
+﻿using System.Timers;
 
 using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
 using Component = DSharpPlus.Entities.DiscordComponent;
@@ -63,18 +63,12 @@ class Pages {
 				pages._page = Math.Max(pages._page, 0);
 				pages._page = Math.Min(pages._page, pages._pageCount);
 
-				// Create updated page.
-				DiscordWebhookBuilder message =
-					new DiscordWebhookBuilder()
-						.WithContent(pages.CurrentContent)
-						.AddComponents(pages.CurrentButtons);
-
 				// Edit original message.
 				// This must be done through the original interaction, as
 				// responses to interactions don't actually "exist" as real
 				// messages.
 				await pages._interaction
-					.EditOriginalResponseAsync(message);
+					.EditOriginalResponseAsync(pages.CurrentWebhook);
 			}
 		};
 	}
@@ -89,6 +83,22 @@ class Pages {
 	private readonly Timer _timer;
 
 	// Generated instance properties.
+	private DiscordMessageBuilder CurrentMessage { get {
+		DiscordMessageBuilder message =
+			new DiscordMessageBuilder()
+				.WithContent(CurrentContent);
+		if (_pageCount > 1)
+			message = message.AddComponents(CurrentButtons);
+		return message;
+	} }
+	private DiscordWebhookBuilder CurrentWebhook { get {
+		DiscordWebhookBuilder webhook =
+			new DiscordWebhookBuilder()
+				.WithContent(CurrentContent);
+		if (_pageCount > 1)
+			webhook = webhook.AddComponents(CurrentButtons);
+		return webhook;
+	} }
 	private string CurrentContent { get {
 		int i_start = _page * _pageSize;
 		int i_end = Math.Min(i_start + _pageSize, _data.Count);
@@ -189,9 +199,7 @@ class Pages {
 				await pages.Cleanup();
 		};
 
-		return new DiscordMessageBuilder()
-			.WithContent(pages.CurrentContent)
-			.AddComponents(pages.CurrentButtons);
+		return pages.CurrentMessage;
 	}
 
 	// Returns a row of buttons for paginating the data.
