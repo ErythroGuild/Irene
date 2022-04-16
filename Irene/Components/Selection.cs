@@ -48,7 +48,6 @@ class Selection {
 				}
 				
 				await selection._callback(e);
-				return;
 			}
 		};
 	}
@@ -79,7 +78,7 @@ class Selection {
 	public async Task Discard() {
 		const double delay = 0.1;
 		_timer.Stop();
-		_timer.Interval = delay;	// arbitrarily small interval, must be >0
+		_timer.Interval = delay; // arbitrarily small interval, must be >0
 		_timer.Start();
 		await Task.Delay(TimeSpan.FromMilliseconds(delay));
 	}
