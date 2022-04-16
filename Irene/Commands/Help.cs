@@ -129,6 +129,9 @@ class Help : ICommand {
 		// See if general or specific help page is requested.
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
+		DiscordMessageBuilder response;
+		DiscordMessage message;
+		MessagePromise message_promise = new ();
 
 		// If specific help is requested.
 		if (args.Count > 0) {
@@ -150,20 +153,30 @@ class Help : ICommand {
 			}
 
 			List<string> help = Command.HelpPages[command].Invoke();
+			response = Pages.Create(
+				interaction.Interaction,
+				message_promise.Task,
+				help,
+				pageSize: 1
+			);
 			await Command.RespondAsync(
 				interaction,
-				string.Join("\n\n", help), true,
+				response, true,
 				"Sending specific help.",
 				LogLevel.Debug,
 				"Sent help for `/{Command}`.",
 				command
 			);
+
+			// Update DiscordMessage object for Pages.
+			message = await
+				interaction.Interaction.GetOriginalResponseAsync();
+			message_promise.SetResult(message);
 			return;
 		}
 
 		// Else, send general help.
-		MessagePromise message_promise = new ();
-		DiscordMessageBuilder response = Pages.Create(
+		response = Pages.Create(
 			interaction.Interaction,
 			message_promise.Task,
 			HelpGeneral,
@@ -174,11 +187,11 @@ class Help : ICommand {
 			response, true,
 			"Sending general help.",
 			LogLevel.Debug,
-			"Response sent."
+			"Help text sent."
 		);
 
 		// Update DiscordMessage object for Pages.
-		DiscordMessage message = await
+		message = await
 			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
