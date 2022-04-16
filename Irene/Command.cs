@@ -10,6 +10,7 @@ public record class TimedInteraction
 	(DiscordInteraction Interaction, Stopwatch Timer);
 
 class Command {
+	public static ConcurrentDictionary<string, HelpPageGetter> HelpPages { get; private set; }
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
 	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
 	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
@@ -18,6 +19,7 @@ class Command {
 	public static void Init() { return; }
 	static Command() {
 		// Set the static properties.
+		HelpPages = new ();
 		Commands = new ();
 		Handlers = new ();
 		AutoCompletes = new ();
@@ -30,6 +32,7 @@ class Command {
 			if (interfaces.Contains(typeof(ICommand))) {
 				// Fetch the property, null-checking at every step.
 				// If any step fails, simply return early.
+				// Also fetch help pages if property is SlashCommand.
 				void AddPropertyInteractions(string name) {
 					PropertyInfo? property =
 						type.GetProperty(name, typeof(List<InteractionCommand>));
@@ -46,10 +49,31 @@ class Command {
 						Commands.Add(command.Command);
 						Handlers.Add(command.Command.Name, command.Handler);
 					}
+
+					if (name == nameof(ICommand.SlashCommands)) {
+						PropertyInfo? property_help = type.GetProperty(
+							nameof(ICommand.HelpPages),
+							typeof(List<string>)
+						);
+						if (property_help is null)
+							return;
+						HelpPageGetter? func_help =
+							property_help
+								?.GetGetMethod()
+								?.CreateDelegate(typeof(HelpPageGetter))
+								as HelpPageGetter
+							?? null;
+						if (func_help is not null) {
+							foreach (InteractionCommand command in commands)
+								HelpPages.TryAdd(command.Command.Name, func_help);
+						}
+					}
 				}
 				void AddAutoCompletes() {
-					PropertyInfo? property =
-						type.GetProperty("AutoComplete", typeof(List<AutoCompleteHandler>));
+					PropertyInfo? property = type.GetProperty(
+						nameof(ICommand.AutoComplete),
+						typeof(List<AutoCompleteHandler>)
+					);
 					if (property is null)
 						return;
 
@@ -62,10 +86,10 @@ class Command {
 					foreach (AutoCompleteHandler handler in handlers)
 						AutoCompletes.Add(handler.CommandName, handler.Handler);
 				}
-
-				AddPropertyInteractions("SlashCommands");
-				AddPropertyInteractions("UserCommands");
-				AddPropertyInteractions("MessageCommands");
+				
+				AddPropertyInteractions(nameof(ICommand.SlashCommands));
+				AddPropertyInteractions(nameof(ICommand.UserCommands));
+				AddPropertyInteractions(nameof(ICommand.MessageCommands));
 				AddAutoCompletes();
 			}
 		}
@@ -234,10 +258,6 @@ class Command {
 
 	// Command data
 	static readonly Dictionary<string, Action<Command>> dict_cmd = new () {
-		{ "help", Help.run },
-		{ "h"   , Help.run },
-		{ "?"   , Help.run },
-
 		{ "raid-time" , Raid.get_time   },
 		{ "raid"      , Raid.get_info   },
 		{ "raid-info" , Raid.get_info   },
@@ -250,8 +270,6 @@ class Command {
 		{ "set-logs", Raid.set_logs },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
-		{ Help.run , Help.help  },
-
 		{ Raid.get_time  , Raid.help_raid },
 		{ Raid.get_info  , Raid.help_raid },
 		{ Raid.set_info_F, Raid.help_raid },
@@ -260,8 +278,6 @@ class Command {
 		{ Raid.set_logs  , Raid.help_logs },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
-		{ Help.run , AccessLevel.None  },
-
 		{ Raid.get_time  , AccessLevel.None    },
 		{ Raid.get_info  , AccessLevel.None    },
 		{ Raid.set_info_F, AccessLevel.Officer },

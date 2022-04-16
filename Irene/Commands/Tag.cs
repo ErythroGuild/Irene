@@ -18,6 +18,7 @@ class Tag: ICommand {
 	private const string _delim = "=";
 
 	private const string
+		_commandTag    = "tag"   ,
 		_commandView   = "view"  ,
 		_commandList   = "list"  ,
 		_commandSet    = "set"   ,
@@ -65,7 +66,7 @@ class Tag: ICommand {
 	public static List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
-				"tag",
+				_commandTag,
 				"Display a previously-saved message.",
 				options: new List<CommandOption> {
 					new (
@@ -128,7 +129,7 @@ class Tag: ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 
 	public static List<AutoCompleteHandler> AutoComplete { get => new () {
-		new ("tag", AutoCompleteAsync),
+		new (_commandTag, AutoCompleteAsync),
 	}; }
 
 	// Check permissions and dispatch subcommand.

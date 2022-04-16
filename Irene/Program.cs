@@ -281,7 +281,6 @@ class Program {
 				Starboard.init();
 
 				// Initialize commands.
-				Help.init();
 				Commands.Roles.Init();
 				Rank.Init();
 				ClassDiscord.Init();

@@ -2,141 +2,207 @@
 
 namespace Irene.Commands;
 
-class Help {
+class Help : ICommand {
 	// Customize pagination class for help pages.
-	class HelpPages : Pages {
-		protected override int list_page_size
-			{ get { return 1; } }
-		protected override TimeSpan timeout
-			{ get { return TimeSpan.FromMinutes(30); } }
+	class HelpPagesComponent : Pages {
+		protected override int list_page_size { get { return 1; } }
+		protected override TimeSpan timeout { get { return TimeSpan.FromMinutes(30); } }
 
-		public HelpPages(List<string> list, DiscordUser author) :
+		public HelpPagesComponent(List<string> list, DiscordUser author) :
 			base(list, author) { }
 	}
 
-	static readonly List<string> list_general = new ();
-	static readonly List<string> list_officer = new ();
+	private const string _commandHelp = "help";
+	private const string
+		_l = "\U0001F512", // :lock:
+		_p = "\U0001F464", // :bust_in_silhouette:
+		_s = "\U0001F465", // :busts_in_silhouette:
+		_t = "\u2003"    ; // tab
 
-	const string
-		m = "@Irene",
-		t = "\u2003";
-
-	// Force static initializer to run.
-	public static void init() { return; }
-	// Populate helptext lists with data.
-	static Help() {
-		init_general();
-		init_officer();
+	public static List<string> HelpPages { get =>
+		new () { string.Join("\n", new List<string> {
+			@"`/help` lists all available commands, along with a short description for each,",
+			@"`/help <command>` shows a more detailed guide on how to use the command.",
+			"If you have any questions at all, Ernie will be happy to answer them."
+		} ) };
 	}
 
-	public static string help() {
-		StringWriter text = new ();
-
-		text.WriteLine("All commands are also available in DMs if you'd like to keep them to yourself.");
-		text.WriteLine("(You will still need to include `@Irene` in the command.)");
-		text.WriteLine("`@Irene -help` displays a summary of available commands.");
-		text.WriteLine("`@Irene -help <command>` displays help for that specific command.");
-		text.WriteLine("If you need more help, ask, or shoot Ernie a message! :+1:");
-
-		return text.ToString();
+	public static List<InteractionCommand> SlashCommands { get =>
+		new () {
+			new ( new (
+				_commandHelp,
+				"List available commands and how to use them.",
+				new List<CommandOption> { new (
+					"command",
+					"The command to get detailed help for.",
+					ApplicationCommandOptionType.String,
+					required: false,
+					autocomplete: true
+				) },
+				defaultPermission: true,
+				ApplicationCommandType.SlashCommand
+			), RunAsync)
+		};
 	}
 
-	public static void run(Command cmd) {
-		// Command names are case-insensitive.
-		string arg = cmd.args.Trim().ToLower();
+	public static List<InteractionCommand> UserCommands    { get => new (); }
+	public static List<InteractionCommand> MessageCommands { get => new (); }
 
-		// Display specific help if requested.
-		string? help_cmd = Command.help(arg);
-		if (help_cmd is not null) {
-			Log.Information("  Returned help string.");
-			_ = cmd.msg.RespondAsync(help_cmd);
+	public static List<AutoCompleteHandler> AutoComplete   { get => new () {
+		new (_commandHelp, AutoCompleteAsync),
+	}; }
+
+	private static List<string> HelpGeneral { get => new () {
+		{ string.Join("\n", new List<string> {
+			"If you need any help, ask, or shoot Ernie a message! :+1:",
+			$"{_s} - public by default",
+			$"{_p} - private by default",
+			$"{_l} - restricted permissions",
+			"`<required>`, `[optional]`, `[option A | option B]`",
+			"",
+			"**Help**",
+			$@"{_p} `/help`: Display this help text.",
+			$@"{_p} `/help <command>`: Display help for a specific command.",
+			"",
+			"**Version**",
+			$@"{_s} `/version`: Display the currently running version + build.",
+		} ) },
+		{ string.Join("\n", new List<string> {
+			"**Roles**",
+			$@"{_p} `/roles`: Set (or clear) roles to be pinged for.",
+			"",
+			"**Rank**",
+			$@"{_p}{_l} `/rank set <member>`: Set the rank of the specified member.",
+			$@"{_p} `/rank set-guilds`: Set your own guild roles.",
+			$@"{_p}{_l} `/rank set-guilds <member>`: Set the guild roles of the specified member.",
+			$@"{_p}{_l} `/rank set-officer <member>`: Set the officer roles of the specified member.",
+			$@"{_s}{_l} `/rank list-trials`: Display a list of all trials (Guest + <Erythro>).",
+		} ) },
+		//{ string.Join("\n", new List<string> {
+		//	"**Raid**",
+		//	$@"{_e} `/raid info`:",
+		//	$@"{_e} `/raid eligibility`:",
+		//	$@"{_e}{_l} `/raid eligibility <member>`:",
+		//	$@"{_s} `/raid view-logs <date>`:",
+		//	$@"{_e}{_l} `/raid set-logs <group> <date> <link>`:",
+		//	$@"{_e}{_l} `/raid set-plan <group> <date>`:",
+		//	$@"{_e}{_l} `/raid cancel <date>`:",
+		//	"",
+		//	"**Keys**",
+		//	$@"{_e} `/keys [share] [sort] [filter]`:",
+		//}) },
+		{
+			string.Join("\n", new List<string> {
+			"**Tags**",
+			$@"{_p} `/tags view <name> [share]`: Display the named tag.",
+			$@"{_p} `/tags list`: List all available tags.",
+			$@"{_p}{_l} `/tags set <name>`: Edit (or create a new) named tag.",
+			$@"{_p}{_l} `/tags delete <name>`: Delete the named tag.",
+			//"",
+			//"**Boss Guides**",
+			//$@"{_e} `/boss-guide <raid> <boss> [difficulty] [share] [type]`:",
+		} ) },
+		{ string.Join("\n", new List<string> {
+			"**In-Game Data**",
+			$@"{_s} `/cap <type>`: Display the current cap of the named resource.",
+			//$@"{_s} `/emissaries <type>`:",
+			//$@"{_s} `/assaults <type>`:",
+			//"",
+			//"**Solvers**",
+			//$@"{_e} `/solve mrrl`:",
+			//$@"{_e} `/solve lights-out`:",
+		} ) },
+		//{ string.Join("\n", new List<string> {
+		//	"****",
+		//	$@"{_e} `/`:",
+		//} ) },
+		//{ string.Join("\n", new List<string> {
+		//	"****",
+		//	$@"{_e} `/`:",
+		//} ) },
+		{
+			string.Join("\n", new List<string> {
+			"**Utilities**",
+			$@"{_s} `/roll`: Generate a number between `1` and `100`.",
+			$@"{_s} `/roll <max>`: Generate a number between `1` and `max`.",
+			$@"{_s} `/roll <min> <max>`: Generate a number between `min` and `max`.",
+			$@"{_s} `/8-ball <query>`: Predict the answer to a yes/no question.",
+			"",
+			"**Discord Servers**",
+			$@"{_s} `/invite [erythro|leuko]`: Display the invite link for the guild servers.",
+			$@"{_s} `/class-discord <class>`: Display the invite link(s) for the specified class discord.",
+		} ) },
+	}; }
+
+	public static async Task RunAsync(TimedInteraction interaction) {
+		// See if general or specific help page is requested.
+		List<DiscordInteractionDataOption> args =
+			interaction.GetArgs();
+
+		// If specific help is requested.
+		if (args.Count > 0) {
+			string command = (string)args[0].Value;
+			command = command.Trim().ToLower();
+			if (!Command.HelpPages.ContainsKey(command)) {
+				string response =
+					"Sorry, no command with that name found." +
+					"\nSee `/help` for a list of valid commands.";
+				await Command.RespondAsync(
+					interaction,
+					response, true,
+					"Help for command not found.",
+					LogLevel.Information,
+					"Command not found: `/{Command}`.",
+					command
+				);
+				return;
+			}
+
+			List<string> help = Command.HelpPages[command].Invoke();
+			await Command.RespondAsync(
+				interaction,
+				string.Join("\n\n", help), true,
+				"Sending specific help.",
+				LogLevel.Debug,
+				"Sent help for `/{Command}`.",
+				command
+			);
 			return;
 		}
 
-		// Fetch the needed help messages depending on user's
-		// access level.
-		List<string> list_help = list_general;
-		if (cmd.access >= AccessLevel.Officer) {
-			list_help.AddRange(list_officer);
+		// Else, send general help.
+		HelpPagesComponent pages =
+			new (HelpGeneral, interaction.Interaction.User);
+		await Command.RespondAsync(
+			interaction,
+			pages.first_page(), true,
+			"Sending general help.",
+			LogLevel.Debug,
+			"Response sent."
+		);
+		pages.msg = await
+			interaction.Interaction.GetOriginalResponseAsync();
+	}
+
+	public static async Task AutoCompleteAsync(TimedInteraction interaction) {
+		List<DiscordInteractionDataOption> args =
+			interaction.GetArgs();
+		string arg = (string)args[0].Value;
+		arg = arg.Trim().ToLower();
+
+		// Search through available options.
+		List<string> results = new ();
+		List<string> commands = new (Command.HelpPages.Keys);
+		foreach (string command in commands) {
+			if (command.Contains(arg))
+				results.Add(command);
 		}
 
-		// Construct the paginated help message.
-		HelpPages pages = new (list_help, cmd.msg.Author);
-		Log.Information("  Displaying help pages.");
-		DiscordMessage msg =
-			cmd.msg.RespondAsync(pages.first_page()).Result;
-		pages.msg = msg;
-	}
+		// Only return first 25 results.
+		if (results.Count > 25)
+			results = results.GetRange(0, 25);
 
-	// Populate `list_general`.
-	static void init_general() {
-		StringWriter s;
-
-		s = new StringWriter();
-		s.WriteLine("All command names are case-insensitive.");
-		s.WriteLine($"Commands can be DM'd to Irene, but still need to start with `{m}`.");
-		s.WriteLine("*`<required argument>`, `[optional argument]`, `[option A | option B]`*");
-		s.WriteLine($"{t}If you need more help, ask, or shoot Ernie a message! :+1:");
-		s.WriteLine();
-		s.WriteLine("**Help**");
-		s.WriteLine($"`{m} -help`: Display this help text.");
-		s.WriteLine($"`{m} -help <command>`: Display help for a specific command.");
-		s.WriteLine($"{t}*aliases:* `-h`, `-?`");
-		list_general.Add(s.ToString());
-
-		s = new StringWriter();
-		s.WriteLine("**Roles**");
-		s.WriteLine($"`{m} -roles`: Set (or clear) your own roles.");
-		s.WriteLine($"{t}*aliases:* `-r`");
-		s.WriteLine($"`{m} -roles-info`: Display a more detailed description of each role.");
-		s.WriteLine($"{t}*aliases:* `-rinfo`");
-		s.WriteLine();
-		s.WriteLine("**Tags**");
-		s.WriteLine($"`{m} -tags <tag>`: Display the named tag.");
-		s.WriteLine($"`{m} -tags`: List all available tags.");
-		s.WriteLine($"{t}*aliases:* `-t`, `-tag`");
-		list_general.Add(s.ToString());
-
-		s = new StringWriter();
-		s.WriteLine("**Reference**");
-		s.WriteLine($"`{m} -cap <type>`: Display the current cap of the resource.");
-		s.WriteLine($"{t}*aliases:* `-c`");
-		s.WriteLine($"`{m} -classdiscord <class>`: Link the class' class discord.");
-		s.WriteLine($"{t}*aliases:* `-cd`, `-classdiscords`, `-class-discord`");
-		s.WriteLine($"`{m} -invite [erythro|leuko]`: Display the server invite link.");
-		s.WriteLine($"{t}*aliases:* `-i`, `-inv`");
-		list_general.Add(s.ToString());
-
-		s = new StringWriter();
-		s.WriteLine("**Miscellaneous**");
-		s.WriteLine($"`{m} -roll [x] [y]`: Generates a random, positive integer.");
-		s.WriteLine($"{t}*aliases:* `-dice`, `-random`, `-rand`");
-		list_general.Add(s.ToString());
-	}
-
-	// Populate `list_officer`.
-	static void init_officer() {
-		StringWriter s;
-
-		s = new StringWriter();
-		s.WriteLine("**:lock: Ranks**");
-		s.WriteLine($"`{m} -rank <user-id>`: Select a rank for the given user.");
-		s.WriteLine($"{t}*aliases:* `-set-rank`, `-promote`");
-		s.WriteLine($"`{m} -guilds <user-id>`: Select guilds to assign to the given user.");
-		s.WriteLine($"{t}*aliases:* `-set-guilds`");
-		s.WriteLine($"`{m} -set-erythro <user-id>`: Gives user Guest permissions and assigns them to <Erythro>.");
-		s.WriteLine($"`{m} -list-trials`: List all Guest users who are tagged as <Erythro>.");
-		s.WriteLine($"{t}*aliases:* `-trials`");
-		list_officer.Add(s.ToString());
-
-		s = new StringWriter();
-		s.WriteLine("**:lock: Tags**");
-		s.WriteLine($"`{m} -tags-add <tag>=<content>`: Add a new tag with the given content.");
-		s.WriteLine($"{t}*aliases:* `-tadd`, `-tag-add`, `-add-tag`");
-		s.WriteLine($"`{m} -tags-edit <tag>=<content>`: Edit the existing tag to have the given content.");
-		s.WriteLine($"{t}*aliases:* `-tedit`, `-tag-edit`, `-edit-tag`");
-		s.WriteLine($"`{m} -tags-remove <tag>`: Remove the existing tag.");
-		s.WriteLine($"{t}*aliases:* `-tremove`, `-tag-remove`, `-remove-tag`");
-		list_officer.Add(s.ToString());
+		await interaction.AutoCompleteResultsAsync(results);
+		return;
 	}
 }
