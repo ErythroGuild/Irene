@@ -1,4 +1,4 @@
-﻿using System.Timers;
+using System.Timers;
 
 using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
 using Component = DSharpPlus.Entities.DiscordComponent;
@@ -145,9 +145,12 @@ class Pages {
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
 				.WithContent(_message.Content);
-		List<ComponentRow> rows =
-			ComponentsButtonsDisabled(new (_message.Components));
-		message_new.AddComponents(rows);
+		if (_pageCount > 1) {
+			List<ComponentRow> rows =
+				ComponentsButtonsDisabled(new (_message.Components));
+			if (rows.Count > 0)
+				message_new.AddComponents(rows);
+		}
 
 		// Edit original message.
 		// This must be done through the original interaction, as

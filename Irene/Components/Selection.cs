@@ -98,7 +98,8 @@ class Selection {
 				.WithContent(_message.Content);
 		List<ComponentRow> rows =
 			ComponentsSelectUpdated(new (_message.Components), selected);
-		message.AddComponents(rows);
+		if (rows.Count > 0)
+			message.AddComponents(rows);
 
 		// Edit original message.
 		// This must be done through the original interaction, as
@@ -126,7 +127,8 @@ class Selection {
 				.WithContent(_message.Content);
 		List<ComponentRow> rows =
 			ComponentsSelectDisabled(new (_message.Components));
-		message_new.AddComponents(rows);
+		if (rows.Count > 0)
+			message_new.AddComponents(rows);
 
 		// Edit original message.
 		// This must be done through the original interaction, as
