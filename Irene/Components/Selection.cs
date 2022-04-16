@@ -47,7 +47,6 @@ class Selection {
 					return;
 				}
 				
-				selection._timer.Restart();
 				await selection._callback(e);
 				return;
 			}
