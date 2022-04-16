@@ -271,6 +271,7 @@ class Program {
 
 				// Initialize components.
 				Modal.Init();
+				Pages.Init();
 				Selection.Init();
 
 				// Initialize modules.
