@@ -264,6 +264,7 @@ class Tag: ICommand {
 	public static async Task List(TimedInteraction interaction) {
 		// Since we only care about the keys, we can read directly from cache.
 		List<string> tags = new (_tagCache.Values);
+		tags.Sort();
 
 		// Exit early if no tags exist.
 		if (tags.Count == 0) {
