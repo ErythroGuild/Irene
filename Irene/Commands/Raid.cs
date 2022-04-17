@@ -8,30 +8,21 @@ using RaidGroup = Modules.Raid.Group;
 using RaidObj = Modules.Raid;
 
 class Raid {
-
-	public static string help_raid() {
-		StringWriter text = new ();
-
-		text.WriteLine("It is recommended to use user IDs to specify members.");
-		text.WriteLine("Although nicknames can be used instead of user ID, the nickname often contains special characters.");
-		text.WriteLine(":lock: `@Irene -rank` displays the user's rank, and lets you update them.");
-		text.WriteLine(":lock: `@Irene -guild` displays the user's guilds, and lets you modify them.");
-		text.WriteLine(":lock: `@Irene -set-erythro` gives the user **Guest** permissions and the **<Erythro>** tag.");
-		text.WriteLine(":lock: `@Irene -list-trials` lists all current trials (**Guest** & **<Erythro>**).");
-
-		return text.ToString();
+	public static List<string> HelpPages { get =>
+		new () { string.Join("\n", new List<string> {
+			@" `/raid info` displays the plans for the upcoming raid,",
+			@" `/raid eligibility` checks raid requirements (and if you meet them),",
+			@":lock: `/raid eligibility <member>` checks raid requirements for a specific member.",
+			@" `/raid view-logs <date>` shows the logs for the given date,",
+			@":lock: `/raid set-logs <group> <date> <link>` sets the logs for the given date.",
+			@":lock: `/raid set-plan <group> <date>` sets the plans for the given date's raid.",
+			@":lock: `/raid cancel <date>` marks raid that day as canceled.",
+		} ) };
 	}
 
-	public static string help_logs() {
-		StringWriter text = new ();
-
-		text.WriteLine("The `date` can be specified as any string and will be parsed.");
-		text.WriteLine("e.g.: `last week`, `3 weeks ago`, `week #2`, `2020-07-23`");
-		text.WriteLine("`@Irene -logs [group] [date]` fetches the logs for the given date.");
-		text.WriteLine(":lock: `@Irene -logs-set [group] [day] <link>|<id>` sets the logs for the current week.");
-
-		return text.ToString();
-	}
+	public static List<InteractionCommand> UserCommands    { get => new (); }
+	public static List<InteractionCommand> MessageCommands { get => new (); }
+	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static void get_time(Command cmd) {
 

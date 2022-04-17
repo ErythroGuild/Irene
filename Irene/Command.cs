@@ -270,12 +270,6 @@ class Command {
 		{ "set-logs", Raid.set_logs },
 	};
 	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
-		{ Raid.get_time  , Raid.help_raid },
-		{ Raid.get_info  , Raid.help_raid },
-		{ Raid.set_info_F, Raid.help_raid },
-		{ Raid.set_info_S, Raid.help_raid },
-		{ Raid.get_logs  , Raid.help_logs },
-		{ Raid.set_logs  , Raid.help_logs },
 	};
 	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
 		{ Raid.get_time  , AccessLevel.None    },
