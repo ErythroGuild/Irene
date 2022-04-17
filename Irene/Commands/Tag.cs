@@ -264,14 +264,15 @@ class Tag: ICommand {
 	public static async Task List(TimedInteraction interaction) {
 		// Since we only care about the keys, we can read directly from cache.
 		List<string> tags = new (_tagCache.Values);
+		tags.Sort();
 
 		// Exit early if no tags exist.
 		if (tags.Count == 0) {
-			string response = "No tags currently saved.\n" +
+			string response_error = "No tags currently saved.\n" +
 				"Maybe ask an Officer to add a tag, or suggest one with `/suggest tag`?";
 			await Command.RespondAsync(
 				interaction,
-				response, true,
+				response_error, true,
 				"No tags currently defined.",
 				LogLevel.Debug,
 				"Response sent."
@@ -279,18 +280,25 @@ class Tag: ICommand {
 			return;
 		}
 
-		// Construct response.
-		tags.Sort();
-		Pages pages = new (tags, interaction.Interaction.User);
+		// Else, send general help.
+		MessagePromise message_promise = new ();
+		DiscordMessageBuilder response = Pages.Create(
+			interaction.Interaction,
+			message_promise.Task,
+			tags
+		);
 		await Command.RespondAsync(
 			interaction,
-			pages.first_page(), true,
+			response, true,
 			"Sending list of all tags.",
 			LogLevel.Debug,
 			"List sent."
 		);
-		pages.msg = await
+
+		// Update DiscordMessage object for Pages.
+		DiscordMessage message = await
 			interaction.Interaction.GetOriginalResponseAsync();
+		message_promise.SetResult(message);
 	}
 
 	public static async Task SetAsync(TimedInteraction interaction) {

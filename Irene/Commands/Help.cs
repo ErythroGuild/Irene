@@ -3,15 +3,6 @@
 namespace Irene.Commands;
 
 class Help : ICommand {
-	// Customize pagination class for help pages.
-	class HelpPagesComponent : Pages {
-		protected override int list_page_size { get { return 1; } }
-		protected override TimeSpan timeout { get { return TimeSpan.FromMinutes(30); } }
-
-		public HelpPagesComponent(List<string> list, DiscordUser author) :
-			base(list, author) { }
-	}
-
 	private const string _commandHelp = "help";
 	private const string
 		_l = "\U0001F512", // :lock:
@@ -138,18 +129,21 @@ class Help : ICommand {
 		// See if general or specific help page is requested.
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
+		DiscordMessageBuilder response;
+		DiscordMessage message;
+		MessagePromise message_promise = new ();
 
 		// If specific help is requested.
 		if (args.Count > 0) {
 			string command = (string)args[0].Value;
 			command = command.Trim().ToLower();
 			if (!Command.HelpPages.ContainsKey(command)) {
-				string response =
+				string response_error =
 					"Sorry, no command with that name found." +
 					"\nSee `/help` for a list of valid commands.";
 				await Command.RespondAsync(
 					interaction,
-					response, true,
+					response_error, true,
 					"Help for command not found.",
 					LogLevel.Information,
 					"Command not found: `/{Command}`.",
@@ -159,29 +153,47 @@ class Help : ICommand {
 			}
 
 			List<string> help = Command.HelpPages[command].Invoke();
+			response = Pages.Create(
+				interaction.Interaction,
+				message_promise.Task,
+				help,
+				pageSize: 1
+			);
 			await Command.RespondAsync(
 				interaction,
-				string.Join("\n\n", help), true,
+				response, true,
 				"Sending specific help.",
 				LogLevel.Debug,
 				"Sent help for `/{Command}`.",
 				command
 			);
+
+			// Update DiscordMessage object for Pages.
+			message = await
+				interaction.Interaction.GetOriginalResponseAsync();
+			message_promise.SetResult(message);
 			return;
 		}
 
 		// Else, send general help.
-		HelpPagesComponent pages =
-			new (HelpGeneral, interaction.Interaction.User);
+		response = Pages.Create(
+			interaction.Interaction,
+			message_promise.Task,
+			HelpGeneral,
+			pageSize: 1
+		);
 		await Command.RespondAsync(
 			interaction,
-			pages.first_page(), true,
+			response, true,
 			"Sending general help.",
 			LogLevel.Debug,
-			"Response sent."
+			"Help text sent."
 		);
-		pages.msg = await
+
+		// Update DiscordMessage object for Pages.
+		message = await
 			interaction.Interaction.GetOriginalResponseAsync();
+		message_promise.SetResult(message);
 	}
 
 	public static async Task AutoCompleteAsync(TimedInteraction interaction) {

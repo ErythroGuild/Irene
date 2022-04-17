@@ -47,9 +47,7 @@ class Selection {
 					return;
 				}
 				
-				selection._timer.Restart();
 				await selection._callback(e);
-				return;
 			}
 		};
 	}
@@ -80,7 +78,7 @@ class Selection {
 	public async Task Discard() {
 		const double delay = 0.1;
 		_timer.Stop();
-		_timer.Interval = delay;	// arbitrarily small interval, must be >0
+		_timer.Interval = delay; // arbitrarily small interval, must be >0
 		_timer.Start();
 		await Task.Delay(TimeSpan.FromMilliseconds(delay));
 	}
@@ -95,12 +93,14 @@ class Selection {
 		// from the data of the old one.
 		// Interaction responses behave as webhooks and need to be
 		// constructed as such.
+		_message = await _interaction.GetOriginalResponseAsync();
 		DiscordWebhookBuilder message =
 			new DiscordWebhookBuilder()
 				.WithContent(_message.Content);
 		List<ComponentRow> rows =
 			ComponentsSelectUpdated(new (_message.Components), selected);
-		message.AddComponents(rows);
+		if (rows.Count > 0)
+			message.AddComponents(rows);
 
 		// Edit original message.
 		// This must be done through the original interaction, as
@@ -123,12 +123,14 @@ class Selection {
 		// DiscordMessage from the data of the old one.
 		// Interaction responses behave as webhooks and need to be
 		// constructed as such.
+		_message = await _interaction.GetOriginalResponseAsync();
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
 				.WithContent(_message.Content);
 		List<ComponentRow> rows =
 			ComponentsSelectDisabled(new (_message.Components));
-		message_new.AddComponents(rows);
+		if (rows.Count > 0)
+			message_new.AddComponents(rows);
 
 		// Edit original message.
 		// This must be done through the original interaction, as

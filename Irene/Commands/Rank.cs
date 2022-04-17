@@ -417,7 +417,7 @@ class Rank : ICommand {
 		Level rank_old = Command.GetAccessLevel(member);
 		Level rank_new = rank_old;
 		List<DiscordRole> roles_new = new ();
-		string selected = e.Interaction.Data.Values[0];
+		string selected = e.Values[0];
 		foreach (Level rank in _optionsRank.Keys) {
 			if (selected == _optionsRank[rank].Id) {
 				rank_new = rank;
@@ -581,7 +581,7 @@ class Rank : ICommand {
 
 		// Fetch list of desired roles.
 		List<DiscordRole> roles_new = new ();
-		List<string> selected = new (e.Interaction.Data.Values);
+		List<string> selected = new (e.Values);
 		foreach (Guild guild in _optionsGuild.Keys) {
 			if (selected.Contains(_optionsGuild[guild].Id))
 				roles_new.Add(Program.Guild.GetRole(ToDiscordId(guild)));
@@ -700,7 +700,7 @@ class Rank : ICommand {
 
 		// Fetch list of desired roles.
 		List<DiscordRole> roles_new = new ();
-		List<string> selected = new (e.Interaction.Data.Values);
+		List<string> selected = new (e.Values);
 		foreach (Officer officer in _optionsOfficer.Keys) {
 			if (selected.Contains(_optionsOfficer[officer].Id))
 				roles_new.Add(Program.Guild.GetRole(ToDiscordId(officer)));

@@ -1,157 +1,253 @@
-﻿using System.Timers;
+using System.Timers;
 
-using Emzi0767.Utilities;
+using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
+using Component = DSharpPlus.Entities.DiscordComponent;
 
 namespace Irene.Components;
 
-using ButtonLambda = AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs>;
-
 class Pages {
-	// protected (overrideable) properties
-	protected virtual int list_page_size
-		{ get { return 8; } }
-	protected virtual TimeSpan timeout
-		{ get { return TimeSpan.FromMinutes(10); } }
+	public const int DefaultPageSize = 8;
+	public static TimeSpan DefaultTimeout { get => TimeSpan.FromMinutes(10); }
 
-	// private static values
-	static readonly List<Pages> handlers = new ();
-	const string
-		id_button_prev = "list_prev",
-		id_button_next = "list_next",
-		id_button_page = "list_page";
-	const string
-		label_prev = "\u25B2",
-		label_next = "\u25BC";
+	// Table of all Pages to handle, indexed by the message ID of the
+	// owning message.
+	// This also serves as a way to "hold" fired timers, preventing them
+	// from going out of scope and being destroyed.
+	private static readonly ConcurrentDictionary<ulong, Pages> _pages = new ();
+	private const string
+		_idButtonPrev = "list_prev",
+		_idButtonNext = "list_next",
+		_idButtonPage = "list_page";
+	private static readonly string[] _ids = new string[]
+		{ _idButtonPrev, _idButtonNext, _idButtonPage };
+	private const string
+		_labelPrev = "\u25B2",
+		_labelNext = "\u25BC";
 
-	// public properties/fields
-	public int page { get; protected set; }
-	public readonly int page_count;
-	public readonly List<string> list;
-	public DiscordUser author { get; private set; }
-	public DiscordMessage? msg;	// may not be set immediately
+	// Force static initializer to run.
+	public static void Init() { return; }
+	// All events are handled by a single delegate, registered on init.
+	// This means there doesn't need to be a large amount of delegates
+	// that each event has to filter through until it hits the correct
+	// handler.
+	static Pages() {
+		Client.ComponentInteractionCreated += async (client, e) => {
+			ulong id = e.Message.Id;
 
-	// protected properties/fields
-	protected readonly Timer timer;
-	protected readonly ButtonLambda handler;
+			// Consume all interactions originating from a registered
+			// message, and created by the corresponding component.
+			if (_pages.ContainsKey(id)) {
+				e.Handled = true;
+				await e.Interaction.AcknowledgeComponentAsync();
 
-	public Pages(List<string> list, DiscordUser author) {
-		// Initialize members.
-		this.author = author;
-		this.list = list;
-		page = 0;
+				Pages pages = _pages[id];
 
-		double page_count_d = (double)list.Count / list_page_size;
-		page_count = (int)Math.Round(Math.Ceiling(page_count_d));
+				// Can only update if message was already created.
+				if (pages._message is null)
+					return;
 
-		timer = new Timer(timeout.TotalMilliseconds) {
+				// Only respond to interactions created by the "owner"
+				// of the component.
+				if (e.User != pages._interaction.User)
+					return;
+
+				// Handle buttons.
+				switch (e.Id) {
+				case _idButtonPrev:
+					pages._page--;
+					break;
+				case _idButtonNext:
+					pages._page++;
+					break;
+				}
+				pages._page = Math.Max(pages._page, 0);
+				pages._page = Math.Min(pages._page, pages._pageCount);
+
+				// Edit original message.
+				// This must be done through the original interaction, as
+				// responses to interactions don't actually "exist" as real
+				// messages.
+				await pages._interaction
+					.EditOriginalResponseAsync(pages.CurrentWebhook);
+			}
+		};
+	}
+
+	// Instance (configuration) properties.
+	private readonly List<string> _data;
+	private int _page;
+	private readonly int _pageCount;
+	private readonly int _pageSize;
+	private DiscordMessage? _message;
+	private readonly DiscordInteraction _interaction;
+	private readonly Timer _timer;
+
+	// Generated instance properties.
+	private DiscordMessageBuilder CurrentMessage { get {
+		DiscordMessageBuilder message =
+			new DiscordMessageBuilder()
+				.WithContent(CurrentContent);
+		if (_pageCount > 1)
+			message = message.AddComponents(CurrentButtons);
+		return message;
+	} }
+	private DiscordWebhookBuilder CurrentWebhook { get {
+		DiscordWebhookBuilder webhook =
+			new DiscordWebhookBuilder()
+				.WithContent(CurrentContent);
+		if (_pageCount > 1)
+			webhook = webhook.AddComponents(CurrentButtons);
+		return webhook;
+	} }
+	private string CurrentContent { get {
+		int i_start = _page * _pageSize;
+		int i_end = Math.Min(i_start + _pageSize, _data.Count);
+		int i_range = i_end - i_start;
+
+		return string.Join("\n", _data.GetRange(i_start, i_range));
+	} }
+	private Component[] CurrentButtons { get =>
+		GetButtons(_page, _pageCount);
+	}
+
+	// Private constructor.
+	// Use Pages.Create() to create a new instance.
+	private Pages(
+		List<string> data,
+		int pageSize,
+		DiscordInteraction interaction,
+		Timer timer
+	) {
+		// Calculate page count.
+		// It's convenient to save this result.
+		double pageCount = data.Count / (double)pageSize;
+		pageCount = Math.Round(Math.Ceiling(pageCount));
+
+		_data = data;
+		_page = 0;
+		_pageCount = (int)pageCount;
+		_pageSize = pageSize;
+		_interaction = interaction;
+		_timer = timer;
+	}
+
+	// Manually time-out the timer (and fire the elapsed handler).
+	public async Task Discard() {
+		const double delay = 0.1;
+		_timer.Stop();
+		_timer.Interval = delay; // arbitrarily small interval, must be >0
+		_timer.Start();
+		await Task.Delay(TimeSpan.FromMilliseconds(delay));
+	}
+
+	// Cleanup task to dispose of all resources.
+	// Does not check for _message being completed yet.
+	private async Task Cleanup() {
+		if (_message is null)
+			return;
+
+		// Remove held references.
+		_pages.TryRemove(_message.Id, out _);
+
+		// Update message to disable component.
+		// Interaction responses behave as webhooks and need to be
+		// constructed as such.
+		_message = await _interaction.GetOriginalResponseAsync();
+		DiscordWebhookBuilder message_new =
+			new DiscordWebhookBuilder()
+				.WithContent(_message.Content);
+		if (_pageCount > 1) {
+			List<ComponentRow> rows =
+				ComponentsButtonsDisabled(new (_message.Components));
+			if (rows.Count > 0)
+				message_new.AddComponents(rows);
+		}
+
+		// Edit original message.
+		// This must be done through the original interaction, as
+		// responses to interactions don't actually "exist" as real
+		// messages.
+		await _interaction.EditOriginalResponseAsync(message_new);
+	}
+
+	public static DiscordMessageBuilder Create(
+		DiscordInteraction interaction,
+		Task<DiscordMessage> messageTask,
+		List<string> data,
+		int? pageSize=null,
+		TimeSpan? timeout=null
+	) {
+		pageSize ??= DefaultPageSize;
+		timeout ??= DefaultTimeout;
+		Timer timer = new (timeout.Value.TotalMilliseconds) {
 			AutoReset = false,
 		};
 
-		handler = async (irene, e) => {
-			// Ignore triggers from the wrong message.
-			if (e.Message != msg) {
-				return;
-			}
-
-			// Ignore people who aren't the original user.
-			if (e.User != author) {
-				await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-				return;
-			}
-
-			// Update page buttons.
-			switch (e.Id) {
-			case id_button_prev:
-				page--;
-				break;
-			case id_button_next:
-				page++;
-				break;
-			}
-			page = Math.Max(page, 0);
-			page = Math.Min(page, page_count);
-
-			// Update page content.
-			await e.Interaction.CreateResponseAsync(
-				InteractionResponseType.UpdateMessage,
-				new DiscordInteractionResponseBuilder()
-				.WithContent(paginate(page, list_page_size, this.list))
-				.AddComponents(buttons(page, page_count))
-			);
-
-			// Mark event as handled.
-			e.Handled = true;
-
-			// Refresh deactivation timer.
-			timer.Stop();
-			timer.Start();
+		// Construct partial Pages object.
+		Pages pages =
+			new (data, pageSize.Value, interaction, timer);
+		messageTask.ContinueWith((messageTask) => {
+			DiscordMessage message = messageTask.Result;
+			pages._message = message;
+			_pages.TryAdd(message.Id, pages);
+			pages._timer.Start();
+		});
+		timer.Elapsed += async (obj, e) => {
+			// Run (or schedule to run) cleanup task.
+			if (!messageTask.IsCompleted)
+				await messageTask.ContinueWith((e) => pages.Cleanup());
+			else
+				await pages.Cleanup();
 		};
 
-		// Configure timeout event listener.
-		timer.Elapsed += async (s, e) => {
-			Client.ComponentInteractionCreated -= handler;
-			if (msg is not null) {
-				await msg.ModifyAsync(
-					new DiscordMessageBuilder()
-					.WithContent(paginate(page, list_page_size, this.list))
-					.AddComponents(buttons(page, page_count, false))
-				);
-			}
-			handlers.Remove(this);
-		};
-
-		// Attach handler to client and start deactivation timer.
-		handlers.Add(this);
-		Client.ComponentInteractionCreated += handler;
-		timer.Start();
-	}
-
-	// Returns the first page of content (used for initial response).
-	public DiscordMessageBuilder first_page() {
-		DiscordMessageBuilder msg =
-			new DiscordMessageBuilder()
-			.WithContent(paginate(0, list_page_size, list))
-			.AddComponents(buttons(page, page_count));
-		return msg;
-	}
-
-	// Return the paginated page content.
-	// Assumes all arguments are within bounds.
-	static string paginate(int page, int page_size, List<string> list) {
-		StringWriter text = new ();
-
-		int i_start = page * page_size;
-		for (int i = i_start; i < i_start + page_size && i < list.Count; i++) {
-			text.WriteLine(list[i]);
-		}
-
-		return text.ToString();
+		return pages.CurrentMessage;
 	}
 
 	// Returns a row of buttons for paginating the data.
-	static DiscordComponent[] buttons(
-		int page,
-		int total,
-		bool is_enabled = true ) {
-		return new DiscordComponent[] {
+	private static Component[] GetButtons(int page, int total) =>
+		new Component[] {
 			new DiscordButtonComponent(
 				ButtonStyle.Secondary,
-				id_button_prev,
-				label_prev,
-				(page + 1 == 1) || !is_enabled
+				_idButtonPrev,
+				_labelPrev,
+				disabled: (page + 1 == 1)
 			),
 			new DiscordButtonComponent(
 				ButtonStyle.Secondary,
-				id_button_page,
-				$"{page + 1} / {total}",
-				!is_enabled
+				_idButtonPage,
+				$"{page + 1} / {total}"
 			),
 			new DiscordButtonComponent(
 				ButtonStyle.Secondary,
-				id_button_next,
-				label_next,
-				(page + 1 == total) || !is_enabled
+				_idButtonNext,
+				_labelNext,
+				disabled: (page + 1 == total)
 			),
 		};
+	
+	// Return a new list of components, with any DiscordButtonComponents
+	// (with a matching ID) disabled.
+	private static List<ComponentRow> ComponentsButtonsDisabled(List<ComponentRow> rows) {
+		List<ComponentRow> rows_new = new ();
+
+		foreach (ComponentRow row in rows) {
+			List<Component> components_new = new ();
+
+			foreach (Component component in row.Components) {
+				if (component is
+					DiscordButtonComponent button &&
+					Array.IndexOf(_ids, component.CustomId) != -1
+				) {
+					button.Disable();
+					components_new.Add(button);
+				} else {
+					components_new.Add(component);
+				}
+			}
+
+			rows_new.Add(new ComponentRow(components_new));
+		}
+
+		return rows_new;
 	}
 }

@@ -193,7 +193,7 @@ class Roles : ICommand {
 
 		// Fetch list of desired roles.
 		List<DiscordRole> roles_new = new ();
-		List<string> selected = new (e.Interaction.Data.Values);
+		List<string> selected = new (e.Values);
 		foreach (PingRole role in _options.Keys) {
 			if (selected.Contains(_options[role].Id))
 				roles_new.Add(Guild.GetRole(ToDiscordId(role)));
