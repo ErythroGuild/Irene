@@ -1,4 +1,4 @@
-﻿using Irene.Components;
+using Irene.Components;
 
 namespace Irene.Commands;
 
@@ -77,7 +77,7 @@ class Help : ICommand {
 			$@"{_s} `/raid view-logs <date>`: Displays the logs for the given date.",
 			$@"{_p}{_l} `/raid set-logs <group> <date> <link>`: Sets the logs for the given date.",
 			$@"{_p}{_l} `/raid set-plan <group> <date>`: Sets the plans for the given date.",
-			$@"{_p}{_l} `/raid cancel <date>`: Mark the raids on a date as canceled.",
+			$@"{_p}{_l} `/raid cancel <date> [do-cancel]`: Mark the raids on a date as canceled.",
 		//	"",
 		//	"**Keys**",
 		//	$@"{_p} `/keys [share] [sort] [filter]`:",

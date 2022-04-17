@@ -1,10 +1,20 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using Irene.Modules;
 
 namespace Irene.Commands;
 
 class Raid : ICommand {
+	private static readonly List<string> _dateExamples = new () {
+		"today",
+		"yesterday",
+		"this friday",
+		"this saturday",
+		"last friday",
+		"last saturday",
+		"tomorrow",
+	};
+
 	private const string
 		_commandRaid     = "raid"       ,
 		_commandInfo     = "info"       ,
@@ -13,6 +23,7 @@ class Raid : ICommand {
 		_commandSetLogs  = "set-logs"   ,
 		_commandSetPlan  = "set-plan"   ,
 		_commandCancel   = "cancel"     ;
+	private const string _argDate = "date";
 
 	public static List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
@@ -22,7 +33,7 @@ class Raid : ICommand {
 			@" `/raid view-logs <date>` shows the logs for the given date,",
 			@":lock: `/raid set-logs <group> <date> <link>` sets the logs for the given date.",
 			@":lock: `/raid set-plan <group> <date>` sets the plans for the given date's raid.",
-			@":lock: `/raid cancel <date>` marks raid that day as canceled.",
+			@":lock: `/raid cancel <date> [do-cancel]` marks raid that day as canceled.",
 		} ) };
 	}
 
@@ -54,7 +65,7 @@ class Raid : ICommand {
 						"View logs for a given date.",
 						ApplicationCommandOptionType.SubCommand,
 						options: new List<CommandOption> { new (
-							"date",
+							_argDate,
 							"The date to retrieve logs for.",
 							ApplicationCommandOptionType.String,
 							required: true,
@@ -77,7 +88,7 @@ class Raid : ICommand {
 								}
 							),
 							new (
-								"date",
+								_argDate,
 								"The date to set logs for.",
 								ApplicationCommandOptionType.String,
 								required: true,
@@ -107,7 +118,7 @@ class Raid : ICommand {
 								}
 							),
 							new (
-								"date",
+								_argDate,
 								"The date to set the raid plans for.",
 								ApplicationCommandOptionType.String,
 								required: true,
@@ -119,13 +130,21 @@ class Raid : ICommand {
 						_commandCancel,
 						"Cancel raid on a certain date.",
 						ApplicationCommandOptionType.SubCommand,
-						options: new List<CommandOption> { new (
-							"date",
-							"The date to cancel raid for.",
-							ApplicationCommandOptionType.String,
-							required: true,
-							autocomplete: true
-						), }
+						options: new List<CommandOption> {
+							new (
+								_argDate,
+								"The date to cancel raid for.",
+								ApplicationCommandOptionType.String,
+								required: true,
+								autocomplete: true
+							),
+							new (
+								"do-cancel",
+								"Whether or not to cancel raid.",
+								ApplicationCommandOptionType.Boolean,
+								required: false
+							),
+						}
 					),
 				},
 				defaultPermission: true,
@@ -173,7 +192,28 @@ class Raid : ICommand {
 	}
 
 	private static async Task AutoCompleteAsync(TimedInteraction interaction) {
+		List<DiscordInteractionDataOption> args =
+			interaction.GetArgs()[0].GetArgs();
+		string arg = (string)(args.GetArg(_argDate) ?? "");
+		arg = arg.Trim().ToLower();
 
+		if (arg == "") {
+			await interaction.AutoCompleteResultsAsync(_dateExamples);
+			return;
+		}
+
+		// Search through cached results.
+		List<string> results = new ();
+		foreach (string tag in _dateExamples) {
+			if (tag.Contains(arg))
+				results.Add(tag);
+		}
+
+		// Only return first 25 results.
+		if (results.Count > 25)
+			results = results.GetRange(0, 25);
+
+		await interaction.AutoCompleteResultsAsync(results);
 	}
 
 	private static async Task ShowInfoAsync(TimedInteraction interaction) {
@@ -198,6 +238,83 @@ class Raid : ICommand {
 
 	private static async Task CancelAsync(TimedInteraction interaction) {
 
+	}
+
+	private static RaidDate? ParseRaidDate(string arg) {
+		DateOnly? date_raw = null;
+		arg = arg.Trim().ToLower();
+
+		DayOfWeek day_reset = DayOfWeek.Tuesday;
+		Regex regex_closestWeekday = new (@"(?<position>this|last|next)\s+(?<day>friday|fri|f|saturday|sat|s)]");
+		Regex regex_numberedWeekday = new (@"(?:(?<day1>friday|fri|f|saturday|sat|s)\s+)?(?<i>\d+)\s+weeks?\s+(?<position>ago|from\s+now)(?:\s+on\s+(?<day2>friday|fri|f|saturday|sat|s))?");
+
+		static int DaysToWeekday(DayOfWeek basis, DateOnly input, DayOfWeek day) {
+			int delta_input = (input.DayOfWeek - basis + 7) % 7;
+			int delta_day = (day - basis + 7) % 7;
+			return delta_day - delta_input;
+		}
+		static DayOfWeek ParseDay(string input) => input switch {
+			"f" or "fri" or "friday" => DayOfWeek.Friday,
+			"s" or "sat" or "saturday" => DayOfWeek.Saturday,
+			_ => throw new ArgumentException("Invalid day of week.", nameof(input)),
+		};
+
+		switch (arg) {
+		case "today":
+			date_raw = DateOnly.FromDateTime(DateTime.Today);
+			break;
+		case "yesterday":
+			date_raw = DateOnly.FromDateTime(DateTime.Today).AddDays(-1);
+			break;
+		case "tomorrow":
+			date_raw = DateOnly.FromDateTime(DateTime.Today).AddDays(1);
+			break;
+		case string s when regex_closestWeekday.IsMatch(s): {
+			Match match = regex_closestWeekday.Match(s);
+			DayOfWeek day = ParseDay(match.Groups["day"].Value);
+			date_raw = DateOnly.FromDateTime(DateTime.Today);
+			int delta = DaysToWeekday(day_reset, date_raw.Value, day);
+			delta += match.Groups["position"].Value switch {
+				"this" => 0,
+				"last" => -7,
+				"next" => 7,
+				_ => throw new ArgumentException("Invalid positional relation.", nameof(arg)),
+			};
+			date_raw.Value.AddDays(delta);
+			break; }
+		case string s when regex_numberedWeekday.IsMatch(s): {
+			Match match = regex_closestWeekday.Match(s);
+			date_raw = DateOnly.FromDateTime(DateTime.Today);
+			DayOfWeek day = match.Groups switch {
+				GroupCollection g when g.ContainsKey("day1") => ParseDay(g["day1"].Value),
+				GroupCollection g when g.ContainsKey("day2") => ParseDay(g["day2"].Value),
+				_ => date_raw.Value.DayOfWeek,
+			};
+			int delta = DaysToWeekday(day_reset, date_raw.Value, day);
+			int sign = match.Groups["position"].Value switch {
+				"ago" => -1,
+				string p when p.StartsWith("from") => 1,
+				_ => throw new ArgumentException("Invalid positional relation.", nameof(arg)),
+			};
+			delta += sign * 7 * int.Parse(match.Groups["i"].Value);
+			date_raw.Value.AddDays(delta);
+			break; }
+		default: {
+			bool isDate = DateOnly.TryParse(arg, out DateOnly date_parsed);
+			date_raw = isDate ? date_parsed : null;
+			break; }
+		}
+
+		// Filter out invalid (non-raid) days.
+		if (date_raw is null)
+			return null;
+		if (date_raw.Value.DayOfWeek is not
+			(DayOfWeek.Friday or DayOfWeek.Saturday)
+		) { return null; }
+
+		RaidDate? date =
+			Modules.Raid.CalculateRaidDate((DateOnly)date_raw);
+		return date;
 	}
 
 	public static void set_logs(Command cmd) {
