@@ -67,6 +67,40 @@ class Raid {
 		Util.CreateIfMissing(_pathData, _lock);
 	}
 
+	// Given a date, calculate the raid week & day.
+	// Must be combined with a RaidTier to specify a raid.
+	// Returns null if the given date was not a raid day.
+	public static RaidDate? CalculateRaidDate(DateOnly date) {
+		// Find / check raid day.
+		RaidDay? day = date.DayOfWeek switch {
+			DayOfWeek.Friday => RaidDay.Fri,
+			DayOfWeek.Saturday => RaidDay.Sat,
+			_ => null,
+		};
+		if (day is null)
+			return null;
+
+		// Calculate raid week.
+		DateTimeOffset date_time = date.UtcResetTime();
+		DateOnly? basis = date_time switch {
+			DateTimeOffset d when d < Date_Season1.UtcResetTime() =>
+				null,
+			DateTimeOffset d when d < Date_Season2.UtcResetTime() =>
+				Date_Season1,
+			DateTimeOffset d when d < Date_Season3.UtcResetTime() =>
+				Date_Season2,
+			DateTimeOffset d when d >= Date_Season3.UtcResetTime() =>
+				Date_Season3,
+			_ => null,
+		};
+		if (basis is null)
+			return null;
+		TimeSpan duration = date_time - basis.Value.UtcResetTime();
+		int week = (duration.Days / 7) + 1; // int division
+
+		return new RaidDate(week, day.Value);
+	}
+
 	// Returns null if the link is ill-formed.
 	public static string? ParseLogId(string link) {
 		Regex regex = new (@"(?:(?:https?\:\/\/)?(?:www\.)?warcraftlogs\.com\/reports\/)?(?<id>\w+)(?:#.+)?");
