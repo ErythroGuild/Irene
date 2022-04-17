@@ -19,6 +19,14 @@ static partial class Util {
 			? new (option.Options)
 			: new ();
 
+	public static object? GetArg(this List<DiscordInteractionDataOption> options, string name) {
+		foreach (DiscordInteractionDataOption option in options) {
+			if (option.Name == name)
+				return option.Value;
+		}
+		return null;
+	}
+
 	// Convenience method for fetching modal field values.
 	public static Dictionary<string, TextInputComponent> GetModalComponents(this DiscordInteraction interaction) {
 		Dictionary<string, TextInputComponent> components = new ();
