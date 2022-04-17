@@ -1,4 +1,4 @@
-﻿using System.Timers;
+using System.Timers;
 
 using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
 using Component = DSharpPlus.Entities.DiscordComponent;
@@ -152,6 +152,7 @@ class Pages {
 		// Update message to disable component.
 		// Interaction responses behave as webhooks and need to be
 		// constructed as such.
+		_message = await _interaction.GetOriginalResponseAsync();
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
 				.WithContent(_message.Content);

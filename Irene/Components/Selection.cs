@@ -93,6 +93,7 @@ class Selection {
 		// from the data of the old one.
 		// Interaction responses behave as webhooks and need to be
 		// constructed as such.
+		_message = await _interaction.GetOriginalResponseAsync();
 		DiscordWebhookBuilder message =
 			new DiscordWebhookBuilder()
 				.WithContent(_message.Content);
@@ -122,6 +123,7 @@ class Selection {
 		// DiscordMessage from the data of the old one.
 		// Interaction responses behave as webhooks and need to be
 		// constructed as such.
+		_message = await _interaction.GetOriginalResponseAsync();
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
 				.WithContent(_message.Content);
