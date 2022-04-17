@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 using static Irene.Modules.Raid;
 
@@ -56,7 +56,7 @@ class Raid {
 
 		// Format arguments and set reasonable defaults.
 		string[] split = cmd.args.Split(" ", 3);
-		RaidGroup? group = default_group;
+		RaidGroup? group = DefaultGroup;
 		Day? day = DateTimeOffset.Now.DayOfWeek switch {
 			DayOfWeek.Friday   => Day.Fri,
 			DayOfWeek.Saturday => Day.Sat,
@@ -96,8 +96,8 @@ class Raid {
 
 		// Set data appropriately.
 		RaidObj raid =
-			get(current_week(), (Day)day, (RaidGroup)group) ??
-			new (current_week(), (Day)day, (RaidGroup)group);
+			get(CurrentWeek, (Day)day, (RaidGroup)group) ??
+			new (CurrentWeek, (Day)day, (RaidGroup)group);
 		string? log_id_prev = raid.log_id;
 		raid.log_id = log_id;
 		update(raid);

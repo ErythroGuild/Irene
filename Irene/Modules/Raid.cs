@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 using FileEntry = List<string>;
 
@@ -6,7 +6,7 @@ class Raid {
 	public enum Tier {
 		EN, NH, ToV, ToS, ABT,
 		Uldir, BoD, CoS, EP, NWC,
-		CN, SoD,
+		CN, SoD, SFO,
 	}
 	public enum Day {
 		Fri, Sat,
@@ -15,17 +15,20 @@ class Raid {
 		Spaghetti,
 		Salad,
 	}
-	public record Date {
-		public int week { get; init; }
-		public Day day { get; init; }
-	}
 
-	public static readonly Group default_group = Group.Spaghetti;
-	public static readonly Tier current_tier = Tier.SoD;
-	public static readonly TimeSpan time = new (19, 0, 0);
+	public readonly record struct Date (int Week, Day Day);
 
-	static readonly List<string> raid_emojis = new () {
+	public static TimeOnly Time { get => new (19, 0, 0); } // local (Pacific) time.
+	public static Group DefaultGroup { get => Group.Spaghetti; }
+	public static Tier CurrentTier { get => Tier.SFO; }
+	public static int CurrentWeek { get {
+		TimeSpan duration = DateTime.UtcNow - Date_Season3.UtcResetTime();
+		int week = (duration.Days / 7) + 1; // int division
+		return week;
+	} }
+	
 	private static readonly object _lock = new ();
+	private static readonly List<string> _raidEmojis = new () {
 		":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
 		":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
 		":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
@@ -36,30 +39,24 @@ class Raid {
 		":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
 	};
 
-	const string
-		frag_logs = @"https://www.warcraftlogs.com/reports/",
-		frag_wipefest = @"https://www.wipefest.gg/report/",
-		frag_analyzer = @"https://wowanalyzer.com/report/";
-	const string
-		path_data = @"data/raids.txt",
-		path_buffer = @"data/raids-buf.txt";
-	const string sep = "-";
-	const string indent = "\t";
-	const string delim = "=";
-	const string
-		key_tier    = "tier",
-		key_week    = "week",
-		key_day     = "day",
-		key_group   = "group",
-		key_summary = "summary",
-		key_log_id  = "log-id";
-
-	// Returns the current week, calculated based on local time.
-	public static int current_week() {
-		TimeSpan duration = DateTime.UtcNow - Date_Season3.UtcResetTime();
-		int week = (duration.Days / 7) + 1;   // int division
-		return week;
-	}
+	private const string
+		_fragLogs     = @"https://www.warcraftlogs.com/reports/",
+		_fragWipefest = @"https://www.wipefest.gg/report/",
+		_fragAnalyzer = @"https://wowanalyzer.com/report/";
+	private const string
+		_pathData   = @"data/raids.txt",
+		_pathBuffer = @"data/raids-buf.txt";
+	private const string _sep = "-";
+	private const string _indent = "\t";
+	private const string _delim = "=";
+	private const string
+		_keyDoCancel = "canceled",
+		_keyTier     = "tier",
+		_keyWeek     = "week",
+		_keyDay      = "day",
+		_keyGroup    = "group",
+		_keySummary  = "summary",
+		_keyLogId    = "log-id";
 
 	// Replace the previous raid entry with the same hash as
 	// the new one if one exists; otherwise prepends the raid
@@ -95,20 +92,20 @@ class Raid {
 		}
 
 		// Update text file.
-		lock (lock_data) {
-			File.WriteAllLines(path_buffer, output);
-			File.Delete(path_data);
-			File.Move(path_buffer, path_data);
+		lock (_lock) {
+			File.WriteAllLines(_pathBuffer, output);
+			File.Delete(_pathData);
+			File.Move(_pathBuffer, _pathData);
 		}
 	}
 
 	// Fetch raid data from saved datafile.
 	// Returns null if a matching entry could not be found.
 	public static Raid? get(int week, Day day) {
-		return get(week, day, default_group);
+		return get(week, day, DefaultGroup);
 	}
 	public static Raid? get(int week, Day day, Group group) {
-		return get(current_tier, week, day, group);
+		return get(CurrentTier, week, day, group);
 	}
 	public static Raid? get(Tier tier, int week, Day day, Group group) {
 		Util.CreateIfMissing(_pathData, _lock);
@@ -130,11 +127,11 @@ class Raid {
 		List<FileEntry> entries = new ();
 		FileEntry? entry = null;
 
-		lock (lock_data) {
-			StreamReader file = new (path_data);
+		lock (_lock) {
+			StreamReader file = new (_pathData);
 			while (!file.EndOfStream) {
 				string line = file.ReadLine() ?? "";
-				if (!line.StartsWith(indent)) {
+				if (!line.StartsWith(_indent)) {
 					if (entry is not null) {
 						entries.Add(entry);
 					}
@@ -158,15 +155,15 @@ class Raid {
 		FileEntry entry = new ();
 
 		// Look for matching raid data.
-		lock (lock_data) {
-			StreamReader file = new (path_data);
+		lock (_lock) {
+			StreamReader file = new (_pathData);
 			while (!file.EndOfStream) {
 				string line = file.ReadLine() ?? "";
 				if (line == hash) {
 					was_found = true;
 					entry.Add(line);
 					line = file.ReadLine() ?? "";
-					while (line.StartsWith(indent)) {
+					while (line.StartsWith(_indent)) {
 						entry.Add(line);
 						line = file.ReadLine() ?? "";
 					}
@@ -187,7 +184,7 @@ class Raid {
 
 	static Raid? from_file_entry(FileEntry entry) {
 		// Remove hash line.
-		if (!entry[0].StartsWith(indent)) {
+		if (!entry[0].StartsWith(_indent)) {
 			entry.RemoveAt(0);
 		}
 
@@ -203,27 +200,27 @@ class Raid {
 		// Parse lines.
 		foreach (string line in entry) {
 			// Do not remove empty elements.
-			string[] split = line.Trim().Split(delim, 2);
+			string[] split = line.Trim().Split(_delim, 2);
 			switch (split[0]) {
-			case key_tier:
+			case _keyTier:
 				tier = Enum.Parse<Tier>(split[1]);
 				break;
-			case key_week:
+			case _keyWeek:
 				week = int.Parse(split[1]);
 				break;
-			case key_day:
+			case _keyDay:
 				day = Enum.Parse<Day>(split[1]);
 				break;
-			case key_group:
+			case _keyGroup:
 				group = Enum.Parse<Group>(split[1]);
 				break;
-			case key_summary:
+			case _keySummary:
 				summary = split[1];
 				if (summary == "") {
 					summary = null;
 				}
 				break;
-			case key_log_id:
+			case _keyLogId:
 				log_id = split[1];
 				if (log_id == "") {
 					log_id = null;
@@ -253,12 +250,12 @@ class Raid {
 
 	// Constructors.
 	public Raid(int week, Day day) :
-		this (week, day, default_group) { }
+		this (week, day, DefaultGroup) { }
 	public Raid(int week, Day day, Group group) :
-		this (current_tier, week, day, group) { }
+		this (CurrentTier, week, day, group) { }
 	public Raid(Tier tier, int week, Day day, Group group) {
 		this.tier = tier;
-		date = new Date() { week = week, day = day };
+		date = new Date(week, day);
 		this.group = group;
 		summary = null;
 		log_id = null;
@@ -266,38 +263,38 @@ class Raid {
 
 	// Returns a uniquely identifiable string per raid+group.
 	public string hash() {
-		return $"{tier}{sep}{date.week}{sep}{date.day}{sep}{group}";
+		return $"{tier}{_sep}{date.Week}{_sep}{date.Day}{_sep}{group}";
 	}
 
 	// Returns a different emoji for each week of the tier.
 	// The order is fixed between tiers.
 	public string emoji() {
-		int i = (date.week - 1) % raid_emojis.Count;
-		return raid_emojis[i];
+		int i = (date.Week - 1) % _raidEmojis.Count;
+		return _raidEmojis[i];
 	}
 
 	// Convenience functions that return links to frequently-used
 	// websites.
 	public string? get_link_logs() {
-		return $"{frag_logs}{log_id}" ?? null;
+		return $"{_fragLogs}{log_id}" ?? null;
 	}
 	public string? get_link_wipefest() {
-		return $"{frag_wipefest}{log_id}" ?? null;
+		return $"{_fragWipefest}{log_id}" ?? null;
 	}
 	public string? get_link_analyzer() {
-		return $"{frag_analyzer}{log_id}" ?? null;
+		return $"{_fragAnalyzer}{log_id}" ?? null;
 	}
 
 	// Returns a(n ordered) list of the instance's serialization.
 	FileEntry file_entry() {
 		FileEntry output = new ();
 		output.Add(hash());
-		output.Add($"{indent}{key_tier}{delim}{tier}");
-		output.Add($"{indent}{key_week}{delim}{date.week}");
-		output.Add($"{indent}{key_day}{delim}{date.day}");
-		output.Add($"{indent}{key_group}{delim}{group}");
-		output.Add($"{indent}{key_summary}{delim}{summary ?? ""}");
-		output.Add($"{indent}{key_log_id}{delim}{log_id ?? ""}");
+		output.Add($"{_indent}{_keyTier}{_delim}{tier}");
+		output.Add($"{_indent}{_keyWeek}{_delim}{date.Week}");
+		output.Add($"{_indent}{_keyDay}{_delim}{date.Day}");
+		output.Add($"{_indent}{_keyGroup}{_delim}{group}");
+		output.Add($"{_indent}{_keySummary}{_delim}{summary ?? ""}");
+		output.Add($"{_indent}{_keyLogId}{_delim}{log_id ?? ""}");
 		return output;
 	}
 }

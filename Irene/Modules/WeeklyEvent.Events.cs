@@ -103,7 +103,7 @@ partial class WeeklyEvent {
 		}
 
 		// Find/construct raid object.
-		int week = Raid.current_week();
+		int week = Raid.CurrentWeek;
 		Raid.Day? day = DateTimeOffset.Now.DayOfWeek switch {
 			DayOfWeek.Friday   => Raid.Day.Fri,
 			DayOfWeek.Saturday => Raid.Day.Sat,
@@ -119,7 +119,7 @@ partial class WeeklyEvent {
 		// Send raid announcement.
 		DateTimeOffset now = DateTimeOffset.Now;
 		DateTimeOffset time_forming = now - now.TimeOfDay + t_raid_now_announce;
-		DateTimeOffset time_raid = now - now.TimeOfDay + Raid.time;
+		DateTimeOffset time_raid = now - now.TimeOfDay + Raid.Time.ToTimeSpan();
 		StringWriter text = new ();
 		text.Write($"{raid.emoji()} {Roles[id_r.raid].Mention} - ");
 		text.Write($"Forming for raid ~{time_forming.Timestamp(TimestampStyle.Relative)}");
@@ -147,7 +147,7 @@ partial class WeeklyEvent {
 		}
 
 		// Find/construct raid object.
-		int week = Raid.current_week();
+		int week = Raid.CurrentWeek;
 		Raid.Day? day = DateTimeOffset.Now.DayOfWeek switch {
 			DayOfWeek.Friday   => Raid.Day.Fri,
 			DayOfWeek.Saturday => Raid.Day.Sat,
