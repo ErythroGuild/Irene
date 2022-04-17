@@ -378,24 +378,6 @@ class Program {
 					_ = msg.RespondAsync(":wave:");
 					return;
 				}
-
-				// Handle normal commands.
-				string str_mention = irene.CurrentUser.Mention;
-				if (msg_text.StartsWith(str_mention_n)) {
-					msg_text = msg_text.Replace(str_mention_n, str_mention);
-				}
-				if (msg_text.StartsWith(str_mention)) {
-					msg_text = msg_text[str_mention.Length..];
-					msg_text = msg_text.TrimStart();
-					Log.Information("Command received.");
-					if (msg.Channel.IsPrivate) {
-						Log.Debug("[DM command]");
-					}
-					DiscordUser author = msg.Author;
-					Log.Debug($"  {author.Tag()}: {msg_text}");
-					Command cmd = new (msg_text, msg);
-					cmd.invoke();
-				}
 			});
 			return Task.CompletedTask;
 		};
