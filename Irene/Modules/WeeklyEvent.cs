@@ -215,7 +215,7 @@ partial class WeeklyEvent {
 
 	// Read the specified id's time from the datafile.
 	static DateTimeOffset? parse_last_executed(string id) {
-		Util.CreateIfMissing(path_data, ref lock_data);
+		Util.CreateIfMissing(path_data, lock_data);
 
 		lock (lock_data) {
 			StreamReader file = new (path_data);
@@ -242,7 +242,7 @@ partial class WeeklyEvent {
 
 	// Write the current id-time pair to the datafile.
 	static void update_executed(string id, DateTimeOffset time) {
-		Util.CreateIfMissing(path_data, ref lock_data);
+		Util.CreateIfMissing(path_data, lock_data);
 
 		// Read in all current data; replacing appropriate line.
 		StringWriter buffer = new ();

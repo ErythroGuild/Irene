@@ -43,7 +43,8 @@ static partial class Util {
 
 	// Create a blank file at the given path, if it doesn't exist.
 	// Returns true if file was created, false otherwise.
-	public static bool CreateIfMissing(string path, ref object @lock) {
+	// `object` is a reference type.
+	public static bool CreateIfMissing(string path, object @lock) {
 		bool did_create = false;
 		lock (@lock) {
 			if (!File.Exists(path)) {

@@ -70,7 +70,7 @@ class Roles : ICommand {
 	public static void Init() { return; }
 	static Roles() {
 		_table_IdToRole = Util.Invert(_table_RoleToId);
-		Util.CreateIfMissing(_pathIntros, ref _lock);
+		Util.CreateIfMissing(_pathIntros, _lock);
 	}
 
 	public static List<string> HelpPages { get =>

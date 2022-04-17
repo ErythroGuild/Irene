@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 using FileEntry = List<string>;
 
@@ -25,6 +25,7 @@ class Raid {
 	public static readonly TimeSpan time = new (19, 0, 0);
 
 	static readonly List<string> raid_emojis = new () {
+	private static readonly object _lock = new ();
 		":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
 		":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
 		":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
@@ -34,7 +35,6 @@ class Raid {
 		":snail:"  , ":giraffe:" , ":duck:"       , ":bat:"     ,
 		":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
 	};
-	static object lock_data = new ();
 
 	const string
 		frag_logs = @"https://www.warcraftlogs.com/reports/",
@@ -65,7 +65,7 @@ class Raid {
 	// the new one if one exists; otherwise prepends the raid
 	// entry.
 	public static void update(Raid raid) {
-		Util.CreateIfMissing(path_data, ref lock_data);
+		Util.CreateIfMissing(_pathData, _lock);
 
 		// Replace in-place the entry if it's an update to an
 		// existing entry.
@@ -111,7 +111,7 @@ class Raid {
 		return get(current_tier, week, day, group);
 	}
 	public static Raid? get(Tier tier, int week, Day day, Group group) {
-		Util.CreateIfMissing(path_data, ref lock_data);
+		Util.CreateIfMissing(_pathData, _lock);
 
 		string hash = new Raid(tier, week, day, group).hash();
 		FileEntry? entry = get_file_entry(hash);
@@ -125,7 +125,7 @@ class Raid {
 
 	// Reads the entire datafile and groups them into entries.
 	static List<FileEntry> get_file_entries() {
-		Util.CreateIfMissing(path_data, ref lock_data);
+		Util.CreateIfMissing(_pathData, _lock);
 
 		List<FileEntry> entries = new ();
 		FileEntry? entry = null;
@@ -152,7 +152,7 @@ class Raid {
 	// Fetch a single file entry matching the given hash.
 	// This function exits early when possible.
 	static FileEntry? get_file_entry(string hash) {
-		Util.CreateIfMissing(path_data, ref lock_data);
+		Util.CreateIfMissing(_pathData, _lock);
 
 		bool was_found = false;
 		FileEntry entry = new ();
