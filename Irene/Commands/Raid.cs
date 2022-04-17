@@ -1,12 +1,10 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using Irene.Modules;
 
 namespace Irene.Commands;
 
-using RaidObj = Modules.Raid;
-
-class Raid {
+class Raid : ICommand {
 	private const string
 		_commandRaid     = "raid"       ,
 		_commandInfo     = "info"       ,
@@ -26,6 +24,114 @@ class Raid {
 			@":lock: `/raid set-plan <group> <date>` sets the plans for the given date's raid.",
 			@":lock: `/raid cancel <date>` marks raid that day as canceled.",
 		} ) };
+	}
+
+	public static List<InteractionCommand> SlashCommands { get =>
+		new () {
+			new ( new (
+				_commandRaid,
+				"Raid-related information.",
+				options: new List<CommandOption> {
+					new (
+						_commandInfo,
+						"View upcoming raid plans.",
+						ApplicationCommandOptionType.SubCommand
+					),
+					//new (
+					//	_commandEligible,
+					//	"Check eligibility for raid.",
+					//	ApplicationCommandOptionType.SubCommand,
+					//	options: new List<CommandOption> { new (
+					//		"member",
+					//		"The member to check eligibility for.",
+					//		ApplicationCommandOptionType.User,
+					//		required: false,
+					//		autocomplete: true
+					//	), }
+					//),
+					new (
+						_commandViewLogs,
+						"View logs for a given date.",
+						ApplicationCommandOptionType.SubCommand,
+						options: new List<CommandOption> { new (
+							"date",
+							"The date to retrieve logs for.",
+							ApplicationCommandOptionType.String,
+							required: true,
+							autocomplete: true
+						), }
+					),
+					new (
+						_commandSetLogs,
+						"Set logs for a given date.",
+						ApplicationCommandOptionType.SubCommand,
+						options: new List<CommandOption> {
+							new (
+								"group",
+								"The group to set logs for.",
+								ApplicationCommandOptionType.String,
+								required: true,
+								new List<CommandOptionEnum> {
+									new ("Spaghetti", RaidGroup.Spaghetti.ToString()),
+									new ("Salad", RaidGroup.Salad.ToString()),
+								}
+							),
+							new (
+								"date",
+								"The date to set logs for.",
+								ApplicationCommandOptionType.String,
+								required: true,
+								autocomplete: true
+							),
+							new (
+								"link",
+								"The WarcraftLogs link.",
+								ApplicationCommandOptionType.String,
+								required: true
+							),
+						}
+					),
+					new (
+						_commandSetPlan,
+						"Set the raid plans for a raid.",
+						ApplicationCommandOptionType.SubCommand,
+						options: new List<CommandOption> {
+							new (
+								"group",
+								"The group to set the raid plans for.",
+								ApplicationCommandOptionType.String,
+								required: true,
+								new List<CommandOptionEnum> {
+									new ("Spaghetti", RaidGroup.Spaghetti.ToString()),
+									new ("Salad", RaidGroup.Salad.ToString()),
+								}
+							),
+							new (
+								"date",
+								"The date to set the raid plans for.",
+								ApplicationCommandOptionType.String,
+								required: true,
+								autocomplete: true
+							),
+						}
+					),
+					new (
+						_commandCancel,
+						"Cancel raid on a certain date.",
+						ApplicationCommandOptionType.SubCommand,
+						options: new List<CommandOption> { new (
+							"date",
+							"The date to cancel raid for.",
+							ApplicationCommandOptionType.String,
+							required: true,
+							autocomplete: true
+						), }
+					),
+				},
+				defaultPermission: true,
+				ApplicationCommandType.SlashCommand
+			), RunAsync )
+		};
 	}
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
