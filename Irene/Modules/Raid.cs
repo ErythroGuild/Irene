@@ -1,4 +1,6 @@
-﻿namespace Irene.Modules;
+﻿using System.Text.RegularExpressions;
+
+namespace Irene.Modules;
 
 public enum RaidTier {
 	EN, NH, ToV, ToS, ABT,
@@ -63,6 +65,16 @@ class Raid {
 	static Raid() {
 		// Make sure datafile exists.
 		Util.CreateIfMissing(_pathData, _lock);
+	}
+
+	// Returns null if the link is ill-formed.
+	public static string? ParseLogId(string link) {
+		Regex regex = new (@"(?:(?:https?\:\/\/)?(?:www\.)?warcraftlogs\.com\/reports\/)?(?<id>\w+)(?:#.+)?");
+		Match match = regex.Match(link);
+		if (!match.Success)
+			return null;
+		string id = match.Groups["id"].Value;
+		return id;
 	}
 
 	// Fetch raid data from saved data.

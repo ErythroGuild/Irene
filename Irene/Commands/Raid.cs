@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 using Irene.Modules;
 
@@ -273,68 +273,5 @@ class Raid : ICommand {
 
 		//// Edit corresponding announcement post.
 		//WeeklyEvent.update_raid_logs(raid);
-	}
-
-	// Parse arguments to data objects.
-	// Returns null if ambiguous / not recognized.
-	static RaidDay? parse_day(string str) {
-		Dictionary<RaidDay, List<string>> dict = new () {
-			{ RaidDay.Fri, new () {
-				"f",
-				"fri",
-				"fri.",
-				"friday",
-				"1",
-				"reclear",
-			} },
-			{ RaidDay.Sat, new () {
-				"s",
-				"sat",
-				"sat.",
-				"saturday",
-				"2",
-				"prog",
-				"progression",
-			} },
-		};
-
-		str = str.Trim().ToLower();
-		foreach (RaidDay day in dict.Keys) {
-			if (dict[day].Contains(str)) {
-				return day;
-			}
-		}
-		return null;
-	}
-	static RaidGroup? parse_group(string str) {
-		Dictionary<RaidGroup, List<string>> dict = new () {
-			{ RaidGroup.Spaghetti, new () {
-				":spaghetti:",
-				"\U0001F35D",
-				"spaghetti",
-				"spaghet",
-			}},
-			{ RaidGroup.Salad, new () {
-				":salad:",
-				"\U0001F957",
-				"salad",
-			}},
-		};
-
-		str = str.Trim().ToLower();
-		foreach (RaidGroup group in dict.Keys) {
-			if (dict[group].Contains(str)) {
-				return group;
-			}
-		}
-		return null;
-	}
-	static string? parse_log_id(string str) {
-		Regex regex = new (@"(?:https?\:\/\/www\.warcraftlogs\.com\/reports\/)?(?<id>\w+)(?:#.+)?");
-		Match match = regex.Match(str);
-		if (!match.Success)
-			{ return null; }
-		string id = match.Groups["id"].Value;
-		return id;
 	}
 }
