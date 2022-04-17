@@ -277,6 +277,7 @@ class Program {
 				// Initialize modules.
 				AuditLog.init();
 				Command.Init();
+				Modules.Raid.Init();
 				WeeklyEvent.init();
 				Welcome.init();
 				Starboard.init();

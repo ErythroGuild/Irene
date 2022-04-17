@@ -1,26 +1,24 @@
-namespace Irene.Modules;
-
-using TimestampStyle = Util.TimestampStyle;
+﻿namespace Irene.Modules;
 
 partial class WeeklyEvent {
-	static Dictionary<Raid.Date, ulong> msgs_raid_forming = new ();
+	static Dictionary<RaidDate, ulong> msgs_raid_forming = new ();
 
 	public static void update_raid_logs(Raid raid) {
 		if (Guild is null) {
 			Log.Warning("    Could not update announcement post: guild not loaded.");
 			return;
 		}
-		if (!msgs_raid_forming.ContainsKey(raid.date)) {
+		if (!msgs_raid_forming.ContainsKey(raid.Date)) {
 			Log.Warning("    Could not update announcement post: announcement not posted.");
 			return;
 		}
-		if (raid.log_id is null) {
+		if (raid.LogId is null) {
 			Log.Debug("  Log ID not set.");
 			return;
 		}
 
 		// Prepare data.
-		ulong msg_id = msgs_raid_forming[raid.date];
+		ulong msg_id = msgs_raid_forming[raid.Date];
 		DiscordMessage msg =
 			Channels[id_ch.announce]
 			.GetMessageAsync(msg_id)
@@ -47,9 +45,9 @@ partial class WeeklyEvent {
 			}
 		} while (line is not null);
 		text_out.WriteLine();
-		text_out.WriteLine($"{emoji_wipefest} - <{raid.get_link_wipefest()}>");
-		text_out.WriteLine($"{emoji_analyzer} - <{raid.get_link_analyzer()}>");
-		text_out.WriteLine($"{emoji_logs} - <{raid.get_link_logs()}>");
+		text_out.WriteLine($"{emoji_wipefest} - <{raid.UrlWipefest}>");
+		text_out.WriteLine($"{emoji_analyzer} - <{raid.UrlAnalyzer}>");
+		text_out.WriteLine($"{emoji_logs} - <{raid.UrlLogs}>");
 
 		// Update message.
 		msg.ModifyAsync(text_out.ToString());

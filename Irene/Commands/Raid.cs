@@ -1,13 +1,21 @@
 using System.Text.RegularExpressions;
 
-using static Irene.Modules.Raid;
+using Irene.Modules;
 
 namespace Irene.Commands;
 
-using RaidGroup = Modules.Raid.Group;
 using RaidObj = Modules.Raid;
 
 class Raid {
+	private const string
+		_commandRaid     = "raid"       ,
+		_commandInfo     = "info"       ,
+		_commandEligible = "eligibility",
+		_commandViewLogs = "view-logs"  ,
+		_commandSetLogs  = "set-logs"   ,
+		_commandSetPlan  = "set-plan"   ,
+		_commandCancel   = "cancel"     ;
+
 	public static List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
 			@" `/raid info` displays the plans for the upcoming raid,",
@@ -163,17 +171,17 @@ class Raid {
 
 	// Parse arguments to data objects.
 	// Returns null if ambiguous / not recognized.
-	static Day? parse_day(string str) {
-		Dictionary<Day, List<string>> dict = new () {
-			{ Day.Fri, new () {
+	static RaidDay? parse_day(string str) {
+		Dictionary<RaidDay, List<string>> dict = new () {
+			{ RaidDay.Fri, new () {
 				"f",
 				"fri",
 				"fri.",
 				"friday",
 				"1",
 				"reclear",
-			}},
-			{ Day.Sat, new () {
+			} },
+			{ RaidDay.Sat, new () {
 				"s",
 				"sat",
 				"sat.",
@@ -181,11 +189,11 @@ class Raid {
 				"2",
 				"prog",
 				"progression",
-			}},
+			} },
 		};
 
 		str = str.Trim().ToLower();
-		foreach (Day day in dict.Keys) {
+		foreach (RaidDay day in dict.Keys) {
 			if (dict[day].Contains(str)) {
 				return day;
 			}

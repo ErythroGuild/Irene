@@ -1,26 +1,25 @@
 ﻿namespace Irene.Modules;
 
-using FileEntry = List<string>;
+public enum RaidTier {
+	EN, NH, ToV, ToS, ABT,
+	Uldir, BoD, CoS, EP, NWC,
+	CN, SoD, SFO,
+}
+public enum RaidDay {
+	Fri, Sat,
+}
+public enum RaidGroup {
+	Spaghetti,
+	Salad,
+}
+
+public readonly record struct RaidDate
+	(int Week, RaidDay Day);
 
 class Raid {
-	public enum Tier {
-		EN, NH, ToV, ToS, ABT,
-		Uldir, BoD, CoS, EP, NWC,
-		CN, SoD, SFO,
-	}
-	public enum Day {
-		Fri, Sat,
-	}
-	public enum Group {
-		Spaghetti,
-		Salad,
-	}
-
-	public readonly record struct Date (int Week, Day Day);
-
 	public static TimeOnly Time { get => new (19, 0, 0); } // local (Pacific) time.
-	public static Group DefaultGroup { get => Group.Spaghetti; }
-	public static Tier CurrentTier { get => Tier.SFO; }
+	public static RaidGroup DefaultGroup { get => RaidGroup.Spaghetti; }
+	public static RaidTier CurrentTier { get => RaidTier.SFO; }
 	public static int CurrentWeek { get {
 		TimeSpan duration = DateTime.UtcNow - Date_Season3.UtcResetTime();
 		int week = (duration.Days / 7) + 1; // int division
@@ -50,251 +49,250 @@ class Raid {
 	private const string _indent = "\t";
 	private const string _delim = "=";
 	private const string
-		_keyDoCancel = "canceled",
-		_keyTier     = "tier",
-		_keyWeek     = "week",
-		_keyDay      = "day",
-		_keyGroup    = "group",
-		_keySummary  = "summary",
-		_keyLogId    = "log-id";
+		_keyDoCancel  = "canceled",
+		_keyTier      = "tier",
+		_keyWeek      = "week",
+		_keyDay       = "day",
+		_keyGroup     = "group",
+		_keySummary   = "summary",
+		_keyLogId     = "log-id",
+		_keyMessageId = "message-id";
 
-	// Replace the previous raid entry with the same hash as
-	// the new one if one exists; otherwise prepends the raid
-	// entry.
-	public static void update(Raid raid) {
+	// Force static initializer to run.
+	public static void Init() { return; }
+	static Raid() {
+		// Make sure datafile exists.
 		Util.CreateIfMissing(_pathData, _lock);
+	}
 
-		// Replace in-place the entry if it's an update to an
-		// existing entry.
-		List<FileEntry> entries = get_file_entries();
-		string hash = raid.hash();
-		bool is_update = false;
-		for (int i=0; i<entries.Count; i++) {
-			FileEntry entry = entries[i];
-			if (entry[0] == hash) {
-				is_update = true;
-				entries[i] = raid.file_entry();
-				break;
-			}
+	// Fetch raid data from saved data.
+	// Returns null if a matching entry could not be found.
+	public static Raid? Fetch(int week, RaidDay day, RaidGroup group) =>
+		Fetch(CurrentTier, week, day, group);
+	public static Raid? Fetch(RaidTier tier, int week, RaidDay day, RaidGroup group) {
+		string hash = new Raid(tier, week, day, group).Hash;
+		string? entry = ReadRaidData(hash);
+		return (entry is null)
+			? null
+			: Deserialize(entry);
+	}
+
+	// Overwrite/insert the provided raid data the existing data.
+	public static void Update(Raid raid) {
+		List<string> entries = ReadAllRaidData();
+		SortedList<Raid, string> entries_sorted =
+			new (new RaidComparer());
+
+		// Populate sorted list and add in updated data.
+		foreach (string entry in entries) {
+			Raid? key = Deserialize(entry);
+			if (key is null)
+				continue;
+			if (raid.Hash == key.Hash)
+				entries_sorted.Add(key, raid.Serialize());
+			else
+				entries_sorted.Add(key, entry);
 		}
 
-		// If the entry is a new entry, add it at the start.
-		if (!is_update) {
-			entries.Insert(0, raid.file_entry());
-		}
-
-		// Flatten list of entries.
-		List<string> output = new ();
-		foreach (FileEntry entry in entries) {
-			foreach (string line in entry) {
-				output.Add(line);
-			}
-		}
-
-		// Update text file.
+		// Update data file.
 		lock (_lock) {
-			File.WriteAllLines(_pathBuffer, output);
+			File.WriteAllLines(_pathBuffer, entries_sorted.Values);
 			File.Delete(_pathData);
 			File.Move(_pathBuffer, _pathData);
 		}
 	}
 
-	// Fetch raid data from saved datafile.
-	// Returns null if a matching entry could not be found.
-	public static Raid? get(int week, Day day) {
-		return get(week, day, DefaultGroup);
-	}
-	public static Raid? get(int week, Day day, Group group) {
-		return get(CurrentTier, week, day, group);
-	}
-	public static Raid? get(Tier tier, int week, Day day, Group group) {
-		Util.CreateIfMissing(_pathData, _lock);
-
-		string hash = new Raid(tier, week, day, group).hash();
-		FileEntry? entry = get_file_entry(hash);
-		if (entry is null) {
-			return null;
-		}
-
-		Raid? raid = from_file_entry(entry);
-		return raid;
-	}
-
 	// Reads the entire datafile and groups them into entries.
-	static List<FileEntry> get_file_entries() {
-		Util.CreateIfMissing(_pathData, _lock);
-
-		List<FileEntry> entries = new ();
-		FileEntry? entry = null;
+	private static List<string> ReadAllRaidData() {
+		List<string> entries = new ();
+		string? entry = null;
 
 		lock (_lock) {
-			StreamReader file = new (_pathData);
+			using StreamReader file = File.OpenText(_pathData);
 			while (!file.EndOfStream) {
 				string line = file.ReadLine() ?? "";
 				if (!line.StartsWith(_indent)) {
-					if (entry is not null) {
+					if (entry is not null)
 						entries.Add(entry);
-					}
-					entry = new ();
-					entry.Add(line);
+					entry = line;
 				} else if (entry is not null) {
-					entry.Add(line);
+					entry += $"\n{line}";
 				}
 			}
-			file.Close();
+			if (entry is not null)
+				entries.Add(entry);
 		}
 
 		return entries;
 	}
-	// Fetch a single file entry matching the given hash.
+	// Fetch a single serialized entry matching the given hash.
 	// This function exits early when possible.
-	static FileEntry? get_file_entry(string hash) {
-		Util.CreateIfMissing(_pathData, _lock);
-
+	// Returns null if no valid object found.
+	private static string? ReadRaidData(string hash) {
 		bool was_found = false;
-		FileEntry entry = new ();
+		string entry = "";
 
 		// Look for matching raid data.
 		lock (_lock) {
-			StreamReader file = new (_pathData);
+			using StreamReader file = File.OpenText(_pathData);
 			while (!file.EndOfStream) {
 				string line = file.ReadLine() ?? "";
 				if (line == hash) {
 					was_found = true;
-					entry.Add(line);
+					entry = hash;
 					line = file.ReadLine() ?? "";
 					while (line.StartsWith(_indent)) {
-						entry.Add(line);
+						entry += $"\n{line}";
 						line = file.ReadLine() ?? "";
 					}
-					// File stream is invalid now.
-					// (next line is missing!)
+					// Reader is now invalid: we read an extra line.
+					// Must break anyway!
 					break;
 				}
 			}
-			file.Close();
 		}
 
-		if (was_found) {
-			return entry;
-		} else {
-			return null;
-		}
+		return was_found ? entry : null;
 	}
 
-	static Raid? from_file_entry(FileEntry entry) {
-		// Remove hash line.
-		if (!entry[0].StartsWith(_indent)) {
-			entry.RemoveAt(0);
-		}
+	// Creates a populated Raid object from the serialized data.
+	// Returns null if the object is underspecified.
+	private static Raid? Deserialize(string entry) {
+		// Skip first line (hash).
+		string[] lines = entry.Split("\n")[1..];
 
-		// Create buffer variables.
-		Tier? tier = null;
+		// Buffer variables for deserialization.
+		RaidTier? tier = null;
 		int? week = null;
-		Day? day = null;
-		Group? group = null;
-		string?
-			summary = null,
-			log_id = null;
+		RaidDay? day = null;
+		RaidGroup? group = null;
+		bool? doCancel = null;
+		string? summary = null;
+		string? logId = null;
+		ulong? messageId = null;
 
 		// Parse lines.
-		foreach (string line in entry) {
-			// Do not remove empty elements.
-			string[] split = line.Trim().Split(_delim, 2);
-			switch (split[0]) {
+		foreach (string line in lines) {
+			string[] split = line.Split(_delim, 2);
+			string key = split[0];
+			string value = split[1];
+
+			switch (key) {
 			case _keyTier:
-				tier = Enum.Parse<Tier>(split[1]);
+				tier = Enum.Parse<RaidTier>(value);
 				break;
 			case _keyWeek:
-				week = int.Parse(split[1]);
+				week = int.Parse(value);
 				break;
 			case _keyDay:
-				day = Enum.Parse<Day>(split[1]);
+				day = Enum.Parse<RaidDay>(value);
 				break;
 			case _keyGroup:
-				group = Enum.Parse<Group>(split[1]);
+				group = Enum.Parse<RaidGroup>(value);
+				break;
+			case _keyDoCancel:
+				doCancel = bool.Parse(value);
 				break;
 			case _keySummary:
-				summary = split[1];
-				if (summary == "") {
-					summary = null;
-				}
+				summary = (value != "") ? value : null;
 				break;
 			case _keyLogId:
-				log_id = split[1];
-				if (log_id == "") {
-					log_id = null;
-				}
+				logId = (value != "") ? value : null;
+				break;
+			case _keyMessageId:
+				messageId = (value != "") ? ulong.Parse(value) : null;
 				break;
 			}
 		}
 
 		// Check that all required fields are non-null.
-		if (tier is null || week is null || day is null || group is null)
-			{ return null; }
+		if (tier is null || week is null || day is null || group is null || doCancel is null)
+			return null;
 
 		// Create a raid object to return.
-		// All arguments can be casted as non-null.
-		Raid raid = new ((Tier)tier, (int)week, (Day)day, (Group)group) {
-			summary = summary,
-			log_id = log_id,
+		return new Raid(tier!.Value, week!.Value, day!.Value, group!.Value) {
+			DoCancel = doCancel!.Value,
+			Summary = summary,
+			LogId = logId,
+			MessageId = messageId,
 		};
-		return raid;
 	}
 
-	public readonly Tier tier;
-	public readonly Date date;
-	public readonly Group group;
-	public string? summary;
-	public string? log_id;
+	// Returns a uniquely identifiable string per raid + group.
+	public string Hash { get =>
+		string.Join(_sep, new object[] { Tier, Date.Week, Date.Day, Group });
+	}
+	// Each week of the tier has a different emoji associated with it.
+	// The order is fixed between tiers.
+	public string Emoji { get {
+		int i = (Date.Week - 1) % _raidEmojis.Count;
+		return _raidEmojis[i];
+	} }
+	// Convenience functions for accessing different log websites.
+	public string? UrlLogs { get =>
+		LogId is null ? null : $"{_fragLogs}{LogId}";
+	}
+	public string? UrlWipefest { get =>
+		LogId is null ? null : $"{_fragWipefest}{LogId}";
+	}
+	public string? UrlAnalyzer { get =>
+		LogId is null ? null : $"{_fragAnalyzer}{LogId}";
+	}
+
+	// Data fields (non-calculated).
+	public RaidTier Tier { get; init; }
+	public RaidDate Date { get; init; }
+	public RaidGroup Group { get; init; }
+	public bool DoCancel { get; set; }
+	public string? Summary { get; set; }
+	public string? LogId { get; set; }
+	public ulong? MessageId { get; set; }
 
 	// Constructors.
-	public Raid(int week, Day day) :
-		this (week, day, DefaultGroup) { }
-	public Raid(int week, Day day, Group group) :
-		this (CurrentTier, week, day, group) { }
-	public Raid(Tier tier, int week, Day day, Group group) {
-		this.tier = tier;
-		date = new Date(week, day);
-		this.group = group;
-		summary = null;
-		log_id = null;
-	}
-
-	// Returns a uniquely identifiable string per raid+group.
-	public string hash() {
-		return $"{tier}{_sep}{date.Week}{_sep}{date.Day}{_sep}{group}";
-	}
-
-	// Returns a different emoji for each week of the tier.
-	// The order is fixed between tiers.
-	public string emoji() {
-		int i = (date.Week - 1) % _raidEmojis.Count;
-		return _raidEmojis[i];
-	}
-
-	// Convenience functions that return links to frequently-used
-	// websites.
-	public string? get_link_logs() {
-		return $"{_fragLogs}{log_id}" ?? null;
-	}
-	public string? get_link_wipefest() {
-		return $"{_fragWipefest}{log_id}" ?? null;
-	}
-	public string? get_link_analyzer() {
-		return $"{_fragAnalyzer}{log_id}" ?? null;
+	public Raid(int week, RaidDay day, RaidGroup group)
+		: this(CurrentTier, week, day, group) { }
+	public Raid(RaidTier tier, int week, RaidDay day, RaidGroup group) {
+		Tier = tier;
+		Date = new RaidDate(week, day);
+		Group = group;
+		DoCancel = false;
+		Summary = null;
+		LogId = null;
+		MessageId = null;
 	}
 
 	// Returns a(n ordered) list of the instance's serialization.
-	FileEntry file_entry() {
-		FileEntry output = new ();
-		output.Add(hash());
-		output.Add($"{_indent}{_keyTier}{_delim}{tier}");
-		output.Add($"{_indent}{_keyWeek}{_delim}{date.Week}");
-		output.Add($"{_indent}{_keyDay}{_delim}{date.Day}");
-		output.Add($"{_indent}{_keyGroup}{_delim}{group}");
-		output.Add($"{_indent}{_keySummary}{_delim}{summary ?? ""}");
-		output.Add($"{_indent}{_keyLogId}{_delim}{log_id ?? ""}");
-		return output;
+	string Serialize() =>
+		string.Join("\n", new List<string> {
+			Hash,
+			$"{_indent}{_keyTier}{_delim}{Tier}",
+			$"{_indent}{_keyWeek}{_delim}{Date.Week}",
+			$"{_indent}{_keyDay}{_delim}{Date.Day}",
+			$"{_indent}{_keyGroup}{_delim}{Group}",
+			$"{_indent}{_keyDoCancel}{_delim}{DoCancel}",
+			$"{_indent}{_keySummary}{_delim}{Summary ?? ""}",
+			$"{_indent}{_keyLogId}{_delim}{LogId ?? ""}",
+			$"{_indent}{_keyMessageId}{_delim}{MessageId?.ToString() ?? ""}",
+		});
+
+	// Reverse-date comparer (for serialization).
+	private class RaidComparer : Comparer<Raid> {
+		public override int Compare(Raid? x, Raid? y) {
+			if (x is null)
+				throw new ArgumentNullException(nameof(x), "Attempted to compare null reference.");
+			if (y is null)
+				throw new ArgumentNullException(nameof(y), "Attempted to compare null reference.");
+
+			if (x.Tier != y.Tier)
+				return y.Tier - x.Tier;
+			if (x.Date.Week != y.Date.Week)
+				return y.Date.Week - x.Date.Week;
+			if (x.Date.Day != y.Date.Day)
+				return y.Date.Day - x.Date.Day;
+			if (x.Group != y.Group)
+				return x.Group - y.Group; // Group is normal sort order
+
+			return 0;
+		}
 	}
 }
