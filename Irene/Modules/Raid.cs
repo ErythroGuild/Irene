@@ -53,7 +53,7 @@ class Raid {
 		_fragAnalyzer = @"https://wowanalyzer.com/report/";
 	private const string
 		_pathData   = @"data/raids.txt",
-		_pathBuffer = @"data/raids-buf.txt";
+		_pathBuffer = @"data/raids-temp.txt";
 	private const string _sep = "-";
 	private const string _indent = "\t";
 	private const string _delim = "=";

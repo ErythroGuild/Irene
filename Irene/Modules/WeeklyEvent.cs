@@ -23,7 +23,7 @@ partial class WeeklyEvent {
 
 	const string
 		path_data = @"data/weekly.txt",
-		path_buffer = @"data/weekly-buf.txt";
+		path_buffer = @"data/weekly-temp.txt";
 	const string delim = "=";
 	const string format_time = "u";
 
