@@ -32,8 +32,8 @@ class Tag: ICommand {
 	public static void Init() { return; }
 	static Tag() {
 		// Make sure datafile exists.
-		// This is useful for all methods, not just the sinitializer.
-		Util.CreateIfMissing(_pathData, ref _lock);
+		// This is useful for all methods, not just the initializer.
+		Util.CreateIfMissing(_pathData, _lock);
 
 		// Initialize tag cache.
 		_tagCache = new ();
@@ -186,7 +186,6 @@ class Tag: ICommand {
 			results = results.GetRange(0, 25);
 
 		await interaction.AutoCompleteResultsAsync(results);
-		return;
 	}
 
 	public static async Task ViewAsync(TimedInteraction interaction) {

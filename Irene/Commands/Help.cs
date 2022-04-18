@@ -69,19 +69,19 @@ class Help : ICommand {
 			$@"{_p}{_l} `/rank set-officer <member>`: Set the officer roles of the specified member.",
 			$@"{_s}{_l} `/rank list-trials`: Display a list of all trials (Guest + <Erythro>).",
 		} ) },
-		//{ string.Join("\n", new List<string> {
-		//	"**Raid**",
-		//	$@"{_e} `/raid info`:",
-		//	$@"{_e} `/raid eligibility`:",
-		//	$@"{_e}{_l} `/raid eligibility <member>`:",
-		//	$@"{_s} `/raid view-logs <date>`:",
-		//	$@"{_e}{_l} `/raid set-logs <group> <date> <link>`:",
-		//	$@"{_e}{_l} `/raid set-plan <group> <date>`:",
-		//	$@"{_e}{_l} `/raid cancel <date>`:",
+		{ string.Join("\n", new List<string> {
+			"**Raid**",
+			$@"{_p} `/raid info [share]`: Shows the plans for the upcoming raid.",
+			//$@"{_p} `/raid eligibility`: Shows the raid requirements (and checks if you meet them).",
+			//$@"{_p}{_l} `/raid eligibility <member>`: Checks the raid requirements for a specific member.",
+			$@"{_s} `/raid view-logs <date>`: Displays the logs for the given date.",
+			$@"{_s}{_l} `/raid set-logs <group> <date> <link>`: Sets the logs for the given date.",
+			$@"{_s}{_l} `/raid set-plan <group> <date>`: Sets the plans for the given date.",
+			$@"{_s}{_l} `/raid cancel <date> [do-cancel]`: Mark the raids on a date as canceled.",
 		//	"",
 		//	"**Keys**",
-		//	$@"{_e} `/keys [share] [sort] [filter]`:",
-		//}) },
+		//	$@"{_p} `/keys [share] [sort] [filter]`:",
+		}) },
 		{
 			string.Join("\n", new List<string> {
 			"**Tags**",
@@ -100,16 +100,16 @@ class Help : ICommand {
 			//$@"{_s} `/assaults <type>`:",
 			//"",
 			//"**Solvers**",
-			//$@"{_e} `/solve mrrl`:",
-			//$@"{_e} `/solve lights-out`:",
+			//$@"{_p} `/solve mrrl`:",
+			//$@"{_p} `/solve lights-out`:",
 		} ) },
 		//{ string.Join("\n", new List<string> {
 		//	"****",
-		//	$@"{_e} `/`:",
+		//	$@"{_p} `/`:",
 		//} ) },
 		//{ string.Join("\n", new List<string> {
 		//	"****",
-		//	$@"{_e} `/`:",
+		//	$@"{_p} `/`:",
 		//} ) },
 		{
 			string.Join("\n", new List<string> {
@@ -215,6 +215,5 @@ class Help : ICommand {
 			results = results.GetRange(0, 25);
 
 		await interaction.AutoCompleteResultsAsync(results);
-		return;
 	}
 }

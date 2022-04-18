@@ -240,6 +240,7 @@ class Command {
 	) {
 		Log.Debug("  " +  log_summary);
 		interaction.Timer.LogMsecDebug("    Responded in {Time} msec.", false);
+		task_response.Start();
 		await task_response;
 		Action<string, object[]> log_fn = log_level switch {
 			LogLevel.Critical => Log.Fatal,
@@ -254,123 +255,5 @@ class Command {
 		};
 		log_fn("  " + log_preview, log_params);
 		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
-	}
-
-	// Command data
-	static readonly Dictionary<string, Action<Command>> dict_cmd = new () {
-		{ "raid-time" , Raid.get_time   },
-		{ "raid"      , Raid.get_info   },
-		{ "raid-info" , Raid.get_info   },
-		{ "raid-set-f", Raid.set_info_F },
-		{ "raid-set-s", Raid.set_info_S },
-		{ "logs"    , Raid.get_logs },
-		{ "l"       , Raid.get_logs },
-		{ "logs-set", Raid.set_logs },
-		{ "lset"    , Raid.set_logs },
-		{ "set-logs", Raid.set_logs },
-	};
-	static readonly Dictionary<Action<Command>, Func<string>> dict_help = new () {
-		{ Raid.get_time  , Raid.help_raid },
-		{ Raid.get_info  , Raid.help_raid },
-		{ Raid.set_info_F, Raid.help_raid },
-		{ Raid.set_info_S, Raid.help_raid },
-		{ Raid.get_logs  , Raid.help_logs },
-		{ Raid.set_logs  , Raid.help_logs },
-	};
-	static readonly Dictionary<Action<Command>, AccessLevel> dict_access = new () {
-		{ Raid.get_time  , AccessLevel.None    },
-		{ Raid.get_info  , AccessLevel.None    },
-		{ Raid.set_info_F, AccessLevel.Officer },
-		{ Raid.set_info_S, AccessLevel.Officer },
-		{ Raid.get_logs  , AccessLevel.Guest   },
-		{ Raid.set_logs  , AccessLevel.Officer },
-	};
-
-	// Properties
-	public string cmd          { get; private set; }
-	public string args         { get; private set; }
-	public DiscordMember? user { get; private set; }
-	public AccessLevel access  { get; private set; }
-	public DiscordMessage msg  { get; private set; }
-	
-	// Return the help message for a command, without having to
-	// actually construct a Command object.
-	// Returns null if the command isn't recognized.
-	public static string? help(string cmd) {
-		cmd = cmd.Trim().ToLower();
-		if (dict_cmd.ContainsKey(cmd)) {
-			return dict_help[dict_cmd[cmd]]();
-		} else {
-			return null;
-		}
-	}
-
-	// Return true if the required permissions for the command
-	// are less than or equal to the given AccessLevel.
-	public static bool has_permission(Action<Command> cmd, AccessLevel access) {
-		return (dict_access[cmd] <= access);
-	}
-	
-	// Extract the needed members (DiscordMember and access level)
-	// from the DiscordMessage itself.
-	public Command(string cmd, DiscordMessage msg) {
-		// Process cmd / args.
-		if (!cmd.Contains(' ')) {
-			this.cmd = cmd;
-			args = "";
-		} else {
-			string[] split = cmd.Split(' ', 2);
-			this.cmd = split[0];
-			args = split[1];
-		}
-		this.cmd = this.cmd.TrimStart('-').ToLower();
-		this.msg = msg;
-
-		// Parse the user.
-		// If private channel, search through member list.
-		if (msg.Channel.IsPrivate) {
-			user = msg.Author.ToMember().Result;
-		} else {
-			user = msg.Author as DiscordMember;
-		}
-
-		// Assign permissions.
-		if (user is null) {
-			access = AccessLevel.None;
-			Log.Warning("  Could not convert message author to DiscordMember.");
-		} else {
-			RoleList roles_user = new (user.Roles);
-			access = roles_user switch {
-				RoleList r when r.Contains(Program.Roles[id_r.admin])   => AccessLevel.Admin,
-				RoleList r when r.Contains(Program.Roles[id_r.officer]) => AccessLevel.Officer,
-				RoleList r when r.Contains(Program.Roles[id_r.member])  => AccessLevel.Member,
-				RoleList r when r.Contains(Program.Roles[id_r.guest])   => AccessLevel.Guest,
-				_ => AccessLevel.None,
-			};
-		}
-	}
-
-	// Dispatch a fully constructed Command.
-	// Checks if the message author has sufficient permissions.
-	// Invokes the help command if the command isn't recognized.
-	public void invoke() {
-		if (dict_cmd.ContainsKey(cmd)) {
-			if (has_permission(dict_cmd[cmd], access)) {
-				dict_cmd[cmd](this);
-			} else {
-				AccessLevel access = dict_access[dict_cmd[cmd]];
-				msg.RespondAsync($"Sorry, this command requires the {access} role to use. :lock:");
-				Log.Warning($"  {user?.Tag() ?? "<unknown user>"} does not have access to this command.");
-			}
-		} else {
-			dict_cmd["help"](this);
-		}
-	}
-
-	// Returns the help message when the given Command has
-	// already been constructed (syntactic sugar for the static
-	// equivalent).
-	public string help() {
-		return dict_help[dict_cmd[cmd]]();
 	}
 }
