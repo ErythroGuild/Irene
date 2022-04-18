@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 using Irene.Components;
 using Irene.Modules;
@@ -378,7 +378,7 @@ class Raid : ICommand {
 		RaidObj raid = new (date.Value, RaidObj.DefaultGroup); // only temporary
 		response = $"Logs for {raid.Tier}" +
 			$" **week {raid.Date.Week}**," +
-			$" {raid.Date.Day}.:\n\n" + response;
+			$" {raid.Date.Day}.:\n" + response;
 
 		// Respond.
 		await Command.RespondAsync(
