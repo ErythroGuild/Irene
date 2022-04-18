@@ -240,6 +240,7 @@ class Command {
 	) {
 		Log.Debug("  " +  log_summary);
 		interaction.Timer.LogMsecDebug("    Responded in {Time} msec.", false);
+		task_response.Start();
 		await task_response;
 		Action<string, object[]> log_fn = log_level switch {
 			LogLevel.Critical => Log.Fatal,

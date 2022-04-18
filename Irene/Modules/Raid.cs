@@ -19,6 +19,9 @@ public readonly record struct RaidDate
 	(int Week, RaidDay Day);
 
 class Raid {
+	public static string GroupEmoji(RaidGroup group) =>
+		_groupEmojis[group];
+
 	public static TimeOnly Time { get => new (19, 0, 0); } // local (Pacific) time.
 	public static RaidGroup DefaultGroup { get => RaidGroup.Spaghetti; }
 	public static RaidTier CurrentTier { get => RaidTier.SFO; }
@@ -38,6 +41,10 @@ class Raid {
 		":peacock:", ":chipmunk:", ":lion_face:"  , ":mouse:"   ,
 		":snail:"  , ":giraffe:" , ":duck:"       , ":bat:"     ,
 		":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
+	};
+	private static readonly ConcurrentDictionary<RaidGroup, string> _groupEmojis = new() {
+		[RaidGroup.Spaghetti] = ":spaghetti:",
+		[RaidGroup.Salad] = ":salad:",
 	};
 
 	private const string
@@ -65,6 +72,51 @@ class Raid {
 	static Raid() {
 		// Make sure datafile exists.
 		Util.CreateIfMissing(_pathData, _lock);
+	}
+
+	// Get the announcement text for a given RaidDate.
+	// Note: Requires Guild to be initialized! (not checked)
+	public static string AnnouncementText(RaidDate date) {
+		// Create a temporary Raid instance (just for emoji)
+		Raid raid = new(date, DefaultGroup);
+
+		List<string> text = new () {
+			$"{raid.Emoji} {Roles[id_r.raid].Mention} - Forming now!",
+		};
+
+		// Fetch available logs.
+		RaidGroup[] raidGroups = Enum.GetValues<RaidGroup>();
+		List<Raid> raids = new ();
+		foreach (RaidGroup group in raidGroups) {
+			Raid raid_i = Fetch(date, group);
+			if (raid_i.LogId is not null)
+				raids.Add(raid_i);
+		}
+
+		// Add available logs to announcement text.
+		DiscordEmoji
+			emoji_wipefest = Emojis[id_e.wipefest],
+			emoji_analyzer = Emojis[id_e.wowanalyzer],
+			emoji_logs = Emojis[id_e.warcraftlogs];
+		switch (raids.Count) {
+		case 1:
+			text.Add($"{emoji_wipefest} - <{raids[0].UrlWipefest}>");
+			text.Add($"{emoji_analyzer} - <{raids[0].UrlAnalyzer}>");
+			text.Add($"{emoji_logs} - <{raids[0].UrlLogs}>");
+			break;
+		case >1:
+			foreach (Raid raid_i in raids) {
+				string emoji = GroupEmoji(raid_i.Group);
+				text.Add("");
+				text.Add($"{emoji} **{raid_i.Group}** {emoji}");
+				text.Add($"{emoji_wipefest} - <{raids[0].UrlWipefest}>");
+				text.Add($"{emoji_analyzer} - <{raids[0].UrlAnalyzer}>");
+				text.Add($"{emoji_logs} - <{raids[0].UrlLogs}>");
+			}
+			break;
+		}
+
+		return string.Join("\n", text);
 	}
 
 	// Given a date, calculate the raid week & day.
@@ -112,19 +164,22 @@ class Raid {
 	}
 
 	// Fetch raid data from saved data.
-	// Returns null if a matching entry could not be found.
-	public static Raid? Fetch(int week, RaidDay day, RaidGroup group) =>
+	// Returns a fresh entry if a matching entry could not be found
+	// (default-initialized).
+	public static Raid Fetch(RaidDate date, RaidGroup group) =>
+		Fetch(date.Week, date.Day, group);
+	public static Raid Fetch(int week, RaidDay day, RaidGroup group) =>
 		Fetch(CurrentTier, week, day, group);
-	public static Raid? Fetch(RaidTier tier, int week, RaidDay day, RaidGroup group) {
-		string hash = new Raid(tier, week, day, group).Hash;
-		string? entry = ReadRaidData(hash);
+	public static Raid Fetch(RaidTier tier, int week, RaidDay day, RaidGroup group) {
+		Raid raid_default = new Raid(tier, week, day, group);
+		string? entry = ReadRaidData(raid_default.Hash);
 		return (entry is null)
-			? null
-			: Deserialize(entry);
+			? raid_default
+			: Deserialize(entry) ?? raid_default;
 	}
 
 	// Update the announcement message with the correct logs.
-	public static async Task UpdateAnnouncementLogs(Raid raid) {
+	public static async Task UpdateAnnouncement(Raid raid) {
 		// Exit early if required data isn't available.
 		if (raid.MessageId is null) {
 			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
@@ -142,20 +197,11 @@ class Raid {
 			return;
 		}
 
-		// Fetch current message content.
+		// Fetch the announcement message and edit it.
 		DiscordChannel announcements = Channels[id_ch.announce];
 		DiscordMessage message = await
 			announcements.GetMessageAsync(raid.MessageId.Value);
-		string content = message.Content;
-
-		// Extract the original ID.
-		Regex regex = new (@"<.+warcraftlogs\.com\/reports\/(?<id>\w+)>");
-		Match match = regex.Match(content);
-		string id = match.Groups["id"].Value;
-
-		// Update the message content.
-		content = content.Replace(id, raid.LogId);
-		await message.ModifyAsync(content);
+		await message.ModifyAsync(AnnouncementText(raid.Date));
 	}
 	// Overwrite/insert the existing data with provided raid data.
 	public static void UpdateData(Raid raid) {
@@ -336,6 +382,8 @@ class Raid {
 	public ulong? MessageId { get; set; }
 
 	// Constructors.
+	public Raid(RaidDate date, RaidGroup group)
+		: this (date.Week, date.Day, group) { }
 	public Raid(int week, RaidDay day, RaidGroup group)
 		: this(CurrentTier, week, day, group) { }
 	public Raid(RaidTier tier, int week, RaidDay day, RaidGroup group) {
@@ -349,8 +397,8 @@ class Raid {
 	}
 
 	// Syntax sugar to call the static method.
-	public async Task UpdateAnnouncementLogs() =>
-		await UpdateAnnouncementLogs(this);
+	public async Task UpdateAnnouncement() =>
+		await UpdateAnnouncement(this);
 	public void UpdateData() =>
 		UpdateData(this);
 
