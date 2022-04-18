@@ -1,6 +1,6 @@
 ﻿namespace Irene.Modules;
 
-partial class WeeklyEvent {
+partial class RecurringEvents {
 	static Dictionary<RaidDate, ulong> msgs_raid_forming = new ();
 
 	public static void update_raid_logs(Raid raid) {

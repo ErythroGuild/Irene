@@ -278,7 +278,7 @@ class Program {
 				AuditLog.init();
 				Command.Init();
 				Modules.Raid.Init();
-				WeeklyEvent.init();
+				RecurringEvents.Init();
 				Welcome.init();
 				Starboard.init();
 

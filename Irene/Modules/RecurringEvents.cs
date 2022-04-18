@@ -2,9 +2,7 @@
 
 namespace Irene.Modules;
 
-// All times are local time (Pacific Time).
-// (not server time, i.e. Central Time)
-partial class WeeklyEvent {
+partial class RecurringEvents {
 	public record Time {
 		public DayOfWeek day { get; init; }
 		public TimeSpan time { get; init; }
@@ -18,7 +16,7 @@ partial class WeeklyEvent {
 	}
 
 	// Static data.
-	static readonly List<WeeklyEvent> events;
+	static readonly List<RecurringEvents> events;
 	static object lock_data = new ();
 
 	const string
@@ -41,102 +39,102 @@ partial class WeeklyEvent {
 		t_promote_remind         = new (21, 15, 0);
 
 	// Force static initializer to run.
-	public static void init() { return; }
-	static WeeklyEvent() {
+	public static void Init() { return; }
+	static RecurringEvents() {
 		events = new () {
-			new WeeklyEvent(
+			new RecurringEvents(
 				"update meme channel name",
 				"Update Meme Channel Name",
 				new Time(DayOfWeek.Monday, t_cycle_meme_ch),
 				e_cycle_meme_ch,
 				true
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"weekly raid info announcement",
 				"Weekly Raid Info Announcement",
 				new Time(DayOfWeek.Tuesday, t_morning_announce),
 				e_weekly_raid_info_announce
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"pin weekly affixes",
 				"Pin Weekly Affixes",
 				new Time(DayOfWeek.Tuesday, t_pin_affixes),
 				e_pin_affixes,
 				true
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 1 day announcement",
 				"Raid 1 Morning Announcement",
 				new Time(DayOfWeek.Friday, t_morning_announce),
 				e_raid_day_announce
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 1 soon announcement",
 				"Raid 1 Soon Announcement",
 				new Time(DayOfWeek.Friday, t_raid_soon_announce),
 				e_raid_soon_announce
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 1 now announcement",
 				"Raid 1 Forming Announcement",
 				new Time(DayOfWeek.Friday, t_raid_now_announce),
 				e_raid_now_announce
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 1 set logs reminder",
 				"Raid 1 Set Logs Reminder",
 				new Time(DayOfWeek.Friday, t_set_logs_remind),
 				e_raid_set_logs_remind
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 1 break reminder",
 				"Raid 1 Break Reminder",
 				new Time(DayOfWeek.Friday, t_raid_break_remind),
 				e_raid_break_remind
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 2 day announcement",
 				"Raid 2 Morning Announcement",
 				new Time(DayOfWeek.Saturday, t_morning_announce),
 				e_raid_day_announce
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 2 soon announcement",
 				"Raid 2 Soon Announcement",
 				new Time(DayOfWeek.Saturday, t_raid_soon_announce),
 				e_raid_soon_announce
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 2 now announcement",
 				"Raid 2 Forming Announcement",
 				new Time(DayOfWeek.Saturday, t_raid_now_announce),
 				e_raid_now_announce
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 2 set logs reminder",
 				"Raid 2 Set Logs Reminder",
 				new Time(DayOfWeek.Saturday, t_set_logs_remind),
 				e_raid_set_logs_remind
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid 2 break reminder",
 				"Raid 2 Break Reminder",
 				new Time(DayOfWeek.Saturday, t_raid_break_remind),
 				e_raid_break_remind
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"weekly officer meeting",
 				"Post-raid Officer Meeting",
 				new Time(DayOfWeek.Saturday, t_weekly_officer_meeting),
 				e_weekly_officer_meeting
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"raid plans reminder",
 				"Weekly Raid Plans Reminder",
 				new Time(DayOfWeek.Saturday, t_raid_plans_remind),
 				e_update_raid_plans
 			),
-			new WeeklyEvent(
+			new RecurringEvents(
 				"promotion reminder",
 				"Member Promotion Reminder",
 				new Time(DayOfWeek.Saturday, t_promote_remind),
@@ -159,7 +157,7 @@ partial class WeeklyEvent {
 	protected DateTimeOffset? last_executed;
 
 	// Constructor for a single event.
-	protected WeeklyEvent(
+	protected RecurringEvents(
 		string id,
 		string name,
 		Time schedule,
