@@ -1,4 +1,4 @@
-using Irene.Components;
+﻿using Irene.Components;
 
 namespace Irene.Commands;
 
@@ -215,6 +215,5 @@ class Help : ICommand {
 			results = results.GetRange(0, 25);
 
 		await interaction.AutoCompleteResultsAsync(results);
-		return;
 	}
 }

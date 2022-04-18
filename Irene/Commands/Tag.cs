@@ -186,7 +186,6 @@ class Tag: ICommand {
 			results = results.GetRange(0, 25);
 
 		await interaction.AutoCompleteResultsAsync(results);
-		return;
 	}
 
 	public static async Task ViewAsync(TimedInteraction interaction) {
