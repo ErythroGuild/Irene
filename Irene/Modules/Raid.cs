@@ -52,8 +52,8 @@ class Raid {
 		_fragWipefest = @"https://www.wipefest.gg/report/",
 		_fragAnalyzer = @"https://wowanalyzer.com/report/";
 	private const string
-		_pathData   = @"data/raids.txt",
-		_pathBuffer = @"data/raids-temp.txt";
+		_pathData = @"data/raids.txt",
+		_pathTemp = @"data/raids-temp.txt";
 	private const string _sep = "-";
 	private const string _indent = "\t";
 	private const string _delim = "=";
@@ -227,9 +227,9 @@ class Raid {
 
 		// Update data file.
 		lock (_lock) {
-			File.WriteAllLines(_pathBuffer, entries_sorted.Values);
+			File.WriteAllLines(_pathTemp, entries_sorted.Values);
 			File.Delete(_pathData);
-			File.Move(_pathBuffer, _pathData);
+			File.Move(_pathTemp, _pathData);
 		}
 	}
 
