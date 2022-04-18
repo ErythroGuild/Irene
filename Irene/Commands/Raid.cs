@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 using Irene.Modules;
 
@@ -27,9 +27,9 @@ class Raid : ICommand {
 
 	public static List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
-			@" `/raid info` displays the plans for the upcoming raid,",
-			@" `/raid eligibility` checks raid requirements (and if you meet them),",
-			@":lock: `/raid eligibility <member>` checks raid requirements for a specific member.",
+			@" `/raid info [share]` displays the plans for the upcoming raid,",
+			//@" `/raid eligibility` checks raid requirements (and if you meet them),",
+			//@":lock: `/raid eligibility <member>` checks raid requirements for a specific member.",
 			@" `/raid view-logs <date>` shows the logs for the given date,",
 			@":lock: `/raid set-logs <group> <date> <link>` sets the logs for the given date.",
 			@":lock: `/raid set-plan <group> <date>` sets the plans for the given date's raid.",
@@ -46,7 +46,13 @@ class Raid : ICommand {
 					new (
 						_commandInfo,
 						"View upcoming raid plans.",
-						ApplicationCommandOptionType.SubCommand
+						ApplicationCommandOptionType.SubCommand,
+						options: new List<CommandOption> { new (
+							"share",
+							"Whether to make visible to everyone.",
+							ApplicationCommandOptionType.Boolean,
+							required: false
+						), }
 					),
 					//new (
 					//	_commandEligible,
