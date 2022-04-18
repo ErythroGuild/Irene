@@ -378,7 +378,7 @@ class Raid : ICommand {
 		RaidObj raid = new (date.Value, RaidObj.DefaultGroup); // only temporary
 		response = $"Logs for {raid.Tier}" +
 			$" **week {raid.Date.Week}**," +
-			$" {raid.Date.Day}.:\n\n" + response;
+			$" {raid.Date.Day}.:\n" + response;
 
 		// Respond.
 		await Command.RespondAsync(
@@ -617,7 +617,7 @@ class Raid : ICommand {
 			date_raw = date_raw.Value.AddDays(delta);
 			break; }
 		case string s when regex_numberedWeekday.IsMatch(s): {
-			Match match = regex_closestWeekday.Match(s);
+			Match match = regex_numberedWeekday.Match(s);
 			date_raw = DateOnly.FromDateTime(DateTime.Today);
 			DayOfWeek day = match.Groups switch {
 				GroupCollection g when g.ContainsKey("day1") => ParseDay(g["day1"].Value),
