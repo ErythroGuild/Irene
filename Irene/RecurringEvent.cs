@@ -326,7 +326,7 @@ class RecurringEvent {
 		return (Previous.OutputDateTime >= result_dateTimeOffset)
 			? null
 			: result;
-		} }
+	} }
 
 	// Constructor (trivial).
 	// A valid "prior" RecurResult must be given, in order to properly
@@ -462,9 +462,8 @@ class RecurringEvent {
 			}
 
 			// Set cycle date once we reach the designated rule.
-			if (pattern.RecurIndex == i) {
+			if (pattern.RecurIndex == i)
 				date_cycle = date_next;
-			}
 		}
 
 		return new RecurDateResult(date_next, date_cycle);
