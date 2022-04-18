@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using Irene.Components;
 using Irene.Modules;
@@ -617,7 +617,7 @@ class Raid : ICommand {
 			date_raw = date_raw.Value.AddDays(delta);
 			break; }
 		case string s when regex_numberedWeekday.IsMatch(s): {
-			Match match = regex_closestWeekday.Match(s);
+			Match match = regex_numberedWeekday.Match(s);
 			date_raw = DateOnly.FromDateTime(DateTime.Today);
 			DayOfWeek day = match.Groups switch {
 				GroupCollection g when g.ContainsKey("day1") => ParseDay(g["day1"].Value),
