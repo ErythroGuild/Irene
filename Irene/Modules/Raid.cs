@@ -123,22 +123,61 @@ class Raid {
 			: Deserialize(entry);
 	}
 
-	// Overwrite/insert the provided raid data the existing data.
-	public static void Update(Raid raid) {
+	// Update the announcement message with the correct logs.
+	public static async Task UpdateAnnouncementLogs(Raid raid) {
+		// Exit early if required data isn't available.
+		if (raid.MessageId is null) {
+			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
+			Log.Information("    No announcement message set.");
+			return;
+		}
+		if (raid.LogId is null) {
+			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
+			Log.Information("    No logs set.");
+			return;
+		}
+		if (Guild is null) {
+			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
+			Log.Information("    Guild not loaded yet.");
+			return;
+		}
+
+		// Fetch current message content.
+		DiscordChannel announcements = Channels[id_ch.announce];
+		DiscordMessage message = await
+			announcements.GetMessageAsync(raid.MessageId.Value);
+		string content = message.Content;
+
+		// Extract the original ID.
+		Regex regex = new (@"<.+warcraftlogs\.com\/reports\/(?<id>\w+)>");
+		Match match = regex.Match(content);
+		string id = match.Groups["id"].Value;
+
+		// Update the message content.
+		content = content.Replace(id, raid.LogId);
+		await message.ModifyAsync(content);
+	}
+	// Overwrite/insert the existing data with provided raid data.
+	public static void UpdateData(Raid raid) {
 		List<string> entries = ReadAllRaidData();
 		SortedList<Raid, string> entries_sorted =
 			new (new RaidComparer());
 
 		// Populate sorted list and add in updated data.
+		bool didInsert = false;
 		foreach (string entry in entries) {
 			Raid? key = Deserialize(entry);
 			if (key is null)
 				continue;
-			if (raid.Hash == key.Hash)
+			if (raid.Hash == key.Hash) {
 				entries_sorted.Add(key, raid.Serialize());
-			else
+				didInsert = true;
+			} else {
 				entries_sorted.Add(key, entry);
+			}
 		}
+		if (!didInsert)
+			entries_sorted.Add(raid, raid.Serialize());
 
 		// Update data file.
 		lock (_lock) {
@@ -219,7 +258,9 @@ class Raid {
 
 		// Parse lines.
 		foreach (string line in lines) {
-			string[] split = line.Split(_delim, 2);
+			string[] split = line
+				.Substring(_indent.Length)
+				.Split(_delim, 2);
 			string key = split[0];
 			string value = split[1];
 
@@ -306,6 +347,12 @@ class Raid {
 		LogId = null;
 		MessageId = null;
 	}
+
+	// Syntax sugar to call the static method.
+	public async Task UpdateAnnouncementLogs() =>
+		await UpdateAnnouncementLogs(this);
+	public void UpdateData() =>
+		UpdateData(this);
 
 	// Returns a(n ordered) list of the instance's serialization.
 	string Serialize() =>
