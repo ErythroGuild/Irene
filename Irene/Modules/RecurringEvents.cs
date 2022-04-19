@@ -1,309 +1,211 @@
-﻿using System.Timers;
+﻿using System.Globalization;
+using System.Timers;
+
+using static Irene.RecurringEvent;
+
+using EventAction = System.Func<System.DateTimeOffset, System.Threading.Tasks.Task>;
 
 namespace Irene.Modules;
 
 partial class RecurringEvents {
-	public record Time {
-		public DayOfWeek day { get; init; }
-		public TimeSpan time { get; init; }
-		public int week_multiple { get; init; }
+	private class Event {
+		public string Id { get; init; }
+		public RecurringEvent Data { get; init; }
+		public EventAction Action { get; init; }
 
-		public Time(DayOfWeek day, TimeSpan time, int week_multiple = 1) {
-			this.day = day;
-			this.time = time;
-			this.week_multiple = week_multiple;
+		private readonly Timer _timer;
+
+		public static async Task<Event?> Create(
+			string id,
+			RecurPattern pattern,
+			RecurResult result_init,
+			EventAction action,
+			TimeSpan? time_retroactive=null
+		) {
+			time_retroactive ??= TimeSpan.Zero;
+
+			// Fetch previous fired time from saved data.
+			RecurResult result_prev = FetchLastExecuted(id) ??
+				result_init;
+			RecurringEvent data = new (pattern, result_prev);
+
+			// Retroactively execute task as many times as needed.
+			// (If so, also update last executed date.)
+			DateTimeOffset dateTime_now = DateTimeOffset.Now;
+			DateTimeOffset dateTime_discard =
+				dateTime_now - time_retroactive.Value;
+
+			DateTimeOffset? dateTime_next = data.PeekNext();
+			while (dateTime_next is not null &&
+				dateTime_next < dateTime_now
+			) {
+				dateTime_next = data.GetNext()!.Value; // call Get() to update state
+				if (dateTime_next > dateTime_discard)
+					await action.Invoke(dateTime_next.Value);
+				dateTime_next = data.PeekNext();
+				dateTime_now = DateTimeOffset.Now; // update every time
+			}
+			UpdateLastExecuted(id, data.Previous);
+
+			// Calculate initial value for timer.
+			if (data.PeekNext() is null)
+				return null;
+			dateTime_now = DateTimeOffset.Now;
+			dateTime_next = data.GetNext()!.Value;
+			TimeSpan delta = dateTime_next.Value - dateTime_now;
+
+			// Set up timer.
+			Timer timer = new (delta.TotalMilliseconds);
+			timer.Elapsed += async (t, e) => {
+				timer.Stop();
+				DateTimeOffset dateTime_now = DateTimeOffset.Now;
+
+				// Run the action and update records of execution.
+				Log.Information("Event triggered: {EventId}", id);
+				Stopwatch stopwatch = Stopwatch.StartNew();
+				await action.Invoke(dateTime_now);
+				UpdateLastExecuted(id, data.Previous);
+				stopwatch.LogMsecDebug("  Event finished executing in {Time} msec.");
+
+				// Check for valid next timepoint.
+				if (data.PeekNext() is null) {
+					Log.Error("Event entered an invalid state.");
+					Log.Error("This event will no longer be triggered.");
+					Log.Debug("  ID: {EventId}", id);
+					Log.Debug("  Last executed on: {Time}", data.Previous);
+					return;
+				}
+
+				// Set up the next occurrence.
+				DateTimeOffset dateTime_next = data.GetNext()!.Value;
+				TimeSpan delta = dateTime_next - dateTime_now;
+				timer.Interval = delta.TotalMilliseconds;
+				timer.Start();
+			};
+			
+			// Return the constructed object.
+			Event @event = new (id, data, action, timer);
+			@event._timer.Start();
+			return @event;
+		}
+
+		// Private constructor.
+		// To get an instance, call Event.Create() instead.
+		private Event(
+			string id,
+			RecurringEvent data,
+			EventAction action,
+			Timer timer
+		) {
+			Id = id;
+			Data = data;
+			Action = action;
+			_timer = timer;
 		}
 	}
 
-	// Static data.
-	static readonly List<RecurringEvents> events;
-	static object lock_data = new ();
+	private static readonly List<Event> _events;
+	private static readonly object _lock = new ();
 
-	const string
-		path_data = @"data/weekly.txt",
-		path_buffer = @"data/weekly-temp.txt";
-	const string delim = "=";
-	const string format_time = "u";
-
-	// Event times.
-	static readonly TimeSpan
-		t_cycle_meme_ch          = new ( 6,  0, 0),
-		t_morning_announce       = new ( 8, 30, 0),
-		t_pin_affixes            = new ( 9,  0, 0),
-		t_raid_soon_announce     = new (17, 40, 0),
-		t_raid_now_announce      = new (18, 40, 0),
-		t_set_logs_remind        = new (18, 50, 0),
-		t_raid_break_remind      = new (19, 50, 0),
-		t_weekly_officer_meeting = new (21,  5, 0),
-		t_raid_plans_remind      = new (21, 10, 0),
-		t_promote_remind         = new (21, 15, 0);
+	private const string
+		_pathData = @"data/weekly.txt",
+		_pathTemp = @"data/weekly-temp.txt";
+	private const string _delim = "|||";
+	private const string _formatTime = "u";
+	private static readonly CultureInfo _cultureFormat =
+		CultureInfo.InvariantCulture;
 
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static RecurringEvents() {
-		events = new () {
-			new RecurringEvents(
-				"update meme channel name",
-				"Update Meme Channel Name",
-				new Time(DayOfWeek.Monday, t_cycle_meme_ch),
-				e_cycle_meme_ch,
-				true
-			),
-			new RecurringEvents(
-				"weekly raid info announcement",
-				"Weekly Raid Info Announcement",
-				new Time(DayOfWeek.Tuesday, t_morning_announce),
-				e_weekly_raid_info_announce
-			),
-			new RecurringEvents(
-				"pin weekly affixes",
-				"Pin Weekly Affixes",
-				new Time(DayOfWeek.Tuesday, t_pin_affixes),
-				e_pin_affixes,
-				true
-			),
-			new RecurringEvents(
-				"raid 1 day announcement",
-				"Raid 1 Morning Announcement",
-				new Time(DayOfWeek.Friday, t_morning_announce),
-				e_raid_day_announce
-			),
-			new RecurringEvents(
-				"raid 1 soon announcement",
-				"Raid 1 Soon Announcement",
-				new Time(DayOfWeek.Friday, t_raid_soon_announce),
-				e_raid_soon_announce
-			),
-			new RecurringEvents(
-				"raid 1 now announcement",
-				"Raid 1 Forming Announcement",
-				new Time(DayOfWeek.Friday, t_raid_now_announce),
-				e_raid_now_announce
-			),
-			new RecurringEvents(
-				"raid 1 set logs reminder",
-				"Raid 1 Set Logs Reminder",
-				new Time(DayOfWeek.Friday, t_set_logs_remind),
-				e_raid_set_logs_remind
-			),
-			new RecurringEvents(
-				"raid 1 break reminder",
-				"Raid 1 Break Reminder",
-				new Time(DayOfWeek.Friday, t_raid_break_remind),
-				e_raid_break_remind
-			),
-			new RecurringEvents(
-				"raid 2 day announcement",
-				"Raid 2 Morning Announcement",
-				new Time(DayOfWeek.Saturday, t_morning_announce),
-				e_raid_day_announce
-			),
-			new RecurringEvents(
-				"raid 2 soon announcement",
-				"Raid 2 Soon Announcement",
-				new Time(DayOfWeek.Saturday, t_raid_soon_announce),
-				e_raid_soon_announce
-			),
-			new RecurringEvents(
-				"raid 2 now announcement",
-				"Raid 2 Forming Announcement",
-				new Time(DayOfWeek.Saturday, t_raid_now_announce),
-				e_raid_now_announce
-			),
-			new RecurringEvents(
-				"raid 2 set logs reminder",
-				"Raid 2 Set Logs Reminder",
-				new Time(DayOfWeek.Saturday, t_set_logs_remind),
-				e_raid_set_logs_remind
-			),
-			new RecurringEvents(
-				"raid 2 break reminder",
-				"Raid 2 Break Reminder",
-				new Time(DayOfWeek.Saturday, t_raid_break_remind),
-				e_raid_break_remind
-			),
-			new RecurringEvents(
-				"weekly officer meeting",
-				"Post-raid Officer Meeting",
-				new Time(DayOfWeek.Saturday, t_weekly_officer_meeting),
-				e_weekly_officer_meeting
-			),
-			new RecurringEvents(
-				"raid plans reminder",
-				"Weekly Raid Plans Reminder",
-				new Time(DayOfWeek.Saturday, t_raid_plans_remind),
-				e_update_raid_plans
-			),
-			new RecurringEvents(
-				"promotion reminder",
-				"Member Promotion Reminder",
-				new Time(DayOfWeek.Saturday, t_promote_remind),
-				e_promote_remind
-			),
-		};
+		Util.CreateIfMissing(_pathData, _lock);
 
-		Log.Debug("Initialized module: WeeklyEvent");
-		Log.Debug($"  {events.Count} event(s) registered.");
+		InitializeEvents();
+
+		Log.Information("  Initialized module: WeeklyEvent");
+		string events_count = _events.Count switch {
+			1 => "event",
+			_ => "events", // includes 0
+		};
+		Log.Debug($"    {{EventCount}} {events_count} registered.", _events.Count);
 	}
 
-	// Configurable members.
-	protected readonly string id;	// for data saving
-	protected readonly string name;	// short readable description
-	protected readonly Time schedule;
-	protected readonly Action action;
+	// Read the last time the event was executed.
+	private static RecurResult? FetchLastExecuted(string id) {
+		string? line_entry = null;
 
-	// Generated members.
-	protected Timer timer;
-	protected DateTimeOffset? last_executed;
-
-	// Constructor for a single event.
-	protected RecurringEvents(
-		string id,
-		string name,
-		Time schedule,
-		Action action,
-		bool is_retroactive = false ) {
-		// Assign basic values.
-		this.id = id;
-		this.name = name;
-		this.schedule = schedule;
-		this.action = action;
-
-		// Calculate initial value for timer.
-		DateTimeOffset time_now = DateTimeOffset.Now;
-		DateTimeOffset time_prev =
-			parse_last_executed(id) ?? time_now;
-		DateTimeOffset time_next = time_now;
-		while (time_next <= time_now) {
-			time_next = get_next_time(schedule, time_next);
-		}
-
-		// Execute action retroactively, if needed.
-		// This happens at most once.
-		if (is_retroactive) {
-			DateTimeOffset time_retroactive = get_prev_time(schedule, time_next);
-			if (time_prev < time_retroactive) {
-				_ = Task.Run(() => {
-					Log.Information($"Retroactively scheduled firing event: {name}");
-					action();
-					last_executed = time_now;
-					update_executed(id, time_now);
-				});
-			}
-		}
-
-		// Set up timer.
-		timer = new Timer((time_next - time_now).TotalMilliseconds);
-		timer.Elapsed += async (t, e) => {
-			// Reset the timer interval to its full value.
-			DateTimeOffset time_now = DateTimeOffset.Now;
-			DateTimeOffset time_next = get_next_time(schedule, time_now);
-			timer.Interval = (time_next - time_now).TotalMilliseconds;
-
-			// Run the scheduled action.
-			Log.Information($"Firing scheduled event: {name}");
-			await Task.Run(action);
-
-			// Update saved values.
-			last_executed = time_now;
-			update_executed(id, time_now);
-		};
-		timer.Start();
-	}
-
-	// Read the specified id's time from the datafile.
-	static DateTimeOffset? parse_last_executed(string id) {
-		Util.CreateIfMissing(path_data, lock_data);
-
-		lock (lock_data) {
-			StreamReader file = new (path_data);
+		// Look for the corresponding data.
+		lock (_lock) {
+			using StreamReader file = File.OpenText(_pathData);
 			while (!file.EndOfStream) {
 				string line = file.ReadLine() ?? "";
-				if (line.StartsWith(id + delim)) {
-					file.Close();
-					string[] split = line.Split(delim, 2);
-					string data = split[1];
-					bool can_parse =
-						DateTimeOffset.TryParse(data, out DateTimeOffset time);
-					if (!can_parse) {
-						return null;
-					} else {
-						time = time.ToLocalTime();
-						return time;
-					}
+				if (line.StartsWith(id + _delim)) {
+					line_entry = line;
+					break;
 				}
 			}
-			file.Close();
 		}
-		return null;
+
+		// Return null if data not found.
+		if (line_entry is null)
+			return null;
+
+		// Parse the data and reconstruct the original object.
+		string[] split = line_entry.Split(_delim, 3);
+		string data_output = split[1];
+		string data_cycle = split[2];
+		try {
+			DateTimeOffset output = DateTimeOffset.ParseExact(
+				data_output,
+				_formatTime,
+				_cultureFormat
+			);
+			DateOnly cycle = DateOnly.ParseExact(
+				data_cycle,
+				_formatTime,
+				_cultureFormat
+			);
+			return new RecurResult(output, cycle);
+		} catch (FormatException) {
+			return null;
+		}
 	}
 
 	// Write the current id-time pair to the datafile.
-	static void update_executed(string id, DateTimeOffset time) {
-		Util.CreateIfMissing(path_data, lock_data);
+	private static void UpdateLastExecuted(string id, RecurResult last_executed) {
+		// Serialize the last execution time.
+		string data_output = last_executed
+			.OutputDateTime.ToString(_formatTime, _cultureFormat);
+		string data_cycle = last_executed
+			.CycleDate.ToString(_formatTime, _cultureFormat);
+		string line_entry =
+			string.Join(_delim, id, data_output, data_cycle);
 
 		// Read in all current data; replacing appropriate line.
-		StringWriter buffer = new ();
+		List<string> lines = new ();
 		bool was_written = false;
-		lock (lock_data) {
-			StreamReader file = new (path_data);
-			while (!file.EndOfStream) {
-				string line = file.ReadLine() ?? "";
-				if (line.StartsWith(id + delim)) {
-					buffer.WriteLine(id + delim + time.ToString(format_time));
+		lock (_lock) {
+			using StreamReader data = File.OpenText(_pathData);
+			while (!data.EndOfStream) {
+				string? line = data.ReadLine();
+				if (line is null)
+					continue;
+				if (line.StartsWith(id + _delim)) {
+					lines.Add(line_entry);
 					was_written = true;
 				} else {
-					buffer.WriteLine(line);
+					lines.Add(line);
 				}
 			}
-			file.Close();
 		}
-
-		// Add line if the entry is new.
-		if (!was_written) {
-			buffer.WriteLine(id + delim + time.ToString(format_time));
-		}
+		if (!was_written)
+			lines.Add(line_entry);
 
 		// Update files.
-		lock (lock_data) {
-			File.WriteAllText(path_buffer, buffer.ToString());
-			File.Delete(path_data);
-			File.Move(path_buffer, path_data);
+		lock (_lock) {
+			File.WriteAllLines(_pathTemp, lines);
+			File.Delete(_pathData);
+			File.Move(_pathTemp, _pathData);
 		}
-	}
-
-	// Returns the next scheduled DateTimeOffset after the given time.
-	static DateTimeOffset get_next_time(Time time, DateTimeOffset time_from) {
-		DateTimeOffset time_next = time_from;
-		time_next = next_weekday(time_next, time.day);
-		time_next += time.time;
-		time_next += (time.week_multiple - 1) * TimeSpan.FromDays(7);
-
-		// If the result falls before the starting timepoint,
-		// advance result by another week-multiple.
-		// This should only happen if the week-multiple == 1.
-		if (time_next < time_from) {
-			time_next += time.week_multiple * TimeSpan.FromDays(7);
-		}
-
-		return time_next;
-	}
-
-	// Returns the date of the next weekday (at 0:00), using local time.
-	// Returns the same day if the day of the week is the same.
-	// (This means it can return a time in the past.)
-	static DateTimeOffset next_weekday(DateTimeOffset time, DayOfWeek day) {
-		DateTime date = time.LocalDateTime;
-		int days_added = (int)day - (int)date.DayOfWeek;
-		days_added = (days_added + 7) % 7;  // ensure result falls in [0,6]
-		date = (date - date.TimeOfDay).AddDays(days_added);
-		return new DateTimeOffset(date);
-	}
-
-	// Returns the scheduled DateTimeOffset immediately prior to the given time.
-	static DateTimeOffset get_prev_time(Time time, DateTimeOffset time_from) {
-		DateTimeOffset time_prev = time_from;
-		time_prev -= time.week_multiple * TimeSpan.FromDays(7);
-		return time_prev;
 	}
 }
