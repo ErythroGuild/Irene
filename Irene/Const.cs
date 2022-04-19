@@ -24,6 +24,12 @@ static class Const {
 	public static DateTime UtcResetTime(this DateOnly date) =>
 		date.ToDateTime(Time_ServerReset.TimeOnly, DateTimeKind.Utc);
 
+	public static readonly TimeZoneInfo
+		TimeZone_PT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Los_Angeles"),
+		TimeZone_MT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Denver"),
+		TimeZone_CT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Chicago"),
+		TimeZone_ET = TimeZoneInfo.FindSystemTimeZoneById(@"America/New_York");
+
 	// Discord entity IDs
 	public static class ChannelIDs {
 		public const ulong
