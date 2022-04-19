@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Timers;
 
 using static Irene.RecurringEvent;
@@ -104,23 +104,37 @@ partial class RecurringEvents {
 		}
 	}
 
-	private static readonly List<Event> _events;
+	private static readonly List<Event> _events = new ();
 	private static readonly object _lock = new ();
 
 	private const string
-		_pathData = @"data/weekly.txt",
-		_pathTemp = @"data/weekly-temp.txt";
+		_pathData = @"data/events.txt",
+		_pathTemp = @"data/events-temp.txt";
 	private const string _delim = "|||";
+
 	private const string _formatTime = "u";
 	private static readonly CultureInfo _cultureFormat =
 		CultureInfo.InvariantCulture;
 
+	private const string _t = "\u2003";
+
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static RecurringEvents() {
+		_ = InitAsync();
+	}
+	private static async Task InitAsync() {
 		Util.CreateIfMissing(_pathData, _lock);
 
-		InitializeEvents();
+		List<Task<List<Event>>> tasks = new () {
+		};
+
+		// Dispatch all tasks.
+		foreach (Task<List<Event>> task in tasks)
+			task.Start();
+		await Task.WhenAll(tasks);
+		foreach (Task<List<Event>> task in tasks)
+			_events.AddRange(task.Result);
 
 		Log.Information("  Initialized module: WeeklyEvent");
 		string events_count = _events.Count switch {
@@ -128,6 +142,24 @@ partial class RecurringEvents {
 			_ => "events", // includes 0
 		};
 		Log.Debug($"    {{EventCount}} {events_count} registered.", _events.Count);
+	}
+
+	private static async Task<List<Event>> InitEventListAsync(List<Task<Event?>> tasks) {
+		// Dispatch all tasks.
+		foreach (Task<Event?> task in tasks)
+			task.Start();
+		await Task.WhenAll(tasks);
+
+		// Fetch results.
+		List<Event> events = new ();
+		foreach (Task<Event?> task in tasks) {
+			Event? @event = task.Result;
+			if (@event is not null)
+				events.Add(@event);
+			else
+				Log.Warning("  Failed to initialize event.");
+		}
+		return events;
 	}
 
 	// Read the last time the event was executed.
