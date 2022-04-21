@@ -344,12 +344,12 @@ class Raid {
 	public async Task UpdateAnnouncement(string text) {
 		// Exit early if required data isn't available.
 		if (Guild is null) {
-			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
+			Log.Warning("  Failed to update announcement logs for: {RaidHash}", Hash);
 			Log.Information("    Guild not loaded yet.");
 			return;
 		}
 		if (MessageId is null) {
-			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
+			Log.Warning("  Failed to update announcement logs for: {RaidHash}", Hash);
 			Log.Information("    No announcement message set.");
 			return;
 		}
