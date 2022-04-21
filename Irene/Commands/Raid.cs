@@ -340,7 +340,7 @@ class Raid : ICommand {
 		string logs = raid.LogLinks;
 		string response = (logs == "")
 			? $"No logs have been registered for {date_string}."
-			: $"{raid.Date.Emoji} Logs for {date_string}:\n{logs}";
+			: $"{raid.Emoji} Logs for {date_string}:\n{logs}";
 
 		// Respond.
 		await Command.RespondAsync(

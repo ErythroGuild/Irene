@@ -26,7 +26,7 @@ class Raid {
 
 		// Returns a uniquely identifiable string per date.
 		public string Hash { get =>
-			string.Join(_sep, new object[] { Tier, Week, Day });
+			string.Join(_separator, new object[] { Tier, Week, Day });
 		}
 		// Each week of the tier has a different emoji associated
 		// with it; the order is fixed between tiers.
@@ -236,6 +236,7 @@ class Raid {
 	public ulong? MessageId { get; set; }
 	public Dictionary<RaidGroup, RaidData> Data { get; init; }
 	public string Hash { get => Date.Hash; }
+	public string Emoji { get => Date.Emoji; }
 	public string LogLinks { get {
 		DiscordEmoji
 			emoji_wipefest = Emojis[id_e.wipefest],
@@ -271,8 +272,8 @@ class Raid {
 
 		return string.Join("\n", lines);
 	} }
-	private string AnnouncementText { get =>
-		$"{Date.Emoji} {Roles[id_r.raid]} - Forming now!";
+	public string AnnouncementText { get =>
+		$"{Emoji} {Roles[id_r.raid]} - Forming now!";
 	}
 
 	// Constructor / serialization / deserialization.
