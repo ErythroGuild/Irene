@@ -1,156 +1,156 @@
 ﻿using System.Text.RegularExpressions;
 
+using TierBasisPair = System.Tuple<Irene.Modules.Raid.RaidTier?, System.DateOnly?>;
+
 namespace Irene.Modules;
 
-public enum RaidTier {
-	EN, NH, ToV, ToS, ABT,
-	Uldir, BoD, CoS, EP, NWC,
-	CN, SoD, SFO,
-}
-public enum RaidDay {
-	Fri, Sat,
-}
-public enum RaidGroup {
-	Spaghetti,
-	Salad,
-}
-
-public readonly record struct RaidDate
-	(int Week, RaidDay Day);
-
 class Raid {
+	public enum RaidTier {
+		EN, NH, ToV, ToS, ABT,
+		Uldir, BoD, EP, NWC,
+		CN, SoD, SFO,
+	}
+	public enum RaidDay {
+		Friday, Saturday,
+	}
+	public enum RaidGroup {
+		Spaghetti,
+		Salad,
+	}
+	public readonly record struct RaidDate {
+		public readonly RaidTier Tier;
+		public readonly int Week;
+		public readonly RaidDay Day;
+
+		// Returns a uniquely identifiable string per date.
+		public string Hash { get =>
+			string.Join(_sep, new object[] { Tier, Week, Day });
+		}
+		// Each week of the tier has a different emoji associated
+		// with it; the order is fixed between tiers.
+		public string Emoji { get {
+			int i = (Week - 1) % _emojis.Count;
+			return _emojis[i];
+		} }
+
+		// Direct constructor (if tier/week data are known).
+		public RaidDate(RaidTier tier, int week, RaidDay day) {
+			Tier = tier;
+			Week = week;
+			Day = day;
+		}
+
+		// Convenience factory methods, taking actual date objects.
+		public static RaidDate? TryCreate(DateTimeOffset dateTime) {
+			DateTimeOffset dateTime_server =
+				TimeZoneInfo.ConvertTime(
+					dateTime.ToUniversalTime(),
+					TimeZone_Server)
+				;
+			DateOnly date =
+				DateOnly.FromDateTime(dateTime_server.DateTime);
+			return TryCreate(date);
+		}
+		public static RaidDate? TryCreate(DateOnly date) {
+			// Find / check raid day.
+			RaidDay? day = date.DayOfWeek switch {
+				DayOfWeek.Friday => RaidDay.Friday,
+				DayOfWeek.Saturday => RaidDay.Saturday,
+				_ => null,
+			};
+			if (day is null)
+				return null;
+
+			// Look up raid tier.
+			DateTimeOffset date_time = date.UtcResetTime();
+			(RaidTier? tier, DateOnly? basis) = date_time switch {
+				DateTimeOffset d when d <  Date_Season1.UtcResetTime() => new (null, null),
+				DateTimeOffset d when d <  Date_Season2.UtcResetTime() => new (RaidTier.CN , Date_Season1),
+				DateTimeOffset d when d <  Date_Season3.UtcResetTime() => new (RaidTier.SoD, Date_Season2),
+				DateTimeOffset d when d >= Date_Season3.UtcResetTime() => new (RaidTier.SFO, Date_Season3),
+				_ => new TierBasisPair(null, null),
+			};
+			if (tier is null || basis is null)
+				return null;
+
+			// Calculate raid week.
+			TimeSpan duration = date_time - basis.Value.UtcResetTime();
+			int week = (duration.Days / 7) + 1; // int division
+
+			return new RaidDate(tier.Value, week, day.Value);
+		}
+
+		// Serialization/deserialization.
+		public string Serialize() =>
+			string.Join(_separator, new object[] { Tier, Week, Day });
+		public static RaidDate Deserialize(string input) {
+			string[] split = input.Split(_separator, 3);
+			return new RaidDate(
+				Enum.Parse<RaidTier>(split[0]),
+				int.Parse(split[1]),
+				Enum.Parse<RaidDay>(split[2])
+			);
+		}
+
+		private static readonly List<string> _emojis = new () {
+			":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
+			":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
+			":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
+			":octopus:", ":bird:"    , ":turkey:"     , ":rooster:" ,
+			":otter:"  , ":parrot:"  , ":elephant:"   , ":microbe:" ,
+			":peacock:", ":chipmunk:", ":lion_face:"  , ":mouse:"   ,
+			":snail:"  , ":giraffe:" , ":duck:"       , ":bat:"     ,
+			":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
+		};
+		private const string _separator = ",";
+	}
+	public record class RaidData {
+		public string? LogId { get; set; }
+
+		// Convenience functions for accessing different log websites.
+		public string? UrlLogs     { get => LogId is null ? null : $"{_fragLogs}{LogId}"; }
+		public string? UrlWipefest { get => LogId is null ? null : $"{_fragWipefest}{LogId}"; }
+		public string? UrlAnalyzer { get => LogId is null ? null : $"{_fragAnalyzer}{LogId}"; }
+
+		public RaidData(string? logId) {
+			LogId = logId;
+		}
+
+		private const string
+			_fragLogs     = @"https://www.warcraftlogs.com/reports/",
+			_fragWipefest = @"https://www.wipefest.gg/report/",
+			_fragAnalyzer = @"https://wowanalyzer.com/report/";
+	}
+
+	// RaidGroup-related functionality.
+	public static RaidGroup DefaultGroup = RaidGroup.Spaghetti;
 	public static string GroupEmoji(RaidGroup group) =>
-		_groupEmojis[group];
-
-	public static TimeOnly Time { get => new (19, 0, 0); } // local (Pacific) time.
-	public static RaidGroup DefaultGroup { get => RaidGroup.Spaghetti; }
-	public static RaidTier CurrentTier { get => RaidTier.SFO; }
-	public static int CurrentWeek { get {
-		TimeSpan duration = DateTime.UtcNow - Date_Season3.UtcResetTime();
-		int week = (duration.Days / 7) + 1; // int division
-		return week;
-	} }
+		group switch {
+			RaidGroup.Spaghetti => ":spaghetti:",
+			RaidGroup.Salad => ":salad:",
+			_ => throw new ArgumentException("Unknown RaidGroup type.", nameof(group)),
+		};
 	
+	// Internal static data.
 	private static readonly object _lock = new ();
-	private static readonly List<string> _raidEmojis = new () {
-		":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
-		":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
-		":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
-		":octopus:", ":bird:"    , ":turkey:"     , ":rooster:" ,
-		":otter:"  , ":parrot:"  , ":elephant:"   , ":microbe:" ,
-		":peacock:", ":chipmunk:", ":lion_face:"  , ":mouse:"   ,
-		":snail:"  , ":giraffe:" , ":duck:"       , ":bat:"     ,
-		":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
-	};
-	private static readonly ConcurrentDictionary<RaidGroup, string> _groupEmojis = new() {
-		[RaidGroup.Spaghetti] = ":spaghetti:",
-		[RaidGroup.Salad] = ":salad:",
-	};
-
-	private const string
-		_fragLogs     = @"https://www.warcraftlogs.com/reports/",
-		_fragWipefest = @"https://www.wipefest.gg/report/",
-		_fragAnalyzer = @"https://wowanalyzer.com/report/";
 	private const string
 		_pathData = @"data/raids.txt",
 		_pathTemp = @"data/raids-temp.txt";
-	private const string _sep = "-";
 	private const string _indent = "\t";
 	private const string _delim = "=";
 	private const string
+		_keyRaidDate  = "raid-date",
 		_keyDoCancel  = "canceled",
-		_keyTier      = "tier",
-		_keyWeek      = "week",
-		_keyDay       = "day",
-		_keyGroup     = "group",
 		_keySummary   = "summary",
-		_keyLogId     = "log-id",
-		_keyMessageId = "message-id";
+		_keyMessageId = "message-id",
+		_keyGroup     = "group",
+		_keyLogId     = "log-id";
 
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static Raid() {
 		// Make sure datafile exists.
 		Util.CreateIfMissing(_pathData, _lock);
-	}
-
-	// Get the announcement text for a given RaidDate.
-	// Note: Requires Guild to be initialized! (not checked)
-	public static string AnnouncementText(RaidDate date) {
-		// Create a temporary Raid instance (just for emoji)
-		Raid raid = new(date, DefaultGroup);
-
-		List<string> text = new () {
-			$"{raid.Emoji} {Roles[id_r.raid].Mention} - Forming now!",
-		};
-
-		// Fetch available logs.
-		RaidGroup[] raidGroups = Enum.GetValues<RaidGroup>();
-		List<Raid> raids = new ();
-		foreach (RaidGroup group in raidGroups) {
-			Raid raid_i = Fetch(date, group);
-			if (raid_i.LogId is not null)
-				raids.Add(raid_i);
-		}
-
-		// Add available logs to announcement text.
-		DiscordEmoji
-			emoji_wipefest = Emojis[id_e.wipefest],
-			emoji_analyzer = Emojis[id_e.wowanalyzer],
-			emoji_logs = Emojis[id_e.warcraftlogs];
-		switch (raids.Count) {
-		case 1:
-			text.Add($"{emoji_wipefest} - <{raids[0].UrlWipefest}>");
-			text.Add($"{emoji_analyzer} - <{raids[0].UrlAnalyzer}>");
-			text.Add($"{emoji_logs} - <{raids[0].UrlLogs}>");
-			break;
-		case >1:
-			foreach (Raid raid_i in raids) {
-				string emoji = GroupEmoji(raid_i.Group);
-				text.Add("");
-				text.Add($"{emoji} **{raid_i.Group}** {emoji}");
-				text.Add($"{emoji_wipefest} - <{raids[0].UrlWipefest}>");
-				text.Add($"{emoji_analyzer} - <{raids[0].UrlAnalyzer}>");
-				text.Add($"{emoji_logs} - <{raids[0].UrlLogs}>");
-			}
-			break;
-		}
-
-		return string.Join("\n", text);
-	}
-
-	// Given a date, calculate the raid week & day.
-	// Must be combined with a RaidTier to specify a raid.
-	// Returns null if the given date was not a raid day.
-	public static RaidDate? CalculateRaidDate(DateOnly date) {
-		// Find / check raid day.
-		RaidDay? day = date.DayOfWeek switch {
-			DayOfWeek.Friday => RaidDay.Fri,
-			DayOfWeek.Saturday => RaidDay.Sat,
-			_ => null,
-		};
-		if (day is null)
-			return null;
-
-		// Calculate raid week.
-		DateTimeOffset date_time = date.UtcResetTime();
-		DateOnly? basis = date_time switch {
-			DateTimeOffset d when d < Date_Season1.UtcResetTime() =>
-				null,
-			DateTimeOffset d when d < Date_Season2.UtcResetTime() =>
-				Date_Season1,
-			DateTimeOffset d when d < Date_Season3.UtcResetTime() =>
-				Date_Season2,
-			DateTimeOffset d when d >= Date_Season3.UtcResetTime() =>
-				Date_Season3,
-			_ => null,
-		};
-		if (basis is null)
-			return null;
-		TimeSpan duration = date_time - basis.Value.UtcResetTime();
-		int week = (duration.Days / 7) + 1; // int division
-
-		return new RaidDate(week, day.Value);
 	}
 
 	// Returns null if the link is ill-formed.
@@ -163,78 +163,19 @@ class Raid {
 		return id;
 	}
 
-	// Fetch raid data from saved data.
+	// Fetch raid data from data file.
 	// Returns a fresh entry if a matching entry could not be found
 	// (default-initialized).
-	public static Raid Fetch(RaidDate date, RaidGroup group) =>
-		Fetch(date.Week, date.Day, group);
-	public static Raid Fetch(int week, RaidDay day, RaidGroup group) =>
-		Fetch(CurrentTier, week, day, group);
-	public static Raid Fetch(RaidTier tier, int week, RaidDay day, RaidGroup group) {
-		Raid raid_default = new Raid(tier, week, day, group);
-		string? entry = ReadRaidData(raid_default.Hash);
+	public static Raid Fetch(RaidDate date) {
+		Raid raid_default = new (date);
+		string? entry = ReadEntry(raid_default.Hash);
 		return (entry is null)
 			? raid_default
 			: Deserialize(entry) ?? raid_default;
 	}
 
-	// Update the announcement message with the correct logs.
-	public static async Task UpdateAnnouncement(Raid raid) {
-		// Exit early if required data isn't available.
-		if (raid.MessageId is null) {
-			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
-			Log.Information("    No announcement message set.");
-			return;
-		}
-		if (raid.LogId is null) {
-			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
-			Log.Information("    No logs set.");
-			return;
-		}
-		if (Guild is null) {
-			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
-			Log.Information("    Guild not loaded yet.");
-			return;
-		}
-
-		// Fetch the announcement message and edit it.
-		DiscordChannel announcements = Channels[id_ch.announce];
-		DiscordMessage message = await
-			announcements.GetMessageAsync(raid.MessageId.Value);
-		await message.ModifyAsync(AnnouncementText(raid.Date));
-	}
-	// Overwrite/insert the existing data with provided raid data.
-	public static void UpdateData(Raid raid) {
-		List<string> entries = ReadAllRaidData();
-		SortedList<Raid, string> entries_sorted =
-			new (new RaidComparer());
-
-		// Populate sorted list and add in updated data.
-		bool didInsert = false;
-		foreach (string entry in entries) {
-			Raid? key = Deserialize(entry);
-			if (key is null)
-				continue;
-			if (raid.Hash == key.Hash) {
-				entries_sorted.Add(key, raid.Serialize());
-				didInsert = true;
-			} else {
-				entries_sorted.Add(key, entry);
-			}
-		}
-		if (!didInsert)
-			entries_sorted.Add(raid, raid.Serialize());
-
-		// Update data file.
-		lock (_lock) {
-			File.WriteAllLines(_pathTemp, entries_sorted.Values);
-			File.Delete(_pathData);
-			File.Move(_pathTemp, _pathData);
-		}
-	}
-
-	// Reads the entire datafile and groups them into entries.
-	private static List<string> ReadAllRaidData() {
+	// Reads the entire data file and groups them into entries.
+	private static List<string> ReadAllEntries() {
 		List<string> entries = new ();
 		string? entry = null;
 
@@ -259,7 +200,7 @@ class Raid {
 	// Fetch a single serialized entry matching the given hash.
 	// This function exits early when possible.
 	// Returns null if no valid object found.
-	private static string? ReadRaidData(string hash) {
+	private static string? ReadEntry(string hash) {
 		bool was_found = false;
 		string entry = "";
 
@@ -286,42 +227,71 @@ class Raid {
 		return was_found ? entry : null;
 	}
 
-	// Creates a populated Raid object from the serialized data.
-	// Returns null if the object is underspecified.
+	// Properties.
+	public RaidDate Date { get; init; }
+	public bool DoCancel { get; set; }
+	public string? Summary { get; set; }
+	public ulong? MessageId { get; set; }
+	public Dictionary<RaidGroup, RaidData> Data { get; init; }
+	public string Hash { get => Date.Hash; }
+
+	// Constructor / serialization / deserialization.
+	private Raid(RaidDate date) {
+		Date = date;
+		DoCancel = false;
+		Summary = null;
+		Data = new Dictionary<RaidGroup, RaidData>();
+		MessageId = null;
+	}
+	private string? Serialize() {
+		// Return null if entry is all default values.
+		if (DoCancel == false &&
+			Summary is null &&
+			MessageId is null &&
+			Data.Count == 0
+		) { return null; }
+
+		List<string> lines = new () {
+			Hash,
+			$"{_indent}{_keyRaidDate}{_delim}{Date.Serialize()}",
+			$"{_indent}{_keyDoCancel}{_delim}{DoCancel}",
+			$"{_indent}{_keySummary}{_delim}{Summary ?? ""}",
+			$"{_indent}{_keyMessageId}{_delim}{MessageId?.ToString() ?? ""}",
+		};
+		foreach (RaidGroup group in Data.Keys) {
+			if (Data[group].LogId is not null) {
+				lines.Add($"{_indent}{_keyGroup}{_delim}{group}");
+				lines.Add($"{_indent}{_indent}{_keyLogId}{_delim}{Data[group].LogId ?? ""}");
+			}
+		}
+
+		return string.Join("\n", lines);
+	}
+	// Returns null if the data is underspecified.
 	private static Raid? Deserialize(string entry) {
+		string _indent2 = _indent + _indent;
 		// Skip first line (hash).
 		string[] lines = entry.Split("\n")[1..];
 
 		// Buffer variables for deserialization.
-		RaidTier? tier = null;
-		int? week = null;
-		RaidDay? day = null;
-		RaidGroup? group = null;
+		RaidDate? raidDate = null;
 		bool? doCancel = null;
 		string? summary = null;
-		string? logId = null;
 		ulong? messageId = null;
+		Dictionary<RaidGroup, RaidData> data = new ();
 
-		// Parse lines.
-		foreach (string line in lines) {
-			string[] split = line
-				.Substring(_indent.Length)
+		// Parse all the lines.
+		int line_count = lines.Length;
+		for (int i=0; i<line_count; i++) {
+			// Remove first indent and split into key/value pair.
+			string[] split = lines[i][_indent.Length..]
 				.Split(_delim, 2);
-			string key = split[0];
-			string value = split[1];
+			(string key, string value) = (split[0], split[1]);
 
+			// Assign all data.
 			switch (key) {
-			case _keyTier:
-				tier = Enum.Parse<RaidTier>(value);
-				break;
-			case _keyWeek:
-				week = int.Parse(value);
-				break;
-			case _keyDay:
-				day = Enum.Parse<RaidDay>(value);
-				break;
-			case _keyGroup:
-				group = Enum.Parse<RaidGroup>(value);
+			case _keyRaidDate:
+				raidDate = RaidDate.Deserialize(value);
 				break;
 			case _keyDoCancel:
 				doCancel = bool.Parse(value);
@@ -329,92 +299,130 @@ class Raid {
 			case _keySummary:
 				summary = (value != "") ? value : null;
 				break;
-			case _keyLogId:
-				logId = (value != "") ? value : null;
-				break;
 			case _keyMessageId:
 				messageId = (value != "") ? ulong.Parse(value) : null;
 				break;
+			case _keyGroup: {
+				RaidGroup? group = Enum.Parse<RaidGroup>(value);
+				string? logId = null;
+
+				// Parse all group sub-entries.
+				while (i+1 < line_count && lines[i+1].StartsWith(_indent2)) {
+					i++;
+					split = lines[i][_indent2.Length..]
+						.Split(_delim, 2);
+					(key, value) = (split[0], split[1]);
+					switch (key) {
+					case _keyLogId:
+						logId = (value != "") ? value : null;
+						break;
+					}
+				}
+
+				// Assign data (or break).
+				if (group is null || logId is null)
+					break;
+				data.Add(group!.Value, new (logId));
+				break; }
 			}
 		}
 
 		// Check that all required fields are non-null.
-		if (tier is null || week is null || day is null || group is null || doCancel is null)
+		if (raidDate is null || doCancel is null)
 			return null;
 
 		// Create a raid object to return.
-		return new Raid(tier!.Value, week!.Value, day!.Value, group!.Value) {
+		return new Raid(raidDate!.Value) {
 			DoCancel = doCancel!.Value,
 			Summary = summary,
-			LogId = logId,
 			MessageId = messageId,
+			Data = data,
 		};
 	}
 
-	// Returns a uniquely identifiable string per raid + group.
-	public string Hash { get =>
-		string.Join(_sep, new object[] { Tier, Date.Week, Date.Day, Group });
-	}
-	// Each week of the tier has a different emoji associated with it.
-	// The order is fixed between tiers.
-	public string Emoji { get {
-		int i = (Date.Week - 1) % _raidEmojis.Count;
-		return _raidEmojis[i];
-	} }
-	// Convenience functions for accessing different log websites.
-	public string? UrlLogs { get =>
-		LogId is null ? null : $"{_fragLogs}{LogId}";
-	}
-	public string? UrlWipefest { get =>
-		LogId is null ? null : $"{_fragWipefest}{LogId}";
-	}
-	public string? UrlAnalyzer { get =>
-		LogId is null ? null : $"{_fragAnalyzer}{LogId}";
-	}
+	// Syntax sugar to call the static methods.
+	public async Task UpdateAnnouncement(string text) {
+		// Exit early if required data isn't available.
+		if (Guild is null) {
+			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
+			Log.Information("    Guild not loaded yet.");
+			return;
+		}
+		if (MessageId is null) {
+			Log.Warning("  Failed to update announcement logs for: {RaidHash}", raid.Hash);
+			Log.Information("    No announcement message set.");
+			return;
+		}
 
-	// Data fields (non-calculated).
-	public RaidTier Tier { get; init; }
-	public RaidDate Date { get; init; }
-	public RaidGroup Group { get; init; }
-	public bool DoCancel { get; set; }
-	public string? Summary { get; set; }
-	public string? LogId { get; set; }
-	public ulong? MessageId { get; set; }
+		// Create list to add contructed text to.
+		List<string> lines = new () { text };
 
-	// Constructors.
-	public Raid(RaidDate date, RaidGroup group)
-		: this (date.Week, date.Day, group) { }
-	public Raid(int week, RaidDay day, RaidGroup group)
-		: this(CurrentTier, week, day, group) { }
-	public Raid(RaidTier tier, int week, RaidDay day, RaidGroup group) {
-		Tier = tier;
-		Date = new RaidDate(week, day);
-		Group = group;
-		DoCancel = false;
-		Summary = null;
-		LogId = null;
-		MessageId = null;
+		// Add available logs to announcement text.
+		DiscordEmoji
+			emoji_wipefest = Emojis[id_e.wipefest],
+			emoji_analyzer = Emojis[id_e.wowanalyzer],
+			emoji_logs = Emojis[id_e.warcraftlogs];
+		switch (Data.Count) {
+		case 1:
+			foreach (RaidData data in Data.Values) {
+				lines.Add($"{emoji_wipefest} - <{data.UrlWipefest}>");
+				lines.Add($"{emoji_analyzer} - <{data.UrlAnalyzer}>");
+				lines.Add($"{emoji_logs} - <{data.UrlLogs}>");
+			}
+			break;
+		case >1:
+			foreach (RaidGroup group in Data.Keys) {
+				string emoji = GroupEmoji(group);
+				lines.Add("");
+				lines.Add($"{emoji} **{group}** {emoji}");
+				lines.Add($"{emoji_wipefest} - <{Data[group].UrlWipefest}>");
+				lines.Add($"{emoji_analyzer} - <{Data[group].UrlAnalyzer}>");
+				lines.Add($"{emoji_logs} - <{Data[group].UrlLogs}>");
+			}
+			break;
+		}
+
+		// Fetch the announcement message and edit it.
+		DiscordChannel announcements = Channels[id_ch.announce];
+		DiscordMessage message = await
+			announcements.GetMessageAsync(MessageId.Value);
+		await message.ModifyAsync(string.Join("\n", lines));
 	}
+	// Overwrite / add this instance's data to the data file.
+	public void UpdateData() {
+		List<string> entries = ReadAllEntries();
+		SortedList<Raid, string> entries_sorted =
+			new (new RaidComparer());
 
-	// Syntax sugar to call the static method.
-	public async Task UpdateAnnouncement() =>
-		await UpdateAnnouncement(this);
-	public void UpdateData() =>
-		UpdateData(this);
+		// Populate sorted list and add in updated data.
+		bool didInsert = false;
+		foreach (string entry in entries) {
+			Raid? key = Deserialize(entry);
+			if (key is null)
+				continue;
+			if (Hash == key.Hash) {
+				string? serialized = Serialize();
+				if (serialized is not null)
+					entries_sorted.Add(key, serialized);
+				didInsert = true;
+			}
+			else {
+				entries_sorted.Add(key, entry);
+			}
+		}
+		if (!didInsert) {
+			string? serialized = Serialize();
+			if (serialized is not null)
+				entries_sorted.Add(this, serialized);
+		}
 
-	// Returns a(n ordered) list of the instance's serialization.
-	string Serialize() =>
-		string.Join("\n", new List<string> {
-			Hash,
-			$"{_indent}{_keyTier}{_delim}{Tier}",
-			$"{_indent}{_keyWeek}{_delim}{Date.Week}",
-			$"{_indent}{_keyDay}{_delim}{Date.Day}",
-			$"{_indent}{_keyGroup}{_delim}{Group}",
-			$"{_indent}{_keyDoCancel}{_delim}{DoCancel}",
-			$"{_indent}{_keySummary}{_delim}{Summary ?? ""}",
-			$"{_indent}{_keyLogId}{_delim}{LogId ?? ""}",
-			$"{_indent}{_keyMessageId}{_delim}{MessageId?.ToString() ?? ""}",
-		});
+		// Update data file.
+		lock (_lock) {
+			File.WriteAllLines(_pathTemp, entries_sorted.Values);
+			File.Delete(_pathData);
+			File.Move(_pathTemp, _pathData);
+		}
+	}
 
 	// Reverse-date comparer (for serialization).
 	private class RaidComparer : Comparer<Raid> {
@@ -424,14 +432,12 @@ class Raid {
 			if (y is null)
 				throw new ArgumentNullException(nameof(y), "Attempted to compare null reference.");
 
-			if (x.Tier != y.Tier)
-				return y.Tier - x.Tier;
+			if (x.Date.Tier != y.Date.Tier)
+				return y.Date.Tier - x.Date.Tier;
 			if (x.Date.Week != y.Date.Week)
 				return y.Date.Week - x.Date.Week;
 			if (x.Date.Day != y.Date.Day)
 				return y.Date.Day - x.Date.Day;
-			if (x.Group != y.Group)
-				return x.Group - y.Group; // Group is normal sort order
 
 			return 0;
 		}
