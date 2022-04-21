@@ -1,7 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
 using Irene.Components;
-using Irene.Modules;
+
+using static Irene.Modules.Raid;
 
 using RaidObj = Irene.Modules.Raid;
 
@@ -38,8 +39,9 @@ class Raid : ICommand {
 			//@":lock: `/raid eligibility <member>` checks raid requirements for a specific member.",
 			@" `/raid view-logs <date>` shows the logs for the given date,",
 			@":lock: `/raid set-logs <group> <date> <link>` sets the logs for the given date.",
-			@":lock: `/raid set-plan <group> <date>` sets the plans for the given date's raid.",
+			@":lock: `/raid set-plan <date>` sets the plans for the given date's raid.",
 			@":lock: `/raid cancel <date> [do-cancel]` marks raid that day as canceled.",
+			"`<date>` values can always be entered as YYYY-MM-DD if natural phrases aren't working.",
 		} ) };
 	}
 
@@ -118,25 +120,13 @@ class Raid : ICommand {
 						_commandSetPlan,
 						"Set the raid plans for a raid.",
 						ApplicationCommandOptionType.SubCommand,
-						options: new List<CommandOption> {
-							new (
+						options: new List<CommandOption> { new (
 								_argDate,
 								"The date to set the raid plans for.",
 								ApplicationCommandOptionType.String,
 								required: true,
 								autocomplete: true
-							),
-							new (
-								"group",
-								"The group to set the raid plans for.",
-								ApplicationCommandOptionType.String,
-								required: true,
-								new List<CommandOptionEnum> {
-									new ("Spaghetti", RaidGroup.Spaghetti.ToString()),
-									new ("Salad", RaidGroup.Salad.ToString()),
-								}
-							),
-						}
+						), }
 					),
 					new (
 						_commandCancel,
@@ -239,47 +229,34 @@ class Raid : ICommand {
 		DateOnly today = DateOnly.FromDateTime(DateTime.Now);
 		DateOnly day_fri = today.NextDayOfWeek(DayOfWeek.Friday, true);
 		DateOnly day_sat = today.NextDayOfWeek(DayOfWeek.Saturday, true);
-		RaidDate? raidDate_fri = RaidObj.CalculateRaidDate(day_fri);
-		RaidDate? raidDate_sat = RaidObj.CalculateRaidDate(day_sat);
+		RaidDate? raidDate_fri = RaidDate.TryCreate(day_fri);
+		RaidDate? raidDate_sat = RaidDate.TryCreate(day_sat);
 		if (today.DayOfWeek is DayOfWeek.Saturday)
 			raidDate_fri = null; // only show Saturday's plans
 
 		// Fetch plans.
-		RaidGroup[] raidGroups = Enum.GetValues<RaidGroup>();
-		Dictionary<RaidGroup, string> plans_fri = new ();
 		bool isCanceled_fri = false;
+		string? plans_fri = null;
 		if (raidDate_fri is not null) {
-			foreach (RaidGroup group in raidGroups) {
-				RaidObj raid =
-					RaidObj.Fetch(raidDate_fri.Value, group);
-				if (raid.DoCancel) {
-					isCanceled_fri = true;
-					break;
-				}
-				string? plans = raid.Summary;
-				if (plans != null)
-					plans_fri.Add(group, plans);
-			}
+			RaidObj raid = Fetch(raidDate_fri.Value);
+			if (raid.DoCancel)
+				isCanceled_fri = true;
+			else
+				plans_fri = raid.Summary;
 		}
-		Dictionary<RaidGroup, string> plans_sat = new ();
 		bool isCanceled_sat = false;
+		string? plans_sat = null;
 		if (raidDate_sat is not null) {
-			foreach (RaidGroup group in raidGroups) {
-				RaidObj raid =
-					RaidObj.Fetch(raidDate_sat.Value, group);
-				if (raid.DoCancel) {
-					isCanceled_sat = true;
-					break;
-				}
-				string? plans = raid.Summary;
-				if (plans != null)
-					plans_sat.Add(group, plans);
-			}
+			RaidObj raid = Fetch(raidDate_sat.Value);
+			if (raid.DoCancel)
+				isCanceled_sat = true;
+			else
+				plans_sat = raid.Summary;
 		}
 
 		// Generate formatted timestamps.
 		DateTimeOffset time_start =
-			DateTime.Today + RaidObj.Time.ToTimeSpan();
+			DateTime.Today + Time_RaidStart.TimeOnly.ToTimeSpan();
 		DateTimeOffset time_end =
 			time_start + TimeSpan.FromHours(2);
 		string time_start_str =
@@ -299,36 +276,20 @@ class Raid : ICommand {
 			if (isCanceled_fri) {
 				response.Add("Raid is canceled. :desert:");
 			} else {
-				switch (plans_fri.Count) {
-				case 0:
+				if (plans_fri is null)
 					response.Add("No specific plans set. :leaves:");
-					break;
-				case 1:
-					response.Add(new List<string>(plans_fri.Values)[0]);
-					break;
-				case 2:
-					foreach (RaidGroup group in plans_fri.Keys)
-						response.Add($"{RaidObj.GroupEmoji(group)} - {plans_fri[group]}");
-					break;
-				}
+				else
+					response.Add(plans_fri);
 			}
 		}
 		response.Add("**Saturday**");
 		if (isCanceled_sat) {
 			response.Add("Raid is canceled. :desert:");
 		} else {
-			switch (plans_sat.Count) {
-			case 0:
+			if (plans_sat is null)
 				response.Add("No specific plans set. :leaves:");
-				break;
-			case 1:
-				response.Add(new List<string>(plans_sat.Values)[0]);
-				break;
-			case 2:
-				foreach (RaidGroup group in plans_sat.Keys)
-					response.Add($"{RaidObj.GroupEmoji(group)} - {plans_sat[group]}");
-				break;
-			}
+			else
+				response.Add(plans_sat);
 		}
 
 		// Respond to interaction.
@@ -349,15 +310,16 @@ class Raid : ICommand {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs()[0].GetArgs();
 
-		RaidDate? date = ParseRaidDate((string)args[0].Value);
+		RaidDate? date_n = ParseRaidDate((string)args[0].Value);
 		// Filter out invalid dates.
-		if (date is null) {
+		if (date_n is null) {
 			await RespondInvalidDateAsync(
 				interaction,
 				(string)args[0].Value
 			);
 			return;
 		}
+		RaidDate date = date_n.Value;
 
 		// Make sure Guild is initialized.
 		if (Guild is null) {
@@ -371,14 +333,14 @@ class Raid : ICommand {
 			return;
 		}
 
-		// Compose response by editing the date's announcement text.
-		// The first line needs to be removed.
-		string response = RaidObj.AnnouncementText(date.Value);
-		response = response.Split("\n", 2)[1].Trim();
-		RaidObj raid = new (date.Value, RaidObj.DefaultGroup); // only temporary
-		response = $"Logs for {raid.Tier}" +
-			$" **week {raid.Date.Week}**," +
-			$" {raid.Date.Day}.:\n" + response;
+		// Fetch RaidObj data and compose response.
+		RaidObj raid = Fetch(date);
+		string date_string =
+			$"{raid.Date.Tier} week {raid.Date.Week}, {raid.Date.Day}";
+		string logs = raid.LogLinks;
+		string response = (logs == "")
+			? $"No logs have been registered for {date_string}."
+			: $"{raid.Date.Emoji} Logs for {date_string}:\n{logs}";
 
 		// Respond.
 		await Command.RespondAsync(
@@ -394,18 +356,19 @@ class Raid : ICommand {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs()[0].GetArgs();
 
-		RaidDate? date = ParseRaidDate((string)args[0].Value);
+		RaidDate? date_n = ParseRaidDate((string)args[0].Value);
 		RaidGroup group = Enum.Parse<RaidGroup>((string)args[1].Value);
-		string? logId = RaidObj.ParseLogId((string)args[2].Value);
+		string? logId = ParseLogId((string)args[2].Value);
 
 		// Filter out invalid dates.
-		if (date is null) {
+		if (date_n is null) {
 			await RespondInvalidDateAsync(
 				interaction,
 				(string)args[0].Value
 			);
 			return;
 		}
+		RaidDate date = date_n.Value;
 
 		// Filter out invalid log links.
 		if (logId is null) {
@@ -421,14 +384,19 @@ class Raid : ICommand {
 		}
 
 		// Save old log ID (if available), and set new one.
-		RaidObj raid = RaidObj.Fetch(date.Value, group);
-		string? logId_prev = raid.LogId;
-		raid.LogId = logId;
+		RaidObj raid = Fetch(date);
+		string? logId_prev = null;
+		if (raid.Data.ContainsKey(group)) {
+			logId_prev = raid.Data[group].LogId;
+			raid.Data[group].LogId = logId;
+		} else {
+			raid.Data.Add(group, new (logId));
+		}
 
 		// Respond.
 		string response =
-			$"Setting the logs for {raid.Tier}" +
-			$" **week {date.Value.Week}** ({date.Value.Day}.):" +
+			$"Setting the logs for {date.Tier}" +
+			$" **week {date.Week}** ({date.Day}.):" +
 			$" `{logId}`.";
 		if (logId_prev is not null)
 			response += $"\n:pencil: Previous data overwritten: `{logId_prev}`";
@@ -455,26 +423,25 @@ class Raid : ICommand {
 	private static async Task SetPlanAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs()[0].GetArgs();
-
-		RaidDate? date = ParseRaidDate((string)args[0].Value);
-		RaidGroup group = Enum.Parse<RaidGroup>((string)args[1].Value);
+		RaidDate? date_n = ParseRaidDate((string)args[0].Value);
 
 		// Filter out invalid dates.
-		if (date is null) {
+		if (date_n is null) {
 			await RespondInvalidDateAsync(
 				interaction,
 				(string)args[0].Value
 			);
 			return;
 		}
+		RaidDate date = date_n.Value;
 
 		// Read in existing plans (if they exist).
-		RaidObj raid = RaidObj.Fetch(date.Value, group);
+		RaidObj raid = Fetch(date);
 		string plans = raid.Summary ?? "";
 		plans = plans.Unescape();
 
 		// Initialize modal components.
-		string title = $"{raid.Tier} week {raid.Date.Week}, {raid.Date.Day}.";
+		string title = $"{date.Tier} week {date.Week}, {date.Day}";
 		List<TextInputComponent> components = new () {
 			new TextInputComponent("Raid Plans", _idTagPlans, value: plans, style: TextInputStyle.Paragraph),
 		};
@@ -497,7 +464,7 @@ class Raid : ICommand {
 				"Updated raid plans successfully.",
 				LogLevel.Debug,
 				new Lazy<string>(() =>
-					$"Plans updated: {raid.Tier} Week {raid.Date.Week} {raid.Date.Day}"
+					$"Plans updated: {date.Tier} Week {date.Week} {date.Day}"
 				)
 			);
 		}
@@ -510,8 +477,8 @@ class Raid : ICommand {
 			),
 			"Creating modal to set plans.",
 			LogLevel.Debug,
-			"Modal created. ({Tier} week {WeekNum})",
-			raid.Tier, raid.Date.Week
+			"Modal created. ({Tier} week {WeekNum} {Day})",
+			date.Tier, date.Week, date.Day
 		);
 	}
 
@@ -519,34 +486,30 @@ class Raid : ICommand {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs()[0].GetArgs();
 
-		RaidDate? date = ParseRaidDate((string)args[0].Value);
+		RaidDate? date_n = ParseRaidDate((string)args[0].Value);
 		bool doCancel = (args.Count > 1)
 			? (bool)args[1].Value
 			: true;
 
 		// Filter out invalid dates.
-		if (date is null) {
+		if (date_n is null) {
 			await RespondInvalidDateAsync(
 				interaction,
 				(string)args[0].Value
 			);
 			return;
 		}
+		RaidDate date = date_n.Value;
 
 		// Set raids as canceled.
-		RaidGroup[] raidGroups = Enum.GetValues<RaidGroup>();
-		foreach (RaidGroup raidGroup in raidGroups) {
-			RaidObj raid = RaidObj.Fetch(date.Value, raidGroup);
-			if (raid.DoCancel != doCancel) {
-				raid.DoCancel = doCancel;
-				raid.UpdateData();
-			}
-		}
+		RaidObj raid = Fetch(date);
+		raid.DoCancel = doCancel;
+		raid.UpdateData();
 
 		// Respond.
 		string response =
 			"Raid cancel status has been successfully set. :ok_hand:" +
-			$"\n(week {date.Value.Week}, {date.Value.Day}.)";
+			$"\n(week {date.Week}, {date.Day})";
 		await Command.RespondAsync(
 			interaction,
 			response, false,
@@ -556,12 +519,13 @@ class Raid : ICommand {
 				string s = doCancel
 					? "Raid canceled"
 					: "Raid un-canceled";
-				s += $": week {date.Value.Week}, {date.Value.Day}.";
+				s += $": week {date.Week}, {date.Day}.";
 				return s;
 			})
 		);
 	}
 
+	// Generic response to an invalid (unparseable) <date> argument.
 	private static async Task RespondInvalidDateAsync(TimedInteraction interaction, string arg) {
 		string response = "The date you specified was not a valid raid day. :calendar:";
 		await Command.RespondAsync(
@@ -574,8 +538,10 @@ class Raid : ICommand {
 		);
 	}
 
+	// Regex black magic to obtain a valid  (or null) RaidDate from a
+	// wide range of (reasonable) input strings.
 	private static RaidDate? ParseRaidDate(string arg) {
-		DateOnly? date_raw = null;
+		DateOnly? date_raw;
 		arg = arg.Trim().ToLower();
 
 		DayOfWeek day_reset = DayOfWeek.Tuesday;
@@ -594,20 +560,23 @@ class Raid : ICommand {
 			_ => throw new ArgumentException("Invalid day of week.", nameof(input)),
 		};
 
+		DateTime dateTime_today =
+			TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZone_Server);
+		DateOnly date_today = DateOnly.FromDateTime(dateTime_today);
 		switch (arg) {
 		case "today":
-			date_raw = DateOnly.FromDateTime(DateTime.Today);
+			date_raw = date_today;
 			break;
 		case "yesterday":
-			date_raw = DateOnly.FromDateTime(DateTime.Today).AddDays(-1);
+			date_raw = date_today.AddDays(-1);
 			break;
 		case "tomorrow":
-			date_raw = DateOnly.FromDateTime(DateTime.Today).AddDays(1);
+			date_raw = date_today.AddDays(1);
 			break;
 		case string s when regex_shortWeekday.IsMatch(s): {
 			Match match = regex_shortWeekday.Match(s);
 			DayOfWeek day = ParseDay(match.Groups["day"].Value);
-			date_raw = DateOnly.FromDateTime(DateTime.Today);
+			date_raw = date_today;
 			int delta = DaysToWeekday(day_reset, date_raw.Value, day);
 			delta += match.Groups["position"].Value switch {
 				"this" => 0,
@@ -625,7 +594,7 @@ class Raid : ICommand {
 				position = match.Groups["position1"].Value;
 			if (match.Groups.ContainsKey("position2"))
 				position = match.Groups["position2"].Value;
-			date_raw = DateOnly.FromDateTime(DateTime.Today);
+			date_raw = date_today;
 			int delta = DaysToWeekday(day_reset, date_raw.Value, day);
 			delta += position switch {
 				"this" => 0,
@@ -638,7 +607,7 @@ class Raid : ICommand {
 		}
 		case string s when regex_indexedWeekday.IsMatch(s): {
 			Match match = regex_indexedWeekday.Match(s);
-			date_raw = DateOnly.FromDateTime(DateTime.Today);
+			date_raw = date_today;
 			DayOfWeek day = match.Groups switch {
 				GroupCollection g when g.ContainsKey("day1") => ParseDay(g["day1"].Value),
 				GroupCollection g when g.ContainsKey("day2") => ParseDay(g["day2"].Value),
@@ -666,8 +635,6 @@ class Raid : ICommand {
 			(DayOfWeek.Friday or DayOfWeek.Saturday)
 		) { return null; }
 
-		RaidDate? date =
-			RaidObj.CalculateRaidDate((DateOnly)date_raw);
-		return date;
+		return RaidDate.TryCreate(date_raw.Value);
 	}
 }
