@@ -105,11 +105,15 @@ partial class RecurringEvents {
 	}
 
 	private static readonly List<Event> _events = new ();
-	private static readonly object _lock = new ();
+	private static readonly object
+		_lock = new (),
+		_lockMemes = new ();
 
 	private const string
-		_pathData = @"data/events.txt",
-		_pathTemp = @"data/events-temp.txt";
+		_pathData  = @"data/events.txt",
+		_pathTemp  = @"data/events-temp.txt",
+		_pathMemes = @"data/memes.txt",
+		_pathMemeHistory = @"data/memes-history.txt";
 	private const string _delim = "|||";
 
 	private const string _formatTime = "u";
@@ -125,8 +129,12 @@ partial class RecurringEvents {
 	}
 	private static async Task InitAsync() {
 		Util.CreateIfMissing(_pathData, _lock);
+		Util.CreateIfMissing(_pathMemes, _lockMemes);
+		Util.CreateIfMissing(_pathMemeHistory, _lockMemes);
 
 		List<Task<List<Event>>> tasks = new () {
+			GetEvents_Raid(),
+			GetEvents_Server(),
 		};
 
 		// Dispatch all tasks.
