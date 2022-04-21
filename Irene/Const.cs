@@ -19,7 +19,7 @@ static class Const {
 	// Server reset time does not change with DST.
 	public static readonly RecurTime
 		Time_ServerReset = new (new (15, 0), TimeZoneInfo.Utc),
-		Time_RaidStart   = new (new (21, 0), TimeZone_CT);
+		Time_RaidStart   = new (new (21, 0), TimeZone_Server);
 	public static readonly DateOnly
 		Date_Patch902 = new (2020, 11, 17),
 		Date_Season1  = new (2020, 12,  8),
