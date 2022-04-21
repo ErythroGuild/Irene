@@ -1,6 +1,8 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 using TierBasisPair = System.Tuple<Irene.Modules.Raid.RaidTier?, System.DateOnly?>;
+using GroupDataPair = System.Collections.Generic.KeyValuePair<Irene.Modules.Raid.RaidGroup, Irene.Modules.Raid.RaidData>;
 
 namespace Irene.Modules;
 
@@ -234,6 +236,44 @@ class Raid {
 	public ulong? MessageId { get; set; }
 	public Dictionary<RaidGroup, RaidData> Data { get; init; }
 	public string Hash { get => Date.Hash; }
+	public string LogLinks { get {
+		DiscordEmoji
+			emoji_wipefest = Emojis[id_e.wipefest],
+			emoji_analyzer = Emojis[id_e.wowanalyzer],
+			emoji_logs = Emojis[id_e.warcraftlogs];
+
+		List<string> lines = new ();
+		List<GroupDataPair> data = Data
+			.ToList()
+			.FindAll((pair) => pair.Value.LogId is not null);
+		switch (data.Count) {
+		case 1:
+			foreach (GroupDataPair pair in data) {
+				RaidData data_i = pair.Value;
+				lines.Add($"{emoji_wipefest} - <{data_i.UrlWipefest}>");
+				lines.Add($"{emoji_analyzer} - <{data_i.UrlAnalyzer}>");
+				lines.Add($"{emoji_logs} - <{data_i.UrlLogs}>");
+			}
+			break;
+		case >1:
+			foreach (GroupDataPair pair in data) {
+				(RaidGroup group, RaidData data_i) = pair;
+				string emoji = GroupEmoji(group);
+				lines.Add($"{emoji} **{group}** {emoji}");
+				lines.Add($"{emoji_wipefest} - <{data_i.UrlWipefest}>");
+				lines.Add($"{emoji_analyzer} - <{data_i.UrlAnalyzer}>");
+				lines.Add($"{emoji_logs} - <{data_i.UrlLogs}>");
+				lines.Add("");
+			}
+			lines.RemoveAt(lines.Count - 1);
+			break;
+		}
+
+		return string.Join("\n", lines);
+	} }
+	private string AnnouncementText { get =>
+		$"{Date.Emoji} {Roles[id_r.raid]} - Forming now!";
+	}
 
 	// Constructor / serialization / deserialization.
 	private Raid(RaidDate date) {
@@ -341,7 +381,7 @@ class Raid {
 	}
 
 	// Syntax sugar to call the static methods.
-	public async Task UpdateAnnouncement(string text) {
+	public async Task UpdateAnnouncement() {
 		// Exit early if required data isn't available.
 		if (Guild is null) {
 			Log.Warning("  Failed to update announcement logs for: {RaidHash}", Hash);
@@ -354,39 +394,21 @@ class Raid {
 			return;
 		}
 
-		// Create list to add contructed text to.
-		List<string> lines = new () { text };
-
-		// Add available logs to announcement text.
-		DiscordEmoji
-			emoji_wipefest = Emojis[id_e.wipefest],
-			emoji_analyzer = Emojis[id_e.wowanalyzer],
-			emoji_logs = Emojis[id_e.warcraftlogs];
-		switch (Data.Count) {
-		case 1:
-			foreach (RaidData data in Data.Values) {
-				lines.Add($"{emoji_wipefest} - <{data.UrlWipefest}>");
-				lines.Add($"{emoji_analyzer} - <{data.UrlAnalyzer}>");
-				lines.Add($"{emoji_logs} - <{data.UrlLogs}>");
-			}
-			break;
-		case >1:
-			foreach (RaidGroup group in Data.Keys) {
-				string emoji = GroupEmoji(group);
-				lines.Add("");
-				lines.Add($"{emoji} **{group}** {emoji}");
-				lines.Add($"{emoji_wipefest} - <{Data[group].UrlWipefest}>");
-				lines.Add($"{emoji_analyzer} - <{Data[group].UrlAnalyzer}>");
-				lines.Add($"{emoji_logs} - <{Data[group].UrlLogs}>");
-			}
-			break;
-		}
+		// Contruct announcement text.
+		List<GroupDataPair> data = Data
+			.ToList()
+			.FindAll((pair) => pair.Value.LogId is not null);
+		string announcement = AnnouncementText;
+		if (data.Count > 1)
+			announcement += "\n";
+		if (data.Count > 0)
+			announcement += "\n" + LogLinks;
 
 		// Fetch the announcement message and edit it.
 		DiscordChannel announcements = Channels[id_ch.announce];
 		DiscordMessage message = await
 			announcements.GetMessageAsync(MessageId.Value);
-		await message.ModifyAsync(string.Join("\n", lines));
+		await message.ModifyAsync(announcement);
 	}
 	// Overwrite / add this instance's data to the data file.
 	public void UpdateData() {
