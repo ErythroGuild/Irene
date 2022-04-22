@@ -380,25 +380,25 @@ class RecurringEvent {
 				int days = (int)basis.Index;
 				if (direction is RuleDirection.Before)
 					days *= -1;
-				date_next.AddDays(days);
+				date_next = date_next.AddDays(days);
 				break; }
 			case BasisType.Weeks: {
 				int days = 7 * (int)basis.Index;
 				if (direction is RuleDirection.Before)
 					days *= -1;
-				date_next.AddDays(days);
+				date_next = date_next.AddDays(days);
 				break; }
 			case BasisType.Months: {
 				int months = (int)basis.Index;
 				if (direction is RuleDirection.Before)
 					months *= -1;
-				date_next.AddMonths(months);
+				date_next = date_next.AddMonths(months);
 				break; }
 			case BasisType.Years: {
 				int years = (int)basis.Index;
 				if (direction is RuleDirection.Before)
 					years *= -1;
-				date_next.AddYears(years);
+				date_next = date_next.AddYears(years);
 				break; }
 			case BasisType.DaysOfWeek: {
 				DayOfWeek dayOfWeek = (DayOfWeek)basis.Index;
