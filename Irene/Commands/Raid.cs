@@ -20,6 +20,12 @@ class Raid : ICommand {
 		"next friday",
 		"next saturday",
 	};
+	private static readonly Regex
+		_regex_relativeWeekday = new (@"^(?<position>this|last|next)\s+(?<day>friday|fri|f|saturday|sat|s)\.?$"),
+		_regex_relativeWeek    = new (@"^(?:(?<position1>this|last|next)\s+week\s+)?(?:on\s+)?(?<day>friday|fri|f|saturday|sat|s)\.?(?:\s+(?<position2>this|last|next)\s+week)?$"),
+		_regex_indexedWeekday  = new (@"^(?<i>\d+)\s+(?<day>friday|fri|f|saturday|sat|s)\.?s?\s+(?<position>ago|from now)$"),
+		_regex_indexedWeek     = new (@"^(?:(?<day1>friday|fri|f|saturday|sat|s)\.?\s+)?(?<i>\d+)\s+weeks?\s+(?<position>ago|from\s+now)(?:(?:\s+on)\s+(?<day2>friday|fri|f|saturday|sat|s)\.?)?$");
+
 
 	private const string
 		_commandRaid     = "raid"       ,
@@ -341,6 +347,8 @@ class Raid : ICommand {
 		string response = (logs == "")
 			? $"No logs have been registered for {date_string}."
 			: $"{raid.Emoji} Logs for {date_string}:\n{logs}";
+		if (raid.DoCancel)
+			response = $"Raid was canceled for {date_string}. :cactus:";
 
 		// Respond.
 		await Command.RespondAsync(
@@ -545,10 +553,7 @@ class Raid : ICommand {
 		arg = arg.Trim().ToLower();
 
 		DayOfWeek day_reset = DayOfWeek.Tuesday;
-		Regex regex_shortWeekday = new (@"^(?<position>this|last|next)\s+(?<day>friday|fri|f|saturday|sat|s)\.?");
-		Regex regex_longWeekday = new (@"^(?:(?<position1>this|last|next)\s+week\s+)?(?:on\s+)?(?<day>friday|fri|f|saturday|sat|s)\.?(?:\s+(?<position2>this|last|next)\s+week)?");
-		Regex regex_indexedWeekday = new (@"^(?:(?<day1>friday|fri|f|saturday|sat|s)\.?\s+)?(?<i>\d+)\s+weeks?\s+(?<position>ago|from\s+now)(?:\s+on\s+(?<day2>friday|fri|f|saturday|sat|s)\.?)?");
-
+		
 		static int DaysToWeekday(DayOfWeek basis, DateOnly input, DayOfWeek day) {
 			int delta_input = (input.DayOfWeek - basis + 7) % 7;
 			int delta_day = (day - basis + 7) % 7;
@@ -573,8 +578,8 @@ class Raid : ICommand {
 		case "tomorrow":
 			date_raw = date_today.AddDays(1);
 			break;
-		case string s when regex_shortWeekday.IsMatch(s): {
-			Match match = regex_shortWeekday.Match(s);
+		case string s when _regex_relativeWeekday.IsMatch(s): {
+			Match match = _regex_relativeWeekday.Match(s);
 			DayOfWeek day = ParseDay(match.Groups["day"].Value);
 			date_raw = date_today;
 			int delta = DaysToWeekday(day_reset, date_raw.Value, day);
@@ -586,13 +591,13 @@ class Raid : ICommand {
 			};
 			date_raw = date_raw.Value.AddDays(delta);
 			break; }
-		case string s when regex_longWeekday.IsMatch(s): {
-			Match match = regex_longWeekday.Match(s);
+		case string s when _regex_relativeWeek.IsMatch(s): {
+			Match match = _regex_relativeWeek.Match(s);
 			DayOfWeek day = ParseDay(match.Groups["day"].Value);
 			string position = "this";
-			if (match.Groups.ContainsKey("position1"))
+			if (match.Groups["position1"].Value != "")
 				position = match.Groups["position1"].Value;
-			if (match.Groups.ContainsKey("position2"))
+			if (match.Groups["position2"].Value != "")
 				position = match.Groups["position2"].Value;
 			date_raw = date_today;
 			int delta = DaysToWeekday(day_reset, date_raw.Value, day);
@@ -605,12 +610,35 @@ class Raid : ICommand {
 			date_raw = date_raw.Value.AddDays(delta);
 			break;
 		}
-		case string s when regex_indexedWeekday.IsMatch(s): {
-			Match match = regex_indexedWeekday.Match(s);
+		case string s when _regex_indexedWeekday.IsMatch(s): {
+			Match match = _regex_indexedWeekday.Match(s);
+			date_raw = date_today;
+			DayOfWeek day = ParseDay(match.Groups["day"].Value);
+			int delta = DaysToWeekday(day_reset, date_raw.Value, day);
+			int sign = match.Groups["position"].Value switch {
+				"ago" => -1,
+				"from now" => 1,
+				_ => throw new ArgumentException("Invalid positional relation.", nameof(arg)),
+			};
+			int index = int.Parse(match.Groups["i"].Value);
+			switch (delta, sign) {
+			case (int d, int r) when d > 0 && r > 0:
+				index--;
+				break;
+			case (int d, int r) when d < 0 && r < 0:
+				index++;
+				break;
+			}
+			delta += sign * 7 * index;
+			date_raw = date_raw.Value.AddDays(delta);
+			break;
+		}
+		case string s when _regex_indexedWeek.IsMatch(s): {
+			Match match = _regex_indexedWeek.Match(s);
 			date_raw = date_today;
 			DayOfWeek day = match.Groups switch {
-				GroupCollection g when g.ContainsKey("day1") => ParseDay(g["day1"].Value),
-				GroupCollection g when g.ContainsKey("day2") => ParseDay(g["day2"].Value),
+				GroupCollection g when g["day1"].Value != "" => ParseDay(g["day1"].Value),
+				GroupCollection g when g["day2"].Value != "" => ParseDay(g["day2"].Value),
 				_ => date_raw.Value.DayOfWeek,
 			};
 			int delta = DaysToWeekday(day_reset, date_raw.Value, day);
