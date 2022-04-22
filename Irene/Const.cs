@@ -7,10 +7,19 @@ static class Const {
 	public const string
 		Fmt_IsoDate = @"yyyy-MM-dd";
 
+	public static readonly TimeZoneInfo
+		TimeZone_PT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Los_Angeles"),
+		TimeZone_MT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Denver"),
+		TimeZone_CT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Chicago"),
+		TimeZone_ET = TimeZoneInfo.FindSystemTimeZoneById(@"America/New_York");
+	public static readonly TimeZoneInfo TimeZone_Server = TimeZone_CT;
+
 	// Patch release days
 	// 7:00 PST = 8:00 PDT = 15:00 UTC
-	public static readonly RecurTime Time_ServerReset =
-		new (new TimeOnly(15, 0), TimeZoneInfo.Utc);
+	// Server reset time does not change with DST.
+	public static readonly RecurTime
+		Time_ServerReset = new (new (15, 0), TimeZoneInfo.Utc),
+		Time_RaidStart   = new (new (21, 0), TimeZone_Server);
 	public static readonly DateOnly
 		Date_Patch902 = new (2020, 11, 17),
 		Date_Season1  = new (2020, 12,  8),
@@ -20,6 +29,7 @@ static class Const {
 		Date_Patch915 = new (2021, 11,  2),
 		Date_Patch920 = new (2022,  2, 22),
 		Date_Season3  = new (2022,  3,  1);
+
 	// Convenience function to get the DateTime (in UTC) of a given date.
 	public static DateTime UtcResetTime(this DateOnly date) =>
 		date.ToDateTime(Time_ServerReset.TimeOnly, DateTimeKind.Utc);

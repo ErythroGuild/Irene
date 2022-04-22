@@ -17,6 +17,7 @@ bible-study
 bonbonbonbons
 brave-sir-robin
 breakfast-soup
+capn-is-a-dragon
 chicken-tendies
 citizens-of-dalaran
 creative-colors
@@ -77,6 +78,7 @@ surprised-pikachu
 taco-tuesdays
 the-cycle-of-life
 the-high-ground
+this-is-fine
 thunderfury
 to-shreds-you-say
 weird-meme-but-ok
