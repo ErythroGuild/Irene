@@ -56,6 +56,9 @@
     <None Update="data\memes.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="data\raids.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="data\role-intros.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

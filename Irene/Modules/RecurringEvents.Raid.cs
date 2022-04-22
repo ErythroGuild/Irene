@@ -217,9 +217,15 @@ partial class RecurringEvents {
 			return;
 		}
 
-		// Find/construct raid object.
+		// Fetch saved raid data.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
 		RaidObj raid = Fetch(date);
+
+		// Don't fire event if raid was canceled.
+		if (raid.DoCancel) {
+			Log.Information("  Skipping event (raid was canceled).");
+			return;
+		}
 
 		// Calculate raid time / forming time info.
 		DateTime today = TimeZoneInfo.ConvertTime(
@@ -273,9 +279,17 @@ partial class RecurringEvents {
 			return;
 		}
 
-		// Send a message and then save the message back to the data file.
+		// Fetch saved raid data.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
 		RaidObj raid = Fetch(date);
+
+		// Don't fire event if raid was canceled.
+		if (raid.DoCancel) {
+			Log.Information("  Skipping event (raid was canceled).");
+			return;
+		}
+
+		// Send a message and then save the message back to the data file.
 		string text = raid.AnnouncementText;
 		DiscordMessage message = await
 			Channels[id_ch.announce].SendMessageAsync(text);
@@ -301,9 +315,17 @@ partial class RecurringEvents {
 			return;
 		}
 
-		// Skip reminder if logs are already set.
+		// Fetch saved raid data.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
 		RaidObj raid = Fetch(date);
+
+		// Don't fire event if raid was canceled.
+		if (raid.DoCancel) {
+			Log.Information("  Skipping event (raid was canceled).");
+			return;
+		}
+
+		// Skip reminder if logs are already set.
 		foreach (RaidGroup group in raid.Data.Keys) {
 			if (raid.Data[group].LogId is not null) {
 				Log.Information("  Skipping reminder: logs already set.");
@@ -326,6 +348,14 @@ partial class RecurringEvents {
 			return;
 		}
 
+		// Don't fire event if raid was canceled.
+		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidObj raid = Fetch(date);
+		if (raid.DoCancel) {
+			Log.Information("  Skipping event (raid was canceled).");
+			return;
+		}
+
 		// Send reminder.
 		string response = string.Join("\n", new List<string>() {
 			$"{Roles[id_r.raidOfficer].Mention} -",
@@ -334,9 +364,17 @@ partial class RecurringEvents {
 		await Channels[id_ch.officer].SendMessageAsync(response);
 	}
 
-	private static async Task Event_OfficerMeetingReminder(DateTimeOffset _) {
+	private static async Task Event_OfficerMeetingReminder(DateTimeOffset time_trigger) {
 		if (Guild is null) {
 			Log.Error("  Guild not loaded yet.");
+			return;
+		}
+
+		// Don't fire event if raid was canceled.
+		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidObj raid = Fetch(date);
+		if (raid.DoCancel) {
+			Log.Information("  Skipping event (raid was canceled).");
 			return;
 		}
 
@@ -351,11 +389,18 @@ partial class RecurringEvents {
 			return;
 		}
 
-		// Skip reminder if (any) plans are already set.
+		// Don't fire event if raid was canceled.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidObj raid = Fetch(date);
+		if (raid.DoCancel) {
+			Log.Information("  Skipping event (raid was canceled).");
+			return;
+		}
+
+		// Check next week's data.
+		// Skip reminder if (any) plans are already set.
 		RaidTier tier = date.Tier;
 		int week = date.Week + 1;
-
 		RaidDate date_F = new (tier, week, RaidDay.Friday);
 		RaidDate date_S = new (tier, week, RaidDay.Saturday);
 		RaidObj raid_F = Fetch(date_F);
@@ -376,9 +421,17 @@ partial class RecurringEvents {
 		await Channels[id_ch.officerBots].SendMessageAsync(response);
 	}
 
-	private static async Task Event_OfficerPromoteTrialsReminder(DateTimeOffset _) {
+	private static async Task Event_OfficerPromoteTrialsReminder(DateTimeOffset time_trigger) {
 		if (Guild is null) {
 			Log.Error("  Guild not loaded yet.");
+			return;
+		}
+
+		// Don't fire event if raid was canceled.
+		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidObj raid = Fetch(date);
+		if (raid.DoCancel) {
+			Log.Information("  Skipping event (raid was canceled).");
 			return;
 		}
 

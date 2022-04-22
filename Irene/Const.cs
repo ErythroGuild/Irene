@@ -5,7 +5,7 @@ using RecurTime = RecurringEvent.RecurTime;
 static class Const {
 	// Standard formatting strings.
 	public const string
-		Fmt_IsoDate = @"yyyy-MM-dd";
+		Format_IsoDate = @"yyyy-MM-dd";
 
 	public static readonly TimeZoneInfo
 		TimeZone_PT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Los_Angeles"),

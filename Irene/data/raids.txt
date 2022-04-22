@@ -1,0 +1,104 @@
+SFO,8,Saturday
+	raid-date=SFO,8,Saturday
+	canceled=False
+	summary=H Pantheon, then Xy'mox!
+	message-id=
+SFO,8,Friday
+	raid-date=SFO,8,Friday
+	canceled=False
+	summary=N Lords of Dread > (Jailer?) + H Guardian > Dausegne > Skolex
+	message-id=
+SFO,7,Saturday
+	raid-date=SFO,7,Saturday
+	canceled=False
+	summary=
+	message-id=965064056178348062
+	group=Spaghetti
+		log-id=qVnYwADhdKvBbmg2
+SFO,7,Friday
+	raid-date=SFO,7,Friday
+	canceled=False
+	summary=We'll be starting fresh on normal tonight, and getting through some heroic tomorrow, see ya there! \o/
+	message-id=964701672213463130
+	group=Spaghetti
+		log-id=wWtHhz2caJTfdvqg
+SFO,6,Saturday
+	raid-date=SFO,6,Saturday
+	canceled=True
+	summary=
+	message-id=
+SFO,6,Friday
+	raid-date=SFO,6,Friday
+	canceled=True
+	summary=
+	message-id=
+SFO,5,Saturday
+	raid-date=SFO,5,Saturday
+	canceled=False
+	summary=
+	message-id=959990627041411112
+	group=Spaghetti
+		log-id=VrthaDHCdMRZJYBc
+SFO,5,Friday
+	raid-date=SFO,5,Friday
+	canceled=False
+	summary=Starting on normal Anduin. :slight_smile:
+	message-id=959628239016431626
+	group=Spaghetti
+		log-id=jLXbcGK3CBVwdZv1
+SFO,4,Saturday
+	raid-date=SFO,4,Saturday
+	canceled=False
+	summary=
+	message-id=957453910510043186
+	group=Spaghetti
+		log-id=6v3WJjTgzX8QPwpF
+SFO,4,Friday
+	raid-date=SFO,4,Friday
+	canceled=False
+	summary=
+	message-id=957091520236896336
+	group=Spaghetti
+		log-id=6gPJbC7Nj48FKfYm
+SFO,3,Saturday
+	raid-date=SFO,3,Saturday
+	canceled=False
+	summary=
+	message-id=954909645842026567
+	group=Spaghetti
+		log-id=ALb1n4XdParRBQ9V
+SFO,3,Friday
+	raid-date=SFO,3,Friday
+	canceled=False
+	summary=
+	message-id=954547261180903504
+	group=Spaghetti
+		log-id=z83R4vYZAMKWdbC1
+SFO,2,Saturday
+	raid-date=SFO,2,Saturday
+	canceled=False
+	summary=
+	message-id=952388037843750972
+	group=Spaghetti
+		log-id=ghzrAZxLJVkvcKB9
+SFO,2,Friday
+	raid-date=SFO,2,Friday
+	canceled=False
+	summary=
+	message-id=952025648564674620
+	group=Spaghetti
+		log-id=MKRkcWgt4r1D6CLF
+SFO,1,Saturday
+	raid-date=SFO,1,Saturday
+	canceled=False
+	summary=
+	message-id=949851318191783936
+	group=Spaghetti
+		log-id=Q9pbPyAkWcwzRCM6
+SFO,1,Friday
+	raid-date=SFO,1,Friday
+	canceled=False
+	summary=
+	message-id=949488922805800990
+	group=Spaghetti
+		log-id=QnJyBF6ZqMwRVfdj

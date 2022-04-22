@@ -190,7 +190,7 @@ class Roll : ICommand {
 		arg_original = arg_original.Replace('\n', ' ');
 		string arg_stripped = arg_original.ToLower();
 		arg_stripped = Regex.Replace(arg_stripped, @"[^a-zA-Z0-9]", "");
-		arg_stripped += DateTime.Now.ToString(Fmt_IsoDate);
+		arg_stripped += DateTime.Now.ToString(Format_IsoDate);
 		
 		// (MD5) Hash input.
 		byte[] arg_raw = Encoding.ASCII.GetBytes(arg_stripped);
