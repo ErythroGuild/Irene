@@ -1,4 +1,4 @@
-﻿using static Irene.RecurringEvent;
+using static Irene.RecurringEvent;
 using static Irene.Modules.Raid;
 
 using RaidObj = Irene.Modules.Raid;
@@ -206,6 +206,72 @@ partial class RecurringEvents {
 	}
 
 	private static async Task Event_WeeklyRaidPlanAnnouncement(DateTimeOffset time_trigger) {
+		if (Guild is null) {
+			Log.Error("  Guild not loaded yet.");
+			return;
+		}
+
+		// Calculate raid dates and fetch data.
+		DateTimeOffset dateTime_friday = time_trigger.AddDays(3);
+		DateTimeOffset dateTime_saturday = time_trigger.AddDays(4);
+		RaidDate date_friday =
+			RaidDate.TryCreate(dateTime_friday)!.Value;
+		RaidDate date_saturday =
+			RaidDate.TryCreate(dateTime_saturday)!.Value;
+		RaidObj raid_friday = Fetch(date_friday);
+		RaidObj raid_saturday = Fetch(date_saturday);
+		DiscordEmoji emoji_raid =
+			DiscordEmoji.FromName(Client, raid_friday.Emoji);
+
+		// Exit early if nothing to announce:
+		// Neither raid canceled and no plans set.
+		string? plans_friday = raid_friday.Summary;
+		string? plans_saturday = raid_saturday.Summary;
+		bool doCancel_friday = raid_friday.DoCancel;
+		bool doCancel_saturday = raid_saturday.DoCancel;
+		if (!(doCancel_friday || doCancel_saturday) &&
+			plans_friday is null &&
+			plans_saturday is null
+		) {
+			Log.Information("  No plans and nothing to announce this week (yet).");
+			return;
+		}
+
+		// Compose announcement.
+		List<string> announcement = new ()
+			{ $"Happy reset day! {Emojis[id_e.eryLove]} {emoji_raid}" };
+		switch (doCancel_friday, doCancel_saturday) {
+		case (true, true):
+			announcement.Add("No raid this week. :slight_smile:");
+			break;
+		case (true, false):
+			announcement.Add("Raid is canceled on Friday (but not Saturday)!");
+			break;
+		case (false, true):
+			announcement.Add("Raid is canceled on Saturday (but not Friday)!");
+			break;
+		}
+		// If only one plan is set, format as the entire week's plans.
+		switch (plans_friday, plans_saturday) {
+		case (string f, string s) when f is not null && s is null:
+			announcement.Add($"**Raid plans this week:** {f}");
+			break;
+		case (string f, string s) when f is null && s is not null:
+			announcement.Add($"**Raid plans this week:** {s}");
+			break;
+		case (string f, string s) when f is not null && s is not null:
+			announcement.Add($"**Fri. raid plans:** {f}");
+			announcement.Add($"**Sat. raid plans:** {s}");
+			break;
+		}
+
+		// Send announcement and react.
+		DiscordMessage message = await
+			Channels[id_ch.announce].SendMessageAsync(string.Join("\n", announcement));
+		DiscordEmoji emoji_sunrise =
+			DiscordEmoji.FromName(Client, ":sunrise_over_mountains:");
+		await message.CreateReactionAsync(emoji_raid);
+		await message.CreateReactionAsync(emoji_sunrise);
 	}
 
 	private static async Task Event_RaidDayMorningAnnouncement(DateTimeOffset time_trigger) {
@@ -378,12 +444,12 @@ partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string response = string.Join("\n", new List<string>() {
+		string announcement = string.Join("\n", new List<string>() {
 			$"{Roles[id_r.raidOfficer].Mention} -",
 			$"{_t}Reminder to set logs for tonight. :ok_hand: :card_box:",
 			$"{_t}`/raid set-logs`",
 		});
-		await Channels[id_ch.officerBots].SendMessageAsync(response);
+		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
 	}
 
 	private static async Task Event_RaidBreakReminder(DateTimeOffset time_trigger) {
@@ -401,11 +467,11 @@ partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string response = string.Join("\n", new List<string>() {
+		string announcement = string.Join("\n", new List<string>() {
 			$"{Roles[id_r.raidOfficer].Mention} -",
 			$"{_t}Raid break soon. :slight_smile: :tropical_drink:",
 		});
-		await Channels[id_ch.officer].SendMessageAsync(response);
+		await Channels[id_ch.officer].SendMessageAsync(announcement);
 	}
 
 	private static async Task Event_OfficerMeetingReminder(DateTimeOffset time_trigger) {
@@ -423,8 +489,10 @@ partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string response = $"Weekly {Roles[id_r.officer].Mention} meeting after raid. :slight_smile:";
-		await Channels[id_ch.officer].SendMessageAsync(response);
+		string officer = Roles[id_r.officer].Mention;
+		string announcement =
+			$"Weekly {officer} meeting after raid. :slight_smile:";
+		await Channels[id_ch.officer].SendMessageAsync(announcement);
 	}
 
 	private static async Task Event_OfficerRaidPlansReminder(DateTimeOffset time_trigger) {
@@ -457,12 +525,12 @@ partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string response = string.Join("\n", new List<string>() {
+		string announcement = string.Join("\n", new List<string>() {
 			$"{Roles[id_r.raidOfficer].Mention} -",
 			$"{_t}Decide on the raid plans for next week (if you haven't already). :ok_hand:",
 			$"{_t}`/raid set-plan`",
 		});
-		await Channels[id_ch.officerBots].SendMessageAsync(response);
+		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
 	}
 
 	private static async Task Event_OfficerPromoteTrialsReminder(DateTimeOffset time_trigger) {
@@ -480,11 +548,11 @@ partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string response = string.Join("\n", new List<string>() {
+		string announcement = string.Join("\n", new List<string>() {
 			$"{Roles[id_r.recruiter].Mention} -",
 			$"{_t}Go over the 2-week+-trials this week (if there are any). :seedling:",
 			$"{_t}`/rank list-trials`",
 		});
-		await Channels[id_ch.officerBots].SendMessageAsync(response);
+		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
 	}
 }
