@@ -313,7 +313,7 @@ partial class RecurringEvents {
 		string announcement = $"{raid.Emoji} Happy raid day! • *✰";
 		if (raid.Summary is not null)
 			announcement += $"\n**Plans for today:** {raid.Summary}";
-		announcement += $"\nSee you at {time_raid_str}. :slight_smile:";
+		announcement += $"\nSee you at {time_raid_str}. :wine_glass:";
 		DiscordMessage message = await
 			Channels[id_ch.announce].SendMessageAsync(announcement);
 		DiscordEmoji emoji_raid =
