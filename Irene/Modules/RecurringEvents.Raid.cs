@@ -209,6 +209,50 @@ partial class RecurringEvents {
 	}
 
 	private static async Task Event_RaidDayMorningAnnouncement(DateTimeOffset time_trigger) {
+		if (Guild is null) {
+			Log.Error("  Guild not loaded yet.");
+			return;
+		}
+
+		// Fetch saved raid data.
+		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidObj raid = Fetch(date);
+
+		// Don't fire event if raid was canceled.
+		if (raid.DoCancel) {
+			Log.Information("  Skipping event (raid was canceled).");
+			return;
+		}
+
+		// Calculate raid time info.
+		DateTime today = TimeZoneInfo.ConvertTime(
+			DateTime.UtcNow,
+			TimeZone_Server
+		);
+		today -= today.TimeOfDay;
+		DateTime time_raid = today +
+			Time_RaidStart.TimeOnly.ToTimeSpan();
+
+		// Format raid time as timestamp.
+		DateTimeOffset dateTime_raid =
+			new (TimeZoneInfo.ConvertTime(
+				time_raid,
+				TimeZone_Server,
+				TimeZoneInfo.Utc
+			));
+		string time_raid_str = dateTime_raid
+			.Timestamp(TimestampStyle.TimeShort);
+
+		// Compose and send announcement.
+		string announcement = $"{raid.Emoji} Happy raid day! • *✰";
+		if (raid.Summary is not null)
+			announcement += $"\n**Plans for today:** {raid.Summary}";
+		announcement += $"\nSee you at {time_raid_str}. :slight_smile:";
+		DiscordMessage message = await
+			Channels[id_ch.announce].SendMessageAsync(announcement);
+		DiscordEmoji emoji_raid =
+			DiscordEmoji.FromName(Client, raid.Emoji);
+		await message.CreateReactionAsync(emoji_raid);
 	}
 
 	private static async Task Event_RaidFormingSoonReminder(DateTimeOffset time_trigger) {
@@ -257,17 +301,17 @@ partial class RecurringEvents {
 			.Timestamp(TimestampStyle.Relative);
 
 		// Compose raid announcement.
-		string response =
+		string announcement =
 			$"{raid.Emoji} {Roles[id_r.raid].Mention} - " +
 			$"Forming for raid ~{time_forming_str} " +
 			$"(pulling at ~{time_raid_str}).";
 		if (raid.Summary is not null)
-			response += $"\n{raid.Summary}";
-		response += "\nIf you aren't sure, check the pinned posts for raid requirements. :thumbsup:";
+			announcement += $"\n{raid.Summary}";
+		announcement += "\nIf you aren't sure, check the pinned posts for raid requirements. :thumbsup:";
 
 		// Respond.
 		DiscordMessage message = await
-			Channels[id_ch.announce] .SendMessageAsync(response);
+			Channels[id_ch.announce] .SendMessageAsync(announcement);
 		DiscordEmoji emoji_raid =
 			DiscordEmoji.FromName(Client, raid.Emoji);
 		await message.CreateReactionAsync(emoji_raid);
