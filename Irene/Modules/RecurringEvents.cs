@@ -128,6 +128,8 @@ partial class RecurringEvents {
 		_ = InitAsync();
 	}
 	private static async Task InitAsync() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		Util.CreateIfMissing(_pathData, _lock);
 		Util.CreateIfMissing(_pathMemes, _lockMemes);
 		Util.CreateIfMissing(_pathMemeHistory, _lockMemes);
@@ -142,12 +144,13 @@ partial class RecurringEvents {
 		foreach (Task<List<Event>> task in tasks)
 			_events.AddRange(task.Result);
 
-		Log.Information("Initialized module: WeeklyEvent");
+		Log.Information("Initialized module: RecurringEvent");
 		string events_count = _events.Count switch {
 			1 => "event",
 			_ => "events", // includes 0
 		};
-		Log.Debug($"  {{EventCount}} {events_count} registered.", _events.Count);
+		Log.Debug($"  Registered {{EventCount}} {events_count}.", _events.Count);
+		stopwatch.LogMsecDebug("  Took {Time} msec.");
 	}
 
 	private static async Task<List<Event>> InitEventListAsync(List<Task<Event?>> tasks) {
