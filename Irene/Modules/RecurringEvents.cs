@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Timers;
 
 using static Irene.RecurringEvent;
@@ -116,7 +116,7 @@ partial class RecurringEvents {
 		_pathMemeHistory = @"data/memes-history.txt";
 	private const string _delim = "|||";
 
-	private const string _formatTime = "u";
+	private const string _formatDateTime = "u";
 	private static readonly CultureInfo _cultureFormat =
 		CultureInfo.InvariantCulture;
 
@@ -137,25 +137,21 @@ partial class RecurringEvents {
 			GetEvents_Server(),
 		};
 
-		// Dispatch all tasks.
-		foreach (Task<List<Event>> task in tasks)
-			task.Start();
+		// Wait for all tasks to complete.
 		await Task.WhenAll(tasks);
 		foreach (Task<List<Event>> task in tasks)
 			_events.AddRange(task.Result);
 
-		Log.Information("  Initialized module: WeeklyEvent");
+		Log.Information("Initialized module: WeeklyEvent");
 		string events_count = _events.Count switch {
 			1 => "event",
 			_ => "events", // includes 0
 		};
-		Log.Debug($"    {{EventCount}} {events_count} registered.", _events.Count);
+		Log.Debug($"  {{EventCount}} {events_count} registered.", _events.Count);
 	}
 
 	private static async Task<List<Event>> InitEventListAsync(List<Task<Event?>> tasks) {
-		// Dispatch all tasks.
-		foreach (Task<Event?> task in tasks)
-			task.Start();
+		// Wait for all tasks to complete.
 		await Task.WhenAll(tasks);
 
 		// Fetch results.
@@ -197,12 +193,12 @@ partial class RecurringEvents {
 		try {
 			DateTimeOffset output = DateTimeOffset.ParseExact(
 				data_output,
-				_formatTime,
+				_formatDateTime,
 				_cultureFormat
 			);
 			DateOnly cycle = DateOnly.ParseExact(
 				data_cycle,
-				_formatTime,
+				Format_IsoDate,
 				_cultureFormat
 			);
 			return new RecurResult(output, cycle);
@@ -215,9 +211,9 @@ partial class RecurringEvents {
 	private static void UpdateLastExecuted(string id, RecurResult last_executed) {
 		// Serialize the last execution time.
 		string data_output = last_executed
-			.OutputDateTime.ToString(_formatTime, _cultureFormat);
+			.OutputDateTime.ToString(_formatDateTime, _cultureFormat);
 		string data_cycle = last_executed
-			.CycleDate.ToString(_formatTime, _cultureFormat);
+			.CycleDate.ToString(Format_IsoDate, _cultureFormat);
 		string line_entry =
 			string.Join(_delim, id, data_output, data_cycle);
 
