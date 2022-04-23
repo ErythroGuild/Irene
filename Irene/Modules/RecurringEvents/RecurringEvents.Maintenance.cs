@@ -33,6 +33,9 @@ partial class RecurringEvents {
 			return;
 		}
 
+		const string t = "\u2003";
+		const string a = "\u21D2";
+
 		// Read in path data.
 		string? dir_data = null;
 		string? dir_backup = null;
@@ -53,10 +56,10 @@ partial class RecurringEvents {
 
 		// Construct message.
 		List<string> text = new ()
-			{ ":file_cabinet: Back up raid log data!" };
+			{ $":file_cabinet: Back up raid log data! Make a copy of `raids.txt`." };
 		if (dir_data is not null && dir_backup is not null) {
-			text.Add($"\tCopy from: `{dir_data}`");
-			text.Add($"\tto:`{dir_backup}`");
+			text.Add($"{t}{a} from:   `{dir_data}`");
+			text.Add($"{t}{a} to:        `{dir_backup}`");
 		}
 
 		// Send message.

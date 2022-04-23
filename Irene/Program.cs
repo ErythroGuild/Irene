@@ -45,7 +45,7 @@ class Program {
 		_templateConsoleError   = @"[red]{Timestamp:H:mm:ss}[/] [invert red][{Level}][/] {Message:lj}{NewLine}{Exception}",
 		_templateFile           = @"{Timestamp:yyyy-MM-dd HH:mm:ss.fff} > [{Level:u3}] {Message:j}{NewLine}{Exception}";
 
-	// Discord IDs of various components.
+	// Discord IDs.
 	private const ulong _id_Erythro = 317723973968461824;
 	public const string str_mention_n = @"<@!609752546994683911>";
 
