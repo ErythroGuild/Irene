@@ -107,13 +107,15 @@ partial class RecurringEvents {
 	private static readonly List<Event> _events = new ();
 	private static readonly object
 		_lock = new (),
-		_lockMemes = new ();
+		_lockMemes = new (),
+		_lockDataDir = new ();
 
 	private const string
 		_pathData  = @"data/events.txt",
 		_pathTemp  = @"data/events-temp.txt",
 		_pathMemes = @"data/memes.txt",
-		_pathMemeHistory = @"data/memes-history.txt";
+		_pathMemeHistory = @"data/memes-history.txt",
+		_pathDataDir = @"config/data-dir.txt";
 	private const string _delim = "|||";
 
 	private const string _formatDateTime = "u";
@@ -137,6 +139,7 @@ partial class RecurringEvents {
 		List<Task<List<Event>>> tasks = new () {
 			GetEvents_Raid(),
 			GetEvents_Server(),
+			GetEvents_Maintenance(),
 		};
 
 		// Wait for all tasks to complete.
