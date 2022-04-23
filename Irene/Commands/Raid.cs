@@ -404,7 +404,7 @@ class Raid : ICommand {
 		// Respond.
 		string response =
 			$"Setting the logs for {date.Tier}" +
-			$" **week {date.Week}** ({date.Day}.):" +
+			$" **week {date.Week}** ({date.Day}):" +
 			$" `{logId}`.";
 		if (logId_prev is not null)
 			response += $"\n:pencil: Previous data overwritten: `{logId_prev}`";
