@@ -273,7 +273,7 @@ class Raid {
 		return string.Join("\n", lines);
 	} }
 	public string AnnouncementText { get =>
-		$"{Emoji} {Roles[id_r.raid]} - Forming now!";
+		$"{Emoji} {Roles[id_r.raid].Mention} - Forming now!";
 	}
 
 	// Constructor / serialization / deserialization.
