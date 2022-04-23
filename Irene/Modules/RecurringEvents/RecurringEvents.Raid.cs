@@ -369,11 +369,11 @@ partial class RecurringEvents {
 		// Compose raid announcement.
 		string announcement =
 			$"{raid.Emoji} {Roles[id_r.raid].Mention} - " +
-			$"Forming for raid ~{time_forming_str} " +
-			$"(pulling at ~{time_raid_str}).";
+			$"Forming for raid {time_forming_str} " +
+			$"(pulling at {time_raid_str}).";
 		if (raid.Summary is not null)
 			announcement += $"\n{raid.Summary}";
-		announcement += "\nIf you aren't sure, check the pinned posts for raid requirements. :thumbsup:";
+		announcement += "\nIf you aren't sure about requirements, check the pinned posts. :thumbsup:";
 
 		// Respond.
 		DiscordMessage message = await
