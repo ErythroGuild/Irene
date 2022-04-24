@@ -13,7 +13,7 @@ partial class RecurringEvents {
 		public RecurringEvent Data { get; init; }
 		public EventAction Action { get; init; }
 
-		private readonly Timer _timer;
+		private readonly LongTimer _timer;
 
 		public static async Task<Event?> Create(
 			string id,
@@ -55,7 +55,7 @@ partial class RecurringEvents {
 			TimeSpan delta = dateTime_next.Value - dateTime_now;
 
 			// Set up timer.
-			Timer timer = new (delta.TotalMilliseconds);
+			LongTimer timer = new ((decimal)delta.TotalMilliseconds);
 			timer.Elapsed += async (t, e) => {
 				timer.Stop();
 				DateTimeOffset dateTime_now = DateTimeOffset.Now;
@@ -79,7 +79,7 @@ partial class RecurringEvents {
 				// Set up the next occurrence.
 				DateTimeOffset dateTime_next = data.GetNext()!.Value;
 				TimeSpan delta = dateTime_next - dateTime_now;
-				timer.Interval = delta.TotalMilliseconds;
+				timer.Interval = (decimal)delta.TotalMilliseconds;
 				timer.Start();
 			};
 			
@@ -95,7 +95,7 @@ partial class RecurringEvents {
 			string id,
 			RecurringEvent data,
 			EventAction action,
-			Timer timer
+			LongTimer timer
 		) {
 			Id = id;
 			Data = data;

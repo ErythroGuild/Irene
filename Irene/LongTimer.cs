@@ -4,8 +4,21 @@ namespace Irene;
 
 class LongTimer {
 	public bool AutoReset { get; set; }
-	public bool Enabled { get => _timer.Enabled; set => _timer.Enabled = value; }
-	public decimal Interval { get; private init; }
+	public bool Enabled {
+		get => _timer.Enabled;
+		set => _timer.Enabled = value;
+	}
+	public decimal Interval {
+		get => _interval;
+		set {
+			// Expected behavior for Timer.Interval.
+			_interval = value;
+			if (_timer is not null && _timer.Enabled) {
+				Stop();
+				Restart();
+			}
+		}
+	}
 	public decimal Remaining { get; private set; }
 
 	public event ElapsedEventHandler? Elapsed;
@@ -15,6 +28,7 @@ class LongTimer {
 	}
 
 	private readonly Timer _timer;
+	private decimal _interval;
 	private decimal _period;
 
 	private const decimal _maxPeriod = int.MaxValue - 1;
@@ -60,7 +74,7 @@ class LongTimer {
 		_timer.Stop();
 		Remaining = Interval;
 		_period = NextPeriod();
-		_timer.Interval = _period; // this resets timer count
+		_timer.Interval = (double)_period; // this resets timer count
 		_timer.Start();
 	}
 	public void Start() => _timer.Start();
@@ -69,6 +83,6 @@ class LongTimer {
 
 	private decimal NextPeriod() =>
 		(Remaining > _maxPeriod)
-			? Interval
-			: _maxPeriod;
+			? _maxPeriod
+			: Interval;
 }
