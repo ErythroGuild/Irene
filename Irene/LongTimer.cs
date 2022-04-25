@@ -1,4 +1,4 @@
-﻿using System.Timers;
+using System.Timers;
 
 namespace Irene;
 
@@ -34,6 +34,8 @@ class LongTimer {
 	private const decimal _maxPeriod = int.MaxValue - 1;
 	private const decimal _accuracy = 20; // msec
 
+	public LongTimer(double totalMilliseconds, bool autoReset=false)
+		: this ((decimal)totalMilliseconds, autoReset) { }
 	public LongTimer(decimal totalMilliseconds, bool autoReset=false) {
 		Interval = totalMilliseconds;
 		Remaining = Interval;

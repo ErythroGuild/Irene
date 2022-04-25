@@ -55,7 +55,7 @@ partial class RecurringEvents {
 			TimeSpan delta = dateTime_next.Value - dateTime_now;
 
 			// Set up timer.
-			LongTimer timer = new ((decimal)delta.TotalMilliseconds);
+			LongTimer timer = new (delta.TotalMilliseconds);
 			timer.Elapsed += async (t, e) => {
 				timer.Stop();
 				DateTimeOffset dateTime_now = DateTimeOffset.Now;
