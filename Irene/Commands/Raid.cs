@@ -231,14 +231,46 @@ class Raid : ICommand {
 			? (bool)args[0].Value
 			: false;
 
-		// Convert raid dates to RaidDates.
+		// Determine raid days.
+		DateTimeOffset now = DateTimeOffset.UtcNow;
 		DateOnly today = DateOnly.FromDateTime(DateTime.Now);
-		DateOnly day_fri = today.NextDayOfWeek(DayOfWeek.Friday, true);
-		DateOnly day_sat = today.NextDayOfWeek(DayOfWeek.Saturday, true);
-		RaidDate? raidDate_fri = RaidDate.TryCreate(day_fri);
-		RaidDate? raidDate_sat = RaidDate.TryCreate(day_sat);
-		if (today.DayOfWeek is DayOfWeek.Saturday)
-			raidDate_fri = null; // only show Saturday's plans
+		DateOnly? day_fri = today.NextDayOfWeek(DayOfWeek.Friday, true);
+		DateOnly? day_sat = today.NextDayOfWeek(DayOfWeek.Saturday, true);
+
+		// Calculate raid end times as DateTimeOffsets.
+		static DateTimeOffset ToDateTimeOffset(DateOnly? day_n) {
+			TimeSpan raid_length = TimeSpan.FromHours(2);
+			if (day_n is null)
+				throw new ArgumentException("Not a valid raid date.", nameof(day_n));
+			DateOnly day = day_n.Value;
+			DateTime dateTime =
+				day.ToDateTime(Time_RaidStart.TimeOnly.Add(raid_length));
+			return new DateTimeOffset(TimeZoneInfo.ConvertTime(
+					dateTime,
+					Time_RaidStart.TimeZone,
+					TimeZoneInfo.Utc
+				));
+		}
+		DateTimeOffset time_raidEnd_fri = ToDateTimeOffset(day_fri);
+		DateTimeOffset time_raidEnd_sat = ToDateTimeOffset(day_sat);
+
+		// Show next week's info if Saturday's raid passed.
+		if (today.DayOfWeek == DayOfWeek.Saturday &&
+			now > time_raidEnd_sat
+		) {
+			day_fri = day_fri!.Value.AddDays(7);
+			day_sat = day_sat!.Value.AddDays(7);
+		}
+
+		// Only show Saturday's info if Friday's raid passed.
+		if (now > time_raidEnd_fri && now < time_raidEnd_sat)
+			day_fri = null;
+		
+		// Convert raid days to RaidDays.
+		RaidDate? raidDate_fri = (day_fri is not null)
+			? RaidDate.TryCreate(day_fri!.Value)
+			: null;
+		RaidDate? raidDate_sat = RaidDate.TryCreate(day_sat!.Value);
 
 		// Fetch plans.
 		bool isCanceled_fri = false;
@@ -404,8 +436,7 @@ class Raid : ICommand {
 		// Respond.
 		string response =
 			$"Setting the logs for {date.Tier}" +
-			$" **week {date.Week}** ({date.Day}.):" +
-			$" `{logId}`.";
+			$" **week {date.Week}** ({date.Day}): `{logId}`";
 		if (logId_prev is not null)
 			response += $"\n:pencil: Previous data overwritten: `{logId_prev}`";
 		if (raid.MessageId is not null)

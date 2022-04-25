@@ -13,7 +13,7 @@ partial class RecurringEvents {
 		public RecurringEvent Data { get; init; }
 		public EventAction Action { get; init; }
 
-		private readonly Timer _timer;
+		private readonly LongTimer _timer;
 
 		public static async Task<Event?> Create(
 			string id,
@@ -55,7 +55,7 @@ partial class RecurringEvents {
 			TimeSpan delta = dateTime_next.Value - dateTime_now;
 
 			// Set up timer.
-			Timer timer = new (delta.TotalMilliseconds);
+			LongTimer timer = new ((decimal)delta.TotalMilliseconds);
 			timer.Elapsed += async (t, e) => {
 				timer.Stop();
 				DateTimeOffset dateTime_now = DateTimeOffset.Now;
@@ -79,7 +79,7 @@ partial class RecurringEvents {
 				// Set up the next occurrence.
 				DateTimeOffset dateTime_next = data.GetNext()!.Value;
 				TimeSpan delta = dateTime_next - dateTime_now;
-				timer.Interval = delta.TotalMilliseconds;
+				timer.Interval = (decimal)delta.TotalMilliseconds;
 				timer.Start();
 			};
 			
@@ -95,7 +95,7 @@ partial class RecurringEvents {
 			string id,
 			RecurringEvent data,
 			EventAction action,
-			Timer timer
+			LongTimer timer
 		) {
 			Id = id;
 			Data = data;
@@ -107,13 +107,15 @@ partial class RecurringEvents {
 	private static readonly List<Event> _events = new ();
 	private static readonly object
 		_lock = new (),
-		_lockMemes = new ();
+		_lockMemes = new (),
+		_lockDataDir = new ();
 
 	private const string
 		_pathData  = @"data/events.txt",
 		_pathTemp  = @"data/events-temp.txt",
 		_pathMemes = @"data/memes.txt",
-		_pathMemeHistory = @"data/memes-history.txt";
+		_pathMemeHistory = @"data/memes-history.txt",
+		_pathDataDir = @"config/data-dir.txt";
 	private const string _delim = "|||";
 
 	private const string _formatDateTime = "u";
@@ -128,6 +130,8 @@ partial class RecurringEvents {
 		_ = InitAsync();
 	}
 	private static async Task InitAsync() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		Util.CreateIfMissing(_pathData, _lock);
 		Util.CreateIfMissing(_pathMemes, _lockMemes);
 		Util.CreateIfMissing(_pathMemeHistory, _lockMemes);
@@ -135,6 +139,7 @@ partial class RecurringEvents {
 		List<Task<List<Event>>> tasks = new () {
 			GetEvents_Raid(),
 			GetEvents_Server(),
+			GetEvents_Maintenance(),
 		};
 
 		// Wait for all tasks to complete.
@@ -142,12 +147,13 @@ partial class RecurringEvents {
 		foreach (Task<List<Event>> task in tasks)
 			_events.AddRange(task.Result);
 
-		Log.Information("Initialized module: WeeklyEvent");
+		Log.Information("Initialized module: RecurringEvent");
 		string events_count = _events.Count switch {
 			1 => "event",
 			_ => "events", // includes 0
 		};
-		Log.Debug($"  {{EventCount}} {events_count} registered.", _events.Count);
+		Log.Debug($"  Registered {{EventCount}} {events_count}.", _events.Count);
+		stopwatch.LogMsecDebug("  Took {Time} msec.");
 	}
 
 	private static async Task<List<Event>> InitEventListAsync(List<Task<Event?>> tasks) {

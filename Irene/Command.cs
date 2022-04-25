@@ -168,7 +168,7 @@ class Command {
 			is_ephemeral,
 			log_summary,
 			log_level,
-			log_preview,
+			log_preview.Value,
 			log_params
 		);
 	public static async Task RespondAsync(
@@ -211,7 +211,7 @@ class Command {
 			LogLevel.None        => (s, o) => { },
 			_ => throw new ArgumentException("Unrecognized log level.", nameof(log_level)),
 		};
-		log_fn("  " + log_preview, log_params);
+		log_fn("  " + log_preview.Value, log_params);
 		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
 	}
 	public static async Task RespondAsync(
@@ -253,7 +253,7 @@ class Command {
 			,
 			_ => throw new ArgumentException("Unrecognized log level.", nameof(log_level)),
 		};
-		log_fn("  " + log_preview, log_params);
+		log_fn("  " + log_preview.Value, log_params);
 		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
 	}
 }
