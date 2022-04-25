@@ -269,6 +269,9 @@ class Program {
 				Log.Debug("  Discord data initialized and populated.");
 				_stopwatchInitData.LogMsecDebug("    Took {DataInitTime} msec.");
 
+				// Initialize utilities.
+				TimeZones.Init();
+
 				// Initialize components.
 				Modal.Init();
 				Pages.Init();
