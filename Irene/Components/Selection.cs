@@ -150,9 +150,7 @@ class Selection {
 		TimeSpan? timeout=null
 	) where T : Enum {
 		timeout ??= DefaultTimeout;
-		Timer timer = new (timeout.Value.TotalMilliseconds) {
-			AutoReset = false,
-		};
+		Timer timer = Util.CreateTimer(timeout.Value, false);
 
 		// Construct select component options.
 		List<SelectOption> options = new ();

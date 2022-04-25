@@ -1,4 +1,4 @@
-using System.Timers;
+﻿using System.Timers;
 
 namespace Irene;
 
@@ -65,8 +65,7 @@ class LongTimer {
 
 		// Set up sub-timer.
 		_period = NextPeriod();
-		_timer = new Timer((double)_period)
-			{ AutoReset = autoReset };
+		_timer = Util.CreateTimer((double)_period, autoReset);
 		_timer.Elapsed += SetNextTimer;
 	}
 
