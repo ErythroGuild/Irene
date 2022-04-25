@@ -273,6 +273,7 @@ class Program {
 				TimeZones.Init();
 
 				// Initialize components.
+				Confirm.Init();
 				Modal.Init();
 				Pages.Init();
 				Selection.Init();
