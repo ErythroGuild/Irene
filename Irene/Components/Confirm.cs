@@ -69,19 +69,13 @@ class Confirm {
 	// Use Confirm.Create() to create a new instance.
 	private Confirm(
 		ConfirmCallback callback,
-		string? string_prompt,
 		string? string_yes,
 		string? string_no,
-		string? label_yes,
-		string? label_no,
 		DiscordInteraction interaction,
 		Timer timer
 	) {
-		_stringPrompt = string_prompt ?? DefaultStringPrompt;
 		_stringYes = string_yes ?? DefaultStringYes;
 		_stringNo  = string_no  ?? DefaultStringNo;
-		_labelYes  = label_yes  ?? DefaultLabelYes;
-		_labelNo   = label_no   ?? DefaultLabelNo;
 		_callback = callback;
 		_interaction = interaction;
 		_timer = timer;
@@ -141,11 +135,8 @@ class Confirm {
 		// Construct partial Confirm object.
 		Confirm confirm = new (
 			callback,
-			string_prompt,
 			string_yes,
 			string_no,
-			label_yes,
-			label_no,
 			interaction,
 			timer
 		);
@@ -165,7 +156,7 @@ class Confirm {
 
 		// Construct DiscordMessageBuilder from data.
 		return new DiscordMessageBuilder()
-			.WithContent(string_prompt)
+			.WithContent(string_prompt ?? DefaultStringPrompt)
 			.AddComponents(GetButtons(label_yes, label_no));
 	}
 
