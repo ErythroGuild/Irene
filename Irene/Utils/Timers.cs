@@ -3,6 +3,12 @@
 namespace Irene.Utils;
 
 static partial class Util {
+	// Convenience method for constructing a timer with AutoReset.
+	public static Timer CreateTimer(TimeSpan timeSpan, bool autoReset) =>
+		CreateTimer(timeSpan.TotalMilliseconds, autoReset);
+	public static Timer CreateTimer(double totalMilliseconds, bool autoReset) =>
+		new (totalMilliseconds) { AutoReset = autoReset };
+
 	// Convenience method for "restarting" a timer.
 	public static void Restart(this Timer timer) {
 		timer.Stop();
