@@ -53,7 +53,7 @@ class ClassDiscord : ICommand {
 		// Compile list of all options.
 		List<CommandOptionEnum> options = new ();
 		foreach (Class @class in _options.Keys)
-			options.Add(new (Name(@class), _options[@class]));
+			options.Add(new (@class.Name(), _options[@class]));
 
 		// Construct slash command object.
 		return new () {
