@@ -46,13 +46,12 @@ class Confirm {
 					return;
 				}
 
-				// Delete message and pass response to callback.
+				// Edit message and pass response to callback.
 				bool isConfirmed = e.Id == _idButtonYes;
 				await e.Interaction.AcknowledgeComponentAsync();
-				await confirm._interaction.DeleteOriginalResponseAsync();
-				await confirm._callback(isConfirmed, e);
 				confirm._isConfirmed = isConfirmed;
 				await confirm.Discard();
+				await confirm._callback(isConfirmed, e);
 			}
 		};
 	}
@@ -120,8 +119,8 @@ class Confirm {
 
 	public static DiscordMessageBuilder Create(
 		DiscordInteraction interaction,
-		Task<DiscordMessage> messageTask,
 		ConfirmCallback callback,
+		Task<DiscordMessage> messageTask,
 		string? string_prompt=null,
 		string? string_yes=null,
 		string? string_no=null,
