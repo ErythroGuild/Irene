@@ -442,37 +442,65 @@ class Tag: ICommand {
 			return;
 		}
 
-		// Remove tag from datafile and cache.
+		// Create and send confirmation message.
+		MessagePromise message_promise = new ();
 		string tag_key = _tagCache[arg_stripped];
-		SortedList<string, string> tags = new ();
-		lock (_lock) {
-			// Read in current datafile.
-			using (StreamReader data = File.OpenText(_pathData)) {
-				while (!data.EndOfStream) {
-					string line = data.ReadLine() ?? "";
-					string[] split = line.Split(_delim, 2);
-					if (split.Length == 2)
-						tags.Add(split[0], split[1]);
-				}
+		DiscordMessageBuilder confirm = Confirm.Create(
+			interaction.Interaction,
+			DeleteTag,
+			message_promise.Task,
+			$"Are you sure you want to delete the tag `{tag_key}`?",
+			$"Tag `{tag_key}` successfully deleted.",
+			$"Tag `{tag_key}` was not deleted.",
+			"Delete", "Cancel"
+		);
+
+		// Tag deletion callback.
+		Task DeleteTag(bool doDelete, ComponentInteractionCreateEventArgs e) {
+			if (!doDelete) {
+				Log.Debug("  Tag \"{Name}\" unmodified (deletion request canceled).", tag_key);
+				return Task.CompletedTask;
 			}
 
-			// Remove tag (in cache too).
-			tags.Remove(tag_key);
-			_tagCache.TryRemove(arg_stripped, out _);
+			// Remove tag from datafile and cache.
+			SortedList<string, string> tags = new();
+			lock (_lock) {
+				// Read in current datafile.
+				using (StreamReader data = File.OpenText(_pathData)) {
+					while (!data.EndOfStream) {
+						string line = data.ReadLine() ?? "";
+						string[] split = line.Split(_delim, 2);
+						if (split.Length == 2)
+							tags.Add(split[0], split[1]);
+					}
+				}
 
-			// Write back data.
-			WriteData(tags);
+				// Remove tag (in cache too).
+				tags.Remove(tag_key);
+				_tagCache.TryRemove(arg_stripped, out _);
+
+				// Write back data.
+				WriteData(tags);
+			}
+
+			Log.Information("  Tag \"{Name}\" deleted (deletion request confirmed).", tag_key);
+			return Task.CompletedTask;
 		}
 
 		// Respond.
 		await Command.RespondAsync(
 			interaction,
-			$"Tag `{tag_key}` removed successfully.", true,
-			"Tag removed. Sending response.",
-			LogLevel.Debug,
-			"Tag removed: \"{Name}\".",
+			confirm, false,
+			"Tag deletion requested. Awaiting confirmation.",
+			LogLevel.Information,
+			"Deletion confirmation requested for: \"{Name}\"",
 			tag_key
 		);
+
+		// Update DiscordMessage object for Confirm.
+		DiscordMessage message = await
+			interaction.Interaction.GetOriginalResponseAsync();
+		message_promise.SetResult(message);
 	}
 
 	// The standard procedure for stripping a key.
