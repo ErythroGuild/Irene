@@ -49,9 +49,7 @@ class Modal {
 
 		// Setup timer.
 		timeout ??= DefaultTimeout;
-		Timer timer = new (timeout.Value.TotalMilliseconds) {
-			AutoReset = false,
-		};
+		Timer timer = Util.CreateTimer(timeout.Value, false);
 		timer.Elapsed +=
 			(t, e) => _modals.TryRemove(id, out _);
 

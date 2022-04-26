@@ -46,7 +46,7 @@ partial class RecurringEvents {
 		// Read in all non-empty meme history.
 		List<string> names_old = new ();
 		lock (_lockMemes) {
-			names = new (File.ReadAllLines(_pathMemeHistory));
+			names_old = new (File.ReadAllLines(_pathMemeHistory));
 		}
 		foreach (string line in names_old) {
 			if (line == "")

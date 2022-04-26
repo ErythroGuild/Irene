@@ -179,9 +179,7 @@ class Pages {
 	) {
 		pageSize ??= DefaultPageSize;
 		timeout ??= DefaultTimeout;
-		Timer timer = new (timeout.Value.TotalMilliseconds) {
-			AutoReset = false,
-		};
+		Timer timer = Util.CreateTimer(timeout.Value, false);
 
 		// Construct partial Pages object.
 		Pages pages =
