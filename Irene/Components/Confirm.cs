@@ -56,6 +56,8 @@ class Confirm {
 		};
 	}
 
+	public DiscordMessageBuilder MessageBuilder { get; private set; }
+
 	// Instance (configuration) properties.
 	private readonly ConfirmCallback _callback;
 	private readonly string _stringYes, _stringNo;
@@ -67,12 +69,14 @@ class Confirm {
 	// Private constructor.
 	// Use Confirm.Create() to create a new instance.
 	private Confirm(
+		DiscordMessageBuilder messageBuilder,
 		ConfirmCallback callback,
 		string? string_yes,
 		string? string_no,
 		DiscordInteraction interaction,
 		Timer timer
 	) {
+		MessageBuilder = messageBuilder;
 		_stringYes = string_yes ?? DefaultStringYes;
 		_stringNo  = string_no  ?? DefaultStringNo;
 		_callback = callback;
@@ -117,7 +121,7 @@ class Confirm {
 		await _interaction.EditOriginalResponseAsync(message_new);
 	}
 
-	public static DiscordMessageBuilder Create(
+	public static Confirm Create(
 		DiscordInteraction interaction,
 		ConfirmCallback callback,
 		Task<DiscordMessage> messageTask,
@@ -130,9 +134,13 @@ class Confirm {
 	) {
 		timeout ??= DefaultTimeout;
 		Timer timer = Util.CreateTimer(timeout.Value, false);
+		DiscordMessageBuilder messageBuilder = new DiscordMessageBuilder()
+			.WithContent(string_prompt ?? DefaultStringPrompt)
+			.AddComponents(GetButtons(label_yes, label_no));
 
 		// Construct partial Confirm object.
 		Confirm confirm = new (
+			messageBuilder,
 			callback,
 			string_yes,
 			string_no,
@@ -154,9 +162,7 @@ class Confirm {
 		};
 
 		// Construct DiscordMessageBuilder from data.
-		return new DiscordMessageBuilder()
-			.WithContent(string_prompt ?? DefaultStringPrompt)
-			.AddComponents(GetButtons(label_yes, label_no));
+		return confirm;
 	}
 
 	// Returns the buttons used to confirm/cancel the request.
