@@ -9,6 +9,10 @@ using RaidObj = Irene.Modules.Raid;
 namespace Irene.Commands;
 
 class Raid : ICommand {
+	// Confirmation messages, indexed by the ID of the user who is
+	// accessing them.
+	private static readonly ConcurrentDictionary<ulong, Confirm> _confirms = new ();
+
 	private static readonly List<string> _dateExamples = new () {
 		"today",
 		"yesterday",
@@ -25,7 +29,6 @@ class Raid : ICommand {
 		_regex_relativeWeek    = new (@"^(?:(?<position1>this|last|next)\s+week\s+)?(?:on\s+)?(?<day>friday|fri|f|saturday|sat|s)\.?(?:\s+(?<position2>this|last|next)\s+week)?$"),
 		_regex_indexedWeekday  = new (@"^(?<i>\d+)\s+(?<day>friday|fri|f|saturday|sat|s)\.?s?\s+(?<position>ago|from now)$"),
 		_regex_indexedWeek     = new (@"^(?:(?<day1>friday|fri|f|saturday|sat|s)\.?\s+)?(?<i>\d+)\s+weeks?\s+(?<position>ago|from\s+now)(?:(?:\s+on)\s+(?<day2>friday|fri|f|saturday|sat|s)\.?)?$");
-
 
 	private const string
 		_commandRaid     = "raid"       ,
@@ -540,28 +543,67 @@ class Raid : ICommand {
 		}
 		RaidDate date = date_n.Value;
 
-		// Set raids as canceled.
-		RaidObj raid = Fetch(date);
-		raid.DoCancel = doCancel;
-		raid.UpdateData();
+		// Create and send confirmation message.
+		MessagePromise message_promise = new ();
+		string string_cancel = doCancel ? "Cancel" : "Un-cancel";
+		string string_cancelled = doCancel ? "Canceled" : "Un-canceled";
+		string string_raidDate = $"{date.Tier} week {date.Week}, {date.Day}";
+		Confirm confirm = Confirm.Create(
+			interaction.Interaction,
+			CancelRaid,
+			message_promise.Task,
+			$"Are you sure you want to {string_cancel.ToLower()} raid for {string_raidDate}?",
+			$"Raid for {string_raidDate} {string_cancelled.ToLower()}.",
+			$"Raid for {string_raidDate} was not {string_cancelled.ToLower()}.",
+			$"{string_cancel} Raid", "Nevermind"
+		);
+
+		// Disable any confirms already in-flight.
+		ulong user_id = interaction.Interaction.User.Id;
+		if (_confirms.ContainsKey(user_id)) {
+			await _confirms[user_id].Discard();
+			_confirms.TryRemove(user_id, out _);
+		}
+		_confirms.TryAdd(user_id, confirm);
+
+		// Raid cancel callback.
+		Task CancelRaid(bool doContinue, ComponentInteractionCreateEventArgs e) {
+			// Remove confirm from table.
+			_confirms.TryRemove(e.User.Id, out _);
+
+			if (!doContinue) {
+				Log.Debug("  Raid cancel status unmodified (request canceled).");
+				return Task.CompletedTask;
+			}
+
+			// Set raids as canceled.
+			RaidObj raid = Fetch(date);
+			raid.DoCancel = doCancel;
+			raid.UpdateData();
+
+			Log.Information("  Raid cancel status set (request confirmed).");
+			return Task.CompletedTask;
+		}
 
 		// Respond.
-		string response =
-			"Raid cancel status has been successfully set. :ok_hand:" +
-			$"\n(week {date.Week}, {date.Day})";
 		await Command.RespondAsync(
 			interaction,
-			response, false,
-			"Raid cancel status set.",
-			LogLevel.Debug,
+			confirm.MessageBuilder, false,
+			"Raid cancel status updated requested.",
+			LogLevel.Information,
 			new Lazy<string>(() => {
 				string s = doCancel
-					? "Raid canceled"
-					: "Raid un-canceled";
-				s += $": week {date.Week}, {date.Day}.";
+					? "Raid cancel"
+					: "Raid un-cancel";
+				s += $" requested for: week {date.Week}, {date.Day}.";
 				return s;
 			})
 		);
+
+		// Update DiscordMessage object for Confirm.
+		DiscordMessage message = await
+			interaction.Interaction.GetOriginalResponseAsync();
+		message_promise.SetResult(message);
 	}
 
 	// Generic response to an invalid (unparseable) <date> argument.
