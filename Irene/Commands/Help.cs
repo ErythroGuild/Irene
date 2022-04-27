@@ -117,7 +117,7 @@ class Help : ICommand {
 			$@"{_s} `/roll`: Generate a number between `1` and `100`.",
 			$@"{_s} `/roll <max>`: Generate a number between `1` and `max`.",
 			$@"{_s} `/roll <min> <max>`: Generate a number between `min` and `max`.",
-			$@"{_s} `/8-ball <query>`: Predict the answer to a yes/no question.",
+			$@"{_s} `/8-ball <query> [keep-private]`: Predict the answer to a yes/no question.",
 			"",
 			"**Discord Servers**",
 			$@"{_s} `/invite [erythro|leuko]`: Display the invite link for the guild servers.",
