@@ -159,7 +159,7 @@ static class ClassSpec {
 		{ Spec.Warrior_Arms, new () { "arms" } },
 		{ Spec.Warrior_Fury, new () { "fury" } },
 	};
-	private static readonly Dictionary<string, Spec> _dictSpec;
+	private static readonly Dictionary<string, List<Spec>> _dictSpec;
 
 	private static readonly Dictionary<Class, string> _classNames = new () {
 		{ Class.DK, "Death Knight" },
@@ -225,6 +225,8 @@ static class ClassSpec {
 		{ Spec.Warrior_Fury, "Fury"      },
 	};
 
+	// Force static initializer to run.
+	public static void Init() { return; }
 	// Initialize dictionary caches with redundant indices
 	// (improves performance at the cost of memory space).
 	static ClassSpec() {
@@ -238,13 +240,16 @@ static class ClassSpec {
 		}
 
 		// Initialize _dictSpec from the condensed list.
-		_dictSpec = new Dictionary<string, Spec>();
+		_dictSpec = new Dictionary<string, List<Spec>>();
 		foreach (Spec spec in _dictSpecCondensed.Keys) {
-			foreach (string token in _dictSpecCondensed[spec])
-				_dictSpec.Add(token, spec);
+			foreach (string token in _dictSpecCondensed[spec]) {
+				if (!_dictSpec.ContainsKey(token))
+					_dictSpec.Add(token, new List<Spec>());
+				_dictSpec[token].Add(spec);
+			}
 		}
 
-		Log.Information("Initialized module: Role/Spec/Class");
+		Log.Information("Initialized module: Role-Class-Spec");
 		Log.Debug("  Conversion cache initialized.");
 		stopwatch.LogMsecDebug("  Took {Time} msec.");
 	}
@@ -255,8 +260,10 @@ static class ClassSpec {
 
 		HashSet<Spec> specs = new();
 		foreach (string key in _dictSpec.Keys) {
-			if (key.Contains(input))
-				specs.Add(_dictSpec[key]);
+			if (key.Contains(input)) {
+				foreach (Spec spec in _dictSpec[key])
+					specs.Add(spec);
+			}
 		}
 
 		List<string> spec_names = new ();
