@@ -10,5 +10,5 @@ m+ rating=```ansi\n                    +16  \esc[1;34m195.0\esc[0m  \esc[36m65.0
 mdt=**Mythic Dungeon Tools:** <https://www.curseforge.com/wow/addons/mythic-dungeon-tools/download>\nMDT is a route planning addon that lets you share routes, annotate them, and view mob count / abilities.
 mrrl=Mrrl's trading game helpers:\n:bbul: <https://sschnaible.github.io/mrrl/>\n:bbul: <https://mrrl.de/>
 raidbots=You can set a server for your toons so Raidbots doesn't keep asking:\n`!rb -setdefault server us/moonguard`\nAfterwards, you can sim with just:\n`!rb <character-name>`\n*You can also use `!rb -h` for help, or check the pinned messages in <#613034262823698452>.*
-rule #1=**Be __excellent__ to each other.**
+rule #1=https://imgur.com/jxWTK8r
 valor=:wbul: **200** - Neck, Back, Wrist, Ring, Shield, Offhand\n:wbul: **400** - Shoulders, Hands, Waist, Feet, Trinket\n:wbul: **475** - Helm, Chest, Legs\n:wbul: **500** - 1H-Weapon (agi/str)\n:wbul: **750** - 1H-Weapon (int)\n:wbul: **1000** - 2H-Weapon
