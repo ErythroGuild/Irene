@@ -283,7 +283,7 @@ class Program {
 				Command.Init();
 				Modules.Raid.Init();
 				RecurringEvents.Init();
-				Welcome.init();
+				Welcome.Init();
 				Starboard.init();
 
 				// Initialize commands.
