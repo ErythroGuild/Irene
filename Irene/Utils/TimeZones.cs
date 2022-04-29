@@ -6,9 +6,15 @@ class TimeZones {
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static TimeZones() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		_tableCompiled = new ();
 		foreach (TimeZoneInfo timeZone in TimeZoneInfo.GetSystemTimeZones())
 			_tableCompiled.TryAdd(timeZone.DisplayName, timeZone);
+
+		Log.Information("  Initialized util: TimeZones");
+		Log.Debug("    TimeZone cache initialized.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	public static List<string> GetTimeZoneDisplayStrings() =>

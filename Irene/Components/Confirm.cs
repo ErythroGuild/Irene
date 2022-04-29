@@ -30,6 +30,8 @@ class Confirm {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Confirm() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		Client.ComponentInteractionCreated += async (client, e) => {
 			ulong id = e.Message.Id;
 
@@ -54,6 +56,10 @@ class Confirm {
 				await confirm._callback(isConfirmed, e);
 			}
 		};
+
+		Log.Information("  Initialized module: Confirm component");
+		Log.Debug("    Interaction handler created.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	public DiscordMessageBuilder MessageBuilder { get; private set; }
