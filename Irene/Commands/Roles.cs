@@ -69,8 +69,14 @@ class Roles : ICommand {
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static Roles() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		_table_IdToRole = Util.Invert(_table_RoleToId);
 		Util.CreateIfMissing(_pathIntros, _lock);
+
+		Log.Information("  Initialized command: /roles");
+		Log.Debug("    Role conversion cache initialized; data file checked.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	public static List<string> HelpPages { get =>

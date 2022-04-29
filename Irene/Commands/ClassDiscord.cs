@@ -37,9 +37,15 @@ class ClassDiscord : ICommand {
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static ClassDiscord() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		_optionsToInvites = new ();
 		foreach (Class @class in _options.Keys)
 			_optionsToInvites.Add(_options[@class], _invites[@class]);
+
+		Log.Information("  Initialized command: /class-discord");
+		Log.Debug("    Class discord invite cache initialized.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	public static List<string> HelpPages { get =>
