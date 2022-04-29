@@ -155,13 +155,13 @@ partial class RecurringEvents {
 		foreach (Task<List<Event>> task in tasks)
 			_events.AddRange(task.Result);
 
-		Log.Information("Initialized module: RecurringEvent");
+		Log.Information("  Initialized module: RecurringEvent");
 		string events_count = _events.Count switch {
 			1 => "event",
 			_ => "events", // includes 0
 		};
-		Log.Debug($"  Registered {{EventCount}} {events_count}.", _events.Count);
-		stopwatch.LogMsecDebug("  Took {Time} msec.");
+		Log.Debug($"    Registered {{EventCount}} {events_count}.", _events.Count);
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	private static async Task<List<Event>> InitEventListAsync(List<Task<Event?>> tasks) {

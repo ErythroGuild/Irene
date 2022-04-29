@@ -18,6 +18,8 @@ class Command {
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static Command() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		// Set the static properties.
 		HelpPages = new ();
 		Commands = new ();
@@ -93,6 +95,10 @@ class Command {
 				AddAutoCompletes();
 			}
 		}
+
+		Log.Information("  Initialized module: Commands");
+		Log.Debug("    Commands fetched and collated.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	// Returns the highest available access level of the user who invoked the

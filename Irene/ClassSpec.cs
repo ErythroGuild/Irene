@@ -249,9 +249,9 @@ static class ClassSpec {
 			}
 		}
 
-		Log.Information("Initialized module: Role-Class-Spec");
-		Log.Debug("  Conversion cache initialized.");
-		stopwatch.LogMsecDebug("  Took {Time} msec.");
+		Log.Information("  Initialized module: Role-Class-Spec");
+		Log.Debug("    Conversion cache initialized.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	// Returns a list of FullNames of Specs matching the input.
