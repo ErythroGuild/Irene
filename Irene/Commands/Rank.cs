@@ -149,9 +149,15 @@ class Rank : ICommand {
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static Rank() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		_table_IdToRank = Util.Invert(_table_RankToId);
 		_table_IdToGuild = Util.Invert(_table_GuildToId);
 		_table_IdToOfficer = Util.Invert(_table_OfficerToId);
+
+		Log.Information("  Initialized command: /rank");
+		Log.Debug("    Conversion caches initialized.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	public static List<string> HelpPages { get =>

@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Timers;
 
 using static Irene.RecurringEvent;
@@ -40,8 +40,16 @@ partial class RecurringEvents {
 				dateTime_next < dateTime_now
 			) {
 				dateTime_next = data.GetNext()!.Value; // call Get() to update state
-				if (dateTime_next > dateTime_discard)
+				DateTimeOffset dateTime_timestamp =
+					dateTime_next.Value.ToLocalTime();
+				if (dateTime_next > dateTime_discard) {
+					Log.Information("Event triggered retroactively: {EventName}", id);
+					Log.Debug("  Original scheduled time: {Time:u}", dateTime_timestamp);
 					await action.Invoke(dateTime_next.Value);
+				} else {
+					Log.Debug("Skipping retroactive event: {EventName}", id);
+					Log.Debug("  Original scheduled time: {Time:u}", dateTime_timestamp);
+				}
 				dateTime_next = data.PeekNext();
 				dateTime_now = DateTimeOffset.Now; // update every time
 			}
@@ -147,13 +155,13 @@ partial class RecurringEvents {
 		foreach (Task<List<Event>> task in tasks)
 			_events.AddRange(task.Result);
 
-		Log.Information("Initialized module: RecurringEvent");
+		Log.Information("  Initialized module: RecurringEvent");
 		string events_count = _events.Count switch {
 			1 => "event",
 			_ => "events", // includes 0
 		};
-		Log.Debug($"  Registered {{EventCount}} {events_count}.", _events.Count);
-		stopwatch.LogMsecDebug("  Took {Time} msec.");
+		Log.Debug($"    Registered {{EventCount}} {events_count}.", _events.Count);
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	private static async Task<List<Event>> InitEventListAsync(List<Task<Event?>> tasks) {

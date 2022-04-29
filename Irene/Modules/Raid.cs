@@ -151,8 +151,14 @@ class Raid {
 	// Force static initializer to run.
 	public static void Init() { return; }
 	static Raid() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		// Make sure datafile exists.
 		Util.CreateIfMissing(_pathData, _lock);
+
+		Log.Information("  Initialized module: Raid");
+		Log.Debug("    Raid data file checked.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	// Returns null if the link is ill-formed.

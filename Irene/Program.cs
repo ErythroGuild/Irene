@@ -227,7 +227,7 @@ class Program {
 					DiscordChannel channel = Guild.GetChannel(id);
 					Channels.Add(id, channel);
 				}
-				Log.Debug("  Channels populated.");
+				Log.Debug("    Channels populated.");
 
 				// Initialize emojis.
 				// Fetching entire list of emojis first instead of fetching
@@ -245,7 +245,7 @@ class Program {
 						}
 					}
 				}
-				Log.Debug("  Emojis populated.");
+				Log.Debug("    Emojis populated.");
 
 				// Initialize roles.
 				var role_ids = typeof(RoleIDs).GetFields();
@@ -254,7 +254,7 @@ class Program {
 					DiscordRole role = Guild.GetRole(id);
 					Roles.Add(id, role);
 				}
-				Log.Debug("  Roles populated.");
+				Log.Debug("    Roles populated.");
 
 				// Initialize voice chats.
 				var voiceChat_ids = typeof(VoiceChatIDs).GetFields();
@@ -263,11 +263,14 @@ class Program {
 					DiscordChannel channel = Guild.GetChannel(id);
 					VoiceChats.Add(id, channel);
 				}
-				Log.Debug("  Voice chats populated.");
+				Log.Debug("    Voice chats populated.");
 
 				// Stop data initialization timer.
-				Log.Debug("  Discord data initialized and populated.");
-				_stopwatchInitData.LogMsecDebug("    Took {DataInitTime} msec.");
+				Log.Debug("    Discord data initialized and populated.");
+				_stopwatchInitData.LogMsecDebug("      Took {DataInitTime} msec.");
+
+				// Initialize classes.
+				ClassSpec.Init();
 
 				// Initialize utilities.
 				TimeZones.Init();
@@ -283,7 +286,7 @@ class Program {
 				Command.Init();
 				Modules.Raid.Init();
 				RecurringEvents.Init();
-				Welcome.init();
+				Welcome.Init();
 				Starboard.init();
 
 				// Initialize commands.

@@ -3,8 +3,9 @@ We're glad to have you here. :tada: (A human should be along to assist you short
 
 *In the meantime—*
 • Set your nickname to what you want us to call you. (doesn't have to be your toon's name)
-• Subscsribe to pings you're interested in: reply here (or in <#613034262823698452>) with `@Irene#4051 -roles`. You'll need to be promoted to a Guest first.
-• Mute channels you're not interested in, e.g. <#778102942141382678>.
+• Subscsribe to pings you're interested in with `/roles` (in e.g. <#613034262823698452>).
+• If you're not an <Erythro> member, also check out `/rank set-guild`.
+• Mute channels you're not interested in (e.g. <#778102942141382678>).
 • Check out our <#443002035604815872> and <#542093130502111252>.
 • Say hello once you've made yourself at home! :wave:
 
