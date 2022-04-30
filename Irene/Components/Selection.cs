@@ -31,8 +31,6 @@ class Selection {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Selection() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
 		Client.ComponentInteractionCreated += async (client, e) => {
 			ulong id = e.Message.Id;
 
@@ -52,10 +50,7 @@ class Selection {
 				await selection._callback(e);
 			}
 		};
-
-		Log.Information("  Initialized module: Selection component");
-		Log.Debug("    Interaction handler created.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
+		Log.Debug("  Created handler for component: Selection");
 	}
 
 	public DiscordSelectComponent Component { get; private set; }

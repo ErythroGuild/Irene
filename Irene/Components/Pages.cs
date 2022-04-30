@@ -31,8 +31,6 @@ class Pages {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Pages() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
 		Client.ComponentInteractionCreated += async (client, e) => {
 			ulong id = e.Message.Id;
 
@@ -73,10 +71,7 @@ class Pages {
 					.EditOriginalResponseAsync(pages.CurrentWebhook);
 			}
 		};
-
-		Log.Information("  Initialized module: Pages component");
-		Log.Debug("    Interaction handler created.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
+		Log.Debug("  Created handler for component: Pages");
 	}
 
 	// Instance (configuration) properties.

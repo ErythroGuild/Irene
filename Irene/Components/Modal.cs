@@ -16,8 +16,6 @@ class Modal {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Modal() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
 		Client.ModalSubmitted += async (client, e) => {
 			string id = e.Interaction.Data.CustomId;
 			if (_modals.ContainsKey(id)) {
@@ -27,10 +25,7 @@ class Modal {
 				_modals.TryRemove(id, out _);
 			}
 		};
-
-		Log.Information("  Initialized module: Modal component");
-		Log.Debug("    Interaction handler created.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
+		Log.Debug("  Created handler for component: Modal");
 	}
 
 	private readonly Timer _timer;

@@ -195,7 +195,6 @@ class Program {
 			_ = Task.Run(() => {
 				Log.Information("  Logged in to Discord servers.");
 				_stopwatchConnect.LogMsecDebug("    Took {ConnectionTime} msec.");
-
 #if DEBUG
 				// Update bot status.
 				DiscordActivity helptext =
