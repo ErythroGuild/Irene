@@ -1,4 +1,4 @@
-﻿namespace Irene.Utils;
+namespace Irene.Utils;
 
 static partial class Util {
 	// Convenience method for getting the target user of a user command.
@@ -79,8 +79,14 @@ static partial class Util {
 			.WithContent(message);
 		return interaction.EditOriginalResponseAsync(builder);
 	}
+	public static Task DeleteMessageAsync(
+		this DiscordInteraction interaction
+	) =>
+		interaction.DeleteOriginalResponseAsync();
 
-	public static Task AcknowledgeComponentAsync(this DiscordInteraction interaction) =>
+	public static Task AcknowledgeComponentAsync(
+		this DiscordInteraction interaction
+	) =>
 		interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
 	public static Task AutoCompleteResultsAsync(
