@@ -1,5 +1,4 @@
-using System.Globalization;
-using System.Timers;
+﻿using System.Globalization;
 
 using static Irene.RecurringEvent;
 

@@ -1,6 +1,6 @@
-﻿namespace Irene;
+﻿using RecurTime = Irene.RecurringEvent.RecurTime;
 
-using RecurTime = RecurringEvent.RecurTime;
+namespace Irene;
 
 static class Const {
 	// Standard formatting strings.
