@@ -47,7 +47,6 @@ class Program {
 
 	// Discord IDs.
 	private const ulong _id_Erythro = 317723973968461824;
-	public const string str_mention_n = @"<@!609752546994683911>";
 
 	public static async Task UpdateGuild() =>
 		Guild = await Client.GetGuildAsync(_id_Erythro);
@@ -274,7 +273,7 @@ class Program {
 				// Initialize utilities.
 				TimeZones.Init();
 
-				// Initialize components.
+				// Initialize discord components.
 				Confirm.Init();
 				Modal.Init();
 				Pages.Init();
