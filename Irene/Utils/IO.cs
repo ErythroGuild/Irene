@@ -29,6 +29,9 @@ static partial class Util {
 		{ @":+-:"  , "\u00B1" },
 	};
 
+	// Syntax sugar for passing a string as a Lazy<string>.
+	public static Lazy<string> AsLazy(this string str) => new (str);
+
 	// Returns all of the string up to the first newline if one exists,
 	// and returns the entire string otherwise.
 	public static string FirstLineElided(this string input) {
