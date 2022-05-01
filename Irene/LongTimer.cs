@@ -46,7 +46,9 @@ class LongTimer {
 			_timer.Stop();
 			Remaining -= _period;
 
-			if (Math.Abs(_period) < _accuracy) {
+			// No absolute value on check--any negative values
+			// count as having triggered the timer.
+			if (Remaining < _accuracy) {
 				// Fire elapsed event.
 				OnElapsed(e);
 
