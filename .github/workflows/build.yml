@@ -39,7 +39,7 @@ jobs:
     #- name: Test
     #  run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -p:PublishProfile=Linux
+      run: dotnet publish -p:PublishProfile=Linux -c Release
       
     # Deploy to server.
     - name: Copy files to server
