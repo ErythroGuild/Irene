@@ -125,7 +125,7 @@ class Tag: ICommand {
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), DeferAsync, RunAsync )
 		};
 	}
 
@@ -136,8 +136,10 @@ class Tag: ICommand {
 		new (_commandTag, AutoCompleteAsync),
 	}; }
 
-	// Check permissions and dispatch subcommand.
-	public static async Task RunAsync(TimedInteraction interaction) {
+	public static async Task<DeferrerHandlerFunc?> GetDeferrerHandler(
+		TimedInteraction interaction,
+		bool isDeferrer
+	) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
 		string command = args[0].Name;
@@ -146,23 +148,34 @@ class Tag: ICommand {
 		switch (command) {
 		case _commandSet:
 		case _commandDelete:
-			bool doContinue = await
-				interaction.CheckAccessAsync(AccessLevel.Officer);
+			bool doContinue = await interaction
+				.CheckAccessAsync(isDeferrer, AccessLevel.Officer);
 			if (!doContinue)
-				return;
+				return null;
 			break;
 		}
 
 		// Dispatch the correct subcommand.
-		InteractionHandler subcommand = command switch {
+		return command switch {
 			_commandView   => ViewAsync,
 			_commandList   => List,
 			_commandSet    => SetAsync,
 			_commandDelete => DeleteAsync,
 			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
 		};
-		await subcommand(interaction);
-		return;
+	}
+
+	private static async Task DeferAsync(TimedInteraction interaction) {
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(interaction, true);
+		if (function is not null)
+			await function(new (interaction, true));
+	}
+	private static async Task RunAsync(TimedInteraction interaction) {
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(interaction, false);
+		if (function is not null)
+			await function(new(interaction, false));
 	}
 
 	public static async Task AutoCompleteAsync(TimedInteraction interaction) {
@@ -192,22 +205,26 @@ class Tag: ICommand {
 		await interaction.AutoCompleteResultsAsync(results);
 	}
 
-	public static async Task ViewAsync(TimedInteraction interaction) {
+	public static async Task ViewAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+			handler.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
 		string arg_stripped = Strip(arg);
 
 		// The delimiter is not allowed in tag names.
 		if (arg_stripped.Contains(_delim)) {
+			if (handler.IsDeferrer) {
+				await Command.DeferAsync(handler, true);
+				return;
+			}
 			string response =
 				$"Due to technical limitations, tag names cannot contain `{_delim}`.";
-			await Command.RespondAsync(
-				interaction,
-				response, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response,
 				"Requested tag name with delimiter.",
 				LogLevel.Information,
-				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")",
+				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")".AsLazy(),
 				arg, _delim
 			);
 			return;
@@ -215,18 +232,31 @@ class Tag: ICommand {
 
 		// Respond with info if tag not found.
 		if (!_tagCache.ContainsKey(arg_stripped)) {
+			if (handler.IsDeferrer) {
+				await Command.DeferAsync(handler, true);
+				return;
+			}
 			string response =
 				$"Tag `{arg}` does not exist.\n" +
 				"Use `/tag list` to view available tags, or see `/help tag` for more info.\n" +
 				"You can also ask an Officer to add a tag, or suggest one with `/suggest tag`.";
-			await Command.RespondAsync(
-				interaction,
-				response, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response,
 				"Requested tag does not exist.",
 				LogLevel.Information,
-				"No tag exists with the tag name \"{Name}\".",
+				"No tag exists with the tag name \"{Name}\".".AsLazy(),
 				arg
 			);
+			return;
+		}
+		
+		// Determine ephemeral-ness.
+		bool doShare = false;
+		if (args.Count > 1)
+			doShare = (bool)args[1].Value;
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, !doShare);
 			return;
 		}
 
@@ -237,24 +267,21 @@ class Tag: ICommand {
 		if (content is null) {
 			string response =
 				$"Tag `{arg}` was just now erased by someone else. :h_kerri_sad:";
-			await Command.RespondAsync(
-				interaction,
-				response, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response,
 				"Unsuccessful read of tag existing in cache.",
 				LogLevel.Warning,
-				"Error occurred while reading contents of tag \"{Name}\".",
+				"Error occurred while reading contents of tag \"{Name}\".".AsLazy(),
 				arg
 			);
 			return;
 		}
 
 		// Respond.
-		bool doShare = false;
-		if (args.Count > 1)
-			doShare = (bool)args[1].Value;
-		await Command.RespondAsync(
-			interaction,
-			content, !doShare,
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			content,
 			"Tag found. Sending tag content.",
 			LogLevel.Debug,
 			new Lazy<string>(() => {
@@ -264,7 +291,13 @@ class Tag: ICommand {
 		);
 	}
 
-	public static async Task List(TimedInteraction interaction) {
+	public static async Task List(DeferrerHandler handler) {
+		// Always ephemeral.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, true);
+			return;
+		}
+
 		// Since we only care about the keys, we can read directly from cache.
 		List<string> tags = new (_tagCache.Values);
 		tags.Sort();
@@ -273,40 +306,42 @@ class Tag: ICommand {
 		if (tags.Count == 0) {
 			string response_error = "No tags currently saved.\n" +
 				"Maybe ask an Officer to add a tag, or suggest one with `/suggest tag`?";
-			await Command.RespondAsync(
-				interaction,
-				response_error, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response_error,
 				"No tags currently defined.",
 				LogLevel.Debug,
-				"Response sent."
+				"Response sent.".AsLazy()
 			);
 			return;
 		}
 
 		// Else, send general help.
 		MessagePromise message_promise = new ();
-		DiscordMessageBuilder response = Pages.Create(
-			interaction.Interaction,
+		DiscordWebhookBuilder response = Pages.Create(
+			handler.Interaction.Interaction,
 			message_promise.Task,
 			tags
 		);
-		await Command.RespondAsync(
-			interaction,
-			response, true,
+		DiscordMessage message = await Command.SubmitResponseAsync(
+			handler.Interaction,
+			response,
 			"Sending list of all tags.",
 			LogLevel.Debug,
-			"List sent."
+			"List sent.".AsLazy()
 		);
-
-		// Update DiscordMessage object for Pages.
-		DiscordMessage message = await
-			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 
-	public static async Task SetAsync(TimedInteraction interaction) {
+	public static async Task SetAsync(DeferrerHandler handler) {
+		// Always ephemeral.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, true);
+			return;
+		}
+
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+			handler.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
 		string arg_stripped = Strip(arg);
 
@@ -314,12 +349,12 @@ class Tag: ICommand {
 		if (arg_stripped.Contains(_delim)) {
 			string response =
 				$"Due to technical limitations, tag names cannot contain `{_delim}`.";
-			await Command.RespondAsync(
-				interaction,
-				response, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response,
 				"Requested tag name with delimiter.",
 				LogLevel.Information,
-				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")",
+				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")".AsLazy(),
 				arg, _delim
 			);
 			return;
@@ -331,7 +366,7 @@ class Tag: ICommand {
 		if (_tagCache.ContainsKey(arg_stripped)) {
 			isUpdate = true;
 			_modalData.TryAdd(
-				Modal.GetId(interaction.Interaction),
+				Modal.GetId(handler.Interaction.Interaction),
 				new ModalData(isUpdate, _tagCache[arg_stripped])
 			);
 			content = ReadTag(arg_stripped) ?? "";
@@ -385,9 +420,9 @@ class Tag: ICommand {
 			}
 
 			// Handle interaction.
-			await Command.RespondAsync(
+			await Command.SubmitResponseAsync(
 				new TimedInteraction(e.Interaction, stopwatch),
-				$"Tag `{arg}` updated successfully.", true,
+				$"Tag `{arg}` updated successfully.",
 				"Updated tag successfully.",
 				LogLevel.Debug,
 				new Lazy<string>(() => {
@@ -398,34 +433,44 @@ class Tag: ICommand {
 		}
 
 		// Submit modal.
-		await Command.RespondAsync(
-			interaction,
-			new Task(async () => await
-				Modal.RespondAsync(interaction.Interaction, title, components, set_tag)
-			),
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			new Func<Task<DiscordMessage?>>(async () => {
+				await Modal.RespondAsync(
+					handler.Interaction.Interaction,
+					title,
+					components,
+					set_tag
+				);
+				return null;
+			})(),
 			"Creating modal to set tag.",
 			LogLevel.Debug,
-			"Modal created. (editing tag \"{Name}\")",
+			"Modal created. (editing tag \"{Name}\")".AsLazy(),
 			arg
 		);
 	}
 
-	public static async Task DeleteAsync(TimedInteraction interaction) {
+	public static async Task DeleteAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+			handler.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
 		string arg_stripped = Strip(arg);
 
 		// The delimiter is not allowed in tag names.
 		if (arg_stripped.Contains(_delim)) {
+			if (handler.IsDeferrer) {
+				await Command.DeferAsync(handler, true);
+				return;
+			}
 			string response =
 				$"Due to technical limitations, tag names cannot contain `{_delim}`.";
-			await Command.RespondAsync(
-				interaction,
-				response, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response,
 				"Requested tag name with delimiter.",
 				LogLevel.Information,
-				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")",
+				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")".AsLazy(),
 				arg, _delim
 			);
 			return;
@@ -433,16 +478,26 @@ class Tag: ICommand {
 
 		// Exit early if tag doesn't exist.
 		if (!_tagCache.ContainsKey(arg_stripped)) {
+			if (handler.IsDeferrer) {
+				await Command.DeferAsync(handler, true);
+				return;
+			}
 			string response =
 				$"Could not find tag `{arg}`; no changes made.";
-			await Command.RespondAsync(
-				interaction,
-				response, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response,
 				"Tag not found.",
 				LogLevel.Information,
-				"No tags found matching the name \"{Name}\".",
+				"No tags found matching the name \"{Name}\".".AsLazy(),
 				arg
 			);
+			return;
+		}
+
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, false);
 			return;
 		}
 
@@ -450,7 +505,7 @@ class Tag: ICommand {
 		MessagePromise message_promise = new ();
 		string tag_key = _tagCache[arg_stripped];
 		Confirm confirm = Confirm.Create(
-			interaction.Interaction,
+			handler.Interaction.Interaction,
 			DeleteTag,
 			message_promise.Task,
 			$"Are you sure you want to delete the tag `{tag_key}`?",
@@ -460,7 +515,7 @@ class Tag: ICommand {
 		);
 
 		// Disable any confirms already in-flight.
-		ulong user_id = interaction.Interaction.User.Id;
+		ulong user_id = handler.Interaction.Interaction.User.Id;
 		if (_confirms.ContainsKey(user_id)) {
 			await _confirms[user_id].Discard();
 			_confirms.TryRemove(user_id, out _);
@@ -503,18 +558,14 @@ class Tag: ICommand {
 		}
 
 		// Respond.
-		await Command.RespondAsync(
-			interaction,
-			confirm.MessageBuilder, false,
+		DiscordMessage message = await Command.SubmitResponseAsync(
+			handler.Interaction,
+			confirm.WebhookBuilder,
 			"Tag deletion requested. Awaiting confirmation.",
 			LogLevel.Information,
-			"Deletion confirmation requested for: \"{Name}\"",
+			"Deletion confirmation requested for: \"{Name}\"".AsLazy(),
 			tag_key
 		);
-
-		// Update DiscordMessage object for Confirm.
-		DiscordMessage message = await
-			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 

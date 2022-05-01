@@ -53,12 +53,12 @@ class Cap : ICommand {
 		};
 	}
 
-	public static async Task DeferAsync(TimedInteraction interaction) {
+	private static async Task DeferAsync(TimedInteraction interaction) {
 		DeferrerHandlerFunc function =
 			GetDeferrerHandler(interaction);
 		await function(new (interaction, true));
 	}
-	public static async Task RunAsync(TimedInteraction interaction) {
+	private static async Task RunAsync(TimedInteraction interaction) {
 		DeferrerHandlerFunc function =
 			GetDeferrerHandler(interaction);
 		await function(new (interaction, false));

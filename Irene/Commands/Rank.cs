@@ -217,7 +217,7 @@ class Rank : ICommand {
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), DeferAsync, RunAsync )
 		};
 	}
 
@@ -228,17 +228,30 @@ class Rank : ICommand {
 				"",	// description field must be "" instead of null
 				defaultPermission: true,
 				type: ApplicationCommandType.UserContextMenu
-			), SetErythroAsync )
+			), DeferAsync, SetErythroAsync)
 		};
 	}
 
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	// Check permissions and dispatch subcommand.
-	private static async Task RunAsync(TimedInteraction interaction) {
+	public static async Task DeferAsync(TimedInteraction interaction) {
+		DeferrerHandler handler = new (interaction, true);
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(handler);
+		if (function is not null)
+			await function(handler);
+	}
+	public static async Task RunAsync(TimedInteraction interaction) {
+		DeferrerHandler handler = new (interaction, false);
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(handler);
+		if (function is not null)
+			await function(handler);
+	}
+	private static async Task<DeferrerHandlerFunc?> GetDeferrerHandler(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
+			handler.GetArgs();
 		string command = args[0].Name;
 
 		// Check for permissions.
@@ -247,34 +260,32 @@ class Rank : ICommand {
 		case _commandSetRank:
 		case _commandListTrials:
 			doContinue = await
-				interaction.CheckAccessAsync(AccessLevel.Officer);
+				handler.CheckAccessAsync(AccessLevel.Officer);
 			if (!doContinue)
-				return;
+				return null;
 			break;
 		case _commandSetOfficer:
 			doContinue = await
-				interaction.CheckAccessAsync(AccessLevel.Admin);
+				handler.CheckAccessAsync(AccessLevel.Admin);
 			if (!doContinue)
-				return;
+				return null;
 			break;
 		}
 
 		// Dispatch the correct subcommand.
-		InteractionHandler subcommand = command switch {
+		return command switch {
 			_commandSetRank    => SetRankAsync,
 			_commandSetGuild   => SetGuildAsync,
 			_commandSetOfficer => SetOfficerAsync,
 			_commandListTrials => ListTrialsAsync,
-			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
+			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(handler)),
 		};
-		await subcommand(interaction);
-		return;
 	}
 
 	private static async Task SetErythroAsync(TimedInteraction interaction) {
 		// Check for permissions.
 		bool doContinue = await
-			interaction.CheckAccessAsync(AccessLevel.Officer);
+			interaction.CheckAccessAsync(false, AccessLevel.Officer);
 		if (!doContinue)
 			return;
 
@@ -318,35 +329,41 @@ class Rank : ICommand {
 		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
 	}
 
-	private static async Task SetRankAsync(TimedInteraction interaction) {
+	private static async Task SetRankAsync(DeferrerHandler handler) {
+		// Always ephemeral.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, true);
+			return;
+		}
+
 		// Ensure all needed params can be converted to DiscordMembers.
 		DiscordMember? member_caller = await
-			interaction.Interaction.User.ToMember();
+			handler.Interaction.Interaction.User.ToMember();
 		DiscordMember? member_target =
-			GetResolvedMember(interaction.Interaction);
+			GetResolvedMember(handler.Interaction.Interaction);
 		if (member_caller is null || member_target is null) {
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
+			response_error += (Program.Guild is not null && handler.Interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
-			await Command.RespondAsync(
-				interaction,
-				response_error, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response_error,
 				"Could not convert user to DiscordMember.",
 				LogLevel.Warning,
-				"Could not fetch member data. Response sent."
+				"Could not fetch member data. Response sent.".AsLazy()
 			);
 			return;
 		}
 
 		// Check that the target isn't the caller.
 		if (member_caller == member_target) {
-			await Command.RespondAsync(
-				interaction,
-				"You cannot change your own rank.", true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"You cannot change your own rank.",
 				"Attempted to set rank for self.",
 				LogLevel.Information,
-				"Could not set own rank. Response sent."
+				"Could not set own rank. Response sent.".AsLazy()
 			);
 			return;
 		}
@@ -367,7 +384,7 @@ class Rank : ICommand {
 		}
 		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
-			interaction.Interaction,
+			handler.Interaction.Interaction,
 			AssignRank,
 			message_promise.Task,
 			options,
@@ -387,21 +404,17 @@ class Rank : ICommand {
 		);
 
 		// Send response with selection menu.
-		DiscordMessageBuilder response =
-			new DiscordMessageBuilder()
+		DiscordWebhookBuilder response =
+			new DiscordWebhookBuilder()
 			.WithContent(response_str)
 			.AddComponents(select.Component);
-		await Command.RespondAsync(
-			interaction,
-			response, true,
+		DiscordMessage message = await Command.SubmitResponseAsync(
+			handler.Interaction,
+			response,
 			"Sending rank selection menu.",
 			LogLevel.Debug,
-			"Rank selection menu sent."
+			"Rank selection menu sent.".AsLazy()
 		);
-
-		// Update DiscordMessage object for Selection.
-		DiscordMessage message = await
-			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 	private static async Task AssignRank(ComponentInteractionCreateEventArgs e) {
@@ -478,24 +491,31 @@ class Rank : ICommand {
 		}
 	}
 
-	private static async Task SetGuildAsync(TimedInteraction interaction) {
+	private static async Task SetGuildAsync(DeferrerHandler handler) {
+		// Always ephemeral.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, true);
+			return;
+		}
+
 		// Determine the caller and target of the command.
 		// If a target member (not matching the caller) is specified, check
 		// for permissions.
 		DiscordMember? member_caller = await
-			interaction.Interaction.User.ToMember();
+			handler.Interaction.Interaction.User.ToMember();
 		DiscordMember? member_target = null;
 		List<DiscordInteractionDataOption> args =
-			new (interaction.GetArgs()[0].Options);
+			new (handler.GetArgs()[0].Options);
 		if (args.Count > 0) {
-			member_target = GetResolvedMember(interaction.Interaction);
+			member_target =
+				GetResolvedMember(handler.Interaction.Interaction);
 			if (member_caller is not null &&
 				member_target is not null &&
 				member_target.Id != member_caller.Id
 			) {
 				// Check for permissions.
 				bool doContinue = await
-					interaction.CheckAccessAsync(AccessLevel.Officer);
+					handler.CheckAccessAsync(AccessLevel.Officer);
 				if (!doContinue)
 					return;
 			}
@@ -506,15 +526,15 @@ class Rank : ICommand {
 		// Ensure all needed params can be converted to DiscordMembers.
 		if (member_caller is null || member_target is null) {
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
+			response_error += (Program.Guild is not null && handler.Interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
-			await Command.RespondAsync(
-				interaction,
-				response_error, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response_error,
 				"Could not convert user to DiscordMember.",
 				LogLevel.Warning,
-				"Could not fetch member data. Response sent."
+				"Could not fetch member data. Response sent.".AsLazy()
 			);
 			return;
 		}
@@ -528,12 +548,12 @@ class Rank : ICommand {
 		}
 		guilds.Sort();
 		string response_str =
-			Selection.PrintRoles(guilds, _optionsGuild, "guild", "guilds");
+			Selection.PrintSelected(guilds, _optionsGuild, "guild", "guilds");
 
 		// Construct select component.
 		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
-			interaction.Interaction,
+			handler.Interaction.Interaction,
 			AssignGuild,
 			message_promise.Task,
 			_optionsGuild,
@@ -553,21 +573,17 @@ class Rank : ICommand {
 		);
 
 		// Send response with selection menu.
-		DiscordMessageBuilder response =
-			new DiscordMessageBuilder()
+		DiscordWebhookBuilder response =
+			new DiscordWebhookBuilder()
 			.WithContent(response_str)
 			.AddComponents(select.Component);
-		await Command.RespondAsync(
-			interaction,
-			response, true,
+		DiscordMessage message = await Command.SubmitResponseAsync(
+			handler.Interaction,
+			response,
 			"Sending guild selection menu.",
 			LogLevel.Debug,
-			"Guild selection menu sent."
+			"Guild selection menu sent.".AsLazy()
 		);
-
-		// Update DiscordMessage object for Selection.
-		DiscordMessage message = await
-			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 
 	}
@@ -618,23 +634,29 @@ class Rank : ICommand {
 		Log.Debug("  Updated select component successfully.");
 	}
 
-	private static async Task SetOfficerAsync(TimedInteraction interaction) {
+	private static async Task SetOfficerAsync(DeferrerHandler handler) {
+		// Always ephemeral.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, true);
+			return;
+		}
+
 		// Ensure all needed params can be converted to DiscordMembers.
 		DiscordMember? member_caller = await
-			interaction.Interaction.User.ToMember();
+			handler.Interaction.Interaction.User.ToMember();
 		DiscordMember? member_target =
-			GetResolvedMember(interaction.Interaction);
+			GetResolvedMember(handler.Interaction.Interaction);
 		if (member_caller is null || member_target is null) {
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
+			response_error += (Program.Guild is not null && handler.Interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
-			await Command.RespondAsync(
-				interaction,
-				response_error, true,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				response_error,
 				"Could not convert user to DiscordMember.",
 				LogLevel.Warning,
-				"Could not fetch member data. Response sent."
+				"Could not fetch member data. Response sent.".AsLazy()
 			);
 			return;
 		}
@@ -648,12 +670,12 @@ class Rank : ICommand {
 		}
 		roles.Sort();
 		string response_str =
-			Selection.PrintRoles(roles, _optionsOfficer, "officer role", "officer roles");
+			Selection.PrintSelected(roles, _optionsOfficer, "officer role", "officer roles");
 
 		// Construct select component.
 		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
-			interaction.Interaction,
+			handler.Interaction.Interaction,
 			AssignOfficer,
 			message_promise.Task,
 			_optionsOfficer,
@@ -673,21 +695,17 @@ class Rank : ICommand {
 		);
 
 		// Send response with selection menu.
-		DiscordMessageBuilder response =
-			new DiscordMessageBuilder()
+		DiscordWebhookBuilder response =
+			new DiscordWebhookBuilder()
 			.WithContent(response_str)
 			.AddComponents(select.Component);
-		await Command.RespondAsync(
-			interaction,
-			response, true,
+		DiscordMessage message = await Command.SubmitResponseAsync(
+			handler.Interaction,
+			response,
 			"Sending officer role selection menu.",
 			LogLevel.Debug,
-			"Role selection menu sent."
+			"Role selection menu sent.".AsLazy()
 		);
-
-		// Update DiscordMessage object for Selection.
-		DiscordMessage message = await
-			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 	private static async Task AssignOfficer(ComponentInteractionCreateEventArgs e) {
@@ -737,15 +755,25 @@ class Rank : ICommand {
 		Log.Debug("  Updated select component successfully.");
 	}
 
-	private static async Task ListTrialsAsync(TimedInteraction interaction) {
+	private static async Task ListTrialsAsync(DeferrerHandler handler) {
 		if (Program.Guild is null) {
-			await Command.RespondAsync(
-				interaction,
-				"Server data not downloaded yet. Try again in a few seconds.", true,
+			if (handler.IsDeferrer) {
+				await Command.DeferAsync(handler, true);
+				return;
+			}
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Server data not downloaded yet. Try again in a few seconds.",
 				"Guild not initialized yet.",
 				LogLevel.Warning,
-				"No data fetched (guild not initialized). Response sent."
+				"No data fetched (guild not initialized). Response sent.".AsLazy()
 			);
+			return;
+		}
+
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, false);
 			return;
 		}
 
@@ -766,12 +794,12 @@ class Rank : ICommand {
 
 		// Handle case where no trial members exist.
 		if (trials.Count == 0) {
-			await Command.RespondAsync(
-				interaction,
-				"All done! No trial members found for **<Erythro>**.", false,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"All done! No trial members found for **<Erythro>**.",
 				"No trial members found.",
 				LogLevel.Debug,
-				"Response sent."
+				"Response sent.".AsLazy()
 			);
 			return;
 		}
@@ -791,12 +819,12 @@ class Rank : ICommand {
 			TimeSpan time = DateTimeOffset.Now - trial.JoinedAt;
 			response.WriteLine($"{trial.Mention} - {time.Days} days old");
 		}
-		await Command.RespondAsync(
-			interaction,
-			response.ToString(), false,
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			response.ToString(),
 			"Sending list of trial members (@Guest + @<Erythro>).",
 			LogLevel.Debug,
-			"List sent. ({EntryCount} entries)",
+			"List sent. ({EntryCount} entries)".AsLazy(),
 			trials.Count
 		);
 	}

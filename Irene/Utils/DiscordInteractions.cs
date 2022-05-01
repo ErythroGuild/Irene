@@ -113,17 +113,30 @@ static partial class Util {
 	}
 	// Checks if the user who invoked the interaction has the specified
 	// access level, logs, then sends a response.
-	public static async Task<bool> CheckAccessAsync(this TimedInteraction interaction, AccessLevel level) {
+	public static async Task<bool> CheckAccessAsync(
+		this DeferrerHandler handler,
+		AccessLevel level
+	) =>
+		await handler.Interaction.CheckAccessAsync(handler.IsDeferrer, level);
+	public static async Task<bool> CheckAccessAsync(
+		this TimedInteraction interaction,
+		bool isDeferrer,
+		AccessLevel level
+	) {
 		bool hasAccess = await interaction.HasAccess(level);
 		if (hasAccess) {
 			return true;
 		} else {
+			if (isDeferrer) {
+				await Command.DeferAsync(interaction, true);
+				return false;
+			}
 			string response =
 				$"Sorry, you don't have the permissions ({level}) to run that command.\n" +
 				$"See `/help {interaction.Interaction.Data.Name}` for more info.";
 			await Command.SubmitResponseAsync(
 				interaction,
-				response, true,
+				response,
 				"Access denied (insufficient permissions).",
 				LogLevel.Information,
 				"Information sent. ({Level} required)".AsLazy(),

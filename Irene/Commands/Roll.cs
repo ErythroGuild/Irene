@@ -84,7 +84,7 @@ class Roll : ICommand {
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunRollAsync ),
+			), DeferVisibleAsync, RunRollAsync ),
 			new ( new (
 				"8-ball",
 				@"Forecast the answer to a yes/no question.",
@@ -104,7 +104,7 @@ class Roll : ICommand {
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), Run8BallAsync )
+			), Defer8BallAsync, Run8BallAsync )
 		};
 	}
 
@@ -112,6 +112,8 @@ class Roll : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
+	public static async Task DeferVisibleAsync(TimedInteraction interaction) =>
+		await Command.DeferAsync(interaction, false);
 	public static async Task RunRollAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
@@ -158,12 +160,12 @@ class Roll : ICommand {
 			output += $"    ({low}-{high})";
 
 		// Return data.
-		await Command.RespondAsync(
+		await Command.SubmitResponseAsync(
 			interaction,
-			$"  {output}", false,
+			$"  {output}",
 			"Sending random number.",
 			LogLevel.Debug,
-			"Random number sent: {X}.",
+			"Random number sent: {X}.".AsLazy(),
 			x
 		);
 
@@ -180,6 +182,15 @@ class Roll : ICommand {
 		}
 	}
 
+	public static async Task Defer8BallAsync(TimedInteraction interaction) {
+		// Check for "private" response option.
+		bool doHide = false;
+		List<DiscordInteractionDataOption> args =
+			interaction.GetArgs();
+		if (args.Count > 1)
+			doHide = (bool)args[1].Value;
+		await Command.DeferAsync(interaction, doHide);
+	}
 	public static async Task Run8BallAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
@@ -204,19 +215,14 @@ class Roll : ICommand {
 		ulong hash = BitConverter.ToUInt64(hash_raw);
 		int index = (int)(hash % (ulong)_predictions.Count);
 
-		// Check for "private" response option.
-		bool doHide = false;
-		if (args.Count > 1)
-			doHide = (bool)args[1].Value;
-
 		// Respond.
 		string prediction = $"> {arg_original}\n{_predictions[index]}";
-		await Command.RespondAsync(
+		await Command.SubmitResponseAsync(
 			interaction,
-			prediction, doHide,
+			prediction,
 			"Sending prediction.",
 			LogLevel.Debug,
-			"Prediction sent: \"{Prediction}\".",
+			"Prediction sent: \"{Prediction}\".".AsLazy(),
 			_predictions[index]
 		);
 	}
