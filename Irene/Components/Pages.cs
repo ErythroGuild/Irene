@@ -37,8 +37,8 @@ class Pages {
 			// Consume all interactions originating from a registered
 			// message, and created by the corresponding component.
 			if (_pages.ContainsKey(id)) {
-				e.Handled = true;
 				await e.Interaction.AcknowledgeComponentAsync();
+				e.Handled = true;
 
 				Pages pages = _pages[id];
 
@@ -68,7 +68,7 @@ class Pages {
 				// responses to interactions don't actually "exist" as real
 				// messages.
 				await pages._interaction
-					.EditOriginalResponseAsync(pages.CurrentWebhook);
+					.EditOriginalResponseAsync(pages.AsWebhookBuilder);
 			}
 		};
 		Log.Debug("  Created handler for component: Pages");
@@ -84,18 +84,10 @@ class Pages {
 	private readonly Timer _timer;
 
 	// Generated instance properties.
-	private DiscordMessageBuilder CurrentMessage { get {
-		DiscordMessageBuilder message =
-			new DiscordMessageBuilder()
-				.WithContent(CurrentContent);
-		if (_pageCount > 1)
-			message = message.AddComponents(CurrentButtons);
-		return message;
-	} }
-	private DiscordWebhookBuilder CurrentWebhook { get {
+	private DiscordWebhookBuilder AsWebhookBuilder { get {
 		DiscordWebhookBuilder webhook =
 			new DiscordWebhookBuilder()
-				.WithContent(CurrentContent);
+			.WithContent(CurrentContent);
 		if (_pageCount > 1)
 			webhook = webhook.AddComponents(CurrentButtons);
 		return webhook;
@@ -156,7 +148,7 @@ class Pages {
 		_message = await _interaction.GetOriginalResponseAsync();
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
-				.WithContent(_message.Content);
+			.WithContent(_message.Content);
 		if (_pageCount > 1) {
 			List<ComponentRow> rows =
 				ComponentsButtonsDisabled(new (_message.Components));
@@ -171,7 +163,7 @@ class Pages {
 		await _interaction.EditOriginalResponseAsync(message_new);
 	}
 
-	public static DiscordMessageBuilder Create(
+	public static DiscordWebhookBuilder Create(
 		DiscordInteraction interaction,
 		Task<DiscordMessage> messageTask,
 		List<string> data,
@@ -199,7 +191,7 @@ class Pages {
 				await pages.Cleanup();
 		};
 
-		return pages.CurrentMessage;
+		return pages.AsWebhookBuilder;
 	}
 
 	// Returns a row of buttons for paginating the data.

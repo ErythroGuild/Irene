@@ -32,7 +32,7 @@ class Help : ICommand {
 				) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync)
+			), DeferAsync, RunAsync)
 		};
 	}
 
@@ -125,11 +125,14 @@ class Help : ICommand {
 		} ) },
 	}; }
 
+	public static async Task DeferAsync(TimedInteraction interaction) =>
+		await Command.DeferAsync(interaction, true);
+
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// See if general or specific help page is requested.
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
-		DiscordMessageBuilder response;
+		DiscordWebhookBuilder response;
 		DiscordMessage message;
 		MessagePromise message_promise = new ();
 
@@ -141,12 +144,12 @@ class Help : ICommand {
 				string response_error =
 					"Sorry, no command with that name found." +
 					"\nSee `/help` for a list of valid commands.";
-				await Command.RespondAsync(
+				await Command.SubmitResponseAsync(
 					interaction,
-					response_error, true,
+					response_error,
 					"Help for command not found.",
 					LogLevel.Information,
-					"Command not found: `/{Command}`.",
+					"Command not found: `/{Command}`.".AsLazy(),
 					command
 				);
 				return;
@@ -159,18 +162,14 @@ class Help : ICommand {
 				help,
 				pageSize: 1
 			);
-			await Command.RespondAsync(
+			message = await Command.SubmitResponseAsync(
 				interaction,
-				response, true,
+				response,
 				"Sending specific help.",
 				LogLevel.Debug,
-				"Sent help for `/{Command}`.",
+				"Sent help for `/{Command}`.".AsLazy(),
 				command
 			);
-
-			// Update DiscordMessage object for Pages.
-			message = await
-				interaction.Interaction.GetOriginalResponseAsync();
 			message_promise.SetResult(message);
 			return;
 		}
@@ -182,17 +181,13 @@ class Help : ICommand {
 			HelpGeneral,
 			pageSize: 1
 		);
-		await Command.RespondAsync(
+		message = await Command.SubmitResponseAsync(
 			interaction,
-			response, true,
+			response,
 			"Sending general help.",
 			LogLevel.Debug,
-			"Help text sent."
+			"Help text sent.".AsLazy()
 		);
-
-		// Update DiscordMessage object for Pages.
-		message = await
-			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 

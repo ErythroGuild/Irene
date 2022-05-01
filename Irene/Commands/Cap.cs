@@ -1,5 +1,3 @@
-using DeferrerHandlerFunc = System.Func<Irene.Commands.DeferrerHandler, System.Threading.Tasks.Task>;
-
 namespace Irene.Commands;
 
 class Cap : ICommand {
@@ -73,7 +71,7 @@ class Cap : ICommand {
 		// Pre-9.0.5 launch.
 		if (now < Date_Patch905.UtcResetTime()) {
 			if (handler.IsDeferrer) {
-				await DeferAsync(handler, true);
+				await Command.DeferAsync(handler, true);
 				return;
 			}
 			await Command.SubmitResponseAsync(
@@ -88,7 +86,7 @@ class Cap : ICommand {
 
 		// Deferrer is non-ephemeral for the rest.
 		if (handler.IsDeferrer) {
-			await DeferAsync(handler, false);
+			await Command.DeferAsync(handler, false);
 			return;
 		}
 
@@ -141,7 +139,7 @@ class Cap : ICommand {
 		// Pre-Shadowlands launch.
 		if (now < Date_Patch902.UtcResetTime()) {
 			if (handler.IsDeferrer) {
-				await DeferAsync(handler, true);
+				await Command.DeferAsync(handler, true);
 				return;
 			}
 			await Command.SubmitResponseAsync(
@@ -156,7 +154,7 @@ class Cap : ICommand {
 
 		// Deferrer is non-ephemeral for the rest.
 		if (handler.IsDeferrer) {
-			await DeferAsync(handler, false);
+			await Command.DeferAsync(handler, false);
 			return;
 		}
 
@@ -218,7 +216,7 @@ class Cap : ICommand {
 		// Pre-Shadowlands launch.
 		if (now < Date_Patch902.UtcResetTime()) {
 			if (handler.IsDeferrer) {
-				await DeferAsync(handler, true);
+				await Command.DeferAsync(handler, true);
 				return;
 			}
 			await Command.SubmitResponseAsync(
@@ -233,7 +231,7 @@ class Cap : ICommand {
 
 		// Deferrer is non-ephemeral for the rest.
 		if (handler.IsDeferrer) {
-			await DeferAsync(handler, false);
+			await Command.DeferAsync(handler, false);
 			return;
 		}
 
@@ -283,7 +281,7 @@ class Cap : ICommand {
 		// Pre-Shadowlands launch.
 		if (now < Date_Patch910.UtcResetTime()) {
 			if (handler.IsDeferrer) {
-				await DeferAsync(handler, true);
+				await Command.DeferAsync(handler, true);
 				return;
 			}
 			await Command.SubmitResponseAsync(
@@ -298,7 +296,7 @@ class Cap : ICommand {
 
 		// Deferrer is non-ephemeral for the rest.
 		if (handler.IsDeferrer) {
-			await DeferAsync(handler, false);
+			await Command.DeferAsync(handler, false);
 			return;
 		}
 
@@ -329,13 +327,6 @@ class Cap : ICommand {
 			return;
 		}
 	}
-
-	// Convenience method for deferring response.
-	private static async Task DeferAsync(
-		DeferrerHandler handler,
-		bool isEphemeral
-	) =>
-		await Command.DeferAsync(handler.Interaction, isEphemeral);
 
 	// Convenience method for formatting/logging/sending cap data.
 	private static async Task SendResponseAsync(

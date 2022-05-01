@@ -43,8 +43,8 @@ class Modal {
 		// Construct modal.
 		DiscordInteractionResponseBuilder response =
 			new DiscordInteractionResponseBuilder()
-				.WithTitle(title)
-				.WithCustomId(id);
+			.WithTitle(title)
+			.WithCustomId(id);
 		foreach (TextInputComponent component in components)
 			response = response.AddComponents(component);
 

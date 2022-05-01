@@ -145,6 +145,11 @@ class Command {
 
 	// Defer a command as ephemeral or not.
 	public static async Task DeferAsync(
+		DeferrerHandler handler,
+		bool isEphemeral
+	) =>
+		await DeferAsync(handler.Interaction, isEphemeral);
+	public static async Task DeferAsync(
 		TimedInteraction interaction,
 		bool isEphemeral
 	) =>

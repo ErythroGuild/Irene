@@ -1,3 +1,5 @@
+using Irene.Commands;
+
 namespace Irene.Utils;
 
 static partial class Util {
@@ -8,6 +10,8 @@ static partial class Util {
 		new List<DiscordMember>(interaction.Data.Resolved.Members.Values)[0];
 
 	// Convenience method for fetching command options.
+	public static List<DiscordInteractionDataOption> GetArgs(this DeferrerHandler handler) =>
+		handler.Interaction.GetArgs();
 	public static List<DiscordInteractionDataOption> GetArgs(this TimedInteraction interaction) =>
 		interaction.Interaction.GetArgs();
 	public static List<DiscordInteractionDataOption> GetArgs(this DiscordInteraction interaction) =>
