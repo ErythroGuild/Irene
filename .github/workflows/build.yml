@@ -44,5 +44,5 @@ jobs:
         host: ${{ secrets.DEV_HOST }}
         username: ${{ secrets.DEV_USER }}
         password: ${{ secrets.DEV_PASSWORD }}
-        source: "bin/Publish-Linux/*"
+        source: "Irene/bin/Publish-Linux/"
         target: "${{ secrets.DEV_DIR_BOTS }}irene/"
