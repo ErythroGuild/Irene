@@ -160,9 +160,59 @@ class Command {
 		bool isEphemeral
 	) =>
 		await interaction.Interaction.DeferMessageAsync(isEphemeral);
+	public static async Task DeferNoOp() =>
+		await Task.CompletedTask;
 
 	// Logs that a response was sent, sends said response, and logs all
 	// relevant timing information.
+	public static async Task<DiscordMessage> SubmitModalAsync(
+		TimedInteraction interaction,
+		string response,
+		bool isEphemeral,
+		string log_summary,
+		LogLevel log_level,
+		Lazy<string> log_preview,
+		params object[] log_params
+	) =>
+		await SubmitModalAsync(
+			interaction,
+			new DiscordInteractionResponseBuilder()
+				.WithContent(response),
+			isEphemeral,
+			log_summary,
+			log_level,
+			log_preview,
+			log_params
+		);
+	public static async Task<DiscordMessage> SubmitModalAsync(
+		TimedInteraction interaction,
+		DiscordInteractionResponseBuilder response,
+		bool isEphemeral,
+		string log_summary,
+		LogLevel log_level,
+		Lazy<string> log_preview,
+		params object[] log_params
+	) {
+		DiscordMessage? message = await SubmitResponseAsync(
+			interaction,
+			Task.Run<DiscordMessage?>(async () => {
+				await interaction.Interaction
+					.CreateResponseAsync(
+						InteractionResponseType.ChannelMessageWithSource,
+						response.AsEphemeral(isEphemeral)
+					);
+				return await interaction.Interaction
+					.GetOriginalResponseAsync();
+			}),
+			log_summary,
+			log_level,
+			log_preview,
+			log_params
+		);
+		return (message is null)
+			? throw new InvalidOperationException("DiscordMessage not returned from followup response.")
+			: message;
+	}
 	public static async Task<DiscordMessage> SubmitResponseAsync(
 		TimedInteraction interaction,
 		string response,

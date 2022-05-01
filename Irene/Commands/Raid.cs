@@ -497,9 +497,9 @@ class Raid : ICommand {
 		}
 		RaidDate date = date_n.Value;
 
-		// Deferrer is non-ephemeral for the rest.
+		// Setting a modal cannot have a prior deferral.
 		if (handler.IsDeferrer) {
-			await Command.DeferAsync(handler, false);
+			await Command.DeferNoOp();
 			return;
 		}
 
@@ -526,9 +526,9 @@ class Raid : ICommand {
 			raid.UpdateData();
 
 			// Handle interaction.
-			await Command.SubmitResponseAsync(
+			await Command.SubmitModalAsync(
 				new TimedInteraction(e.Interaction, stopwatch),
-				$"Raid plans updated successfully.",
+				$"Raid plans updated successfully.", false,
 				"Updated raid plans successfully.",
 				LogLevel.Debug,
 				new Lazy<string>(() =>

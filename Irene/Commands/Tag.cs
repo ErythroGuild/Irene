@@ -332,12 +332,6 @@ class Tag: ICommand {
 	}
 
 	private static async Task SetAsync(DeferrerHandler handler) {
-		// Always ephemeral.
-		if (handler.IsDeferrer) {
-			await Command.DeferAsync(handler, true);
-			return;
-		}
-
 		List<DiscordInteractionDataOption> args =
 			handler.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
@@ -345,6 +339,10 @@ class Tag: ICommand {
 
 		// The delimiter is not allowed in tag names.
 		if (arg_stripped.Contains(_delim)) {
+			if (handler.IsDeferrer) {
+				await Command.DeferAsync(handler, true);
+				return;
+			}
 			string response =
 				$"Due to technical limitations, tag names cannot contain `{_delim}`.";
 			await Command.SubmitResponseAsync(
@@ -355,6 +353,12 @@ class Tag: ICommand {
 				"Tag name \"{Name}\" is invalid. (contains delimiter \"{Delimiter}\")".AsLazy(),
 				arg, _delim
 			);
+			return;
+		}
+
+		// Setting a modal cannot have a prior deferral.
+		if (handler.IsDeferrer) {
+			await Command.DeferNoOp();
 			return;
 		}
 
@@ -418,9 +422,9 @@ class Tag: ICommand {
 			}
 
 			// Handle interaction.
-			await Command.SubmitResponseAsync(
+			await Command.SubmitModalAsync(
 				new TimedInteraction(e.Interaction, stopwatch),
-				$"Tag `{arg}` updated successfully.",
+				$"Tag `{arg}` updated successfully.", true,
 				"Updated tag successfully.",
 				LogLevel.Debug,
 				new Lazy<string>(() => {
