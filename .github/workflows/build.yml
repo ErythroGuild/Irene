@@ -21,6 +21,7 @@ jobs:
     # Checkout repository.
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Fetch tags
       run: git fetch --prune --unshallow
     
     # Setup .NET.
