@@ -75,13 +75,16 @@ class ClassDiscord : ICommand {
 				) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), DeferAsync, RunAsync )
 		};
 	} }
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
+
+	public static async Task DeferAsync(TimedInteraction interaction) =>
+		await Command.DeferAsync(interaction, false);
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.
@@ -91,9 +94,9 @@ class ClassDiscord : ICommand {
 		string invite = _optionsToInvites[@class];
 
 		// Send invite link.
-		await Command.RespondAsync(
+		await Command.SubmitResponseAsync(
 			interaction,
-			invite, false,
+			invite,
 			"Sending invite link.",
 			LogLevel.Debug,
 			new Lazy<string>(() => {

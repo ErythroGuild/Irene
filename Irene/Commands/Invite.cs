@@ -32,13 +32,16 @@ class Invite : ICommand {
 					} ) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), DeferAsync, RunAsync )
 		};
 	}
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
+
+	private static async Task DeferAsync(TimedInteraction interaction) =>
+		await Command.DeferAsync(interaction, false);
 
 	private static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.
@@ -54,12 +57,12 @@ class Invite : ICommand {
 		};
 
 		// Send invite link.
-		await Command.RespondAsync(
+		await Command.SubmitResponseAsync(
 			interaction,
-			invite, false,
+			invite,
 			"Sending invite link.",
 			LogLevel.Debug,
-			"Invite link for \"{Server}\": {Link}",
+			"Invite link for \"{Server}\": {Link}".AsLazy(),
 			server, invite
 		);
 	}

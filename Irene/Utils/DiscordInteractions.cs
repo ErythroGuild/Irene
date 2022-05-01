@@ -39,29 +39,7 @@ static partial class Util {
 		return components;
 	}
 
-	// Convenience functions for responding to interactions.
-	public static Task RespondMessageAsync(
-		this DiscordInteraction interaction,
-		string message,
-		bool isEphemeral=false
-	) =>
-		interaction.CreateResponseAsync(
-			InteractionResponseType.ChannelMessageWithSource,
-			new DiscordInteractionResponseBuilder(
-				new DiscordMessageBuilder().WithContent(message)
-			).AsEphemeral(isEphemeral)
-		);
-	public static Task RespondMessageAsync(
-		this DiscordInteraction interaction,
-		DiscordMessageBuilder message,
-		bool isEphemeral=false
-	) =>
-		interaction.CreateResponseAsync(
-			InteractionResponseType.ChannelMessageWithSource,
-			new DiscordInteractionResponseBuilder(message)
-				.AsEphemeral(isEphemeral)
-		);
-
+	// Convenience methods for responding to interactions.
 	public static Task DeferMessageAsync(
 		this DiscordInteraction interaction,
 		bool isEphemeral=false
@@ -75,7 +53,8 @@ static partial class Util {
 		this DiscordInteraction interaction,
 		string message
 	) {
-		DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
+		DiscordWebhookBuilder builder =
+			new DiscordWebhookBuilder()
 			.WithContent(message);
 		return interaction.EditOriginalResponseAsync(builder);
 	}
@@ -138,12 +117,12 @@ static partial class Util {
 			string response =
 				$"Sorry, you don't have the permissions ({level}) to run that command.\n" +
 				$"See `/help {interaction.Interaction.Data.Name}` for more info.";
-			await Command.RespondAsync(
+			await Command.SubmitResponseAsync(
 				interaction,
 				response, true,
 				"Access denied (insufficient permissions).",
 				LogLevel.Information,
-				"Information sent. ({Level} required)",
+				"Information sent. ({Level} required)".AsLazy(),
 				level
 			);
 			return false;

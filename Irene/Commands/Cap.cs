@@ -1,3 +1,5 @@
+using DeferrerHandlerFunc = System.Func<Irene.Commands.DeferrerHandler, System.Threading.Tasks.Task>;
+
 namespace Irene.Commands;
 
 class Cap : ICommand {
@@ -32,7 +34,7 @@ class Cap : ICommand {
 					} ) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), DeferAsync, RunAsync )
 		};
 	}
 
@@ -40,36 +42,53 @@ class Cap : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	public static async Task RunAsync(TimedInteraction interaction) {
-		// Select the correct invite to return.
+	public static DeferrerHandlerFunc GetDeferrerHandler(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
 		string type = (string)args[0].Value;
-		InteractionHandler handler = type switch {
+		return type switch {
 			_optValor    => CapValor,
 			_optConquest => CapConquest,
 			_optRenown   => CapRenown,
 			_optTorghast => CapTorghast,
 			_ => throw new ArgumentException("Invalid slash command parameter."),
 		};
-
-		// Delegate calculations to handlers.
-		await handler(interaction);
 	}
 
-	private static async Task CapValor(TimedInteraction interaction) {
+	public static async Task DeferAsync(TimedInteraction interaction) {
+		DeferrerHandlerFunc function =
+			GetDeferrerHandler(interaction);
+		await function(new (interaction, true));
+	}
+	public static async Task RunAsync(TimedInteraction interaction) {
+		DeferrerHandlerFunc function =
+			GetDeferrerHandler(interaction);
+		await function(new (interaction, false));
+	}
+
+	private static async Task CapValor(DeferrerHandler handler) {
 		DateTime now = DateTime.Now;
 		const int weekly_valor = 750;
 
 		// Pre-9.0.5 launch.
 		if (now < Date_Patch905.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"You cannot earn Valor until Patch 9.0.5.", true,
+			if (handler.IsDeferrer) {
+				await DeferAsync(handler, true);
+				return;
+			}
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"You cannot earn Valor until Patch 9.0.5.",
 				"Queried valor cap pre-9.0.5.",
 				LogLevel.Information,
-				"Valor cap: unavailable"
+				"Valor cap: unavailable".AsLazy()
 			);
+			return;
+		}
+
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await DeferAsync(handler, false);
 			return;
 		}
 
@@ -78,7 +97,7 @@ class Cap : ICommand {
 			TimeSpan duration = now - Date_Patch905.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 5000 + week * weekly_valor;
-			await SendResponseAsync("Valor", week + 1, cap, interaction);
+			await SendResponseAsync("Valor", week + 1, cap, handler);
 			return;
 		}
 
@@ -87,18 +106,18 @@ class Cap : ICommand {
 			TimeSpan duration = now - Date_Season2.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 750 + week * weekly_valor;
-			await SendResponseAsync("Valor", week + 1, cap, interaction);
+			await SendResponseAsync("Valor", week + 1, cap, handler);
 			return;
 		}
 
 		// Season 2, post-9.1.5.
 		if (now < Date_Season3.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"Valor is **uncapped** from 9.1.5 ~ 9.2.", false,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Valor is **uncapped** from 9.1.5 ~ 9.2.",
 				"Queried valor cap post-9.1.5.",
 				LogLevel.Debug,
-				"Valor cap: uncapped"
+				"Valor cap: uncapped".AsLazy()
 			);
 			return;
 		}
@@ -108,12 +127,12 @@ class Cap : ICommand {
 			TimeSpan duration = now - Date_Season3.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 750 + week * weekly_valor;
-			await SendResponseAsync("Valor", week + 1, cap, interaction);
+			await SendResponseAsync("Valor", week + 1, cap, handler);
 			return;
 		}
 	}
 
-	private static async Task CapConquest(TimedInteraction interaction) {
+	private static async Task CapConquest(DeferrerHandler handler) {
 		DateTime now = DateTime.Now;
 		const int
 			weekly_conquest_old = 550,
@@ -121,24 +140,34 @@ class Cap : ICommand {
 
 		// Pre-Shadowlands launch.
 		if (now < Date_Patch902.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"Sorry, Conquest calculations are not supported until Patch 9.0.2.", true,
+			if (handler.IsDeferrer) {
+				await DeferAsync(handler, true);
+				return;
+			}
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Sorry, Conquest calculations are not supported until Patch 9.0.2.",
 				"Queried conquest cap pre-9.0.2.",
 				LogLevel.Information,
-				"Conquest cap: unavailable"
+				"Conquest cap: unavailable".AsLazy()
 			);
+			return;
+		}
+
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await DeferAsync(handler, false);
 			return;
 		}
 
 		// Season 1 preseason (9.0.2).
 		if (now < Date_Season1.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"Current Conquest cap: **0** (pre-season)", false,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Current Conquest cap: **0** (pre-season)",
 				"Queried conquest cap during 9.0 pre-season.",
 				LogLevel.Debug,
-				"Conquest cap: 0"
+				"Conquest cap: 0".AsLazy()
 			);
 			return;
 		}
@@ -148,7 +177,7 @@ class Cap : ICommand {
 			TimeSpan duration = now - Date_Season1.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 550 + week * weekly_conquest_old;
-			await SendResponseAsync("Conquest", week + 1, cap, interaction);
+			await SendResponseAsync("Conquest", week + 1, cap, handler);
 			return;
 		}
 
@@ -157,18 +186,18 @@ class Cap : ICommand {
 			TimeSpan duration = now - Date_Season2.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 1000 + week * weekly_conquest_old;
-			await SendResponseAsync("Conquest", week + 1, cap, interaction);
+			await SendResponseAsync("Conquest", week + 1, cap, handler);
 			return;
 		}
 
 		// Season 2, post-9.1.5.
 		if (now < Date_Season3.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"Conquest is **uncapped** from 9.1.5 ~ 9.2.", false,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Conquest is **uncapped** from 9.1.5 ~ 9.2.",
 				"Queried conquest cap post-9.1.5.",
 				LogLevel.Debug,
-				"Conquest cap: uncapped"
+				"Conquest cap: uncapped".AsLazy()
 			);
 			return;
 		}
@@ -178,23 +207,33 @@ class Cap : ICommand {
 			TimeSpan duration = now - Date_Season3.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 1000 + week * weekly_conquest_new;
-			await SendResponseAsync("Conquest", week + 1, cap, interaction);
+			await SendResponseAsync("Conquest", week + 1, cap, handler);
 			return;
 		}
 	}
 
-	private static async Task CapRenown(TimedInteraction interaction) {
+	private static async Task CapRenown(DeferrerHandler handler) {
 		DateTime now = DateTime.Now;
 
 		// Pre-Shadowlands launch.
 		if (now < Date_Patch902.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"You cannot earn Renown until Patch 9.0.2.", true,
+			if (handler.IsDeferrer) {
+				await DeferAsync(handler, true);
+				return;
+			}
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"You cannot earn Renown until Patch 9.0.2.",
 				"Queried renown cap pre-9.0.2.",
 				LogLevel.Information,
-				"Renown cap: unavailable"
+				"Renown cap: unavailable".AsLazy()
 			);
+			return;
+		}
+
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await DeferAsync(handler, false);
 			return;
 		}
 
@@ -207,7 +246,7 @@ class Cap : ICommand {
 				< 16 => 26 + 2 * (week - 8),
 				_ => 40,
 			};
-			await SendResponseAsync("Renown", week + 1, cap, interaction);
+			await SendResponseAsync("Renown", week + 1, cap, handler);
 			return;
 		}
 
@@ -221,35 +260,45 @@ class Cap : ICommand {
 				< 16 => 66 + 2 * (week - 9),
 				_ => 80,
 			};
-			await SendResponseAsync("Renown", week + 1, cap, interaction);
+			await SendResponseAsync("Renown", week + 1, cap, handler);
 			return;
 		}
 
 		// Patch 9.1.5.
 		if (now >= Date_Patch915.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"Current Renown cap: **80** (max)", false,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Current Renown cap: **80** (max)",
 				"Queried conquest cap post-9.1.5.",
 				LogLevel.Debug,
-				"Renown cap: 80"
+				"Renown cap: 80".AsLazy()
 			);
 			return;
 		}
 	}
 
-	private static async Task CapTorghast(TimedInteraction interaction) {
+	private static async Task CapTorghast(DeferrerHandler handler) {
 		DateTime now = DateTime.Now;
 
 		// Pre-Shadowlands launch.
 		if (now < Date_Patch910.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"You cannot earn Tower Knowledge until Patch 9.1.0.", true,
+			if (handler.IsDeferrer) {
+				await DeferAsync(handler, true);
+				return;
+			}
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"You cannot earn Tower Knowledge until Patch 9.1.0.",
 				"Queried tower knowledge cap pre-9.1.0.",
 				LogLevel.Information,
-				"Tower knowledge cap: unavailable"
+				"Tower knowledge cap: unavailable".AsLazy()
 			);
+			return;
+		}
+
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await DeferAsync(handler, false);
 			return;
 		}
 
@@ -264,33 +313,40 @@ class Cap : ICommand {
 				< 10 => 1060 + 360 * (week - 3),
 				_ => 3510,
 			};
-			await SendResponseAsync("Tower Knowledge", week + 1, cap, interaction);
+			await SendResponseAsync("Tower Knowledge", week + 1, cap, handler);
 			return;
 		}
 
 		// Patch 9.1.5.
 		if (now >= Date_Patch915.UtcResetTime()) {
-			await Command.RespondAsync(
-				interaction,
-				"Current Tower Knowledge cap: **3510** (max)", false,
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Current Tower Knowledge cap: **3510** (max)",
 				"Queried tower knowledge cap post-9.1.5.",
 				LogLevel.Debug,
-				"Tower knowledge cap: 3510"
+				"Tower knowledge cap: 3510".AsLazy()
 			);
 			return;
 		}
 	}
+
+	// Convenience method for deferring response.
+	private static async Task DeferAsync(
+		DeferrerHandler handler,
+		bool isEphemeral
+	) =>
+		await Command.DeferAsync(handler.Interaction, isEphemeral);
 
 	// Convenience method for formatting/logging/sending cap data.
 	private static async Task SendResponseAsync(
 		string name,
 		int week,
 		int cap,
-		TimedInteraction interaction
+		DeferrerHandler handler
 	) =>
-		await Command.RespondAsync(
-			interaction,
-			$"Current {name} cap: **{cap}** (week {week})", false,
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			$"Current {name} cap: **{cap}** (week {week})",
 			"Sending resource cap.",
 			LogLevel.Debug,
 			new Lazy<string>(() =>
