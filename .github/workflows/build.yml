@@ -27,6 +27,7 @@ jobs:
         include-prerelease: true
         
     # Build/test/publish.
+    - run: cd Irene/
     - name: Build
       run: dotnet build
     #- name: Test
