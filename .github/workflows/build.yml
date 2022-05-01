@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     concurrency: ci-build-${{ github.repository }}
-    runs-on: [ self-hosted, linux ]
+    runs-on: [ self-hosted, Linux ]
     steps:
     # Checkout repository.
     - name: Checkout
