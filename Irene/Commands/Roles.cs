@@ -95,16 +95,13 @@ class Roles : ICommand {
 				"Check and assign roles to receive notifications for.",
 				defaultPermission: true,
 				type: ApplicationCommandType.SlashCommand
-			), DeferAsync, RunAsync )
+			), Command.DeferEphemeralAsync, RunAsync )
 		};
 	}
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
-
-	public static async Task DeferAsync(TimedInteraction interaction) =>
-		await Command.DeferAsync(interaction, true);
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// Ensure user is a member. (This should always succeed.)

@@ -20,7 +20,7 @@ class Version : ICommand {
 				options: null,
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), DeferAsync, RunAsync )
+			), Command.DeferVisibleAsync, RunAsync )
 		};
 	}
 
@@ -28,10 +28,7 @@ class Version : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	private static async Task DeferAsync(TimedInteraction interaction) =>
-		await Command.DeferAsync(interaction, false);
-
-	private static async Task RunAsync(TimedInteraction interaction) {
+	public static async Task RunAsync(TimedInteraction interaction) {
 		StreamReader file;
 
 		// Read in data.

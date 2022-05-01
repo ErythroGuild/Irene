@@ -170,13 +170,24 @@ class Raid : ICommand {
 	public static List<AutoCompleteHandler> AutoComplete   { get => new () {
 		new (_commandRaid, AutoCompleteAsync),
 	}; }
-
-	public static async Task<DeferrerHandlerFunc?> GetDeferrerHandler(
-		TimedInteraction interaction,
-		bool isDeferrer
-	) {
+	
+	public static async Task DeferAsync(TimedInteraction interaction) {
+		DeferrerHandler handler = new (interaction, true);
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(handler);
+		if (function is not null)
+			await function(handler);
+	}
+	public static async Task RunAsync(TimedInteraction interaction) {
+		DeferrerHandler handler = new (interaction, false);
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(handler);
+		if (function is not null)
+			await function(handler);
+	}
+	private static async Task<DeferrerHandlerFunc?> GetDeferrerHandler(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
+			handler.GetArgs();
 		string command = args[0].Name;
 
 		// Check for permissions.
@@ -184,8 +195,8 @@ class Raid : ICommand {
 		case _commandSetLogs:
 		case _commandSetPlan:
 		case _commandCancel:
-			bool doContinue = await interaction
-				.CheckAccessAsync(isDeferrer, AccessLevel.Officer);
+			bool doContinue = await
+				handler.CheckAccessAsync(AccessLevel.Officer);
 			if (!doContinue)
 				return null;
 			break;
@@ -199,21 +210,8 @@ class Raid : ICommand {
 			_commandSetLogs  => SetLogsAsync,
 			_commandSetPlan  => SetPlanAsync,
 			_commandCancel   => CancelAsync,
-			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
+			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(handler)),
 		};
-	}
-	
-	private static async Task DeferAsync(TimedInteraction interaction) {
-		DeferrerHandlerFunc? function =
-			await GetDeferrerHandler(interaction, true);
-		if (function is not null)
-			await function(new (interaction, true));
-	}
-	private static async Task RunAsync(TimedInteraction interaction) {
-		DeferrerHandlerFunc? function =
-			await GetDeferrerHandler(interaction, false);
-		if (function is not null)
-			await function(new (interaction, false));
 	}
 
 	private static async Task AutoCompleteAsync(TimedInteraction interaction) {

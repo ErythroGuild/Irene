@@ -32,7 +32,7 @@ class Invite : ICommand {
 					} ) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), DeferAsync, RunAsync )
+			), Command.DeferVisibleAsync, RunAsync )
 		};
 	}
 
@@ -40,10 +40,7 @@ class Invite : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	private static async Task DeferAsync(TimedInteraction interaction) =>
-		await Command.DeferAsync(interaction, false);
-
-	private static async Task RunAsync(TimedInteraction interaction) {
+	public static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();

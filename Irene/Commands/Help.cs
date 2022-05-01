@@ -32,7 +32,7 @@ class Help : ICommand {
 				) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), DeferAsync, RunAsync)
+			), Command.DeferVisibleAsync, RunAsync)
 		};
 	}
 
@@ -124,9 +124,6 @@ class Help : ICommand {
 			$@"{_s} `/class-discord <class>`: Display the invite link(s) for the specified class discord.",
 		} ) },
 	}; }
-
-	public static async Task DeferAsync(TimedInteraction interaction) =>
-		await Command.DeferAsync(interaction, true);
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// See if general or specific help page is requested.

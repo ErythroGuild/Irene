@@ -143,6 +143,12 @@ class Command {
 		};
 	}
 
+	// Convenience functions for deferring as always/never ephemeral.
+	public static async Task DeferEphemeralAsync(TimedInteraction interaction) =>
+		await DeferAsync(interaction, true);
+	public static async Task DeferVisibleAsync(TimedInteraction interaction) =>
+		await DeferAsync(interaction, false);
+
 	// Defer a command as ephemeral or not.
 	public static async Task DeferAsync(
 		DeferrerHandler handler,

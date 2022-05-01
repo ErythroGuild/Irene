@@ -84,7 +84,7 @@ class Roll : ICommand {
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), DeferVisibleAsync, RunRollAsync ),
+			), Command.DeferVisibleAsync, RunRollAsync ),
 			new ( new (
 				"8-ball",
 				@"Forecast the answer to a yes/no question.",
@@ -112,8 +112,6 @@ class Roll : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	public static async Task DeferVisibleAsync(TimedInteraction interaction) =>
-		await Command.DeferAsync(interaction, false);
 	public static async Task RunRollAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();

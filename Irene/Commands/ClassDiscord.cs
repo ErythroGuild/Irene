@@ -75,16 +75,13 @@ class ClassDiscord : ICommand {
 				) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), DeferAsync, RunAsync )
+			), Command.DeferVisibleAsync, RunAsync )
 		};
 	} }
 
 	public static List<InteractionCommand> UserCommands    { get => new (); }
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
-
-	public static async Task DeferAsync(TimedInteraction interaction) =>
-		await Command.DeferAsync(interaction, false);
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.

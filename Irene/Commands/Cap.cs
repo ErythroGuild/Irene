@@ -40,7 +40,17 @@ class Cap : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	public static DeferrerHandlerFunc GetDeferrerHandler(TimedInteraction interaction) {
+	public static async Task DeferAsync(TimedInteraction interaction) {
+		DeferrerHandlerFunc function =
+			GetDeferrerHandler(interaction);
+		await function(new (interaction, true));
+	}
+	public static async Task RunAsync(TimedInteraction interaction) {
+		DeferrerHandlerFunc function =
+			GetDeferrerHandler(interaction);
+		await function(new (interaction, false));
+	}
+	private static DeferrerHandlerFunc GetDeferrerHandler(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
 		string type = (string)args[0].Value;
@@ -51,17 +61,6 @@ class Cap : ICommand {
 			_optTorghast => CapTorghast,
 			_ => throw new ArgumentException("Invalid slash command parameter."),
 		};
-	}
-
-	private static async Task DeferAsync(TimedInteraction interaction) {
-		DeferrerHandlerFunc function =
-			GetDeferrerHandler(interaction);
-		await function(new (interaction, true));
-	}
-	private static async Task RunAsync(TimedInteraction interaction) {
-		DeferrerHandlerFunc function =
-			GetDeferrerHandler(interaction);
-		await function(new (interaction, false));
 	}
 
 	private static async Task CapValor(DeferrerHandler handler) {

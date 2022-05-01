@@ -136,20 +136,31 @@ class Tag: ICommand {
 		new (_commandTag, AutoCompleteAsync),
 	}; }
 
-	public static async Task<DeferrerHandlerFunc?> GetDeferrerHandler(
-		TimedInteraction interaction,
-		bool isDeferrer
-	) {
+	public static async Task DeferAsync(TimedInteraction interaction) {
+		DeferrerHandler handler = new (interaction, true);
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(handler);
+		if (function is not null)
+			await function(handler);
+	}
+	public static async Task RunAsync(TimedInteraction interaction) {
+		DeferrerHandler handler = new (interaction, false);
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(handler);
+		if (function is not null)
+			await function(handler);
+	}
+	private static async Task<DeferrerHandlerFunc?> GetDeferrerHandler(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
+			handler.GetArgs();
 		string command = args[0].Name;
 
 		// Check for permissions.
 		switch (command) {
 		case _commandSet:
 		case _commandDelete:
-			bool doContinue = await interaction
-				.CheckAccessAsync(isDeferrer, AccessLevel.Officer);
+			bool doContinue = await
+				handler.CheckAccessAsync(AccessLevel.Officer);
 			if (!doContinue)
 				return null;
 			break;
@@ -158,24 +169,11 @@ class Tag: ICommand {
 		// Dispatch the correct subcommand.
 		return command switch {
 			_commandView   => ViewAsync,
-			_commandList   => List,
+			_commandList   => ListAsync,
 			_commandSet    => SetAsync,
 			_commandDelete => DeleteAsync,
-			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
+			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(handler)),
 		};
-	}
-
-	private static async Task DeferAsync(TimedInteraction interaction) {
-		DeferrerHandlerFunc? function =
-			await GetDeferrerHandler(interaction, true);
-		if (function is not null)
-			await function(new (interaction, true));
-	}
-	private static async Task RunAsync(TimedInteraction interaction) {
-		DeferrerHandlerFunc? function =
-			await GetDeferrerHandler(interaction, false);
-		if (function is not null)
-			await function(new(interaction, false));
 	}
 
 	public static async Task AutoCompleteAsync(TimedInteraction interaction) {
@@ -205,7 +203,7 @@ class Tag: ICommand {
 		await interaction.AutoCompleteResultsAsync(results);
 	}
 
-	public static async Task ViewAsync(DeferrerHandler handler) {
+	private static async Task ViewAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
 			handler.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
@@ -291,7 +289,7 @@ class Tag: ICommand {
 		);
 	}
 
-	public static async Task List(DeferrerHandler handler) {
+	private static async Task ListAsync(DeferrerHandler handler) {
 		// Always ephemeral.
 		if (handler.IsDeferrer) {
 			await Command.DeferAsync(handler, true);
@@ -333,7 +331,7 @@ class Tag: ICommand {
 		message_promise.SetResult(message);
 	}
 
-	public static async Task SetAsync(DeferrerHandler handler) {
+	private static async Task SetAsync(DeferrerHandler handler) {
 		// Always ephemeral.
 		if (handler.IsDeferrer) {
 			await Command.DeferAsync(handler, true);
@@ -451,7 +449,7 @@ class Tag: ICommand {
 		);
 	}
 
-	public static async Task DeleteAsync(DeferrerHandler handler) {
+	private static async Task DeleteAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
 			handler.GetArgs()[0].GetArgs();
 		string arg = (string)args[0].Value;
