@@ -1,3 +1,7 @@
+## Service stop/start commands
+remote-stop.ps1
+remote-start.ps1
+
 ## Build Info
 */config/token.txt
 */config/commit.txt
