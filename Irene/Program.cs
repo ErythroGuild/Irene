@@ -28,6 +28,12 @@ class Program {
 		_stopwatchInitData = new (),
 		_stopwatchRegister = new ();
 
+	// Command queue.
+	private record class InteractionHandlerData
+		(InteractionHandler Handler, TimedInteraction Data);
+	private static readonly ConcurrentQueue<InteractionHandlerData> _queueHandlers  = new ();
+	private static Task _taskHandlers = Task.CompletedTask;
+
 	// File paths for config files.
 	private const string
 		_pathToken = @"config/token.txt",
@@ -47,7 +53,6 @@ class Program {
 
 	// Discord IDs.
 	private const ulong _id_Erythro = 317723973968461824;
-	public const string str_mention_n = @"<@!609752546994683911>";
 
 	public static async Task UpdateGuild() =>
 		Guild = await Client.GetGuildAsync(_id_Erythro);
@@ -195,7 +200,6 @@ class Program {
 			_ = Task.Run(() => {
 				Log.Information("  Logged in to Discord servers.");
 				_stopwatchConnect.LogMsecDebug("    Took {ConnectionTime} msec.");
-
 #if DEBUG
 				// Update bot status.
 				DiscordActivity helptext =
@@ -275,7 +279,7 @@ class Program {
 				// Initialize utilities.
 				TimeZones.Init();
 
-				// Initialize components.
+				// Initialize discord components.
 				Confirm.Init();
 				Modal.Init();
 				Pages.Init();
@@ -321,9 +325,25 @@ class Program {
 					Log.Information("Command received: /{CommandName}.", name);
 					if (Command.Handlers.ContainsKey(name)) {
 						e.Handled = true;
-						await Command.Handlers[name].Invoke(interaction);
-					}
-					else {
+						// Immediately run deferrer.
+						await Command.Deferrers[name].Invoke(interaction);
+						// Queue the handler for later.
+						_queueHandlers.Enqueue(new (
+							Command.Handlers[name],
+							interaction
+						) );
+						// If handlers aren't being dequeued, start.
+						if (_taskHandlers.Status == TaskStatus.RanToCompletion) {
+							_taskHandlers = Task.Run(() => {
+								while (!_queueHandlers.IsEmpty) {
+									_queueHandlers.TryDequeue(out InteractionHandlerData? handlerData);
+									if (handlerData is null)
+										continue;
+									handlerData.Handler.Invoke(handlerData.Data);
+								}
+							});
+						}
+					} else {
 						Log.Warning("  Unrecognized command.");
 					}
 					break;

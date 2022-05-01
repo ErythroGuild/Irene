@@ -2,6 +2,7 @@
 global using System;
 global using System.Collections.Concurrent;
 global using System.Collections.Generic;
+global using System.Collections.ObjectModel;
 global using System.Diagnostics;
 global using System.IO;
 global using System.Threading.Tasks;
@@ -37,3 +38,4 @@ global using CommandOption = DSharpPlus.Entities.DiscordApplicationCommandOption
 global using CommandOptionEnum = DSharpPlus.Entities.DiscordApplicationCommandOptionChoice;
 global using HelpPageGetter = System.Func<System.Collections.Generic.List<string>>;
 global using InteractionHandler = System.Func<Irene.TimedInteraction, System.Threading.Tasks.Task>;
+global using DeferrerHandlerFunc = System.Func<Irene.Commands.DeferrerHandler, System.Threading.Tasks.Task>;

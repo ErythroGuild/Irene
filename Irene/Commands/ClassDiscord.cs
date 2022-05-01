@@ -75,7 +75,7 @@ class ClassDiscord : ICommand {
 				) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), Command.DeferVisibleAsync, RunAsync )
 		};
 	} }
 
@@ -91,9 +91,9 @@ class ClassDiscord : ICommand {
 		string invite = _optionsToInvites[@class];
 
 		// Send invite link.
-		await Command.RespondAsync(
+		await Command.SubmitResponseAsync(
 			interaction,
-			invite, false,
+			invite,
 			"Sending invite link.",
 			LogLevel.Debug,
 			new Lazy<string>(() => {

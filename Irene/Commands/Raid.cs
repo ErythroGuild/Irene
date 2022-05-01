@@ -160,7 +160,7 @@ class Raid : ICommand {
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), DeferAsync, RunAsync )
 		};
 	}
 
@@ -170,10 +170,24 @@ class Raid : ICommand {
 	public static List<AutoCompleteHandler> AutoComplete   { get => new () {
 		new (_commandRaid, AutoCompleteAsync),
 	}; }
-
-	private static async Task RunAsync(TimedInteraction interaction) {
+	
+	public static async Task DeferAsync(TimedInteraction interaction) {
+		DeferrerHandler handler = new (interaction, true);
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(handler);
+		if (function is not null)
+			await function(handler);
+	}
+	public static async Task RunAsync(TimedInteraction interaction) {
+		DeferrerHandler handler = new (interaction, false);
+		DeferrerHandlerFunc? function =
+			await GetDeferrerHandler(handler);
+		if (function is not null)
+			await function(handler);
+	}
+	private static async Task<DeferrerHandlerFunc?> GetDeferrerHandler(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
+			handler.GetArgs();
 		string command = args[0].Name;
 
 		// Check for permissions.
@@ -182,24 +196,22 @@ class Raid : ICommand {
 		case _commandSetPlan:
 		case _commandCancel:
 			bool doContinue = await
-				interaction.CheckAccessAsync(AccessLevel.Officer);
+				handler.CheckAccessAsync(AccessLevel.Officer);
 			if (!doContinue)
-				return;
+				return null;
 			break;
 		}
 
 		// Dispatch the correct subcommand.
-		InteractionHandler subcommand = command switch {
+		return command switch {
 			_commandInfo     => ShowInfoAsync,
-			_commandEligible => CheckEligibleAsync,
+			//_commandEligible => CheckEligibleAsync,
 			_commandViewLogs => ViewLogsAsync,
 			_commandSetLogs  => SetLogsAsync,
 			_commandSetPlan  => SetPlanAsync,
 			_commandCancel   => CancelAsync,
-			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
+			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(handler)),
 		};
-		await subcommand(interaction);
-		return;
 	}
 
 	private static async Task AutoCompleteAsync(TimedInteraction interaction) {
@@ -227,12 +239,16 @@ class Raid : ICommand {
 		await interaction.AutoCompleteResultsAsync(results);
 	}
 
-	private static async Task ShowInfoAsync(TimedInteraction interaction) {
+	private static async Task ShowInfoAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+			handler.GetArgs()[0].GetArgs();
 		bool doShare = (args.Count > 0)
 			? (bool)args[0].Value
 			: false;
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, !doShare);
+			return;
+		}
 
 		// Determine raid days.
 		DateTimeOffset now = DateTimeOffset.UtcNow;
@@ -334,43 +350,37 @@ class Raid : ICommand {
 		}
 
 		// Respond to interaction.
-		await Command.RespondAsync(
-			interaction,
-			string.Join("\n", response), !doShare,
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			string.Join("\n", response),
 			"Sending raid info.",
 			LogLevel.Debug,
-			"Raid info sent."
+			"Raid info sent.".AsLazy()
 		);
 	}
 
-	private static async Task CheckEligibleAsync(TimedInteraction interaction) {
-		throw new NotImplementedException("Eligibility checking not implemented yet.");
-	}
+	//private static async Task CheckEligibleAsync(DeferrerHandler handler) {
+	//	throw new NotImplementedException("Eligibility checking not implemented yet.");
+	//}
 
-	private static async Task ViewLogsAsync(TimedInteraction interaction) {
+	private static async Task ViewLogsAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+			handler.GetArgs()[0].GetArgs();
 
 		RaidDate? date_n = ParseRaidDate((string)args[0].Value);
 		// Filter out invalid dates.
 		if (date_n is null) {
 			await RespondInvalidDateAsync(
-				interaction,
+				handler,
 				(string)args[0].Value
 			);
 			return;
 		}
 		RaidDate date = date_n.Value;
 
-		// Make sure Guild is initialized.
-		if (Guild is null) {
-			await Command.RespondAsync(
-				interaction,
-				":sweat_smile: Sorry, still starting up. Try again in just a moment.", true,
-				"Guild not initialized before fetching log data.",
-				LogLevel.Information,
-				"Response sent."
-			);
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, false);
 			return;
 		}
 
@@ -386,18 +396,18 @@ class Raid : ICommand {
 			response = $"Raid was canceled for {date_string}. :cactus:";
 
 		// Respond.
-		await Command.RespondAsync(
-			interaction,
-			response, false,
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			response,
 			"Sending log data.",
 			LogLevel.Debug,
-			"Logs sent."
+			"Logs sent.".AsLazy()
 		);
 	}
 
-	private static async Task SetLogsAsync(TimedInteraction interaction) {
+	private static async Task SetLogsAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+			handler.GetArgs()[0].GetArgs();
 
 		RaidDate? date_n = ParseRaidDate((string)args[0].Value);
 		RaidGroup group = Enum.Parse<RaidGroup>((string)args[1].Value);
@@ -406,7 +416,7 @@ class Raid : ICommand {
 		// Filter out invalid dates.
 		if (date_n is null) {
 			await RespondInvalidDateAsync(
-				interaction,
+				handler,
 				(string)args[0].Value
 			);
 			return;
@@ -415,14 +425,24 @@ class Raid : ICommand {
 
 		// Filter out invalid log links.
 		if (logId is null) {
-			await Command.RespondAsync(
-				interaction,
-				"Could not extract log data from the provided link. :magnet:", true,
+			if (handler.IsDeferrer) {
+				await Command.DeferAsync(handler, true);
+				return;
+			}
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Could not extract log data from the provided link. :magnet:",
 				"Unrecognized log link format.",
 				LogLevel.Information,
-				"Link provided: {Argument}",
+				"Link provided: {Argument}".AsLazy(),
 				(string)args[2].Value
 			);
+			return;
+		}
+
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, false);
 			return;
 		}
 
@@ -444,12 +464,12 @@ class Raid : ICommand {
 			response += $"\n:pencil: Previous data overwritten: `{logId_prev}`";
 		if (raid.MessageId is not null)
 			response += "\n:scroll: Updating announcement post.";
-		await Command.RespondAsync(
-			interaction,
-			response, false,
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			response,
 			"Setting logs.",
 			LogLevel.Debug,
-			"New log ID: {LogId}",
+			"New log ID: {LogId}".AsLazy(),
 			logId
 		);
 
@@ -462,20 +482,26 @@ class Raid : ICommand {
 		}
 	}
 
-	private static async Task SetPlanAsync(TimedInteraction interaction) {
+	private static async Task SetPlanAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+			handler.GetArgs()[0].GetArgs();
 		RaidDate? date_n = ParseRaidDate((string)args[0].Value);
 
 		// Filter out invalid dates.
 		if (date_n is null) {
 			await RespondInvalidDateAsync(
-				interaction,
+				handler,
 				(string)args[0].Value
 			);
 			return;
 		}
 		RaidDate date = date_n.Value;
+
+		// Setting a modal cannot have a prior deferral.
+		if (handler.IsDeferrer) {
+			await Command.DeferNoOp();
+			return;
+		}
 
 		// Read in existing plans (if they exist).
 		RaidObj raid = Fetch(date);
@@ -500,7 +526,7 @@ class Raid : ICommand {
 			raid.UpdateData();
 
 			// Handle interaction.
-			await Command.RespondAsync(
+			await Command.SubmitModalAsync(
 				new TimedInteraction(e.Interaction, stopwatch),
 				$"Raid plans updated successfully.", false,
 				"Updated raid plans successfully.",
@@ -512,21 +538,27 @@ class Raid : ICommand {
 		}
 
 		// Submit modal.
-		await Command.RespondAsync(
-			interaction,
-			new Task(async () => await
-				Modal.RespondAsync(interaction.Interaction, title, components, set_plans)
-			),
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			new Func<Task<DiscordMessage?>>(async () => {
+				await Modal.RespondAsync(
+					handler.Interaction.Interaction,
+					title,
+					components,
+					set_plans
+				);
+				return null;
+			})(),
 			"Creating modal to set plans.",
 			LogLevel.Debug,
-			"Modal created. ({Tier} week {WeekNum} {Day})",
+			"Modal created. ({Tier} week {WeekNum} {Day})".AsLazy(),
 			date.Tier, date.Week, date.Day
 		);
 	}
 
-	private static async Task CancelAsync(TimedInteraction interaction) {
+	private static async Task CancelAsync(DeferrerHandler handler) {
 		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+			handler.GetArgs()[0].GetArgs();
 
 		RaidDate? date_n = ParseRaidDate((string)args[0].Value);
 		bool doCancel = (args.Count > 1)
@@ -536,12 +568,18 @@ class Raid : ICommand {
 		// Filter out invalid dates.
 		if (date_n is null) {
 			await RespondInvalidDateAsync(
-				interaction,
+				handler,
 				(string)args[0].Value
 			);
 			return;
 		}
 		RaidDate date = date_n.Value;
+
+		// Deferrer is non-ephemeral for the rest.
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, false);
+			return;
+		}
 
 		// Create and send confirmation message.
 		MessagePromise message_promise = new ();
@@ -549,7 +587,7 @@ class Raid : ICommand {
 		string string_cancelled = doCancel ? "Canceled" : "Un-canceled";
 		string string_raidDate = $"{date.Tier} week {date.Week}, {date.Day}";
 		Confirm confirm = Confirm.Create(
-			interaction.Interaction,
+			handler.Interaction.Interaction,
 			CancelRaid,
 			message_promise.Task,
 			$"Are you sure you want to {string_cancel.ToLower()} raid for {string_raidDate}?",
@@ -559,7 +597,7 @@ class Raid : ICommand {
 		);
 
 		// Disable any confirms already in-flight.
-		ulong user_id = interaction.Interaction.User.Id;
+		ulong user_id = handler.Interaction.Interaction.User.Id;
 		if (_confirms.ContainsKey(user_id)) {
 			await _confirms[user_id].Discard();
 			_confirms.TryRemove(user_id, out _);
@@ -586,9 +624,9 @@ class Raid : ICommand {
 		}
 
 		// Respond.
-		await Command.RespondAsync(
-			interaction,
-			confirm.MessageBuilder, false,
+		DiscordMessage message = await Command.SubmitResponseAsync(
+			handler.Interaction,
+			confirm.WebhookBuilder,
 			"Raid cancel status updated requested.",
 			LogLevel.Information,
 			new Lazy<string>(() => {
@@ -599,22 +637,22 @@ class Raid : ICommand {
 				return s;
 			})
 		);
-
-		// Update DiscordMessage object for Confirm.
-		DiscordMessage message = await
-			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 
 	// Generic response to an invalid (unparseable) <date> argument.
-	private static async Task RespondInvalidDateAsync(TimedInteraction interaction, string arg) {
+	private static async Task RespondInvalidDateAsync(DeferrerHandler handler, string arg) {
+		if (handler.IsDeferrer) {
+			await Command.DeferAsync(handler, true);
+			return;
+		}
 		string response = "The date you specified was not a valid raid day. :calendar:";
-		await Command.RespondAsync(
-			interaction,
-			response, true,
+		await Command.SubmitResponseAsync(
+			handler.Interaction,
+			response,
 			@"Invalid/unrecognized raid date specified.",
 			LogLevel.Information,
-			"Date specified: {Argument}",
+			"Date specified: {Argument}".AsLazy(),
 			arg
 		);
 	}

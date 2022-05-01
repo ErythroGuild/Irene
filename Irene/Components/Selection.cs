@@ -1,4 +1,4 @@
-﻿using System.Timers;
+using System.Timers;
 
 using SelectionCallback = System.Func<DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, System.Threading.Tasks.Task>;
 using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
@@ -31,8 +31,6 @@ class Selection {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Selection() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
 		Client.ComponentInteractionCreated += async (client, e) => {
 			ulong id = e.Message.Id;
 
@@ -52,10 +50,7 @@ class Selection {
 				await selection._callback(e);
 			}
 		};
-
-		Log.Information("  Initialized module: Selection component");
-		Log.Debug("    Interaction handler created.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
+		Log.Debug("  Created handler for component: Selection");
 	}
 
 	public DiscordSelectComponent Component { get; private set; }
@@ -102,7 +97,7 @@ class Selection {
 		_message = await _interaction.GetOriginalResponseAsync();
 		DiscordWebhookBuilder message =
 			new DiscordWebhookBuilder()
-				.WithContent(_message.Content);
+			.WithContent(_message.Content);
 		List<ComponentRow> rows =
 			ComponentsSelectUpdated(new (_message.Components), selected);
 		if (rows.Count > 0)
@@ -132,7 +127,7 @@ class Selection {
 		_message = await _interaction.GetOriginalResponseAsync();
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
-				.WithContent(_message.Content);
+			.WithContent(_message.Content);
 		List<ComponentRow> rows =
 			ComponentsSelectDisabled(new (_message.Components));
 		if (rows.Count > 0)
@@ -206,7 +201,7 @@ class Selection {
 	// The name to print should be lower case (this is not checked).
 	// Casing will be converted to upper-case if needed, but not the
 	// other way around.
-	public static string PrintRoles<T>(
+	public static string PrintSelected<T>(
 		List<T> selected,
 		IDictionary<T, Option> options,
 		string name_singular,

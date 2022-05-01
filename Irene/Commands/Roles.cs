@@ -95,7 +95,7 @@ class Roles : ICommand {
 				"Check and assign roles to receive notifications for.",
 				defaultPermission: true,
 				type: ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), Command.DeferEphemeralAsync, RunAsync )
 		};
 	}
 
@@ -113,12 +113,12 @@ class Roles : ICommand {
 			response_error += (Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
-			await Command.RespondAsync(
+			await Command.SubmitResponseAsync(
 				interaction,
-				response_error, true,
+				response_error,
 				"Could not convert DiscordUser to DiscordMember.",
 				LogLevel.Warning,
-				"User: {Username}#{Discriminator}.",
+				"User: {Username}#{Discriminator}.".AsLazy(),
 				user.Username, user.Discriminator
 			);
 			return;
@@ -154,22 +154,18 @@ class Roles : ICommand {
 
 		// Send response with selection menu.
 		string roles_str =
-			Selection.PrintRoles(roles, _options, "role", "roles");
-		DiscordMessageBuilder response =
-			new DiscordMessageBuilder()
+			Selection.PrintSelected(roles, _options, "role", "roles");
+		DiscordWebhookBuilder response =
+			new DiscordWebhookBuilder()
 			.WithContent(roles_str)
 			.AddComponents(select.Component);
-		await Command.RespondAsync(
+		DiscordMessage message = await Command.SubmitResponseAsync(
 			interaction,
-			response, true,
+			response,
 			"Sending role selection menu.",
 			LogLevel.Debug,
-			"Selection menu sent."
+			"Selection menu sent.".AsLazy()
 		);
-
-		// Update DiscordMessage object for Selection.
-		DiscordMessage message = await
-			interaction.Interaction.GetOriginalResponseAsync();
 		message_promise.SetResult(message);
 	}
 

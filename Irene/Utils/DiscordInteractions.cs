@@ -1,4 +1,6 @@
-﻿namespace Irene.Utils;
+using Irene.Commands;
+
+namespace Irene.Utils;
 
 static partial class Util {
 	// Convenience method for getting the target user of a user command.
@@ -8,6 +10,8 @@ static partial class Util {
 		new List<DiscordMember>(interaction.Data.Resolved.Members.Values)[0];
 
 	// Convenience method for fetching command options.
+	public static List<DiscordInteractionDataOption> GetArgs(this DeferrerHandler handler) =>
+		handler.Interaction.GetArgs();
 	public static List<DiscordInteractionDataOption> GetArgs(this TimedInteraction interaction) =>
 		interaction.Interaction.GetArgs();
 	public static List<DiscordInteractionDataOption> GetArgs(this DiscordInteraction interaction) =>
@@ -39,29 +43,7 @@ static partial class Util {
 		return components;
 	}
 
-	// Convenience functions for responding to interactions.
-	public static Task RespondMessageAsync(
-		this DiscordInteraction interaction,
-		string message,
-		bool isEphemeral=false
-	) =>
-		interaction.CreateResponseAsync(
-			InteractionResponseType.ChannelMessageWithSource,
-			new DiscordInteractionResponseBuilder(
-				new DiscordMessageBuilder().WithContent(message)
-			).AsEphemeral(isEphemeral)
-		);
-	public static Task RespondMessageAsync(
-		this DiscordInteraction interaction,
-		DiscordMessageBuilder message,
-		bool isEphemeral=false
-	) =>
-		interaction.CreateResponseAsync(
-			InteractionResponseType.ChannelMessageWithSource,
-			new DiscordInteractionResponseBuilder(message)
-				.AsEphemeral(isEphemeral)
-		);
-
+	// Convenience methods for responding to interactions.
 	public static Task DeferMessageAsync(
 		this DiscordInteraction interaction,
 		bool isEphemeral=false
@@ -75,12 +57,19 @@ static partial class Util {
 		this DiscordInteraction interaction,
 		string message
 	) {
-		DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
+		DiscordWebhookBuilder builder =
+			new DiscordWebhookBuilder()
 			.WithContent(message);
 		return interaction.EditOriginalResponseAsync(builder);
 	}
+	public static Task DeleteMessageAsync(
+		this DiscordInteraction interaction
+	) =>
+		interaction.DeleteOriginalResponseAsync();
 
-	public static Task AcknowledgeComponentAsync(this DiscordInteraction interaction) =>
+	public static Task AcknowledgeComponentAsync(
+		this DiscordInteraction interaction
+	) =>
 		interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
 	public static Task AutoCompleteResultsAsync(
@@ -124,20 +113,33 @@ static partial class Util {
 	}
 	// Checks if the user who invoked the interaction has the specified
 	// access level, logs, then sends a response.
-	public static async Task<bool> CheckAccessAsync(this TimedInteraction interaction, AccessLevel level) {
+	public static async Task<bool> CheckAccessAsync(
+		this DeferrerHandler handler,
+		AccessLevel level
+	) =>
+		await handler.Interaction.CheckAccessAsync(handler.IsDeferrer, level);
+	public static async Task<bool> CheckAccessAsync(
+		this TimedInteraction interaction,
+		bool isDeferrer,
+		AccessLevel level
+	) {
 		bool hasAccess = await interaction.HasAccess(level);
 		if (hasAccess) {
 			return true;
 		} else {
+			if (isDeferrer) {
+				await Command.DeferAsync(interaction, true);
+				return false;
+			}
 			string response =
 				$"Sorry, you don't have the permissions ({level}) to run that command.\n" +
 				$"See `/help {interaction.Interaction.Data.Name}` for more info.";
-			await Command.RespondAsync(
+			await Command.SubmitResponseAsync(
 				interaction,
-				response, true,
+				response,
 				"Access denied (insufficient permissions).",
 				LogLevel.Information,
-				"Information sent. ({Level} required)",
+				"Information sent. ({Level} required)".AsLazy(),
 				level
 			);
 			return false;

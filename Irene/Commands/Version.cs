@@ -20,7 +20,7 @@ class Version : ICommand {
 				options: null,
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), Command.DeferVisibleAsync, RunAsync )
 		};
 	}
 
@@ -28,7 +28,7 @@ class Version : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	private static async Task RunAsync(TimedInteraction interaction) {
+	public static async Task RunAsync(TimedInteraction interaction) {
 		StreamReader file;
 
 		// Read in data.
@@ -45,12 +45,12 @@ class Version : ICommand {
 		string output = $"**Irene {version}** build `{build}`";
 
 		// Respond with data.
-		await Command.RespondAsync(
+		await Command.SubmitResponseAsync(
 			interaction,
-			output, false,
+			output,
 			"Sending version information.",
 			LogLevel.Debug,
-			"{Version}, build {Build}",
+			"{Version}, build {Build}".AsLazy(),
 			version, build
 		);
 	}

@@ -1,4 +1,4 @@
-﻿using System.Timers;
+using System.Timers;
 
 using ConfirmCallback = System.Func<bool, DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, System.Threading.Tasks.Task>;
 using Component = DSharpPlus.Entities.DiscordComponent;
@@ -30,39 +30,32 @@ class Confirm {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Confirm() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
 		Client.ComponentInteractionCreated += async (client, e) => {
 			ulong id = e.Message.Id;
 
 			// Consume all interactions originating from a registered
 			// message, and created by the corresponding component.
 			if (_confirms.ContainsKey(id)) {
+				await e.Interaction.AcknowledgeComponentAsync();
 				e.Handled = true;
 				Confirm confirm = _confirms[id];
 
 				// Only respond to interactions created by the "owner"
 				// of the component.
-				if (e.User != confirm._interaction.User) {
-					await e.Interaction.AcknowledgeComponentAsync();
+				if (e.User != confirm._interaction.User)
 					return;
-				}
 
 				// Edit message and pass response to callback.
 				bool isConfirmed = e.Id == _idButtonYes;
-				await e.Interaction.AcknowledgeComponentAsync();
 				confirm._isConfirmed = isConfirmed;
 				await confirm.Discard();
 				await confirm._callback(isConfirmed, e);
 			}
 		};
-
-		Log.Information("  Initialized module: Confirm component");
-		Log.Debug("    Interaction handler created.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
+		Log.Debug("  Created handler for component: Confirm");
 	}
 
-	public DiscordMessageBuilder MessageBuilder { get; private set; }
+	public DiscordWebhookBuilder WebhookBuilder { get; private set; }
 
 	// Instance (configuration) properties.
 	private readonly ConfirmCallback _callback;
@@ -75,14 +68,14 @@ class Confirm {
 	// Private constructor.
 	// Use Confirm.Create() to create a new instance.
 	private Confirm(
-		DiscordMessageBuilder messageBuilder,
+		DiscordWebhookBuilder webhookBuilder,
 		ConfirmCallback callback,
 		string? string_yes,
 		string? string_no,
 		DiscordInteraction interaction,
 		Timer timer
 	) {
-		MessageBuilder = messageBuilder;
+		WebhookBuilder = webhookBuilder;
 		_stringYes = string_yes ?? DefaultStringYes;
 		_stringNo  = string_no  ?? DefaultStringNo;
 		_callback = callback;
@@ -118,7 +111,7 @@ class Confirm {
 			: _stringNo;
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
-				.WithContent(string_result);
+			.WithContent(string_result);
 
 		// Edit original message.
 		// This must be done through the original interaction, as
@@ -140,7 +133,8 @@ class Confirm {
 	) {
 		timeout ??= DefaultTimeout;
 		Timer timer = Util.CreateTimer(timeout.Value, false);
-		DiscordMessageBuilder messageBuilder = new DiscordMessageBuilder()
+		DiscordWebhookBuilder messageBuilder =
+			new DiscordWebhookBuilder()
 			.WithContent(string_prompt ?? DefaultStringPrompt)
 			.AddComponents(GetButtons(label_yes, label_no));
 

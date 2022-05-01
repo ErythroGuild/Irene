@@ -32,7 +32,7 @@ class Invite : ICommand {
 					} ) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), RunAsync )
+			), Command.DeferVisibleAsync, RunAsync )
 		};
 	}
 
@@ -40,7 +40,7 @@ class Invite : ICommand {
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
-	private static async Task RunAsync(TimedInteraction interaction) {
+	public static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.
 		List<DiscordInteractionDataOption> args =
 			interaction.GetArgs();
@@ -54,12 +54,12 @@ class Invite : ICommand {
 		};
 
 		// Send invite link.
-		await Command.RespondAsync(
+		await Command.SubmitResponseAsync(
 			interaction,
-			invite, false,
+			invite,
 			"Sending invite link.",
 			LogLevel.Debug,
-			"Invite link for \"{Server}\": {Link}",
+			"Invite link for \"{Server}\": {Link}".AsLazy(),
 			server, invite
 		);
 	}

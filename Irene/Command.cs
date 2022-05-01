@@ -2,6 +2,7 @@
 
 using Irene.Commands;
 
+using LogFunc = System.Action<string, object[]>;
 using RoleList = System.Collections.Generic.List<DSharpPlus.Entities.DiscordRole>;
 
 namespace Irene;
@@ -12,6 +13,7 @@ public record class TimedInteraction
 class Command {
 	public static ConcurrentDictionary<string, HelpPageGetter> HelpPages { get; private set; }
 	public static List<DiscordApplicationCommand> Commands { get; private set; }
+	public static Dictionary<string, InteractionHandler> Deferrers { get; private set; }
 	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
 	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
 
@@ -23,6 +25,7 @@ class Command {
 		// Set the static properties.
 		HelpPages = new ();
 		Commands = new ();
+		Deferrers = new ();
 		Handlers = new ();
 		AutoCompletes = new ();
 
@@ -49,6 +52,7 @@ class Command {
 
 					foreach (InteractionCommand command in commands) {
 						Commands.Add(command.Command);
+						Deferrers.Add(command.Command.Name, command.Deferrer);
 						Handlers.Add(command.Command.Name, command.Handler);
 					}
 
@@ -139,66 +143,120 @@ class Command {
 		};
 	}
 
+	// Convenience functions for deferring as always/never ephemeral.
+	public static async Task DeferEphemeralAsync(TimedInteraction interaction) =>
+		await DeferAsync(interaction, true);
+	public static async Task DeferVisibleAsync(TimedInteraction interaction) =>
+		await DeferAsync(interaction, false);
+
+	// Defer a command as ephemeral or not.
+	public static async Task DeferAsync(
+		DeferrerHandler handler,
+		bool isEphemeral
+	) =>
+		await DeferAsync(handler.Interaction, isEphemeral);
+	public static async Task DeferAsync(
+		TimedInteraction interaction,
+		bool isEphemeral
+	) =>
+		await interaction.Interaction.DeferMessageAsync(isEphemeral);
+	public static async Task DeferNoOp() =>
+		await Task.CompletedTask;
+
 	// Logs that a response was sent, sends said response, and logs all
 	// relevant timing information.
-	public static async Task RespondAsync(
+	public static async Task<DiscordMessage> SubmitModalAsync(
 		TimedInteraction interaction,
 		string response,
-		bool is_ephemeral,
-		string log_summary,
-		LogLevel log_level,
-		string log_preview,
-		params object[] log_params
-	) =>
-		await RespondAsync(
-			interaction,
-			response,
-			is_ephemeral,
-			log_summary,
-			log_level,
-			new Lazy<string>(log_preview),
-			log_params
-		);
-	public static async Task RespondAsync(
-		TimedInteraction interaction,
-		string response,
-		bool is_ephemeral,
+		bool isEphemeral,
 		string log_summary,
 		LogLevel log_level,
 		Lazy<string> log_preview,
 		params object[] log_params
 	) =>
-		await RespondAsync(
+		await SubmitModalAsync(
 			interaction,
-			new DiscordMessageBuilder().WithContent(response),
-			is_ephemeral,
+			new DiscordInteractionResponseBuilder()
+				.WithContent(response),
+			isEphemeral,
 			log_summary,
 			log_level,
-			log_preview.Value,
+			log_preview,
 			log_params
 		);
-	public static async Task RespondAsync(
+	public static async Task<DiscordMessage> SubmitModalAsync(
 		TimedInteraction interaction,
-		DiscordMessageBuilder response,
-		bool is_ephemeral,
+		DiscordInteractionResponseBuilder response,
+		bool isEphemeral,
 		string log_summary,
 		LogLevel log_level,
-		string log_preview,
+		Lazy<string> log_preview,
 		params object[] log_params
-	) =>
-		await RespondAsync(
+	) {
+		DiscordMessage? message = await SubmitResponseAsync(
 			interaction,
-			response,
-			is_ephemeral,
+			Task.Run<DiscordMessage?>(async () => {
+				await interaction.Interaction
+					.CreateResponseAsync(
+						InteractionResponseType.ChannelMessageWithSource,
+						response.AsEphemeral(isEphemeral)
+					);
+				return await interaction.Interaction
+					.GetOriginalResponseAsync();
+			}),
 			log_summary,
 			log_level,
-			new Lazy<string>(log_preview),
+			log_preview,
 			log_params
 		);
-	public static async Task RespondAsync(
+		return (message is null)
+			? throw new InvalidOperationException("DiscordMessage not returned from followup response.")
+			: message;
+	}
+	public static async Task<DiscordMessage> SubmitResponseAsync(
 		TimedInteraction interaction,
-		DiscordMessageBuilder response,
-		bool is_ephemeral,
+		string response,
+		string log_summary,
+		LogLevel log_level,
+		Lazy<string> log_preview,
+		params object[] log_params
+	) =>
+		await SubmitResponseAsync(
+			interaction,
+			new DiscordWebhookBuilder()
+				.WithContent(response),
+			log_summary,
+			log_level,
+			log_preview,
+			log_params
+		);
+	public static async Task<DiscordMessage> SubmitResponseAsync(
+		TimedInteraction interaction,
+		DiscordWebhookBuilder response,
+		string log_summary,
+		LogLevel log_level,
+		Lazy<string> log_preview,
+		params object[] log_params
+	) {
+		DiscordMessage? message = await SubmitResponseAsync(
+			interaction,
+			Task.Run<DiscordMessage?>(async () => {
+				DiscordInteraction i = interaction.Interaction;
+				return await
+					i.EditOriginalResponseAsync(response);
+			}),
+			log_summary,
+			log_level,
+			log_preview,
+			log_params
+		);
+		return (message is null)
+			? throw new InvalidOperationException("DiscordMessage not returned from followup response.")
+			: message;
+	}
+	public static async Task<DiscordMessage?> SubmitResponseAsync(
+		TimedInteraction interaction,
+		Task<DiscordMessage?> task_response,
 		string log_summary,
 		LogLevel log_level,
 		Lazy<string> log_preview,
@@ -206,8 +264,15 @@ class Command {
 	) {
 		Log.Debug("  " +  log_summary);
 		interaction.Timer.LogMsecDebug("    Responded in {Time} msec.", false);
-		await interaction.Interaction.RespondMessageAsync(response, is_ephemeral);
-		Action<string, object[]> log_fn = log_level switch {
+		DiscordMessage? message = await task_response;
+		LogFunc log_func = GetLogFunc(log_level);
+		log_func("  " + log_preview.Value, log_params);
+		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
+		return message;
+	}
+
+	private static LogFunc GetLogFunc(LogLevel logLevel) =>
+		logLevel switch {
 			LogLevel.Critical    => Log.Fatal,
 			LogLevel.Error       => Log.Error,
 			LogLevel.Warning     => Log.Warning,
@@ -215,51 +280,6 @@ class Command {
 			LogLevel.Debug       => Log.Debug,
 			LogLevel.Trace       => Log.Verbose,
 			LogLevel.None        => (s, o) => { },
-			_ => throw new ArgumentException("Unrecognized log level.", nameof(log_level)),
+			_ => throw new ArgumentException("Unrecognized log level.", nameof(logLevel)),
 		};
-		log_fn("  " + log_preview.Value, log_params);
-		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
-	}
-	public static async Task RespondAsync(
-		TimedInteraction interaction,
-		Task task_response,
-		string log_summary,
-		LogLevel log_level,
-		string log_preview,
-		params object[] log_params
-	) =>
-		await RespondAsync(
-			interaction,
-			task_response,
-			log_summary,
-			log_level,
-			new Lazy<string>(log_preview),
-			log_params
-		);
-	public static async Task RespondAsync(
-		TimedInteraction interaction,
-		Task task_response,
-		string log_summary,
-		LogLevel log_level,
-		Lazy<string> log_preview,
-		params object[] log_params
-	) {
-		Log.Debug("  " +  log_summary);
-		interaction.Timer.LogMsecDebug("    Responded in {Time} msec.", false);
-		task_response.Start();
-		await task_response;
-		Action<string, object[]> log_fn = log_level switch {
-			LogLevel.Critical => Log.Fatal,
-			LogLevel.Error => Log.Error,
-			LogLevel.Warning => Log.Warning,
-			LogLevel.Information => Log.Information,
-			LogLevel.Debug => Log.Debug,
-			LogLevel.Trace => Log.Verbose,
-			LogLevel.None => (s, o) => { }
-			,
-			_ => throw new ArgumentException("Unrecognized log level.", nameof(log_level)),
-		};
-		log_fn("  " + log_preview.Value, log_params);
-		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
-	}
 }
