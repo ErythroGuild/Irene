@@ -1,0 +1,42 @@
+name: .NET 6 Build (Linux)
+
+on:
+  push:
+    branches: [ master ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    concurrency: ci-build-${{ github.repository }}
+    runs-on: [ self-hosted, linux ]
+    steps:
+    # Checkout repository.
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    # Setup .NET.
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+        
+    # Build/test/publish.
+    - name: Build
+      run: dotnet build
+    #- name: Test
+    #  run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish -p:PublishProfile=Linux
+      
+    # Deploy to server.
+    - name: Copy files to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.DEV_HOST }}
+        username: ${{ secrets.DEV_USER }}
+        password: ${{ secrets.DEV_PASSWORD }}
+        source: "bin/Publish-Linux/"
+        target: "${{ secrets.DEV_DIR_BOTS }}irene/"
