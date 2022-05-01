@@ -35,11 +35,20 @@ jobs:
     - name: Clean
       run: dotnet clean
     - name: Build
-      run: dotnet build
+      run: dotnet build -c Release
     #- name: Test
     #  run: dotnet test --no-build --verbosity normal
     - name: Publish
       run: dotnet publish -p:PublishProfile=Linux -c Release
+
+    # Stop currently running service on server.
+    - name: Stop server service
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DEV_HOST }}
+        username: ${{ secrets.DEV_USER_ROOT }}
+        password: ${{ secrets.DEV_PASSWORD_ROOT }}
+        script: systemctl stop discordbot-irene
       
     # Deploy to server.
     - name: Copy files to server
@@ -50,3 +59,12 @@ jobs:
         password: ${{ secrets.DEV_PASSWORD }}
         source: "Irene/bin/Publish-Linux/"
         target: "${{ secrets.DEV_DIR_BOTS }}irene/"
+
+    # Restart service on server.
+    - name: Start server service
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DEV_HOST }}
+        username: ${{ secrets.DEV_USER_ROOT }}
+        password: ${{ secrets.DEV_PASSWORD_ROOT }}
+        script: systemctl start discordbot-irene
