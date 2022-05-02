@@ -12,10 +12,10 @@ class Program {
 	// Discord client objects.
 	public static DiscordClient Client { get; private set; }
 	public static DiscordGuild? Guild  { get; private set; }
-	public static Dictionary<ulong, DiscordChannel> Channels   { get; private set; }
-	public static Dictionary<ulong, DiscordEmoji>   Emojis     { get; private set; }
-	public static Dictionary<ulong, DiscordRole>    Roles      { get; private set; }
-	public static Dictionary<ulong, DiscordChannel> VoiceChats { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordChannel> Channels   { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordEmoji>   Emojis     { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordRole>    Roles      { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordChannel> VoiceChats { get; private set; }
 
 	// Separate logger pipeline for D#+.
 	private static Serilog.ILogger _loggerDsp;
@@ -229,7 +229,7 @@ class Program {
 				foreach (var channel_id in channel_ids) {
 					ulong id = (ulong)channel_id.GetValue(null)!;
 					DiscordChannel channel = Guild.GetChannel(id);
-					Channels.Add(id, channel);
+					Channels.TryAdd(id, channel);
 				}
 				Log.Debug("    Channels populated.");
 
@@ -243,7 +243,7 @@ class Program {
 					ulong id = (ulong)emoji_id.GetValue(null)!;
 					foreach (DiscordGuildEmoji emoji in emojis) {
 						if (emoji.Id == id) {
-							Emojis.Add(id, emoji);
+							Emojis.TryAdd(id, emoji);
 							emojis.Remove(emoji);
 							break;
 						}
@@ -256,7 +256,7 @@ class Program {
 				foreach (var role_id in role_ids) {
 					ulong id = (ulong)role_id.GetValue(null)!;
 					DiscordRole role = Guild.GetRole(id);
-					Roles.Add(id, role);
+					Roles.TryAdd(id, role);
 				}
 				Log.Debug("    Roles populated.");
 
@@ -265,7 +265,7 @@ class Program {
 				foreach (var voiceChat_id in voiceChat_ids) {
 					ulong id = (ulong)voiceChat_id.GetValue(null)!;
 					DiscordChannel channel = Guild.GetChannel(id);
-					VoiceChats.Add(id, channel);
+					VoiceChats.TryAdd(id, channel);
 				}
 				Log.Debug("    Voice chats populated.");
 
