@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 using TierBasisPair = System.Tuple<Irene.Modules.Raid.RaidTier?, System.DateOnly?>;
@@ -163,8 +163,10 @@ class Raid {
 
 	// Returns null if the link is ill-formed.
 	public static string? ParseLogId(string link) {
-		Regex regex = new (@"(?:(?:https?\:\/\/)?(?:www\.)?warcraftlogs\.com\/reports\/)?(?<id>\w+)(?:#.+)?");
-		Match match = regex.Match(link);
+		Match match = Regex.Match(
+			link,
+			@"(?:(?:https?\:\/\/)?(?:www\.)?warcraftlogs\.com\/reports\/)?(?<id>\w+)(?:#.+)?"
+		);
 		if (!match.Success)
 			return null;
 		string id = match.Groups["id"].Value;
