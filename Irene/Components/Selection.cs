@@ -98,8 +98,8 @@ class Selection {
 		DiscordWebhookBuilder message =
 			new DiscordWebhookBuilder()
 			.WithContent(_message.Content);
-		IList<ComponentRow> rows = ComponentsSelectUpdated(
-			_message.Components.AsList(),
+		List<ComponentRow> rows = ComponentsSelectUpdated(
+			new List<ComponentRow>(_message.Components),
 			selected
 		);
 		if (rows.Count > 0)
@@ -130,8 +130,8 @@ class Selection {
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
 			.WithContent(_message.Content);
-		IList<ComponentRow> rows = ComponentsSelectDisabled(
-			_message.Components.AsList()
+		List<ComponentRow> rows = ComponentsSelectDisabled(
+			new List<ComponentRow>(_message.Components)
 		);
 		if (rows.Count > 0)
 			message_new.AddComponents(rows);
@@ -234,8 +234,8 @@ class Selection {
 	// Return a new list of components, with any DiscordSelectComponents
 	// (with a matching ID) updated as selected.
 	// IList (instead of read-only) allows members to be updated.
-	private static IList<ComponentRow> ComponentsSelectUpdated(
-		IList<ComponentRow> rows,
+	private static List<ComponentRow> ComponentsSelectUpdated(
+		List<ComponentRow> rows,
 		IReadOnlySet<Option> selected
 	) {
 		List<ComponentRow> rows_new = new ();
@@ -263,8 +263,8 @@ class Selection {
 	// Return a new list of components, with any DiscordSelectComponents
 	// (with a matching ID) disabled.
 	// IList (instead of read-only) allows members to be disabled.
-	private static IList<ComponentRow> ComponentsSelectDisabled(
-		IList<ComponentRow> rows
+	private static List<ComponentRow> ComponentsSelectDisabled(
+		List<ComponentRow> rows
 	) {
 		List<ComponentRow> rows_new = new ();
 

@@ -34,7 +34,7 @@ class Modal {
 	public static async Task<Modal> RespondAsync(
 		DiscordInteraction interaction,
 		string title,
-		List<TextInputComponent> components,
+		IReadOnlyList<TextInputComponent> components,
 		ModalCallback callback,
 		TimeSpan? timeout=null
 	) {
