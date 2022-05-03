@@ -85,7 +85,7 @@ class Selection {
 	}
 
 	// Update the selected entries of the select component.
-	public async Task Update(List<Option> selected) {
+	public async Task Update(IReadOnlySet<Option> selected) {
 		// Can only update if message was already created.
 		if (_message is null)
 			return;
@@ -98,8 +98,10 @@ class Selection {
 		DiscordWebhookBuilder message =
 			new DiscordWebhookBuilder()
 			.WithContent(_message.Content);
-		List<ComponentRow> rows =
-			ComponentsSelectUpdated(new (_message.Components), selected);
+		IList<ComponentRow> rows = ComponentsSelectUpdated(
+			_message.Components.AsList(),
+			selected
+		);
 		if (rows.Count > 0)
 			message.AddComponents(rows);
 
@@ -128,8 +130,9 @@ class Selection {
 		DiscordWebhookBuilder message_new =
 			new DiscordWebhookBuilder()
 			.WithContent(_message.Content);
-		List<ComponentRow> rows =
-			ComponentsSelectDisabled(new (_message.Components));
+		IList<ComponentRow> rows = ComponentsSelectDisabled(
+			_message.Components.AsList()
+		);
 		if (rows.Count > 0)
 			message_new.AddComponents(rows);
 
@@ -144,8 +147,8 @@ class Selection {
 		DiscordInteraction interaction,
 		SelectionCallback callback,
 		Task<DiscordMessage> messageTask,
-		IDictionary<T, Option> optionTable,
-		List<T> selected,
+		IReadOnlyList<KeyValuePair<T, Option>> options,
+		IReadOnlySet<T> selected,
 		string placeholder,
 		bool isMultiple,
 		TimeSpan? timeout=null
@@ -154,24 +157,24 @@ class Selection {
 		Timer timer = Util.CreateTimer(timeout.Value, false);
 
 		// Construct select component options.
-		List<SelectOption> options = new ();
-		foreach (T key in optionTable.Keys) {
-			Option option = optionTable[key];
+		List<SelectOption> options_obj = new ();
+		foreach (KeyValuePair<T, Option> option in options) {
+			Option option_obj = option.Value;
 			SelectOption option_discord = new (
-				option.Label,
-				option.Id,
-				option.Description,
-				selected.Contains(key),
-				option.Emoji
+				option_obj.Label,
+				option_obj.Id,
+				option_obj.Description,
+				selected.Contains(option.Key),
+				option_obj.Emoji
 			);
-			options.Add(option_discord);
+			options_obj.Add(option_discord);
 		}
 
 		// Construct select component.
 		DiscordSelectComponent component = new (
 			_id,
 			placeholder,
-			options,
+			options_obj,
 			disabled: false,
 			minOptions: isMultiple ? 0 : 1,
 			maxOptions: isMultiple ? options.Count : 1
@@ -202,8 +205,8 @@ class Selection {
 	// Casing will be converted to upper-case if needed, but not the
 	// other way around.
 	public static string PrintSelected<T>(
-		List<T> selected,
-		IDictionary<T, Option> options,
+		IReadOnlyList<T> selected,
+		IReadOnlyDictionary<T, Option> options,
 		string name_singular,
 		string name_plural
 	) {
@@ -220,7 +223,7 @@ class Selection {
 			return $"{name_singular_upper} previously set:\n**{options[selected[0]].Label}**";
 
 		// Construct list of role names.
-		StringWriter text = new();
+		StringWriter text = new ();
 		text.WriteLine($"{name_plural_upper} previously set:");
 		foreach (T option in selected) {
 			text.Write($"**{options[option].Label}**  ");
@@ -229,36 +232,11 @@ class Selection {
 	}
 
 	// Return a new list of components, with any DiscordSelectComponents
-	// (with a matching ID) disabled.
-	private static List<ComponentRow> ComponentsSelectDisabled(List<ComponentRow> rows) {
-		List<ComponentRow> rows_new = new ();
-
-		foreach (ComponentRow row in rows) {
-			List<Component> components_new = new ();
-
-			foreach (Component component in row.Components) {
-				if (component is
-					DiscordSelectComponent select &&
-					component.CustomId == _id
-				) {
-					select.Disable();
-					components_new.Add(select);
-				} else {
-					components_new.Add(component);
-				}
-			}
-
-			rows_new.Add(new ComponentRow(components_new));
-		}
-
-		return rows_new;
-	}
-
-	// Return a new list of components, with any DiscordSelectComponents
 	// (with a matching ID) updated as selected.
-	private static List<ComponentRow> ComponentsSelectUpdated(
-		List<ComponentRow> rows,
-		List<Option> selected
+	// IList (instead of read-only) allows members to be updated.
+	private static IList<ComponentRow> ComponentsSelectUpdated(
+		IList<ComponentRow> rows,
+		IReadOnlySet<Option> selected
 	) {
 		List<ComponentRow> rows_new = new ();
 
@@ -282,18 +260,49 @@ class Selection {
 		return rows_new;
 	}
 
+	// Return a new list of components, with any DiscordSelectComponents
+	// (with a matching ID) disabled.
+	// IList (instead of read-only) allows members to be disabled.
+	private static IList<ComponentRow> ComponentsSelectDisabled(
+		IList<ComponentRow> rows
+	) {
+		List<ComponentRow> rows_new = new ();
+
+		foreach (ComponentRow row in rows) {
+			List<Component> components_new = new ();
+
+			foreach (Component component in row.Components) {
+				if (component is
+					DiscordSelectComponent select &&
+					component.CustomId == _id
+				) {
+					select.Disable();
+					components_new.Add(select);
+				} else {
+					components_new.Add(component);
+				}
+			}
+
+			rows_new.Add(new ComponentRow(components_new));
+		}
+
+		return rows_new;
+	}
+
 	// Convenience function for updating a DiscordSelectComponent with
 	// a new set of options selected.
 	// No checks are made.
 	private static DiscordSelectComponent UpdateSelect(
 		DiscordSelectComponent select,
-		List<Option> selected
+		IReadOnlySet<Option> selected
 	) {
+		List<Option> selected_list = new (selected);
+
 		// Create a list of options with updated "selected" state.
 		List<SelectOption> options = new ();
 		foreach (SelectOption option in select.Options) {
 			// Check that the option is selected.
-			bool isSelected = selected.Exists(
+			bool isSelected = selected_list.Exists(
 				(option_i) => option_i.Id == option.Value
 			);
 			// Construct a new option, copied from the original, but

@@ -193,7 +193,7 @@ class RecurringEvent {
 		// the next event will happen after the previous event.
 		// (This does NOT ensure the RecurPattern itself can never fail,
 		// as this would be equivalent to solving the Halting Problem.)
-		public RecurPattern(RecurTime time, int recurIndex, IReadOnlyCollection<RecurBasis> basesCollection) {
+		public RecurPattern(RecurTime time, int recurIndex, IReadOnlyList<RecurBasis> basesCollection) {
 			List<RecurBasis> bases = new (basesCollection);
 
 			// Check that the index is valid.

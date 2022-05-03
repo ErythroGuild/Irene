@@ -20,4 +20,16 @@ static partial class Util {
 			dict_inverse.TryAdd(dict[key], key);
 		return dict_inverse;
 	}
+
+	// Returns the first member of an ICollection.
+	public static T GetFirst<T>(this ICollection<T> collection) =>
+		collection.GetEnumerator().Current;
+
+	// Converts a Collection to a List.
+	public static IList<T> AsList<T>(this IReadOnlyCollection<T> collection) {
+		List<T> list = new ();
+		foreach (T @object in collection)
+			list.Add(@object);
+		return list;
+	}
 }

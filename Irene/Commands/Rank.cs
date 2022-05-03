@@ -33,94 +33,97 @@ class Rank : ICommand {
 	private static readonly ConcurrentDictionary<ulong, SelectionTarget> _selectsGuild = new ();
 	private static readonly ConcurrentDictionary<ulong, SelectionTarget> _selectsOfficer = new ();
 
-	private static readonly ConcurrentDictionary<Level, Entry> _optionsRank = new () {
-		[Level.None] = new Entry {
-			Label = "No Rank",
-			Id = "option_none",
-			Emoji = new ("\U0001F401"), // :mouse2:
-			Description = "No rank assigned.",
-		},
-		[Level.Guest] = new Entry {
-			Label = "Guest",
-			Id = "option_guest",
-			Emoji = new ("\U0001F41B"), // :bug:
-			Description = "Verified member (newer member).",
-		},
-		[Level.Member] = new Entry {
-			Label = "Member",
-			Id = "option_member",
-			Emoji = new ("\U0001F98B"), // :butterfly:
-			Description = "Trusted member (older member).",
-		},
-		[Level.Officer] = new Entry {
-			Label = "Officer",
-			Id = "option_officer",
-			Emoji = new ("\U0001F426"), // :bird:
-			Description = "Officer / moderator.",
-		},
-		[Level.Admin] = new Entry {
+	private static readonly List<KeyValuePair<Level, Entry>> _optionsRankList = new () {
+		new (Level.Admin, new Entry {
 			Label = "Admin",
 			Id = "option_admin",
 			Emoji = new ("\U0001F99A"), // :peacock:
 			Description = "Guild Master.",
-		},
+		}),
+		new (Level.Officer, new Entry {
+			Label = "Officer",
+			Id = "option_officer",
+			Emoji = new ("\U0001F426"), // :bird:
+			Description = "Officer / moderator.",
+		}),
+		new (Level.Member, new Entry {
+			Label = "Member",
+			Id = "option_member",
+			Emoji = new ("\U0001F98B"), // :butterfly:
+			Description = "Trusted member (older member).",
+		}),
+		new (Level.Guest, new Entry {
+			Label = "Guest",
+			Id = "option_guest",
+			Emoji = new ("\U0001F41B"), // :bug:
+			Description = "Verified member (newer member).",
+		}),
+		new (Level.None, new Entry {
+			Label = "No Rank",
+			Id = "option_none",
+			Emoji = new ("\U0001F401"), // :mouse2:
+			Description = "No rank assigned.",
+		}),
 	};
-	private static readonly ConcurrentDictionary<Guild, Entry> _optionsGuild = new () {
-		[Guild.Erythro] = new Entry {
+	private static readonly ConcurrentDictionary<Level, Entry> _optionsRank;
+	private static readonly List<KeyValuePair<Guild, Entry>> _optionsGuildList = new () {
+		new (Guild.Erythro, new Entry {
 			Label = "<Erythro>",
 			Id = "option_erythro",
 			Emoji = new (id_e.erythro),
-		},
-		[Guild.Glaive] = new Entry {
+		}),
+		new (Guild.Glaive, new Entry {
 			Label = "<Glaive of Mother Moon>",
 			Id = "option_glaive",
 			Emoji = new ("\U0001F90D"), // :white_heart:
-		},
-		[Guild.Sanctum] = new Entry {
+		}),
+		new (Guild.Sanctum, new Entry {
 			Label = "<Sanctum of Secrets>",
 			Id = "option_sanctum",
 			Emoji = new ("\u2764"),     // :heart:
-		},
-		[Guild.Angels] = new Entry {
+		}),
+		new (Guild.Angels, new Entry {
 			Label = "<Hooved Angels>",
 			Id = "option_angels",
 			Emoji = new ("\U0001F49B"), // :yellow_heart:
-		},
-		[Guild.Asgard] = new Entry {
+		}),
+		new (Guild.Asgard, new Entry {
 			Label = "<Asgard>",
 			Id = "option_asgard",
 			Emoji = new ("\U0001F499"), // :blue_heart:
-		},
+		}),
 	};
-	private static readonly ConcurrentDictionary<Officer, Entry> _optionsOfficer = new () {
-		[Officer.Raids] = new Entry {
+	private static readonly ConcurrentDictionary<Guild, Entry> _optionsGuild;
+	private static readonly List<KeyValuePair<Officer, Entry>> _optionsOfficerList = new () {
+		new (Officer.Raids, new Entry {
 			Label = "Raid Officer",
 			Id = "option_raids",
 			Emoji = new ("\u2694"),     // :crossed_swords:
-		},
-		[Officer.Events] = new Entry {
+		}),
+		new (Officer.Events, new Entry {
 			Label = "Event Planner",
 			Id = "option_events",
 			Emoji = new ("\U0001F3B3"), // :bowling:
-		},
-		[Officer.Recruiter] = new Entry {
+		}),
+		new (Officer.Recruiter, new Entry {
 			Label = "Recruiter",
 			Id = "option_recruiter",
 			Emoji = new ("\U0001F5C3"), // :card_box:
-		},
-		[Officer.Banker] = new Entry {
+		}),
+		new (Officer.Banker, new Entry {
 			Label = "Banker",
 			Id = "option_banker",
 			Emoji = new("\U0001F4B0"), // :moneybag:
-		}
+		}),
 	};
+	private static readonly ConcurrentDictionary<Officer, Entry> _optionsOfficer;
 
 	// Conversions / definitions.
 	private static readonly ConcurrentDictionary<Level, ulong> _table_RankToId = new () {
-		[Level.Guest  ] = id_r.guest  ,
-		[Level.Member ] = id_r.member ,
-		[Level.Officer] = id_r.officer,
 		[Level.Admin  ] = id_r.admin  ,
+		[Level.Officer] = id_r.officer,
+		[Level.Member ] = id_r.member ,
+		[Level.Guest  ] = id_r.guest  ,
 	};
 	private static readonly ConcurrentDictionary<ulong, Level> _table_IdToRank;
 	private static readonly ConcurrentDictionary<Guild, ulong> _table_GuildToId = new () {
@@ -151,12 +154,22 @@ class Rank : ICommand {
 	static Rank() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
+		_optionsRank = new ();
+		foreach (KeyValuePair<Level, Entry> option in _optionsRankList)
+			_optionsRank.TryAdd(option.Key, option.Value);
+		_optionsGuild = new ();
+		foreach (KeyValuePair<Guild, Entry> option in _optionsGuildList)
+			_optionsGuild.TryAdd(option.Key, option.Value);
+		_optionsOfficer = new ();
+		foreach (KeyValuePair<Officer, Entry> option in _optionsOfficerList)
+			_optionsOfficer.TryAdd(option.Key, option.Value);
+
 		_table_IdToRank = Util.Invert(_table_RankToId);
 		_table_IdToGuild = Util.Invert(_table_GuildToId);
 		_table_IdToOfficer = Util.Invert(_table_OfficerToId);
 
 		Log.Information("  Initialized command: /rank");
-		Log.Debug("    Conversion caches initialized.");
+		Log.Debug("    Selects and conversion caches initialized.");
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
@@ -375,12 +388,13 @@ class Rank : ICommand {
 
 		// Construct select component by picking only usable options.
 		// Admin has special permission to set others to Admin.
-		Dictionary<Level, Entry> options = new ();
-		foreach (Level level in _optionsRank.Keys) {
-			if (level_caller > level)
-				options.Add(level, _optionsRank[level]);
-			if (level == Level.Admin && level_caller == Level.Admin)
-				options.Add(level, _optionsRank[level]);
+		List<KeyValuePair<Level, Entry>> options = new ();
+		foreach (KeyValuePair<Level, Entry> option in _optionsRankList) {
+			if (level_caller > option.Key) {
+				options.Add(option);
+			 } else if (option.Key == Level.Admin && level_caller == Level.Admin) {
+				options.Add(option);
+			}
 		}
 		MessagePromise message_promise = new ();
 		Selection select = Selection.Create(
@@ -388,7 +402,7 @@ class Rank : ICommand {
 			AssignRank,
 			message_promise.Task,
 			options,
-			new List<Level> { level_target },
+			new HashSet<Level> { level_target },
 			"No rank selected",
 			isMultiple: false
 		);
@@ -473,7 +487,7 @@ class Rank : ICommand {
 		Log.Information("  Updated rank successfully.");
 
 		// Update select component.
-		List<Entry> options_updated = new ();
+		HashSet<Entry> options_updated = new ();
 		options_updated.Add(_optionsRank[rank_new]);
 		await _selectsRank[member_id].Selection.Update(options_updated);
 		Log.Debug("  Updated select component successfully.");
@@ -556,8 +570,8 @@ class Rank : ICommand {
 			handler.Interaction.Interaction,
 			AssignGuild,
 			message_promise.Task,
-			_optionsGuild,
-			guilds,
+			_optionsGuildList,
+			new HashSet<Guild>(guilds),
 			"No guilds selected",
 			isMultiple: true
 		);
@@ -624,7 +638,7 @@ class Rank : ICommand {
 		Log.Information("  Updated roles successfully.");
 
 		// Update select component.
-		List<Entry> options_updated = new ();
+		HashSet<Entry> options_updated = new ();
 		foreach (Guild key in _optionsGuild.Keys) {
 			DiscordRole role = Program.Guild.GetRole(ToDiscordId(key));
 			if (roles_new.Contains(role))
@@ -678,8 +692,8 @@ class Rank : ICommand {
 			handler.Interaction.Interaction,
 			AssignOfficer,
 			message_promise.Task,
-			_optionsOfficer,
-			roles,
+			_optionsOfficerList,
+			new HashSet<Officer>(roles),
 			"No roles selected",
 			isMultiple: true
 		);
@@ -745,7 +759,7 @@ class Rank : ICommand {
 		Log.Information("  Updated roles successfully.");
 
 		// Update select component.
-		List<Entry> options_updated = new ();
+		HashSet<Entry> options_updated = new ();
 		foreach (Officer key in _optionsGuild.Keys) {
 			DiscordRole role = Program.Guild.GetRole(ToDiscordId(key));
 			if (roles_new.Contains(role))

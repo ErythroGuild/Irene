@@ -271,7 +271,7 @@ static class ClassSpec {
 	}
 
 	// Returns a list of FullNames of Specs matching the input.
-	public static ICollection<string> ParseSpec(string input) {
+	public static IReadOnlyList<string> ParseSpec(string input) {
 		input = input.Replace(" ", "").ToLower();
 
 		HashSet<Spec> specs = new ();
