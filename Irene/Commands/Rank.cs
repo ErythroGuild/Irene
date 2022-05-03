@@ -358,7 +358,7 @@ class Rank : ICommand {
 			string response_error = "Could not fetch membership information.";
 			response_error += (Program.Guild is not null && handler.Interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
-				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
+				: "\nIf this still doesn't work in a moment, message Ernie and he'll take care of it!";
 			await Command.SubmitResponseAsync(
 				handler.Interaction,
 				response_error,
@@ -381,10 +381,19 @@ class Rank : ICommand {
 			return;
 		}
 
+		// Check that the target has a lower rank.
 		Level level_caller = Command.GetAccessLevel(member_caller);
 		Level level_target = Command.GetAccessLevel(member_target);
-		string response_str =
-			$"Previous rank: **{_optionsRank[level_target].Label}**";
+		if (level_caller < Level.Admin && level_target >= level_caller) {
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"You cannot change the rank of someone higher than you.",
+				"Attempted to set rank for higher-ranked target.",
+				LogLevel.Information,
+				"Could not set higher-ranked target rank. Response sent.".AsLazy()
+			);
+			return;
+		}
 
 		// Construct select component by picking only usable options.
 		// Admin has special permission to set others to Admin.
@@ -418,6 +427,8 @@ class Rank : ICommand {
 		);
 
 		// Send response with selection menu.
+		string response_str =
+			$"Previous rank: **{_optionsRank[level_target].Label}**";
 		DiscordWebhookBuilder response =
 			new DiscordWebhookBuilder()
 			.WithContent(response_str)
