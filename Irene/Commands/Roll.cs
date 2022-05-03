@@ -21,33 +21,34 @@ class Roll : ICommand {
 	private const int _minRange = 1,
 		_maxRange = 1000000000; // 10^9
 
-	private static readonly List<string> _predictions = new () {
-		// Positive
-		"It is certain.",
-		"It is decidedly so.",
-		"Without a doubt.",
-		"Yes definitely.",
-		"You may rely on it.",
-		"As I see it, yes.",
-		"Most likely.",
-		"Outlook good.",
-		"Yes.",
-		"Signs point to yes.",
+	private static readonly ReadOnlyCollection<string> _predictions =
+		new (new List<string>() {
+			// Positive
+			"It is certain.",
+			"It is decidedly so.",
+			"Without a doubt.",
+			"Yes definitely.",
+			"You may rely on it.",
+			"As I see it, yes.",
+			"Most likely.",
+			"Outlook good.",
+			"Yes.",
+			"Signs point to yes.",
 
-		// Negative
-		"Don't count on it.",
-		"My reply is no.",
-		"My sources say no.",
-		"Outlook not so good.",
-		"Very doubtful.",
+			// Negative
+			"Don't count on it.",
+			"My reply is no.",
+			"My sources say no.",
+			"Outlook not so good.",
+			"Very doubtful.",
 
-		// Non-committal
-		"Reply hazy, try again.",
-		"Ask again later.",
-		"Better not tell you now.",
-		"Cannot predict now.",
-		"Concentrate and ask again.",
-	};
+			// Non-committal
+			"Reply hazy, try again.",
+			"Ask again later.",
+			"Better not tell you now.",
+			"Cannot predict now.",
+			"Concentrate and ask again.",
+		});
 
 	public static List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {

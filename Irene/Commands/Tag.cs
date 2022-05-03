@@ -184,7 +184,8 @@ class Tag: ICommand {
 
 		// Ignore results with delimiter.
 		if (arg.Contains(_delim)) {
-			await interaction.AutoCompleteResultsAsync(new ());
+			await interaction
+				.AutoCompleteResultsAsync(new List<string>());
 			return;
 		}
 

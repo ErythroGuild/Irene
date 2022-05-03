@@ -33,114 +33,120 @@ class Rank : ICommand {
 	private static readonly ConcurrentDictionary<ulong, SelectionTarget> _selectsGuild = new ();
 	private static readonly ConcurrentDictionary<ulong, SelectionTarget> _selectsOfficer = new ();
 
-	private static readonly List<KeyValuePair<Level, Entry>> _optionsRankList = new () {
-		new (Level.Admin, new Entry {
-			Label = "Admin",
-			Id = "option_admin",
-			Emoji = new ("\U0001F99A"), // :peacock:
-			Description = "Guild Master.",
-		}),
-		new (Level.Officer, new Entry {
-			Label = "Officer",
-			Id = "option_officer",
-			Emoji = new ("\U0001F426"), // :bird:
-			Description = "Officer / moderator.",
-		}),
-		new (Level.Member, new Entry {
-			Label = "Member",
-			Id = "option_member",
-			Emoji = new ("\U0001F98B"), // :butterfly:
-			Description = "Trusted member (older member).",
-		}),
-		new (Level.Guest, new Entry {
-			Label = "Guest",
-			Id = "option_guest",
-			Emoji = new ("\U0001F41B"), // :bug:
-			Description = "Verified member (newer member).",
-		}),
-		new (Level.None, new Entry {
-			Label = "No Rank",
-			Id = "option_none",
-			Emoji = new ("\U0001F401"), // :mouse2:
-			Description = "No rank assigned.",
-		}),
-	};
-	private static readonly ConcurrentDictionary<Level, Entry> _optionsRank;
-	private static readonly List<KeyValuePair<Guild, Entry>> _optionsGuildList = new () {
-		new (Guild.Erythro, new Entry {
-			Label = "<Erythro>",
-			Id = "option_erythro",
-			Emoji = new (id_e.erythro),
-		}),
-		new (Guild.Glaive, new Entry {
-			Label = "<Glaive of Mother Moon>",
-			Id = "option_glaive",
-			Emoji = new ("\U0001F90D"), // :white_heart:
-		}),
-		new (Guild.Sanctum, new Entry {
-			Label = "<Sanctum of Secrets>",
-			Id = "option_sanctum",
-			Emoji = new ("\u2764"),     // :heart:
-		}),
-		new (Guild.Angels, new Entry {
-			Label = "<Hooved Angels>",
-			Id = "option_angels",
-			Emoji = new ("\U0001F49B"), // :yellow_heart:
-		}),
-		new (Guild.Asgard, new Entry {
-			Label = "<Asgard>",
-			Id = "option_asgard",
-			Emoji = new ("\U0001F499"), // :blue_heart:
-		}),
-	};
-	private static readonly ConcurrentDictionary<Guild, Entry> _optionsGuild;
-	private static readonly List<KeyValuePair<Officer, Entry>> _optionsOfficerList = new () {
-		new (Officer.Raids, new Entry {
-			Label = "Raid Officer",
-			Id = "option_raids",
-			Emoji = new ("\u2694"),     // :crossed_swords:
-		}),
-		new (Officer.Events, new Entry {
-			Label = "Event Planner",
-			Id = "option_events",
-			Emoji = new ("\U0001F3B3"), // :bowling:
-		}),
-		new (Officer.Recruiter, new Entry {
-			Label = "Recruiter",
-			Id = "option_recruiter",
-			Emoji = new ("\U0001F5C3"), // :card_box:
-		}),
-		new (Officer.Banker, new Entry {
-			Label = "Banker",
-			Id = "option_banker",
-			Emoji = new("\U0001F4B0"), // :moneybag:
-		}),
-	};
-	private static readonly ConcurrentDictionary<Officer, Entry> _optionsOfficer;
+	private static readonly ReadOnlyCollection<KeyValuePair<Level, Entry>> _optionsRankList =
+		new (new List<KeyValuePair<Level, Entry>>() {
+			new (Level.Admin, new Entry {
+				Label = "Admin",
+				Id = "option_admin",
+				Emoji = new ("\U0001F99A"), // :peacock:
+				Description = "Guild Master.",
+			}),
+			new (Level.Officer, new Entry {
+				Label = "Officer",
+				Id = "option_officer",
+				Emoji = new ("\U0001F426"), // :bird:
+				Description = "Officer / moderator.",
+			}),
+			new (Level.Member, new Entry {
+				Label = "Member",
+				Id = "option_member",
+				Emoji = new ("\U0001F98B"), // :butterfly:
+				Description = "Trusted member (older member).",
+			}),
+			new (Level.Guest, new Entry {
+				Label = "Guest",
+				Id = "option_guest",
+				Emoji = new ("\U0001F41B"), // :bug:
+				Description = "Verified member (newer member).",
+			}),
+			new (Level.None, new Entry {
+				Label = "No Rank",
+				Id = "option_none",
+				Emoji = new ("\U0001F401"), // :mouse2:
+				Description = "No rank assigned.",
+			}),
+		});
+	private static readonly ReadOnlyDictionary<Level, Entry> _optionsRank;
+	private static readonly ReadOnlyCollection<KeyValuePair<Guild, Entry>> _optionsGuildList =
+		new (new List<KeyValuePair<Guild, Entry>>() {
+			new (Guild.Erythro, new Entry {
+				Label = "<Erythro>",
+				Id = "option_erythro",
+				Emoji = new (id_e.erythro),
+			}),
+			new (Guild.Glaive, new Entry {
+				Label = "<Glaive of Mother Moon>",
+				Id = "option_glaive",
+				Emoji = new ("\U0001F90D"), // :white_heart:
+			}),
+			new (Guild.Sanctum, new Entry {
+				Label = "<Sanctum of Secrets>",
+				Id = "option_sanctum",
+				Emoji = new ("\u2764"),     // :heart:
+			}),
+			new (Guild.Angels, new Entry {
+				Label = "<Hooved Angels>",
+				Id = "option_angels",
+				Emoji = new ("\U0001F49B"), // :yellow_heart:
+			}),
+			new (Guild.Asgard, new Entry {
+				Label = "<Asgard>",
+				Id = "option_asgard",
+				Emoji = new ("\U0001F499"), // :blue_heart:
+			}),
+		});
+	private static readonly ReadOnlyDictionary<Guild, Entry> _optionsGuild;
+	private static readonly ReadOnlyCollection<KeyValuePair<Officer, Entry>> _optionsOfficerList =
+		new (new List<KeyValuePair<Officer, Entry>>() {
+			new (Officer.Raids, new Entry {
+				Label = "Raid Officer",
+				Id = "option_raids",
+				Emoji = new ("\u2694"),     // :crossed_swords:
+			}),
+			new (Officer.Events, new Entry {
+				Label = "Event Planner",
+				Id = "option_events",
+				Emoji = new ("\U0001F3B3"), // :bowling:
+			}),
+			new (Officer.Recruiter, new Entry {
+				Label = "Recruiter",
+				Id = "option_recruiter",
+				Emoji = new ("\U0001F5C3"), // :card_box:
+			}),
+			new (Officer.Banker, new Entry {
+				Label = "Banker",
+				Id = "option_banker",
+				Emoji = new("\U0001F4B0"), // :moneybag:
+			}),
+		});
+	private static readonly ReadOnlyDictionary<Officer, Entry> _optionsOfficer;
 
 	// Conversions / definitions.
-	private static readonly ConcurrentDictionary<Level, ulong> _table_RankToId = new () {
-		[Level.Admin  ] = id_r.admin  ,
-		[Level.Officer] = id_r.officer,
-		[Level.Member ] = id_r.member ,
-		[Level.Guest  ] = id_r.guest  ,
-	};
-	private static readonly ConcurrentDictionary<ulong, Level> _table_IdToRank;
-	private static readonly ConcurrentDictionary<Guild, ulong> _table_GuildToId = new () {
-		[Guild.Erythro] = id_r.erythro,
-		[Guild.Glaive ] = id_r.glaive ,
-		[Guild.Sanctum] = id_r.sanctum,
-		[Guild.Angels ] = id_r.angels ,
-		[Guild.Asgard ] = id_r.asgard ,
-	};
-	private static readonly ConcurrentDictionary<ulong, Guild> _table_IdToGuild;
-	private static readonly ConcurrentDictionary<Officer, ulong> _table_OfficerToId = new () {
-		[Officer.Raids    ] = id_r.raidOfficer ,
-		[Officer.Events   ] = id_r.eventPlanner,
-		[Officer.Recruiter] = id_r.recruiter   ,
-		[Officer.Banker   ] = id_r.banker      ,
-	};
-	private static readonly ConcurrentDictionary<ulong, Officer> _table_IdToOfficer;
+	private static readonly ReadOnlyDictionary<Level, ulong> _table_RankToId =
+		new (new ConcurrentDictionary<Level, ulong>() {
+			[Level.Admin  ] = id_r.admin  ,
+			[Level.Officer] = id_r.officer,
+			[Level.Member ] = id_r.member ,
+			[Level.Guest  ] = id_r.guest  ,
+		});
+	private static readonly ReadOnlyDictionary<ulong, Level> _table_IdToRank;
+	private static readonly ReadOnlyDictionary<Guild, ulong> _table_GuildToId =
+		new (new ConcurrentDictionary<Guild, ulong>() {
+			[Guild.Erythro] = id_r.erythro,
+			[Guild.Glaive ] = id_r.glaive ,
+			[Guild.Sanctum] = id_r.sanctum,
+			[Guild.Angels ] = id_r.angels ,
+			[Guild.Asgard ] = id_r.asgard ,
+		});
+	private static readonly ReadOnlyDictionary<ulong, Guild> _table_IdToGuild;
+	private static readonly ReadOnlyDictionary<Officer, ulong> _table_OfficerToId =
+		new (new ConcurrentDictionary<Officer, ulong>() {
+			[Officer.Raids    ] = id_r.raidOfficer ,
+			[Officer.Events   ] = id_r.eventPlanner,
+			[Officer.Recruiter] = id_r.recruiter   ,
+			[Officer.Banker   ] = id_r.banker      ,
+		});
+	private static readonly ReadOnlyDictionary<ulong, Officer> _table_IdToOfficer;
 
 	private const string
 		_commandSetRank = "set",
@@ -154,19 +160,31 @@ class Rank : ICommand {
 	static Rank() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
-		_optionsRank = new ();
+		ConcurrentDictionary<Level, Entry> optionsRank = new ();
 		foreach (KeyValuePair<Level, Entry> option in _optionsRankList)
-			_optionsRank.TryAdd(option.Key, option.Value);
-		_optionsGuild = new ();
+			optionsRank.TryAdd(option.Key, option.Value);
+		_optionsRank = new (optionsRank);
+		ConcurrentDictionary<Guild, Entry> optionsGuild = new ();
 		foreach (KeyValuePair<Guild, Entry> option in _optionsGuildList)
-			_optionsGuild.TryAdd(option.Key, option.Value);
-		_optionsOfficer = new ();
+			optionsGuild.TryAdd(option.Key, option.Value);
+		_optionsGuild = new (optionsGuild);
+		ConcurrentDictionary<Officer, Entry> optionsOfficer = new ();
 		foreach (KeyValuePair<Officer, Entry> option in _optionsOfficerList)
-			_optionsOfficer.TryAdd(option.Key, option.Value);
+			optionsOfficer.TryAdd(option.Key, option.Value);
+		_optionsOfficer = new (optionsOfficer);
 
-		_table_IdToRank = Util.Invert(_table_RankToId);
-		_table_IdToGuild = Util.Invert(_table_GuildToId);
-		_table_IdToOfficer = Util.Invert(_table_OfficerToId);
+		_table_IdToRank =
+			new (new ConcurrentDictionary<ulong, Level>(
+				Util.Invert(_table_RankToId)
+			));
+		_table_IdToGuild =
+			new (new ConcurrentDictionary<ulong, Guild>(
+				Util.Invert(_table_GuildToId)
+			));
+		_table_IdToOfficer =
+			new (new ConcurrentDictionary<ulong, Officer>(
+				Util.Invert(_table_OfficerToId)
+			));
 
 		Log.Information("  Initialized command: /rank");
 		Log.Debug("    Selects and conversion caches initialized.");

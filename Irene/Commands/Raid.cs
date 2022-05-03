@@ -13,17 +13,18 @@ class Raid : ICommand {
 	// accessing them.
 	private static readonly ConcurrentDictionary<ulong, Confirm> _confirms = new ();
 
-	private static readonly List<string> _dateExamples = new () {
-		"today",
-		"yesterday",
-		"tomorrow",
-		"this friday",
-		"this saturday",
-		"last friday",
-		"last saturday",
-		"next friday",
-		"next saturday",
-	};
+	private static readonly ReadOnlyCollection<string> _dateExamples =
+		new (new List<string>() {
+			"today",
+			"yesterday",
+			"tomorrow",
+			"this friday",
+			"this saturday",
+			"last friday",
+			"last saturday",
+			"next friday",
+			"next saturday",
+		});
 	private static readonly Regex
 		_regex_relativeWeekday = new (@"^(?<position>this|last|next)\s+(?<day>friday|fri|f|saturday|sat|s)\.?$"),
 		_regex_relativeWeek    = new (@"^(?:(?<position1>this|last|next)\s+week\s+)?(?:on\s+)?(?<day>friday|fri|f|saturday|sat|s)\.?(?:\s+(?<position2>this|last|next)\s+week)?$"),
