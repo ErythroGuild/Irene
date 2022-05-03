@@ -1,16 +1,17 @@
-﻿namespace Irene.Utils;
+﻿namespace Irene;
 
 class TimeZones {
-	private static readonly ConcurrentDictionary<string, TimeZoneInfo> _tableCompiled;
+	private static readonly ReadOnlyDictionary<string, TimeZoneInfo> _tableCompiled;
 
 	// Force static initializer to run.
 	public static void Init() { }
 	static TimeZones() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
-		_tableCompiled = new ();
+		ConcurrentDictionary<string, TimeZoneInfo> tableCompiled = new ();
 		foreach (TimeZoneInfo timeZone in TimeZoneInfo.GetSystemTimeZones())
-			_tableCompiled.TryAdd(timeZone.DisplayName, timeZone);
+			tableCompiled.TryAdd(timeZone.DisplayName, timeZone);
+		_tableCompiled = new (tableCompiled);
 
 		Log.Information("  Initialized util: TimeZones");
 		Log.Debug("    TimeZone cache initialized.");

@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
 
 using TierBasisPair = System.Tuple<Irene.Modules.Raid.RaidTier?, System.DateOnly?>;
@@ -94,16 +94,17 @@ class Raid {
 			);
 		}
 
-		private static readonly List<string> _emojis = new () {
-			":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
-			":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
-			":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
-			":octopus:", ":bird:"    , ":turkey:"     , ":rooster:" ,
-			":otter:"  , ":parrot:"  , ":elephant:"   , ":microbe:" ,
-			":peacock:", ":chipmunk:", ":lion_face:"  , ":mouse:"   ,
-			":snail:"  , ":giraffe:" , ":duck:"       , ":bat:"     ,
-			":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
-		};
+		private static readonly ReadOnlyCollection<string> _emojis =
+			new (new List<string>() {
+				":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
+				":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
+				":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
+				":octopus:", ":bird:"    , ":turkey:"     , ":rooster:" ,
+				":otter:"  , ":parrot:"  , ":elephant:"   , ":microbe:" ,
+				":peacock:", ":chipmunk:", ":lion_face:"  , ":mouse:"   ,
+				":snail:"  , ":giraffe:" , ":duck:"       , ":bat:"     ,
+				":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
+			});
 		private const string _separator = ",";
 	}
 	public record class RaidData {

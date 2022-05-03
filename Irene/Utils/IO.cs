@@ -18,16 +18,17 @@ static partial class Util {
 		}
 		return text;
 	}
-	private static readonly Dictionary<string, string> _escapeCodes = new () {
-		{ @"\n"    , "\n"     },
-		{ @"\esc"  , "\x1B"   },
-		{ @":bbul:", "\u2022" },
-		{ @":wbul:", "\u25E6" },
-		{ @":emsp:", "\u2003" },
-		{ @":ensp:", "\u2022" },
-		{ @":nbsp:", "\u00A0" },
-		{ @":+-:"  , "\u00B1" },
-	};
+	private static readonly ReadOnlyDictionary<string, string> _escapeCodes =
+		new (new ConcurrentDictionary<string, string>() {
+			[@"\n"    ] = "\n"    ,
+			[@"\esc"  ] = "\x1B"  ,
+			[@":bbul:"] = "\u2022",
+			[@":wbul:"] = "\u25E6",
+			[@":emsp:"] = "\u2003",
+			[@":ensp:"] = "\u2022",
+			[@":nbsp:"] = "\u00A0",
+			[@":+-:"  ] = "\u00B1",
+		});
 
 	// Syntax sugar for passing a string as a Lazy<string>.
 	public static Lazy<string> AsLazy(this string str) => new (str);
@@ -38,8 +39,7 @@ static partial class Util {
 		if (input.Contains('\n')) {
 			int i_newline = input.IndexOf("\n");
 			return input[..i_newline] + " [...]";
-		}
-		else {
+		} else {
 			return input;
 		}
 	}

@@ -275,8 +275,6 @@ class Program {
 
 				// Initialize classes.
 				ClassSpec.Init();
-
-				// Initialize utilities.
 				TimeZones.Init();
 
 				// Initialize discord components.
