@@ -257,8 +257,10 @@ static partial class AuditLog {
 	// Prints the list of permissions (indented twice).
 	static void print_perms(
 		ref StringWriter text,
-		Permissions perms ) {
-		List<Permissions> perms_list = Util.PermissionsFlags();
+		Permissions perms
+	) {
+		IReadOnlyList<Permissions> perms_list =
+			Util.PermissionsFlags();
 		foreach (Permissions perms_i in perms_list) {
 			// Do not print "None" ever, as a changed field.
 			if (perms_i == Permissions.None)

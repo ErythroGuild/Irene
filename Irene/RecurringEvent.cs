@@ -35,11 +35,13 @@ class RecurringEvent {
 			Month = date.Month;
 			Day = date.Day;
 		}
-		private static readonly Dictionary<int, int> _monthLengths = new () {
-			{ 1, 31 }, {  2, 29 }, {  3, 31 }, {  4, 30 },
-			{ 5, 31 }, {  6, 30 }, {  7, 31 }, {  8, 31 },
-			{ 9, 30 }, { 10, 31 }, { 11, 30 }, { 12, 31 },
-		};
+		private static readonly ReadOnlyDictionary<int, int> _monthLengths =
+			new (new ConcurrentDictionary<int, int>() {
+				[ 1] = 31, [ 2] = 29, [ 3] = 31,
+				[ 4] = 30, [ 5] = 31, [ 6] = 30,
+				[ 7] = 31, [ 8] = 31, [ 9] = 30,
+				[10] = 31, [11] = 30, [12] = 31,
+			});
 	};
 	public enum LunarPhase {
 		NewMoon,
@@ -116,15 +118,16 @@ class RecurringEvent {
 			Rule = rule;
 			Index = index;
 		}
-		private static readonly Dictionary<BasisType, Type> _typeTable = new () {
-			{ BasisType.Days,   typeof(int) },
-			{ BasisType.Weeks,  typeof(int) },
-			{ BasisType.Months, typeof(int) },
-			{ BasisType.Years,  typeof(int) },
-			{ BasisType.DaysOfWeek,  typeof(DayOfWeek)  },
-			{ BasisType.DatesOfYear, typeof(DateOfYear) },
-			{ BasisType.LunarPhase,  typeof(LunarPhase) },
-		};
+		private static readonly ReadOnlyDictionary<BasisType, Type> _typeTable =
+			new (new ConcurrentDictionary<BasisType, Type>() {
+				[BasisType.Days  ] = typeof(int),
+				[BasisType.Weeks ] = typeof(int),
+				[BasisType.Months] = typeof(int),
+				[BasisType.Years ] = typeof(int),
+				[BasisType.DaysOfWeek ] = typeof(DayOfWeek) ,
+				[BasisType.DatesOfYear] = typeof(DateOfYear),
+				[BasisType.LunarPhase ] = typeof(LunarPhase),
+			});
 
 		// Return the max/min length of the period of the RecurBasis,
 		// as an absolute value, counting from the start of the rule.
@@ -153,15 +156,16 @@ class RecurringEvent {
 				0,
 			_ => throw new InvalidOpExcept($"Unknown BasisType {Basis}."),
 		}; }
-		private static readonly Dictionary<BasisType, int> _periodTable = new () {
-			{ BasisType.Days,     1 },
-			{ BasisType.Weeks,    7 },
-			{ BasisType.Months,  31 },
-			{ BasisType.Years,  366 },
-			{ BasisType.DaysOfWeek,    7 },
-			{ BasisType.DatesOfYear, 366 },
-			{ BasisType.LunarPhase,   30 },
-		};
+		private static readonly ReadOnlyDictionary<BasisType, int> _periodTable =
+			new (new ConcurrentDictionary<BasisType, int>() {
+				[BasisType.Days  ] =   1,
+				[BasisType.Weeks ] =   7,
+				[BasisType.Months] =  31,
+				[BasisType.Years ] = 366,
+				[BasisType.DaysOfWeek ] =   7,
+				[BasisType.DatesOfYear] = 366,
+				[BasisType.LunarPhase ] =  30,
+			});
 	};
 
 	// A RecurPattern holds all data necessary to specify a RecurringEvent.
@@ -189,7 +193,9 @@ class RecurringEvent {
 		// the next event will happen after the previous event.
 		// (This does NOT ensure the RecurPattern itself can never fail,
 		// as this would be equivalent to solving the Halting Problem.)
-		public RecurPattern(RecurTime time, int recurIndex, List<RecurBasis> bases) {
+		public RecurPattern(RecurTime time, int recurIndex, IReadOnlyList<RecurBasis> basesCollection) {
+			List<RecurBasis> bases = new (basesCollection);
+
 			// Check that the index is valid.
 			int list_size = bases.Count;
 			if (recurIndex < 0 || recurIndex > list_size) {
@@ -202,7 +208,7 @@ class RecurringEvent {
 			// basis exists, so there doesn't need to be a separate check.
 			if (bases[0].Rule != RuleType.Base) {
 				throw new ArgExcept("The first basis was not a Base rule.",
-					nameof(bases));
+					nameof(basesCollection));
 			}
 
 			// Check that the only basis with RuleType.Base is at 0.
@@ -211,7 +217,7 @@ class RecurringEvent {
 			);
 			if (index_last_base != 0) {
 				throw new ArgExcept("There was more than one Base rule given.",
-					nameof(bases));
+					nameof(basesCollection));
 			}
 
 			// Calculate the longest possible recur cycle, and check that
@@ -232,7 +238,7 @@ class RecurringEvent {
 						-basis.PeriodMinDays,
 					_ =>
 						throw new ArgExcept("Unrecognized RecurBasis RuleType.",
-							nameof(bases)),
+							nameof(basesCollection)),
 				};
 				days_cycle += days_rule;
 				days_cycle -= basis.Rule switch {
@@ -249,7 +255,7 @@ class RecurringEvent {
 			// determined as invalid.
 			if (days_cycle <= 0) {
 				throw new ArgExcept("RecurPattern definition will always give earlier dates",
-					nameof(bases));
+					nameof(basesCollection));
 			}
 
 			// Assign fields.

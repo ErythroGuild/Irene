@@ -74,12 +74,12 @@ static partial class Util {
 
 	public static Task AutoCompleteResultsAsync(
 		this TimedInteraction interaction,
-		List<string> choices
+		IReadOnlyList<string> choices
 	) =>
 		interaction.Interaction.AutoCompleteResultsAsync(choices);
 	public static Task AutoCompleteResultsAsync(
 		this DiscordInteraction interaction,
-		List<string> choices
+		IReadOnlyList<string> choices
 	) {
 		// Convert list of strings to list of discord choices.
 		List<DiscordAutoCompleteChoice> choices_discord = new ();

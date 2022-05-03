@@ -11,23 +11,23 @@ public record class TimedInteraction
 	(DiscordInteraction Interaction, Stopwatch Timer);
 
 class Command {
-	public static ConcurrentDictionary<string, HelpPageGetter> HelpPages { get; private set; }
-	public static List<DiscordApplicationCommand> Commands { get; private set; }
-	public static Dictionary<string, InteractionHandler> Deferrers { get; private set; }
-	public static Dictionary<string, InteractionHandler> Handlers { get; private set; }
-	public static Dictionary<string, InteractionHandler> AutoCompletes { get; private set; }
+	public static ReadOnlyDictionary<string, HelpPageGetter> HelpPages { get; }
+	public static ReadOnlyCollection<DiscordApplicationCommand> Commands { get; }
+	public static ReadOnlyDictionary<string, InteractionHandler> Deferrers { get; }
+	public static ReadOnlyDictionary<string, InteractionHandler> Handlers { get; }
+	public static ReadOnlyDictionary<string, InteractionHandler> AutoCompletes { get; }
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Command() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
-		// Set the static properties.
-		HelpPages = new ();
-		Commands = new ();
-		Deferrers = new ();
-		Handlers = new ();
-		AutoCompletes = new ();
+		// Collate the static properties in temp variables.
+		ConcurrentDictionary<string, HelpPageGetter> helpPages = new ();
+		List<DiscordApplicationCommand> commandList = new ();
+		ConcurrentDictionary<string, InteractionHandler> deferrers = new ();
+		ConcurrentDictionary<string, InteractionHandler> handlers = new ();
+		ConcurrentDictionary<string, InteractionHandler> autoCompletes = new ();
 
 		// Find all classes inheriting from ICommand, and collate their application
 		// commands into a single Dictionary.
@@ -51,9 +51,9 @@ class Command {
 						return;
 
 					foreach (InteractionCommand command in commands) {
-						Commands.Add(command.Command);
-						Deferrers.Add(command.Command.Name, command.Deferrer);
-						Handlers.Add(command.Command.Name, command.Handler);
+						commandList.Add(command.Command);
+						deferrers.TryAdd(command.Command.Name, command.Deferrer);
+						handlers.TryAdd(command.Command.Name, command.Handler);
 					}
 
 					if (name == nameof(ICommand.SlashCommands)) {
@@ -71,7 +71,7 @@ class Command {
 							?? null;
 						if (func_help is not null) {
 							foreach (InteractionCommand command in commands)
-								HelpPages.TryAdd(command.Command.Name, func_help);
+								helpPages.TryAdd(command.Command.Name, func_help);
 						}
 					}
 				}
@@ -90,7 +90,7 @@ class Command {
 						return;
 
 					foreach (AutoCompleteHandler handler in handlers)
-						AutoCompletes.Add(handler.CommandName, handler.Handler);
+						autoCompletes.TryAdd(handler.CommandName, handler.Handler);
 				}
 				
 				AddPropertyInteractions(nameof(ICommand.SlashCommands));
@@ -99,6 +99,13 @@ class Command {
 				AddAutoCompletes();
 			}
 		}
+
+		// Assign the static properties.
+		HelpPages = new (helpPages);
+		Commands = new (commandList);
+		Deferrers = new (deferrers);
+		Handlers = new (handlers);
+		AutoCompletes = new (autoCompletes);
 
 		Log.Information("  Initialized module: Commands");
 		Log.Debug("    Commands fetched and collated.");

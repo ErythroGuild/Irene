@@ -94,16 +94,17 @@ class Raid {
 			);
 		}
 
-		private static readonly List<string> _emojis = new () {
-			":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
-			":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
-			":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
-			":octopus:", ":bird:"    , ":turkey:"     , ":rooster:" ,
-			":otter:"  , ":parrot:"  , ":elephant:"   , ":microbe:" ,
-			":peacock:", ":chipmunk:", ":lion_face:"  , ":mouse:"   ,
-			":snail:"  , ":giraffe:" , ":duck:"       , ":bat:"     ,
-			":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
-		};
+		private static readonly ReadOnlyCollection<string> _emojis =
+			new (new List<string>() {
+				":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
+				":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
+				":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
+				":octopus:", ":bird:"    , ":turkey:"     , ":rooster:" ,
+				":otter:"  , ":parrot:"  , ":elephant:"   , ":microbe:" ,
+				":peacock:", ":chipmunk:", ":lion_face:"  , ":mouse:"   ,
+				":snail:"  , ":giraffe:" , ":duck:"       , ":bat:"     ,
+				":crab:"   , ":flamingo:", ":orangutan:"  , ":kangaroo:",
+			});
 		private const string _separator = ",";
 	}
 	public record class RaidData {
@@ -149,7 +150,7 @@ class Raid {
 		_keyLogId     = "log-id";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Raid() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -163,8 +164,10 @@ class Raid {
 
 	// Returns null if the link is ill-formed.
 	public static string? ParseLogId(string link) {
-		Regex regex = new (@"(?:(?:https?\:\/\/)?(?:www\.)?warcraftlogs\.com\/reports\/)?(?<id>\w+)(?:#.+)?");
-		Match match = regex.Match(link);
+		Match match = Regex.Match(
+			link,
+			@"(?:(?:https?\:\/\/)?(?:www\.)?warcraftlogs\.com\/reports\/)?(?<id>\w+)(?:#.+)?"
+		);
 		if (!match.Success)
 			return null;
 		string id = match.Groups["id"].Value;

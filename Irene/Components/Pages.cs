@@ -25,7 +25,7 @@ class Pages {
 		_labelNext = "\u25BC";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
 	// that each event has to filter through until it hits the correct
@@ -150,8 +150,9 @@ class Pages {
 			new DiscordWebhookBuilder()
 			.WithContent(_message.Content);
 		if (_pageCount > 1) {
-			List<ComponentRow> rows =
-				ComponentsButtonsDisabled(new (_message.Components));
+			List<ComponentRow> rows = ComponentsButtonsDisabled(
+				new List<ComponentRow>(_message.Components)
+			);
 			if (rows.Count > 0)
 				message_new.AddComponents(rows);
 		}
@@ -166,7 +167,7 @@ class Pages {
 	public static DiscordWebhookBuilder Create(
 		DiscordInteraction interaction,
 		Task<DiscordMessage> messageTask,
-		List<string> data,
+		IReadOnlyList<string> data,
 		int? pageSize=null,
 		TimeSpan? timeout=null
 	) {
@@ -175,8 +176,12 @@ class Pages {
 		Timer timer = Util.CreateTimer(timeout.Value, false);
 
 		// Construct partial Pages object.
-		Pages pages =
-			new (data, pageSize.Value, interaction, timer);
+		Pages pages = new (
+			new List<string>(data),
+			pageSize.Value,
+			interaction,
+			timer
+		);
 		messageTask.ContinueWith((messageTask) => {
 			DiscordMessage message = messageTask.Result;
 			pages._message = message;
@@ -218,7 +223,9 @@ class Pages {
 	
 	// Return a new list of components, with any DiscordButtonComponents
 	// (with a matching ID) disabled.
-	private static List<ComponentRow> ComponentsButtonsDisabled(List<ComponentRow> rows) {
+	private static List<ComponentRow> ComponentsButtonsDisabled(
+		List<ComponentRow> rows
+	) {
 		List<ComponentRow> rows_new = new ();
 
 		foreach (ComponentRow row in rows) {

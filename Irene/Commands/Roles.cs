@@ -14,64 +14,77 @@ class Roles : ICommand {
 	// Selection menus, indexed by the ID of the member accessing them.
 	private static readonly ConcurrentDictionary<ulong, Selection> _selects = new ();
 
-	private static readonly ConcurrentDictionary<PingRole, Entry> _options = new () {
-		[PingRole.Raid] = new Entry {
-			Label = "Raid",
-			Id = "option_raid",
-			Emoji = new ("\U0001F409"), // :dragon:
-			Description = "Raid announcements.",
-		},
-		[PingRole.Mythics] = new Entry {
-			Label = "M+",
-			Id = "option_mythics",
-			Emoji = new ("\U0001F5FA"), // :map:
-			Description = "M+ keys in general.",
-		},
-		[PingRole.KSM] = new Entry {
-			Label = "KSM",
-			Id = "option_ksm",
-			Emoji = new ("\U0001F94B"), // :martial_arts_uniform:
-			Description = "Higher keys requiring more focus.",
-		},
-		[PingRole.Gearing] = new Entry {
-			Label = "Gearing",
-			Id = "option_gearing",
-			Emoji = new ("\U0001F392"), // :school_satchel:
-			Description = "Lower keys / M0s to help gear people.",
-		},
-		[PingRole.Events] = new Entry {
-			Label = "Events",
-			Id = "option_events",
-			Emoji = new ("\U0001F938\u200D\u2640\uFE0F"), // :woman_cartwheeling:
-			Description = "Social event announcements.",
-		},
-		[PingRole.Herald] = new Entry {
-			Label = "Herald",
-			Id = "option_herald",
-			Emoji = new ("\u2604"), // :comet:
-			Description = "Herald of the Titans announcements.",
-		},
-	};
-	private static readonly ConcurrentDictionary<PingRole, ulong> _table_RoleToId = new () {
-		[PingRole.Raid   ] = id_r.raid   ,
-		[PingRole.Mythics] = id_r.mythics,
-		[PingRole.KSM    ] = id_r.ksm    ,
-		[PingRole.Gearing] = id_r.gearing,
-		[PingRole.Events ] = id_r.events ,
-		[PingRole.Herald ] = id_r.herald ,
-	};
-	private static readonly ConcurrentDictionary<ulong, PingRole> _table_IdToRole;
+	private static readonly ReadOnlyCollection<KeyValuePair<PingRole, Entry>> _optionsList =
+		new (new List<KeyValuePair<PingRole, Entry>>() {
+			new (PingRole.Raid, new Entry {
+				Label = "Raid",
+				Id = "option_raid",
+				Emoji = new ("\U0001F409"), // :dragon:
+				Description = "Raid announcements.",
+			}),
+			new (PingRole.Mythics, new Entry {
+				Label = "M+",
+				Id = "option_mythics",
+				Emoji = new ("\U0001F5FA"), // :map:
+				Description = "M+ keys in general.",
+			}),
+			new (PingRole.KSM, new Entry {
+				Label = "KSM",
+				Id = "option_ksm",
+				Emoji = new ("\U0001F94B"), // :martial_arts_uniform:
+				Description = "Higher keys requiring more focus.",
+			}),
+			new (PingRole.Gearing, new Entry {
+				Label = "Gearing",
+				Id = "option_gearing",
+				Emoji = new ("\U0001F392"), // :school_satchel:
+				Description = "Lower keys / M0s to help gear people.",
+			}),
+			new (PingRole.Events, new Entry {
+				Label = "Events",
+				Id = "option_events",
+				Emoji = new ("\U0001F938\u200D\u2640\uFE0F"), // :woman_cartwheeling:
+				Description = "Social event announcements.",
+			}),
+			new (PingRole.Herald, new Entry {
+				Label = "Herald",
+				Id = "option_herald",
+				Emoji = new ("\u2604"), // :comet:
+				Description = "Herald of the Titans announcements.",
+			}),
+		});
+	private static readonly ReadOnlyDictionary<PingRole, Entry> _options;
+
+	private static readonly ReadOnlyDictionary<PingRole, ulong> _table_RoleToId =
+		new (new ConcurrentDictionary<PingRole, ulong>() {
+			[PingRole.Raid   ] = id_r.raid   ,
+			[PingRole.Mythics] = id_r.mythics,
+			[PingRole.KSM    ] = id_r.ksm    ,
+			[PingRole.Gearing] = id_r.gearing,
+			[PingRole.Events ] = id_r.events ,
+			[PingRole.Herald ] = id_r.herald ,
+		});
+	private static readonly ReadOnlyDictionary<ulong, PingRole> _table_IdToRole;
 
 	private static readonly object _lock = new ();
 	const string _pathIntros = @"data/role-intros.txt";
 	const string _delim = "=";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Roles() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
-		_table_IdToRole = Util.Invert(_table_RoleToId);
+		ConcurrentDictionary<PingRole, Entry> options = new ();
+		foreach (KeyValuePair<PingRole, Entry> option in _optionsList)
+			options.TryAdd(option.Key, option.Value);
+		_options = new (options);
+
+		_table_IdToRole =
+			new (new ConcurrentDictionary<ulong, PingRole>(
+				Util.Invert(_table_RoleToId)
+			));
+
 		Util.CreateIfMissing(_pathIntros, _lock);
 
 		Log.Information("  Initialized command: /roles");
@@ -139,8 +152,8 @@ class Roles : ICommand {
 			interaction.Interaction,
 			AssignRoles,
 			message_promise.Task,
-			_options,
-			roles,
+			_optionsList,
+			new HashSet<PingRole>(roles),
 			"No roles selected",
 			isMultiple: true
 		);
@@ -224,7 +237,7 @@ class Roles : ICommand {
 		await Welcome(member, roles_added);
 
 		// Update select component.
-		List<Entry> options_updated = new ();
+		HashSet<Entry> options_updated = new ();
 		foreach (PingRole key in _options.Keys) {
 			DiscordRole role = Guild.GetRole(ToDiscordId(key));
 			if (roles_new.Contains(role))

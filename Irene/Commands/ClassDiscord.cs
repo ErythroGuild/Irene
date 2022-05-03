@@ -3,45 +3,48 @@
 namespace Irene.Commands;
 
 class ClassDiscord : ICommand {
-	private static readonly Dictionary<Class, string> _options = new () {
-		{ Class.DK, "death-knight" },
-		{ Class.DH, "demon-hunter" },
-		{ Class.Druid  , "druid"   },
-		{ Class.Hunter , "hunter"  },
-		{ Class.Mage   , "mage"    },
-		{ Class.Monk   , "monk"    },
-		{ Class.Paladin, "paladin" },
-		{ Class.Priest , "priest"  },
-		{ Class.Rogue  , "rogue"   },
-		{ Class.Shaman , "shaman"  },
-		{ Class.Warlock, "warlock" },
-		{ Class.Warrior, "warrior" },
-	};
-	private static readonly Dictionary<Class, string> _invites = new () {
-		{ Class.DK     , @"https://discord.gg/acherus"        },
-		{ Class.DH     , @"https://discord.gg/felhammer"      },
-		{ Class.Druid  , @"https://discord.gg/dreamgrove"     },
-		{ Class.Hunter , @"https://discord.gg/trueshot"       },
-		{ Class.Mage   , @"https://discord.gg/makGfZA"        },
-		{ Class.Monk   , @"https://discord.gg/peakofserenity" },
-		{ Class.Paladin, @"https://discord.gg/hammerofwrath"  },
-		{ Class.Rogue  , @"https://discord.gg/ravenholdt"     },
-		{ Class.Warlock, @"https://discord.gg/blackharvest"   },
-		{ Class.Warrior, @"https://discord.gg/skyhold"        },
+	private static readonly ReadOnlyDictionary<Class, string> _options =
+		new (new ConcurrentDictionary<Class, string>() {
+			[Class.DK] = "death-knight",
+			[Class.DH] = "demon-hunter",
+			[Class.Druid  ] = "druid"  ,
+			[Class.Hunter ] = "hunter" ,
+			[Class.Mage   ] = "mage"   ,
+			[Class.Monk   ] = "monk"   ,
+			[Class.Paladin] = "paladin",
+			[Class.Priest ] = "priest" ,
+			[Class.Rogue  ] = "rogue"  ,
+			[Class.Shaman ] = "shaman" ,
+			[Class.Warlock] = "warlock",
+			[Class.Warrior] = "warrior",
+		});
+	private static readonly ReadOnlyDictionary<Class, string> _invites =
+		new (new ConcurrentDictionary<Class, string>() {
+			[Class.DK     ] = @"https://discord.gg/acherus"       ,
+			[Class.DH     ] = @"https://discord.gg/felhammer"     ,
+			[Class.Druid  ] = @"https://discord.gg/dreamgrove"    ,
+			[Class.Hunter ] = @"https://discord.gg/trueshot"      ,
+			[Class.Mage   ] = @"https://discord.gg/makGfZA"       ,
+			[Class.Monk   ] = @"https://discord.gg/peakofserenity",
+			[Class.Paladin] = @"https://discord.gg/hammerofwrath" ,
+			[Class.Rogue  ] = @"https://discord.gg/ravenholdt"    ,
+			[Class.Warlock] = @"https://discord.gg/blackharvest"  ,
+			[Class.Warrior] = @"https://discord.gg/skyhold"       ,
 
-		{ Class.Priest , @"https://discord.gg/warcraftpriests" + "\n" + @"https://discord.gg/focusedwill (disc-only)" },
-		{ Class.Shaman , @"https://discord.gg/earthshrine"     + "\n" + @"https://discord.gg/AcTek6e (resto-only)"    },
-	};
-	private static readonly Dictionary<string, string> _optionsToInvites;
+			[Class.Priest] = @"https://discord.gg/warcraftpriests" + "\n" + @"https://discord.gg/focusedwill (disc-only)",
+			[Class.Shaman] = @"https://discord.gg/earthshrine"     + "\n" + @"https://discord.gg/AcTek6e (resto-only)"   ,
+		});
+	private static readonly ReadOnlyDictionary<string, string> _optionsToInvites;
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static ClassDiscord() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
-		_optionsToInvites = new ();
+		ConcurrentDictionary<string, string> optionsToInvites = new ();
 		foreach (Class @class in _options.Keys)
-			_optionsToInvites.Add(_options[@class], _invites[@class]);
+			optionsToInvites.TryAdd(_options[@class], _invites[@class]);
+		_optionsToInvites = new (optionsToInvites);
 
 		Log.Information("  Initialized command: /class-discord");
 		Log.Debug("    Class discord invite cache initialized.");

@@ -7,8 +7,10 @@ static class Welcome {
 		_urlMascot   = @"https://imgur.com/5pKJdPh";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Welcome() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
+
 		Client.GuildMemberAdded += (irene, e) => {
 			_ = Task.Run(async () => {
 				DiscordMember member = e.Member;
@@ -35,5 +37,9 @@ static class Welcome {
 			});
 			return Task.CompletedTask;
 		};
+
+		Log.Information("  Initialized module: Welcome");
+		Log.Debug("    Registered welcome message handler.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 }
