@@ -4,7 +4,7 @@ class TimeZones {
 	private static readonly ConcurrentDictionary<string, TimeZoneInfo> _tableCompiled;
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static TimeZones() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 

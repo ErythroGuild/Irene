@@ -25,7 +25,7 @@ class Pages {
 		_labelNext = "\u25BC";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
 	// that each event has to filter through until it hits the correct

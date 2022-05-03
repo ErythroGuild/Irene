@@ -149,7 +149,7 @@ class Raid {
 		_keyLogId     = "log-id";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Raid() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 

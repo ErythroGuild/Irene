@@ -34,7 +34,7 @@ static class Starboard {
 	};
 
 	// Force static initializer to run.
-	public static void init() { return; }
+	public static void Init() { }
 
 	static Starboard() {
 		Client.MessageReactionAdded += (irene, e) => {

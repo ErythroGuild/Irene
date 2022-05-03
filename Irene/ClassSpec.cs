@@ -233,7 +233,7 @@ static class ClassSpec {
 		});
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	// Initialize dictionary caches with redundant indices
 	// (improves performance at the cost of memory space).
 	static ClassSpec() {

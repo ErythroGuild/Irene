@@ -14,7 +14,7 @@ static partial class AuditLog {
 		n = "`N/A`";
 
 	// Force static initializer to run.
-	public static void init() { return; }
+	public static void Init() { }
 
 	// Initialize the audit log table with "base" values.
 	// Compared to later to determine if a new entry was added.

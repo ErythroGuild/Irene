@@ -132,7 +132,7 @@ partial class RecurringEvents {
 	private const string _t = "\u2003";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static RecurringEvents() {
 		_ = InitAsync();
 	}

@@ -71,7 +71,7 @@ class Roles : ICommand {
 	const string _delim = "=";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Roles() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 

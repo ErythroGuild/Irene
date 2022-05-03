@@ -37,7 +37,7 @@ class ClassDiscord : ICommand {
 	private static readonly ReadOnlyDictionary<string, string> _optionsToInvites;
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static ClassDiscord() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 

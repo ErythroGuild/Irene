@@ -33,7 +33,7 @@ class Tag: ICommand {
 		_idTagContent = "tag_content";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Tag() {
 		// Make sure datafile exists.
 		// This is useful for all methods, not just the initializer.

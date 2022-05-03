@@ -115,7 +115,7 @@ class Program {
 	}
 
 	// A dummy function to force the static constructor to run.
-	private static void InitStatic() { return; }
+	private static void InitStatic() { }
 	// Set up and configure Serilog.
 	[MemberNotNull(nameof(_loggerDsp))]
 	private static void InitSerilog() {
@@ -286,12 +286,12 @@ class Program {
 				Selection.Init();
 
 				// Initialize modules.
-				AuditLog.init();
+				AuditLog.Init();
 				Command.Init();
 				Modules.Raid.Init();
 				RecurringEvents.Init();
 				Welcome.Init();
-				Starboard.init();
+				Starboard.Init();
 
 				// Initialize commands.
 				Commands.Roles.Init();

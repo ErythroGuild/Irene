@@ -156,7 +156,7 @@ class Rank : ICommand {
 		_commandSetErythro = "Set <Erythro>";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Rank() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 

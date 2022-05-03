@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 static class Welcome {
 	private const string
@@ -7,7 +7,7 @@ static class Welcome {
 		_urlMascot   = @"https://imgur.com/5pKJdPh";
 
 	// Force static initializer to run.
-	public static void Init() { return; }
+	public static void Init() { }
 	static Welcome() {
 		Client.GuildMemberAdded += (irene, e) => {
 			_ = Task.Run(async () => {
