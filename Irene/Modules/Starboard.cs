@@ -44,10 +44,16 @@ static class Starboard {
 	private const int _capCharsPreview = 420; // hi Ambi
 	private const string _footerPrefix = "id: ";
 
+	// Blacklist-related variables.
+	private static readonly object _lock = new ();
+	private const string _pathBlacklist = @"data/starboard-blocked.txt";
+
 	// Force static initializer to run.
 	public static void Init() { }
 	static Starboard() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
+
+		Util.CreateIfMissing(_pathBlacklist, _lock);
 
 		Client.MessageReactionAdded += (irene, e) => {
 			_ = Task.Run(async () => {
@@ -95,7 +101,7 @@ static class Starboard {
 		};
 
 		Log.Information("  Initialized module: Starboard");
-		Log.Debug($"    Registered react event handler.");
+		Log.Debug($"    Registered react event handler, initialized blacklist.");
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
@@ -110,10 +116,19 @@ static class Starboard {
 				if (Guild is null)
 					return;
 
+				List<string> blacklist =
+					new (File.ReadAllLines(_pathBlacklist));
+				blacklist.RemoveAll(line => line == "");
+
 				while (!_workQueue.IsEmpty) {
 					// Work through items in order.
 					_workQueue.TryDequeue(out DiscordMessage? message);
 					if (message is null)
+						continue;
+
+					// Skip blacklisted items.
+					ulong id = message.Id;
+					if (blacklist.Contains(id.ToString()))
 						continue;
 
 					// Determine if an update is needed.
@@ -136,7 +151,6 @@ static class Starboard {
 					}
 
 					// Update cache.
-					ulong id = message.Id;
 					if (!_cache.ContainsKey(id)) {
 						_cacheQueue.Enqueue(id);
 						_cache.TryAdd(id, pin);
