@@ -1,6 +1,6 @@
 ﻿namespace Irene;
 
-class TimeZones {
+static class TimeZones {
 	private static readonly ReadOnlyDictionary<string, TimeZoneInfo> _tableCompiled;
 
 	// Force static initializer to run.

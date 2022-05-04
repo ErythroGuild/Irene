@@ -2,7 +2,7 @@
 
 namespace Irene.Modules;
 
-partial class RecurringEvents {
+static partial class RecurringEvents {
 	// Used in module initialization.
 	// For timezone conversion, see: https://www.worldtimebuddy.com/
 	private static async Task<List<Event>> GetEvents_Server() {

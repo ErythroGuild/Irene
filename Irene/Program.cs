@@ -31,7 +31,7 @@ class Program {
 	// Command queue.
 	private record class InteractionHandlerData
 		(InteractionHandler Handler, TimedInteraction Data);
-	private static readonly ConcurrentQueue<InteractionHandlerData> _queueHandlers  = new ();
+	private static readonly ConcurrentQueue<InteractionHandlerData> _queueHandlers = new ();
 	private static Task _taskHandlers = Task.CompletedTask;
 
 	// File paths for config files.
