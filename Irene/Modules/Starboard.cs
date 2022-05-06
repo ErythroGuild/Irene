@@ -12,7 +12,7 @@ static class Starboard {
 	private const int _cacheSize = 20;
 	private static readonly TimeSpan _cacheDuration = TimeSpan.FromDays(90);
 	private static readonly ConcurrentQueue<ulong> _cacheQueue = new ();
-	private static readonly ConcurrentDictionary<ulong, DiscordMessage> _cache = new ();
+	private static readonly ConcurrentDictionary<ulong, DiscordMessage?> _cache = new ();
 
 	// Embed-related variables.
 	private static readonly ReadOnlyDictionary<ulong, int> _channelThresholds =
@@ -46,7 +46,9 @@ static class Starboard {
 
 	// Blacklist-related variables.
 	private static readonly object _lock = new ();
-	private const string _pathBlacklist = @"data/starboard-blocked.txt";
+	private const string
+		_pathBlacklist = @"data/starboard-blocked.txt",
+		_pathTemp = @"data/starboard-blocked-temp.txt";
 
 	// Force static initializer to run.
 	public static void Init() { }
@@ -64,38 +66,22 @@ static class Starboard {
 				// Fetch latest data.
 				// (Sometimes the cached data is missing.)
 				DiscordChannel channel = await
-					irene.GetChannelAsync(e.Message.ChannelId);
+					Client.GetChannelAsync(e.Message.ChannelId);
 				DiscordMessage message = await
 					channel.GetMessageAsync(e.Message.Id);
 				DiscordUser author = message.Author;
 
-				// Exit if reaction doesn't need to be tracked.
+				// Check if a pin should be made.
 				if (e.User == Client.CurrentUser || e.User == author)
 					return;
-				if (!_channelThresholds.ContainsKey(channel.Id))
+				bool? doPin = await DoPin(message);
+				if (doPin is null || !doPin.Value)
 					return;
 
-				// Populate set of reacting users.
-				// Don't include bots or the author themselves.
-				HashSet<DiscordUser> users = new ();
-				foreach (DiscordReaction reaction in message.Reactions) {
-					// By default this only fetches the first 25,
-					// but we only are checking for having enough to
-					// pass the threshold, not the actual count.
-					HashSet<DiscordUser> users_i = new (await
-						message.GetReactionsAsync(reaction.Emoji)
-					);
-					users.UnionWith(users_i);
-				}
-				users.RemoveWhere(user =>
-					user.IsBot || user == author
-				);
-
-				// Add pin if enough people reacted.
+				// Add pin if passed check.
 				// Since the task for adding a pin handles queueing,
 				// there's no need to await it here.
-				if (users.Count >= _channelThresholds[channel.Id])
-					_ = UpdatePinAsync(message);
+				_ = UpdatePinAsync(message);
 			});
 			return Task.CompletedTask;
 		};
@@ -105,75 +91,192 @@ static class Starboard {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
+	public static async Task<bool?> DoPin(DiscordMessage message) {
+		// Exit if guild data isn't loaded yet.
+		if (Guild is null || Client is null)
+			return null;
+
+		// Fetch latest data.
+		// (Sometimes the cached data is missing.)
+		DiscordChannel channel = await
+			Client.GetChannelAsync(message.ChannelId);
+		message = await
+			channel.GetMessageAsync(message.Id);
+		DiscordUser author = message.Author;
+
+		// Return false if message isn't in a tracked channel.
+		if (!_channelThresholds.ContainsKey(channel.Id))
+			return false;
+
+		// Populate set of reacting users.
+		// Don't include bots or the author themselves.
+		HashSet<DiscordUser> users = new ();
+		foreach (DiscordReaction reaction in message.Reactions) {
+			// By default this only fetches the first 25,
+			// but we only are checking for having enough to
+			// pass the threshold, not the actual count.
+			HashSet<DiscordUser> users_i = new (await
+				message.GetReactionsAsync(reaction.Emoji)
+			);
+			users.UnionWith(users_i);
+		}
+		users.RemoveWhere(user =>
+			user.IsBot || user == author
+		);
+
+		// Add pin if enough people reacted.
+		return users.Count >= _channelThresholds[channel.Id];
+	}
+	
+	// Return whether or not the message has been blacklisted.
+	public static bool IsBlacklisted(DiscordMessage message) {
+		List<string> blacklist = new ();
+		lock (_lock) {
+			blacklist.AddRange(File.ReadAllLines(_pathBlacklist));
+		}
+		blacklist.RemoveAll(line => line == "");
+
+		return blacklist.Contains(message.Id.ToString());
+	}
+
+	// Toggle a discord message's blacklist status.
+	// Returns true if blacklist was updated (a message ID was
+	// blocked or unblocked).
+	public static bool SetBlacklist(DiscordMessage message, bool doBlock=true) {
+		ulong messageId = message.Id;
+
+		// Read in current blacklist.
+		List<string> blacklist = new ();
+		lock (_lock) {
+			blacklist.AddRange(File.ReadAllLines(_pathBlacklist));
+		}
+		blacklist.RemoveAll(line => line == "");
+		
+		// Add/remove message from blacklist.
+		bool didModify = false;
+		string id = messageId.ToString();
+		if (!doBlock && blacklist.Contains(id)) {
+			blacklist.RemoveAll(line => line == id);
+			didModify = true;
+		}
+		if (doBlock && !blacklist.Contains(id)) {
+			blacklist.Add(id);
+			didModify = true;
+		}
+
+		// Sort blacklist, sanitize list.
+		HashSet<string> blacklist_set = new (blacklist);
+		blacklist = new (blacklist_set);
+		blacklist.Sort();
+
+		// Write out new blacklist.
+		lock (_lock) {
+			File.WriteAllLines(_pathTemp, blacklist);
+			File.Delete(_pathBlacklist);
+			File.Move(_pathTemp, _pathBlacklist);
+		}
+
+		return didModify;
+	}
+
 	// Creates a new pin in the starboard channel if one doesn't
 	// already exist for this message. Otherwise, updates the react
 	// emoji tallies.
 	public static async Task UpdatePinAsync(DiscordMessage message) {
 		_workQueue.Enqueue(message);
-		// If work items aren't already being worked on, start.
-		if (_workTask.Status == TaskStatus.RanToCompletion) {
-			_workTask = Task.Run(async () => {
-				if (Guild is null)
-					return;
+		// Let current work task finish first.
+		await _workTask;
+		_workTask = Task.Run(async () => {
+			if (Guild is null)
+				return;
 
-				List<string> blacklist =
-					new (File.ReadAllLines(_pathBlacklist));
-				blacklist.RemoveAll(line => line == "");
+			// Fetching the blacklist separately rather than using
+			// the built-in function is more efficient.
+			// The entire file doesn't need to be read every time.
+			List<string> blacklist = new ();
+			lock (_lock) {
+				blacklist.AddRange(File.ReadAllLines(_pathBlacklist));
+			}
+			blacklist.RemoveAll(line => line == "");
 
-				while (!_workQueue.IsEmpty) {
-					// Work through items in order.
-					_workQueue.TryDequeue(out DiscordMessage? message);
-					if (message is null)
-						continue;
+			while (!_workQueue.IsEmpty) {
+				// Work through items in order.
+				_workQueue.TryDequeue(out DiscordMessage? message);
+				if (message is null)
+					continue;
 
-					// Skip blacklisted items.
-					ulong id = message.Id;
-					if (blacklist.Contains(id.ToString()))
-						continue;
+				// Skip blacklisted items.
+				ulong id = message.Id;
+				if (blacklist.Contains(id.ToString()))
+					continue;
 
-					// Determine if an update is needed.
-					// Construct the (updated) embed data.
-					DiscordMessage? pin = await FetchPinAsync(message);
-					DiscordMember? author = await message.Author.ToMember();
-					bool is_update = pin is not null;
-					DiscordEmbed embed = AsEmbed(message);
+				// Determine if an update is needed.
+				// Construct the (updated) embed data.
+				DiscordMessage? pin = await FetchPinAsync(message);
+				DiscordMember? author = await message.Author.ToMember();
+				bool is_update = pin is not null;
+				DiscordEmbed embed = AsEmbed(message);
 
-					if (pin is not null) {
-						await pin.ModifyAsync(embed);
-					} else {
-						string author_name =
-							author?.Nickname ?? message.Author.Tag();
-						Log.Information("Adding new post to starboard.");
-						Log.Debug($"  {author_name}, in #{message.Channel.Name}");
+				if (pin is not null) {
+					await pin.ModifyAsync(embed);
+				} else {
+					string author_name =
+						author?.Nickname ?? message.Author.Tag();
+					Log.Information("Adding new post to starboard.");
+					Log.Debug($"  {author_name}, in #{message.Channel.Name}");
 
-						DiscordChannel channel = Channels[id_ch.starboard];
-						pin = await channel.SendMessageAsync(embed);
-					}
+					DiscordChannel channel = Channels[id_ch.starboard];
+					pin = await channel.SendMessageAsync(embed);
+				}
 
-					// Update cache.
-					if (!_cache.ContainsKey(id)) {
-						_cacheQueue.Enqueue(id);
-						_cache.TryAdd(id, pin);
-						if (_cacheQueue.Count > _cacheSize) {
-							_cacheQueue.TryDequeue(out ulong id_discard);
-							_cache.TryRemove(id_discard, out _);
-						}
-					}
-
-					// Send congrats message (if new post).
-					if (!is_update && author is not null) {
-						List<string> text = new () {
-							"Congrats! :tada:",
-							$"Your post in {message.Channel.Mention} was extra-popular," +
-								$" and has been included in {Channels[id_ch.starboard].Mention}.",
-							$":champagne_glass: {Emojis[id_e.eryLove]}",
-						};
-						await author.SendMessageAsync(string.Join("\n", text));
-						Log.Information("  Notified original post author.");
+				// Update cache.
+				if (!_cache.ContainsKey(id)) {
+					_cacheQueue.Enqueue(id);
+					_cache.TryAdd(id, pin);
+					if (_cacheQueue.Count > _cacheSize) {
+						_cacheQueue.TryDequeue(out ulong id_discard);
+						_cache.TryRemove(id_discard, out _);
 					}
 				}
-			});
-		}
+
+				// Send congrats message (if new post).
+				if (!is_update && author is not null) {
+					List<string> text = new () {
+						"Congrats! :tada:",
+						$"Your post in {message.Channel.Mention} was extra-popular," +
+							$" and has been included in {Channels[id_ch.starboard].Mention}.",
+						$":champagne_glass: {Emojis[id_e.eryLove]}",
+					};
+					await author.SendMessageAsync(string.Join("\n", text));
+					Log.Information("  Notified original post author.");
+				}
+			}
+		});
+		await _workTask;
+	}
+
+	// Removes the pin in the starboard channel for the message,
+	// if one exists.
+	public static async Task RemovePinAsync(DiscordMessage message) {
+		// Make sure the work task isn't running.
+		await _workTask;
+		_workTask = Task.Run(async () => {
+			if (Guild is null)
+				return;
+
+			DiscordMessage? pin = await FetchPinAsync(message);
+
+			// Return early if no pin existed in the first place.
+			if (pin is null)
+				return;
+
+			// Invalidate cache and remove cache.
+			ulong id = message.Id;
+			if (_cache.ContainsKey(id))
+				_cache[id] = null;
+			await pin.Channel.DeleteMessageAsync(pin);
+
+		});
 		await _workTask;
 	}
 
@@ -185,7 +288,7 @@ static class Starboard {
 		ulong id = message.Id;
 
 		// Check cache for existing pinned message.
-		if (_cache.ContainsKey(id))
+		if (_cache.ContainsKey(id) && _cache[id] is not null)
 			return _cache[id];
 
 		// Fetch recent messages.

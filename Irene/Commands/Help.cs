@@ -103,10 +103,16 @@ class Help : ICommand {
 			//$@"{_p} `/solve mrrl`:",
 			//$@"{_p} `/solve lights-out`:",
 		} ) },
-		//{ string.Join("\n", new List<string> {
-		//	"****",
-		//	$@"{_p} `/`:",
-		//} ) },
+		{ string.Join("\n", new List<string> {
+			"**Awards**",
+			//$@"{_p} `/commend`:",
+			$@"{_p}{_l} `/best-of block <message-id> <channel>`: Blocks a message from being pinned.",
+			$@"{_p}{_l} `/best-of unblock <message-id> <channel>`: Allows a message to be pinned again.",
+			//"",
+			//"**Moderation**",
+			//$@"{_s}{_l} `/slowmode <channel>`:",
+			//$@"{_p}{_l} `/change-subject `:",
+		} ) },
 		//{ string.Join("\n", new List<string> {
 		//	"****",
 		//	$@"{_p} `/`:",
