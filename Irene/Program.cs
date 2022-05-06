@@ -289,7 +289,7 @@ class Program {
 				Modules.Raid.Init();
 				RecurringEvents.Init();
 				Welcome.Init();
-				Starboard.Init();
+				Modules.Starboard.Init();
 
 				// Initialize commands.
 				Commands.Roles.Init();
@@ -367,7 +367,24 @@ class Program {
 				Log.Information("Context menu command received: {CommandName}.", name);
 				if (Command.Handlers.ContainsKey(name)) {
 					e.Handled = true;
-					await Command.Handlers[name].Invoke(interaction);
+					// Immediately run deferrer.
+					await Command.Deferrers[name].Invoke(interaction);
+					// Queue the handler for later.
+					_queueHandlers.Enqueue(new (
+						Command.Handlers[name],
+						interaction
+					) );
+					// If handlers aren't being dequeued, start.
+					if (_taskHandlers.Status == TaskStatus.RanToCompletion) {
+						_taskHandlers = Task.Run(() => {
+							while (!_queueHandlers.IsEmpty) {
+								_queueHandlers.TryDequeue(out InteractionHandlerData? handlerData);
+								if (handlerData is null)
+									continue;
+								handlerData.Handler.Invoke(handlerData.Data);
+							}
+						});
+					}
 				}
 				else {
 					Log.Warning("  Unrecognized context menu command.");
