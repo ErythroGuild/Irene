@@ -10,7 +10,7 @@ namespace Irene;
 public record class TimedInteraction
 	(DiscordInteraction Interaction, Stopwatch Timer);
 
-class Command {
+static class Command {
 	public static ReadOnlyDictionary<string, HelpPageGetter> HelpPages { get; }
 	public static ReadOnlyCollection<DiscordApplicationCommand> Commands { get; }
 	public static ReadOnlyDictionary<string, InteractionHandler> Deferrers { get; }

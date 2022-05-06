@@ -6,7 +6,7 @@ using EventAction = System.Func<System.DateTimeOffset, System.Threading.Tasks.Ta
 
 namespace Irene.Modules;
 
-partial class RecurringEvents {
+static partial class RecurringEvents {
 	private class Event {
 		public string Id { get; init; }
 		public RecurringEvent Data { get; init; }

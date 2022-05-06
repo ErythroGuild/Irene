@@ -3,11 +3,15 @@ using Irene.Commands;
 namespace Irene.Utils;
 
 static partial class Util {
-	// Convenience method for getting the target user of a user command.
-	// A list of users is provided, but there should only be one.
-	// (This method fetches the first one found.)
+	// Convenience method for fetching the first resolved member of
+	// the specified kind.
+	// Useful for e.g. user/message context menu commands.
+	public static DiscordChannel GetTargetChannel(this DiscordInteraction interaction) =>
+		new List<DiscordChannel>(interaction.Data.Resolved.Channels.Values)[0];
 	public static DiscordMember GetTargetMember(this DiscordInteraction interaction) =>
 		new List<DiscordMember>(interaction.Data.Resolved.Members.Values)[0];
+	public static DiscordMessage GetTargetMessage(this DiscordInteraction interaction) =>
+		new List<DiscordMessage>(interaction.Data.Resolved.Messages.Values)[0];
 
 	// Convenience method for fetching command options.
 	public static List<DiscordInteractionDataOption> GetArgs(this DeferrerHandler handler) =>

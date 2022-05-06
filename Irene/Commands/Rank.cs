@@ -259,10 +259,9 @@ class Rank : ICommand {
 				"",	// description field must be "" instead of null
 				defaultPermission: true,
 				type: ApplicationCommandType.UserContextMenu
-			), DeferAsync, SetErythroAsync)
+			), Command.DeferEphemeralAsync, SetErythroAsync )
 		};
 	}
-
 	public static List<InteractionCommand> MessageCommands { get => new (); }
 	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
@@ -313,20 +312,19 @@ class Rank : ICommand {
 		};
 	}
 
-	private static async Task SetErythroAsync(TimedInteraction interaction) {
+	public static async Task SetErythroAsync(TimedInteraction interaction) {
 		// Check for permissions.
 		bool doContinue = await
 			interaction.CheckAccessAsync(false, AccessLevel.Officer);
 		if (!doContinue)
 			return;
 
-		await interaction.Interaction.DeferMessageAsync(true);
 		List<string> response_lines = new ();
 
 		// Fetch the first resolved user.
 		DiscordMember member =
 			interaction.Interaction.GetTargetMember();
-		Log.Debug("  Setting {User} as <Erythro> member.", member.DisplayName);
+		Log.Information("  Setting {User} as <Erythro> member.", member.DisplayName);
 
 		// Set rank role (Guest).
 		if (Command.GetAccessLevel(member) < AccessLevel.Guest) {
