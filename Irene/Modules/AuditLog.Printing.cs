@@ -3,112 +3,117 @@
 static partial class AuditLog {
 
 	// Append any changes to a display string.
-	static void print_changes(ref StringWriter text, DiscordAuditLogMemberUpdateEntry? entry) {
+	private static List<string> AddChanges(List<string> data_in, DiscordAuditLogMemberUpdateEntry? entry) {
+		List<string> data = data_in;
 		if (entry is null)
-			{ return; }
+			return data;
 
 		PropertyChange<string> nickname = entry.NicknameChange;
-		if (was_changed(nickname))
-			{ print_change_val(ref text, nickname, "Nickname"); }
+		if (DidChange(nickname))
+			data = AddValueIfChanged(data, "Nickname", nickname);
 
 		PropertyChange<bool?> deafened = entry.DeafenChange;
-		if (was_changed(deafened))
-			{ print_change_val(ref text, deafened, "Server deafened"); }
+		if (DidChange(deafened))
+			data = AddValueIfChanged(data, "Server deafened", deafened);
 		
 		PropertyChange<bool?> muted = entry.MuteChange;
-		if (was_changed(muted))
-			{ print_change_val(ref text, muted, "Server muted"); }
+		if (DidChange(muted))
+			data = AddValueIfChanged(data, "Server muted", muted);
 
 		if (entry.AddedRoles.Count > 0) {
-			text.WriteLine($"{t}Role(s) added:");
+			data.Add($"{_t}Role(s) added:");
 			string roles = "";
-			foreach (DiscordRole role in entry.AddedRoles) {
+			foreach (DiscordRole role in entry.AddedRoles)
 				roles += $"**{role.Name}**, ";
-			}
 			roles = roles[..^2];
-			text.WriteLine($"{t}{t}{roles}");
+			data.Add($"{_t2}{roles}");
 		}
 
 		if (entry.RemovedRoles.Count > 0) {
-			text.WriteLine($"{t}Role(s) removed:");
+			data.Add($"{_t}Role(s) removed:");
 			string roles = "";
-			foreach (DiscordRole role in entry.AddedRoles) {
+			foreach (DiscordRole role in entry.AddedRoles)
 				roles += $"**{role.Name}**, ";
-			}
 			roles = roles[..^2];
-			text.WriteLine($"{t}{t}{roles}");
+			data.Add($"{_t2}{roles}");
 		}
+
+		return data;
 	}
-	static void print_changes(ref StringWriter text, DiscordAuditLogGuildEntry? entry) {
+	private static List<string> AddChanges(List<string> data_in, DiscordAuditLogGuildEntry? entry) {
+		List<string> data = data_in;
 		if (entry is null)
-			{ return; }
+			return data;
 
 		PropertyChange<string> name = entry.NameChange;
-		if (was_changed(name))
-			{ print_change_val(ref text, name, "Name"); }
+		if (DidChange(name))
+			data = AddValueIfChanged(data, "Name", name);
 
 		PropertyChange<string> icon = entry.IconChange;
-		if (was_changed(icon))
-			{ print_change_img(ref text, icon, "Icon"); }
+		if (DidChange(icon))
+			data = AddIfChanged(data, "Icon", icon);
 
 		PropertyChange<string> splash = entry.SplashChange;
-		if (was_changed(splash))
-			{ print_change_img(ref text, splash, "Invite splash"); }
+		if (DidChange(splash))
+			data = AddIfChanged(data, "Invite splash", splash);
 		
 		PropertyChange<string> region = entry.RegionChange;
-		if (was_changed(region))
-			{ print_change_val(ref text, region, "Region"); }
+		if (DidChange(region))
+			data = AddValueIfChanged(data, "Region", region);
 
 		PropertyChange<DiscordMember> owner = entry.OwnerChange;
-		if (was_changed(owner))
-			{ print_change_member(ref text, owner, "Owner"); }
+		if (DidChange(owner))
+			data = AddIfChanged(data, "Owner", owner);
 
 		PropertyChange<VerificationLevel> verification = entry.VerificationLevelChange;
-		if (was_changed(verification))
-			{ print_change_val(ref text, verification, "Member verification level"); }
+		if (DidChange(verification))
+			data = AddValueIfChanged(data, "Member verification level", verification);
 
 		PropertyChange<MfaLevel> auth_level = entry.MfaLevelChange;
-		if (was_changed(auth_level))
-			{ print_change_val(ref text, auth_level, "Moderator 2FA requirement"); }
+		if (DidChange(auth_level))
+			data = AddValueIfChanged(data, "Moderator 2FA requirement", auth_level);
 
 		PropertyChange<ExplicitContentFilter> filter = entry.ExplicitContentFilterChange;
-		if (was_changed(filter))
-			{ print_change_val(ref text, filter, "Explicit content filter"); }
+		if (DidChange(filter))
+			data = AddValueIfChanged(data, "Explicit content filter", filter);
 
 		PropertyChange<DefaultMessageNotifications> notifications = entry.NotificationSettingsChange;
-		if (was_changed(notifications))
-			{ print_change_val(ref text, notifications, "Default notifications"); }
+		if (DidChange(notifications))
+			data = AddValueIfChanged(data, "Default notifications", notifications);
 
 		PropertyChange<DiscordChannel> ch_sys = entry.SystemChannelChange;
-		if (was_changed(ch_sys))
-			{ print_change_channel(ref text, ch_sys, "System messages channel"); }
+		if (DidChange(ch_sys))
+			data = AddIfChanged(data, "System messages channel", ch_sys);
 
 		PropertyChange<DiscordChannel> ch_afk = entry.AfkChannelChange;
-		if (was_changed(ch_afk))
-			{ print_change_channel(ref text, ch_afk, "AFK channel"); }
+		if (DidChange(ch_afk))
+			data = AddIfChanged(data, "AFK channel", ch_afk);
 
 		PropertyChange<DiscordChannel> ch_widget = entry.EmbedChannelChange;
-		if (was_changed(ch_widget))
-			{ print_change_channel(ref text, ch_widget, "Server widget channel"); }
+		if (DidChange(ch_widget))
+			data = AddIfChanged(data, "Server widget channel", ch_widget);
+
+		return data;
 	}
-	static void print_changes(ref StringWriter text, DiscordAuditLogRoleUpdateEntry? entry) {
+	private static List<string> AddChanges(List<string> data_in, DiscordAuditLogRoleUpdateEntry? entry) {
+		List<string> data = data_in;
 		if (entry is null)
-			{ return; }
+			return data;
 
 		PropertyChange<string> name = entry.NameChange;
-		if (was_changed(name))
-			{ print_change_val(ref text, name, "Name"); }
+		if (DidChange(name))
+			data = AddValueIfChanged(data, "Name", name);
 
 		PropertyChange<int?> color = entry.ColorChange;
-		if (was_changed(color))
-			{ print_change_color(ref text, color, "Color"); }
+		if (DidChange(color))
+			data = AddIfChanged(data, "Color", color);
 
 		PropertyChange<bool?> mentionable = entry.MentionableChange;
-		if (was_changed(mentionable))
-			{ print_change_val(ref text, mentionable, "Mentionable by everyone"); }
+		if (DidChange(mentionable))
+			data = AddValueIfChanged(data, "Mentionable by everyone", mentionable);
 
 		PropertyChange<Permissions?> permissions = entry.PermissionChange;
-		if (was_changed(permissions)) {
+		if (DidChange(permissions)) {
 			Permissions perms_before = permissions.Before ?? Permissions.None;
 			Permissions perms_after  = permissions.After  ?? Permissions.None;
 
@@ -118,55 +123,61 @@ static partial class AuditLog {
 			Permissions perms_removed = perms_before & perms_delta;
 
 			if (perms_added != Permissions.None) {
-				text.WriteLine($"{t}Permissions granted:");
-				print_perms(ref text, perms_added);
+				data.Add($"{_t}Permissions granted:");
+				data.AddRange(PrintPermissions(perms_added));
 			}
 			if (perms_removed != Permissions.None) {
-				text.WriteLine($"{t}Permissions revoked:");
-				print_perms(ref text, perms_removed);
+				data.Add($"{_t}Permissions revoked:");
+				data.AddRange(PrintPermissions(perms_removed));
 			}
 		}
+
+		return data;
 	}
-	static void print_changes(ref StringWriter text, DiscordAuditLogChannelEntry? entry) {
+	private static List<string> AddChanges(List<string> data_in, DiscordAuditLogChannelEntry? entry) {
+		List<string> data = data_in;
 		if (entry is null)
-			{ return; }
+			return data;
 
 		PropertyChange<string> name = entry.NameChange;
-		if (was_changed(name))
-			{ print_change_val(ref text, name, "Channel name"); }
+		if (DidChange(name))
+			data = AddValueIfChanged(data, "Channel name", name);
 
 		PropertyChange<ChannelType?> type = entry.TypeChange;
-		if (was_changed(type))
-			{ print_change_val(ref text, type, "Channel type"); }
+		if (DidChange(type))
+			data = AddValueIfChanged(data, "Channel type", type);
 
 		// This should never happen. DiscordOverwrite changes go to
 		// a different DiscordAuditLogEntry type.
-		PropertyChange<IReadOnlyList<DiscordOverwrite>> permissions =
-			entry.OverwriteChange;
-		if (was_changed(permissions))
-			{ print_change_perms(ref text, permissions, "Channel permissions"); }
+		//PropertyChange<IReadOnlyList<DiscordOverwrite>> permissions =
+		//	entry.OverwriteChange;
+		//if (DidChange(permissions))
+		//	data = print_change_perms(data, "Channel permissions", permissions);
 
 		PropertyChange<bool?> nsfw = entry.NsfwChange;
-		if (was_changed(nsfw))
-			{ print_change_val(ref text, nsfw, "Channel NSFW status"); }
+		if (DidChange(nsfw))
+			data = AddValueIfChanged(data, "Channel NSFW status", nsfw);
 
 		PropertyChange<string> topic = entry.TopicChange;
-		if (was_changed(topic))
-			{ print_change_val(ref text, topic, "Channel topic"); }
+		if (DidChange(topic))
+			data = AddValueIfChanged(data, "Channel topic", topic);
 
 		PropertyChange<int?> slowmode = entry.PerUserRateLimitChange;
-		if (was_changed(slowmode))
-			{ print_change_val(ref text, slowmode, "Channel slowmode (sec/post)"); }
+		if (DidChange(slowmode))
+			data = AddValueIfChanged(data, "Channel slowmode (sec/post)", slowmode);
 
 		PropertyChange<int?> bitrate = entry.BitrateChange;
-		if (was_changed(bitrate))
-			{ print_change_val(ref text, bitrate, "Channel bitrate (kbps)"); }
+		if (DidChange(bitrate))
+			data = AddValueIfChanged(data, "Channel bitrate (kbps)", bitrate);
+
+		return data;
 	}
-	static void print_changes(ref StringWriter text, DiscordAuditLogOverwriteEntry? entry) {
+	private static List<string> AddChanges(List<string> data_in, DiscordAuditLogOverwriteEntry? entry) {
+		List<string> data = data_in;
 		if (entry is null)
-			return;
+			return data;
 		if (Guild is null)
-			return;
+			return data;
 
 		// N.B.: The "After" fields in the OverwriteEntry are always copied
 		// of the "Before" fields; we must use the `entry.Target` fields in
@@ -186,7 +197,7 @@ static partial class AuditLog {
 			OverwriteType.Role   => $"`@{Guild.GetRole(entity_id).Name}`",
 			_ => "",
 		};
-		text.WriteLine($"Permissions updated for {entity_str}.");
+		data.Add($"Permissions updated for {entity_str}.");
 
 		// List "Allow" permissions.
 		Permissions perms_allow_delta =
@@ -195,15 +206,15 @@ static partial class AuditLog {
 		Permissions perms_allow_added =
 			perms_allow_delta & overwrite.Allowed;
 		if (perms_allow_added != Permissions.None ) {
-			text.WriteLine($"{t}Permissions now granted:");
-			print_perms(ref text, perms_allow_added);
+			data.Add($"{_t}Permissions now granted:");
+			data.AddRange(PrintPermissions(perms_allow_added));
 		}
 		Permissions perms_allow_removed =
 			perms_allow_delta & entry.AllowChange.Before
 			?? Permissions.None;
 		if (perms_allow_removed != Permissions.None) {
-			text.WriteLine($"{t}Permissions no longer granted:");
-			print_perms(ref text, perms_allow_removed);
+			data.Add($"{_t}Permissions no longer granted:");
+			data.AddRange(PrintPermissions(perms_allow_removed));
 		}
 
 		// List "Deny" permissions.
@@ -213,41 +224,44 @@ static partial class AuditLog {
 		Permissions perms_deny_added =
 			perms_deny_delta & overwrite.Denied;
 		if (perms_deny_added != Permissions.None) {
-			text.WriteLine($"{t}Permissions now denied:");
-			print_perms(ref text, perms_deny_added);
+			data.Add($"{_t}Permissions now denied:");
+			data.AddRange(PrintPermissions(perms_deny_added));
 		}
 		Permissions perms_deny_removed =
 			perms_deny_delta & entry.DenyChange.Before
 			?? Permissions.None;
 		if (perms_deny_removed != Permissions.None) {
-			text.WriteLine($"{t}Permissions no longer denied:");
-			print_perms(ref text, perms_deny_removed);
+			data.Add($"{_t}Permissions no longer denied:");
+			data.AddRange(PrintPermissions(perms_deny_removed));
 		}
+
+		return data;
 	}
-	static void print_changes(ref StringWriter text, DiscordAuditLogEmojiEntry? entry) {
+	private static List<string> AddChanges(List<string> data_in, DiscordAuditLogEmojiEntry? entry) {
+		List<string> data = data_in;
 		if (entry is null)
-			{ return; }
+			return data;
 
 		DiscordEmoji emoji = entry.Target;
-		text.WriteLine($"{t}Emoji updated:");
-		text.WriteLine($"{t}{t}{emoji_string(emoji)}");
+		data.Add($"{_t}Emoji updated:");
+		data.Add($"{_t2}{AsData(emoji)}");
 
 		PropertyChange<string> name = entry.NameChange;
-		if (was_changed(name))
-			{ print_change_val(ref text, name, "Name"); }
+		if (DidChange(name))
+			data = AddValueIfChanged(data, "Name", name);
+
+		return data;
 	}
 
 	// Syntax sugar for checking if a property change needs to be printed.
-	static bool was_changed<T>(PropertyChange<T> property) {
+	private static bool DidChange<T>(PropertyChange<T> property) {
 		if (property is null)
-			{ return false; }
+			return false;
 		
-		if (property.After is not null) {
+		if (property.After is not null)
 			return !property.After.Equals(property.Before);
-		}
-		if (property.Before is not null) {
+		if (property.Before is not null)
 			return !property.Before.Equals(property.After);
-		}
 
 		// If the logic reaches this point, then the property must
 		// always be null, and not have changed.
@@ -255,102 +269,109 @@ static partial class AuditLog {
 	}
 	
 	// Prints the list of permissions (indented twice).
-	static void print_perms(
-		ref StringWriter text,
-		Permissions perms
-	) {
-		IReadOnlyList<Permissions> perms_list =
-			Util.PermissionsFlags();
-		foreach (Permissions perms_i in perms_list) {
-			// Do not print "None" ever, as a changed field.
-			if (perms_i == Permissions.None)
-				{ continue; }
+	private static List<string> PrintPermissions(Permissions permissions) {
+		List<string> text = new ();
 
-			if (perms.HasPermission(perms_i)) {
-				text.WriteLine($"{t}{t}{b} {perms_i.Description()}");
-			}
+		IReadOnlyList<Permissions> permissions_all =
+			Util.PermissionsFlags();
+		foreach (Permissions permission_i in permissions_all) {
+			// Do not print "None" as a changed field.
+			if (permission_i == Permissions.None)
+				continue;
+
+			if (permissions.HasPermission(permission_i))
+				text.Add($"{_t2}{_b} {permission_i.Description()}");
 		}
+
+		return text;
 	}
 
 	// Print the changes from a single property change item.
-	static void print_change_val<T>(
-		ref StringWriter text,
-		PropertyChange<T> property,
-		string label ) {
-		print_change_string(
-			ref text,
-			label,
-			property.Before?.ToString() ?? n,
-			property.After ?.ToString() ?? n
+	private static List<string> AddValueIfChanged<T>(
+		List<string> data,
+		string label,
+		PropertyChange<T> property
+	) =>
+		AddChange(
+			data, label,
+			property.Before?.ToString() ?? _n,
+			property.After ?.ToString() ?? _n
+		);
+	private static List<string> AddIfChanged(
+		List<string> data,
+		string label,
+		PropertyChange<DiscordColor?> color
+	) =>
+		AddChange(
+			data, label,
+			color.Before?.HexCode() ?? _n,
+			color.After ?.HexCode() ?? _n
+		);
+	private static List<string> AddIfChanged(
+		List<string> data,
+		string label,
+		PropertyChange<int?> color
+	) {
+		DiscordColor? color_before = (color.Before is null)
+			? null
+			: new ((int)color.Before);
+		DiscordColor? color_after = (color.After  is null)
+			? null
+			: new ((int)color.After);
+		return AddChange(
+			data, label,
+			color_before?.HexCode() ?? _n,
+			color_after ?.HexCode() ?? _n
 		);
 	}
-	static void print_change_color(
-		ref StringWriter text,
-		PropertyChange<DiscordColor?> color,
-		string label ) {
-		print_change_string(
-			ref text,
-			label,
-			color.Before?.HexCode() ?? n,
-			color.After ?.HexCode() ?? n
+	private static List<string> AddIfChanged(
+		List<string> data,
+		string label,
+		PropertyChange<DiscordMember> member
+	) =>
+		AddChange(
+			data, label,
+			AsData(member.Before) ?? _n,
+			AsData(member.After ) ?? _n
 		);
-	}
-	static void print_change_color(
-		ref StringWriter text,
-		PropertyChange<int?> color,
-		string label ) {
-		DiscordColor? color_before = (color.Before is null) ? null : new ((int)color.Before);
-		DiscordColor? color_after  = (color.After  is null) ? null : new ((int)color.After );
-		print_change_string(
-			ref text,
-			label,
-			color_before?.HexCode() ?? n,
-			color_after ?.HexCode() ?? n
+	private static List<string> AddIfChanged(
+		List<string> data,
+		string label,
+		PropertyChange<DiscordChannel> channel
+	) =>
+		AddChange(
+			data, label,
+			channel.Before?.Mention ?? _n,
+			channel.After?.Mention ?? _n
 		);
+	// This should never happen. DiscordOverwrite changes go to
+	// a different DiscordAuditLogEntry type.
+	//private static List<string> PrintChangePermissions(
+	//	List<string> data,
+	//	string label,
+	//	PropertyChange<IReadOnlyList<DiscordOverwrite>> property
+	//)
+	private static List<string> AddIfChanged(
+		List<string> data,
+		string label,
+		PropertyChange<string> image
+	) {
+		List<string> data_new = data;
+		if (image.Before != image.After)
+			data_new.Add($"{_t}{label} icon changed.");
+		return data_new;
 	}
-	static void print_change_member(
-		ref StringWriter text,
-		PropertyChange<DiscordMember> member,
-		string label ) {
-		print_change_string(
-			ref text,
-			label,
-			member_string(member.Before) ?? n,
-			member_string(member.After ) ?? n
-		);
-	}
-	static void print_change_channel(
-		ref StringWriter text,
-		PropertyChange<DiscordChannel> ch,
-		string label ) {
-		print_change_string(
-			ref text,
-			label,
-			ch.Before?.Mention ?? n,
-			ch.After ?.Mention ?? n
-		);
-	}
-	static void print_change_perms(
-		ref StringWriter text,
-		PropertyChange<IReadOnlyList<DiscordOverwrite>> property,
-		string label ) {
-		// This should never happen. DiscordOverwrite changes go to
-		// a different DiscordAuditLogEntry type.
-		text.WriteLine($"{t}{label} changed.");
-	}
-	static void print_change_img(
-		ref StringWriter text,
-		PropertyChange<string> img,
-		string label ) {
-		text.WriteLine($"{t}{label} icon changed.");
-	}
-	
+
 	// Internal function used to print a stringified PropertyChange<T>.
-	static void print_change_string(
-		ref StringWriter text,
+	private static List<string> AddChange(
+		List<string> data,
 		string label,
 		string before,
-		string after ) {
-		text.WriteLine($"{t}{label}: {before} {r} {after}");
+		string after
+	) {
+		List<string> data_new = data;
+		if (before != after)
+			data_new.Add($"{_t}{label}: {before} {_r} {after}");
+		return data_new;
 	}
 }

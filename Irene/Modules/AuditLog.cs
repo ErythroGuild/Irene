@@ -1,205 +1,197 @@
 ﻿namespace Irene.Modules;
 
-using AuditLogEntryTable = Dictionary<AuditLogActionType, DiscordAuditLogEntry?>;
-
 static partial class AuditLog {
-	static AuditLogEntryTable audit_log_base = new ();
-	static bool is_audit_log_loaded = false;
+	private static readonly ConcurrentDictionary<AuditLogActionType, DiscordAuditLogEntry?> _logsLatest = new ();
+	private static bool _isLoaded = false;
 
-	const string
-		t = "\u2003",
-		b = "\u2022",
-		l = "\u2B9A",
-		r = "\u21A6",
-		n = "`N/A`";
+	private const string
+		_t = "\u2003",
+		_t2 = _t + _t,
+		_b = "\u2022",
+		_a = "\u2B9A",
+		_r = "\u21A6",
+		_n = "`N/A`";
 
 	// Force static initializer to run.
 	public static void Init() { }
+	static AuditLog() {
+		_ = InitAsync();
+	}
+	private static async Task InitAsync() {
+		Stopwatch stopwatch = Stopwatch.StartNew();
 
-	// Initialize the audit log table with "base" values.
-	// Compared to later to determine if a new entry was added.
-	static void init_audit_log_base() {
+		await InitEntriesAsync();
+		InitHandlers();
+
+		Log.Information("  Initialized module: AuditLog");
+		string entry_count = _logsLatest.Count switch {
+			1 => "entry",
+			_ => "entries", // includes 0
+		};
+		Log.Debug($"    Fetched {{EntryCount}} audit log {entry_count}.", _logsLatest.Count);
+		Log.Debug("    Event handlers registered.");
+		stopwatch.LogMsecDebug("    Took {Time} msec.");
+	}
+
+	// Initialize the audit log table with "base" values, these can
+	// later be compared to to determine if a new entry was added.
+	private static async Task InitEntriesAsync() {
+		// This module *requires* guilds to be initialized.
+		// There is no reliable way to wait for them.
 		if (Guild is null) {
-			Log.Error("  Cannot init audit log without loaded guild.");
+			Log.Error("  AuditLog failed to initialize.");
+			Log.Error("    Cannot initialize AuditLog without loaded guild.");
 			return;
 		}
 
-		List<AuditLogActionType> types = new () {
-			AuditLogActionType.BotAdd,
-			AuditLogActionType.Kick,
-			AuditLogActionType.Prune,
-			AuditLogActionType.Ban,
-			AuditLogActionType.Unban,
-			AuditLogActionType.MemberUpdate,
-			AuditLogActionType.MemberRoleUpdate,
-			AuditLogActionType.GuildUpdate,
-			AuditLogActionType.RoleCreate,
-			AuditLogActionType.RoleDelete,
-			AuditLogActionType.RoleUpdate,
-			AuditLogActionType.ChannelCreate,
-			AuditLogActionType.ChannelDelete,
-			AuditLogActionType.ChannelUpdate,
-			AuditLogActionType.OverwriteCreate,
-			AuditLogActionType.OverwriteDelete,
-			AuditLogActionType.OverwriteUpdate,
-			AuditLogActionType.EmojiCreate,
-			AuditLogActionType.EmojiDelete,
-			AuditLogActionType.EmojiUpdate,
-			AuditLogActionType.InviteCreate,
-			AuditLogActionType.InviteDelete,
-			AuditLogActionType.MessageDelete,
-			AuditLogActionType.MessageBulkDelete,
-		};
-
+		// Fire off all the requests and wait for them to finish.
+		List<Task> tasks = new ();
+		AuditLogActionType[] types =
+			Enum.GetValues<AuditLogActionType>();
 		foreach (AuditLogActionType type in types) {
-			DiscordAuditLogEntry? entry =
-				Guild.LatestAuditLogEntry(type).Result;
-			audit_log_base.Add(type, entry);
+			tasks.Add(
+				Guild.LatestAuditLogEntry(type)
+				.ContinueWith((task) =>
+					{ _logsLatest.TryAdd(type, task.Result); }
+				)
+			);
 		}
-
-		is_audit_log_loaded = true;
-		Log.Debug("Initialized module: AuditLog");
+		await Task.WhenAll(tasks);
+		_isLoaded = true;
 	}
 
-	static AuditLog() {
-		// Get a baseline for most recent audit log entries of each type.
-		_ = Task.Run(init_audit_log_base);
-
+	// Attach handlers to all relevant events.
+	private static void InitHandlers() {
 		// New member joined server.
 		// (Includes bots being added to the server.)
 		Client.GuildMemberAdded += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordMember member = e.Member;
 
 				// Fetch additional data.
-				DiscordAuditLogBotAddEntry? entry =
-					find_entry(AuditLogActionType.BotAdd).Result
-					as DiscordAuditLogBotAddEntry;
+				DiscordAuditLogBotAddEntry? entry = await
+					FindEntryAsync<DiscordAuditLogBotAddEntry>
+					(AuditLogActionType.BotAdd);
 
 				// Format output.
-				StringWriter text = new ();
-				string type_join_str = member.IsBot ? "Bot added" : "Member joined";
-				text.WriteLine($"**{type_join_str}:** {member_string(member)}");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				string type_join_str = member.IsBot
+					? "Bot added"
+					: "Member joined";
+				data.Add($"**{type_join_str}:** {AsData(member)}");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// Member left server.
 		// (Includes member pruning and members being kicked.)
 		Client.GuildMemberRemoved += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordMember member = e.Member;
 
 				// Fetch additional data.
-				DiscordAuditLogKickEntry? entry_kick = null;
-				DiscordAuditLogPruneEntry? entry_prune = null;
-				List<Task> tasks = new ();
-				tasks.Add(Task.Run(async () => {
-					entry_kick = await
-						find_entry(AuditLogActionType.Kick)
-						as DiscordAuditLogKickEntry;
-				}));
-				tasks.Add(Task.Run(async () => {
-					entry_prune = await
-						find_entry(AuditLogActionType.Prune)
-						as DiscordAuditLogPruneEntry;
-				}));
-				task_join(tasks);
+				Task<DiscordAuditLogKickEntry?> task_entry_kick =
+					FindEntryAsync<DiscordAuditLogKickEntry>
+					(AuditLogActionType.Kick);
+				Task<DiscordAuditLogPruneEntry?> task_entry_prune =
+					FindEntryAsync<DiscordAuditLogPruneEntry>
+					(AuditLogActionType.Prune);
+				await Task.WhenAll(task_entry_kick, task_entry_prune);
+				DiscordAuditLogKickEntry? entry_kick =
+					await task_entry_kick;
+				DiscordAuditLogPruneEntry? entry_prune =
+					await task_entry_prune;
 
 				// Format output.
-				StringWriter text = new ();
+				List<string> data = new ();
 				if (entry_prune is not null) {
-					text.WriteLine($"**Members pruned:** {member_string(member)}");
-					text.WriteLine($"{entry_prune.Toll} members inactive for {entry_prune.Days}+ days.");
-					try_add_data(ref text, entry_prune);
+					data.Add($"**Members pruned:** {AsData(member)}");
+					data.Add($"{entry_prune.Toll} members inactive for {entry_prune.Days}+ days.");
+					data = await AddEntryDataAsync(data, entry_prune);
 				} else if (entry_kick is not null) {
-					text.WriteLine($"**Member removed:** {member_string(member)}");
-					try_add_data(ref text, entry_kick);
+					data.Add($"**Member removed:** {AsData(member)}");
+					data = await AddEntryDataAsync(data, entry_kick);
 				} else {
-					text.WriteLine($"**Member left:** {member_string(member)}");
+					data.Add($"**Member left:** {AsData(member)}");
 				}
-				log_entry(text.ToString());
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 
 		// User banned.
 		Client.GuildBanAdded += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordMember member = e.Member;
 
 				// Fetch additional data.
-				DiscordAuditLogBanEntry? entry =
-					find_entry(AuditLogActionType.Ban).Result
-					as DiscordAuditLogBanEntry;
+				DiscordAuditLogBanEntry? entry = await
+					FindEntryAsync<DiscordAuditLogBanEntry>
+					(AuditLogActionType.Ban);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**User banned:** {member_string(member)}");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**User banned:** {AsData(member)}");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// User unbanned.
 		Client.GuildBanRemoved += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordMember member = e.Member;
 
 				// Fetch additional data.
-				DiscordAuditLogBanEntry? entry =
-					find_entry(AuditLogActionType.Unban).Result
-					as DiscordAuditLogBanEntry;
+				DiscordAuditLogBanEntry? entry = await
+					FindEntryAsync<DiscordAuditLogBanEntry>
+					(AuditLogActionType.Unban);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**User unbanned:** {member_string(member)}");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**User unbanned:** {AsData(member)}");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 
 		// User info/roles updated.
 		Client.GuildMemberUpdated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordMember member = e.Member;
 
 				// Fetch additional data.
+				Task<DiscordAuditLogMemberUpdateEntry?>
+					task_entry =
+						FindEntryAsync<DiscordAuditLogMemberUpdateEntry>
+						(AuditLogActionType.MemberUpdate),
+					task_entry_roles =
+						FindEntryAsync<DiscordAuditLogMemberUpdateEntry>
+						(AuditLogActionType.MemberRoleUpdate);
+				await Task.WhenAll(task_entry, task_entry_roles);
 				DiscordAuditLogMemberUpdateEntry?
-					entry = null,
-					entry_roles = null;
-				List<Task> tasks = new ();
-				tasks.Add(Task.Run(async () => {
-					entry = await
-						find_entry(AuditLogActionType.MemberUpdate)
-						as DiscordAuditLogMemberUpdateEntry;
-				}));
-				tasks.Add(Task.Run(async () => {
-					entry_roles = await
-						find_entry(AuditLogActionType.MemberRoleUpdate)
-						as DiscordAuditLogMemberUpdateEntry;
-				}));
-				task_join(tasks);
+					entry = await task_entry,
+					entry_roles = await task_entry_roles;
 
 				// Only print this event if an audit log entry was found,
 				// meaning the change was significant:
 				if (entry is null && entry_roles is null)
-					{ return; }
+					return;
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**Member info updated:** {member_string(member)}");
+				List<string> data = new ();
+				data.Add($"**Member info updated:** {AsData(member)}");
 				if (entry is not null) {
-					print_changes(ref text, entry);
-					try_add_data(ref text, entry);
+					data = AddChanges(data, entry);
+					data = await AddEntryDataAsync(data, entry);
 				}
 				if (entry_roles is not null) {
-					print_changes(ref text, entry);
-					try_add_data(ref text, entry_roles);
+					data = AddChanges(data, entry);
+					data = await AddEntryDataAsync(data, entry_roles);
 				}
-				log_entry(text.ToString());
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
@@ -211,193 +203,191 @@ static partial class AuditLog {
 
 		// Guild updated.
 		Client.GuildUpdated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				// Fetch additional data.
-				DiscordAuditLogGuildEntry? entry =
-					find_entry(AuditLogActionType.GuildUpdate).Result
-					as DiscordAuditLogGuildEntry;
+				DiscordAuditLogGuildEntry? entry = await
+					FindEntryAsync<DiscordAuditLogGuildEntry>
+					(AuditLogActionType.GuildUpdate);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine("**Server settings updated.**");
-				print_changes(ref text, entry);
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add("**Server settings updated.**");
+				data = AddChanges(data, entry);
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 
 		// Role created.
 		Client.GuildRoleCreated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordRole role = e.Role;
 
 				// Fetch additional data.
-				DiscordAuditLogRoleUpdateEntry? entry =
-					find_entry(AuditLogActionType.RoleCreate).Result
-					as DiscordAuditLogRoleUpdateEntry;
+				DiscordAuditLogRoleUpdateEntry? entry = await
+					FindEntryAsync<DiscordAuditLogRoleUpdateEntry>
+					(AuditLogActionType.RoleCreate);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**New role created:** {role.Name} (`{role.Id}`)");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**New role created:** {role.Name} (`{role.Id}`)");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// Role deleted.
 		Client.GuildRoleDeleted += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordRole role = e.Role;
 
 				// Fetch additional data.
-				DiscordAuditLogRoleUpdateEntry? entry =
-					find_entry(AuditLogActionType.RoleDelete).Result
-					as DiscordAuditLogRoleUpdateEntry;
+				DiscordAuditLogRoleUpdateEntry? entry = await
+					FindEntryAsync<DiscordAuditLogRoleUpdateEntry>
+					(AuditLogActionType.RoleDelete);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**Role deleted:** {role.Name} (`{role.Id}`)");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**Role deleted:** {role.Name} (`{role.Id}`)");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// Role updated.
 		Client.GuildRoleUpdated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordRole role_before = e.RoleBefore;
 				DiscordRole role_after = e.RoleAfter;
 
 				// Fetch additional data.
-				DiscordAuditLogRoleUpdateEntry? entry =
-					find_entry(AuditLogActionType.RoleUpdate).Result
-					as DiscordAuditLogRoleUpdateEntry;
+				DiscordAuditLogRoleUpdateEntry? entry = await
+					FindEntryAsync<DiscordAuditLogRoleUpdateEntry>
+					(AuditLogActionType.RoleUpdate);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**Role settings updated:** {role_after.Name} (`{role_after.Id}`)");
-				print_changes(ref text, entry);
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**Role settings updated:** {role_after.Name} (`{role_after.Id}`)");
+				data = AddChanges(data, entry);
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 
 		// Channel created.
 		Client.ChannelCreated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordChannel ch = e.Channel;
 
-				// Do not log if channel is private.
+				// Do not log if channel is a DM channel.
 				if (ch.IsPrivate)
-					{ return; }
+					return;
 
 				// Fetch additional data.
-				DiscordAuditLogChannelEntry? entry =
-					find_entry(AuditLogActionType.ChannelCreate).Result
-					as DiscordAuditLogChannelEntry;
+				DiscordAuditLogChannelEntry? entry = await
+					FindEntryAsync<DiscordAuditLogChannelEntry>
+					(AuditLogActionType.ChannelCreate);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**New channel{(ch.IsCategory ? " category " : " ")}created:** {ch.Mention}");
-				text.WriteLine($"{ch.Name} (type: {ch.Type}): `{ch.Id}`");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**New channel{(ch.IsCategory ? " category " : " ")}created:** {ch.Mention}");
+				data.Add($"{ch.Name} (type: {ch.Type}): `{ch.Id}`");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// Channel deleted.
 		Client.ChannelDeleted += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordChannel ch = e.Channel;
 
-				// Do not log if channel is private.
+				// Do not log if channel is a DM channel.
 				if (ch.IsPrivate)
-					{ return; }
+					return;
 
 				// Fetch additional data.
-				DiscordAuditLogChannelEntry? entry =
-					find_entry(AuditLogActionType.ChannelDelete).Result
-					as DiscordAuditLogChannelEntry;
+				DiscordAuditLogChannelEntry? entry = await
+					FindEntryAsync<DiscordAuditLogChannelEntry>
+					(AuditLogActionType.ChannelDelete);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**Channel{(ch.IsCategory ? " category " : " ")}deleted:** {ch.Mention}");
-				text.WriteLine($"{ch.Name} (type: {ch.Type}): `{ch.Id}`");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**Channel{(ch.IsCategory ? " category " : " ")}deleted:** {ch.Mention}");
+				data.Add($"{ch.Name} (type: {ch.Type}): `{ch.Id}`");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// Channel settings updated.
 		// (Includes updating channel permission overwrites.)
 		Client.ChannelUpdated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordChannel ch = e.ChannelAfter;
 
-				// Do not log if channel is private.
+				// Do not log if channel is a DM channel.
 				if (ch.IsPrivate)
-					{ return; }
+					return;
 
 				// Fetch additional data.
+				Task<DiscordAuditLogChannelEntry?>
+					task_entry_channel =
+						FindEntryAsync<DiscordAuditLogChannelEntry>
+						(AuditLogActionType.ChannelUpdate);
+				Task<DiscordAuditLogOverwriteEntry?>
+					task_entry_perms_create =
+						FindEntryAsync<DiscordAuditLogOverwriteEntry>
+						(AuditLogActionType.OverwriteCreate),
+					task_entry_perms_delete =
+						FindEntryAsync<DiscordAuditLogOverwriteEntry>
+						(AuditLogActionType.OverwriteDelete),
+					task_entry_perms_update =
+						FindEntryAsync<DiscordAuditLogOverwriteEntry>
+						(AuditLogActionType.OverwriteUpdate);
+				await Task.WhenAll(
+					task_entry_channel,
+					task_entry_perms_create,
+					task_entry_perms_delete,
+					task_entry_perms_update
+				);
 				DiscordAuditLogChannelEntry?
-					entry_channel = null;
+					entry_channel = await task_entry_channel;
 				DiscordAuditLogOverwriteEntry?
-					entry_perms_create = null,
-					entry_perms_delete = null,
-					entry_perms_update = null;
-				List<Task> tasks = new ();
-				tasks.Add(Task.Run(async () => {
-					entry_channel = await
-						find_entry(AuditLogActionType.ChannelUpdate)
-						as DiscordAuditLogChannelEntry;
-				}));
-				tasks.Add(Task.Run(async () => {
-					entry_perms_create = await
-						find_entry(AuditLogActionType.OverwriteCreate)
-						as DiscordAuditLogOverwriteEntry;
-				}));
-				tasks.Add(Task.Run(async () => {
-					entry_perms_delete = await
-						find_entry(AuditLogActionType.OverwriteDelete)
-						as DiscordAuditLogOverwriteEntry;
-				}));
-				tasks.Add(Task.Run(async () => {
-					entry_perms_update = await
-						find_entry(AuditLogActionType.OverwriteUpdate)
-						as DiscordAuditLogOverwriteEntry;
-				}));
-				task_join(tasks);
+					entry_perms_create = await task_entry_perms_create,
+					entry_perms_delete = await task_entry_perms_delete,
+					entry_perms_update = await task_entry_perms_update;
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**Channel{(ch.IsCategory ? " category " : " ")}settings updated:** {ch.Mention}");
-				text.WriteLine($"{ch.Name} (type: {ch.Type}): `{ch.Id}`");
+				List<string> data = new ();
+				data.Add($"**Channel{(ch.IsCategory ? " category " : " ")}settings updated:** {ch.Mention}");
+				data.Add($"{ch.Name} (type: {ch.Type}): `{ch.Id}`");
 				if (entry_channel is not null) {
-					print_changes(ref text, entry_channel);
-					try_add_data(ref text, entry_channel);
+					data = AddChanges(data, entry_channel);
+					data = await AddEntryDataAsync(data, entry_channel);
 				}
 				if (entry_perms_create is not null) {
-					print_changes(ref text, entry_perms_create);
-					try_add_data(ref text, entry_perms_create);
+					data = AddChanges(data, entry_perms_create);
+					data = await AddEntryDataAsync(data, entry_perms_create);
 				}
 				if (entry_perms_delete is not null) {
-					print_changes(ref text, entry_perms_delete);
-					try_add_data(ref text, entry_perms_delete);
+					data = AddChanges(data, entry_perms_delete);
+					data = await AddEntryDataAsync(data, entry_perms_delete);
 				}
 				if (entry_perms_update is not null) {
-					print_changes(ref text, entry_perms_update);
-					try_add_data(ref text, entry_perms_update);
+					data = AddChanges(data, entry_perms_update);
+					data = await AddEntryDataAsync(data, entry_perms_update);
 				}
-				log_entry(text.ToString());
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 
 		// Emoji created, deleted, or updated.
 		Client.GuildEmojisUpdated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				// Diff the two lists of emojis.
 				HashSet<ulong> emojis_before = new (e.EmojisBefore.Keys);
 				HashSet<ulong> emojis_after  = new (e.EmojisAfter.Keys);
@@ -409,58 +399,54 @@ static partial class AuditLog {
 				emojis_removed.ExceptWith(emojis_after);
 
 				// Fetch additional data.
+				Task<DiscordAuditLogEmojiEntry?>
+					task_entry_create =
+						FindEntryAsync<DiscordAuditLogEmojiEntry>
+						(AuditLogActionType.EmojiCreate),
+					task_entry_delete =
+						FindEntryAsync<DiscordAuditLogEmojiEntry>
+						(AuditLogActionType.EmojiDelete),
+					task_entry_update =
+						FindEntryAsync<DiscordAuditLogEmojiEntry>
+						(AuditLogActionType.EmojiUpdate);
+				await Task.WhenAll(
+					task_entry_create,
+					task_entry_delete,
+					task_entry_update
+				);
 				DiscordAuditLogEmojiEntry?
-					entry_create = null,
-					entry_delete = null,
-					entry_update = null;
-				List<Task> tasks = new ();
-				tasks.Add(Task.Run(async () => {
-					entry_create = await
-						find_entry(AuditLogActionType.EmojiCreate)
-						as DiscordAuditLogEmojiEntry;
-				}));
-				tasks.Add(Task.Run(async () => {
-					entry_delete = await
-						find_entry(AuditLogActionType.EmojiDelete)
-						as DiscordAuditLogEmojiEntry;
-				}));
-				tasks.Add(Task.Run(async () => {
-					entry_update = await
-						find_entry(AuditLogActionType.EmojiUpdate)
-						as DiscordAuditLogEmojiEntry;
-				}));
-				task_join(tasks);
+					entry_create = await task_entry_create,
+					entry_delete = await task_entry_delete,
+					entry_update = await task_entry_update;
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine("**Server emojis updated.**");
+				List<string> data = new ();
+				data.Add("**Server emojis updated.**");
 				if (emojis_added.Count > 0) {
-					text.WriteLine($"{t}Emoji added:");
+					data.Add($"{_t}Emoji added:");
 					foreach (ulong id in emojis_added) {
 						DiscordEmoji emoji = e.EmojisAfter[id];
-						text.WriteLine($"{t}{t}{emoji_string(emoji)}`");
+						data.Add($"{_t2}{AsData(emoji)}`");
 					}
 				}
 				if (emojis_removed.Count > 0) {
-					text.WriteLine($"{t}Emoji removed:");
+					data.Add($"{_t}Emoji removed:");
 					foreach (ulong id in emojis_removed) {
 						DiscordEmoji emoji = e.EmojisBefore[id];
-						text.WriteLine($"{t}{t}{emoji_string(emoji)}`");
+						data.Add($"{_t2}{AsData(emoji)}`");
 					}
 				}
-				if (entry_create is not null) {
-					// No need to print additions; already displayed.
-					try_add_data(ref text, entry_create);
-				}
-				if (entry_delete is not null) {
-					// No need to print removals; already displayed.
-					try_add_data(ref text, entry_delete);
-				}
+				// No need to print additions; already displayed.
+				if (entry_create is not null)
+					data = await AddEntryDataAsync(data, entry_create);
+				// No need to print removals; already displayed.
+				if (entry_delete is not null)
+					data = await AddEntryDataAsync(data, entry_delete);
 				if (entry_update is not null) {
-					print_changes(ref text, entry_update);
-					try_add_data(ref text, entry_update);
+					data = AddChanges(data, entry_update);
+					data = await AddEntryDataAsync(data, entry_update);
 				}
-				log_entry(text.ToString());
+				LogEntry(data);
 
 			});
 			return Task.CompletedTask;
@@ -470,45 +456,45 @@ static partial class AuditLog {
 
 		// Invite created.
 		Client.InviteCreated += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordInvite inv = e.Invite;
 				DiscordUser user = inv.Inviter;
 				TimeSpan expiry = TimeSpan.FromSeconds(inv.MaxAge);
 
 				// Fetch additional data.
-				DiscordAuditLogInviteEntry? entry =
-					find_entry(AuditLogActionType.InviteCreate).Result
-					as DiscordAuditLogInviteEntry;
+				DiscordAuditLogInviteEntry? entry = await
+					FindEntryAsync<DiscordAuditLogInviteEntry>
+					(AuditLogActionType.InviteCreate);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**Invite created:** `{inv.Code}`");
-				text.WriteLine($"Created by {user.Tag()}, can be used {inv.MaxUses} times, expires in {expiry:g}.`");
-				text.WriteLine($"This invite grants {(inv.IsTemporary ? "temporary" : "normal")} access.");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**Invite created:** `{inv.Code}`");
+				data.Add($"Created by {user.Tag()}, can be used {inv.MaxUses} times, expires in {expiry:g}.`");
+				data.Add($"This invite grants {(inv.IsTemporary ? "temporary" : "normal")} access.");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// Invite deleted.
 		Client.InviteDeleted += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				DiscordInvite inv = e.Invite;
 				DiscordUser user = inv.Inviter;
 				TimeSpan expiry = TimeSpan.FromSeconds(inv.MaxAge);
 
 				// Fetch additional data.
-				DiscordAuditLogInviteEntry? entry =
-					find_entry(AuditLogActionType.InviteCreate).Result
-					as DiscordAuditLogInviteEntry;
+				DiscordAuditLogInviteEntry? entry = await
+					FindEntryAsync<DiscordAuditLogInviteEntry>
+					(AuditLogActionType.InviteCreate);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**Invite deleted:** `{inv.Code}`");
-				text.WriteLine($"Created by {user.Tag()}, expired in {expiry:g}.`");
-				text.WriteLine($"This invite granted {(inv.IsTemporary ? "temporary" : "normal")} access.");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**Invite deleted:** `{inv.Code}`");
+				data.Add($"Created by {user.Tag()}, expired in {expiry:g}.`");
+				data.Add($"This invite granted {(inv.IsTemporary ? "temporary" : "normal")} access.");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
@@ -519,105 +505,106 @@ static partial class AuditLog {
 
 		// Message deleted.
 		Client.MessageDeleted += (irene, e) => {
-			_ = Task.Run(() => {
-				DiscordChannel ch = e.Channel;
-				if (ch.IsPrivate)
-					{ return; }
-				DiscordMessage msg = e.Message;
+			_ = Task.Run(async () => {
+				DiscordChannel channel = e.Channel;
+				// Do not log if channel is a DM channel.
+				if (channel.IsPrivate)
+					return;
+				DiscordMessage message = e.Message;
 
 				// Fetch additional data.
-				DiscordAuditLogMessageEntry? entry =
-					find_entry(AuditLogActionType.MessageDelete).Result
-					as DiscordAuditLogMessageEntry;
+				DiscordAuditLogMessageEntry? entry = await
+					FindEntryAsync<DiscordAuditLogMessageEntry>
+					(AuditLogActionType.MessageDelete);
 
 				// Only log this event if the author isn't the user to
 				// delete the message.
 				// (Be overly-conservative: exit early if entry not found.)
 				if (entry is null)
-					{ return; }
-				if (entry.UserResponsible == msg.Author)
-					{ return; }
+					return;
+				if (entry.UserResponsible == message.Author)
+					return;
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine($"**Message deleted.** `{msg.Id}`");
-				string timestamp = $"<t:{msg.Timestamp.ToUnixTimeSeconds()}:f>";
-				text.WriteLine($"Originally posted in {msg.Channel.Mention}, on {timestamp}.");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**Message deleted.** `{message.Id}`");
+				string timestamp = message.Timestamp.Timestamp(Util.TimestampStyle.DateTimeShort);
+				data.Add($"Originally posted in {message.Channel.Mention}, on {timestamp}.");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// Messages bulk deleted.
 		Client.MessagesBulkDeleted += (irene, e) => {
-			_ = Task.Run(() => {
+			_ = Task.Run(async () => {
 				List<DiscordMessage> messages = new (e.Messages);
 
 				// Fetch additional data.
-				DiscordAuditLogMessageEntry? entry =
-					find_entry(AuditLogActionType.MessageBulkDelete).Result
-					as DiscordAuditLogMessageEntry;
+				DiscordAuditLogMessageEntry? entry = await
+					FindEntryAsync<DiscordAuditLogMessageEntry>
+					(AuditLogActionType.MessageBulkDelete);
 
 				// Format output.
-				StringWriter text = new ();
-				text.WriteLine("**Messages bulk deleted.**");
-				text.WriteLine($"Removed `{messages.Count}` message(s).");
-				try_add_data(ref text, entry);
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add("**Messages bulk deleted.**");
+				data.Add($"Removed `{messages.Count}` message(s).");
+				data = await AddEntryDataAsync(data, entry);
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 
 		// All reactions cleared on message.
 		Client.MessageReactionsCleared += (irene, e) => {
-			_ = Task.Run(() => {
-				DiscordMessage msg = e.Message;
+			_ = Task.Run(async () => {
+				DiscordMessage message = e.Message;
 
-				// Do not log if channel is private.
-				DiscordChannel ch =
-					irene.GetChannelAsync(msg.ChannelId).Result;
-				if (ch.IsPrivate) {
+				// Do not log if channel is a DM channel.
+				DiscordChannel channel = await
+					irene.GetChannelAsync(message.ChannelId);
+				if (channel.IsPrivate)
 					return;
-				}
 
-				StringWriter text = new ();
-				text.WriteLine("**All reactions cleared from message.**");
-				text.WriteLine($"{t}message ID:`{msg.Id}`");
-				text.WriteLine($"{t}<{msg.JumpLink}>");
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add("**All reactions cleared from message.**");
+				data.Add($"{_t}message ID:`{message.Id}`");
+				data.Add($"{_t}<{message.JumpLink}>");
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 		// All reactions of a specific emoji cleared on message.
 		Client.MessageReactionRemovedEmoji += (irene, e) => {
-			_ = Task.Run(() => {
-				DiscordMessage msg = e.Message;
+			_ = Task.Run(async () => {
+				DiscordMessage message = e.Message;
 				DiscordEmoji emoji = e.Emoji;
 
 				// Do not log if channel is private.
-				DiscordChannel ch =
-					irene.GetChannelAsync(msg.ChannelId).Result;
-				if (ch.IsPrivate) {
+				DiscordChannel channel = await
+					irene.GetChannelAsync(message.ChannelId);
+				if (channel.IsPrivate)
 					return;
-				}
 
-				StringWriter text = new ();
-				text.WriteLine($"**Specific emoji reactions cleared from message:** `{emoji.GetDiscordName()}`");
-				text.WriteLine($"{t}message ID:`{msg.Id}`");
-				text.WriteLine($"{t}<{msg.JumpLink}>");
-				log_entry(text.ToString());
+				List<string> data = new ();
+				data.Add($"**Specific emoji reactions cleared from message:** `{emoji.GetDiscordName()}`");
+				data.Add($"{_t}message ID:`{message.Id}`");
+				data.Add($"{_t}<{message.JumpLink}>");
+				LogEntry(data);
 			});
 			return Task.CompletedTask;
 		};
 	}
 
 	// Fetches the most recent audit log entry of the given type.
-	// Blocks the thread while it fetches the entry.
 	// Returns null if entries cannot be searched.
-	static async Task<DiscordAuditLogEntry?> find_entry(AuditLogActionType type) {
-		const int retry_interval_init = 50; // msec
-		const int retry_interval_exp = 2;
-		const int retry_count = 6;	// ~3000 msec
+	public static async Task<T?> FindEntryAsync<T>(AuditLogActionType type)
+		where T : DiscordAuditLogEntry
+	{
+		const int
+			retry_count = 6, // ~3000 msec
+			retry_interval_init = 50, // msec
+			retry_interval_exp = 2;
 
 		// Exit early if guilds aren't loaded.
 		if (Guild is null) {
@@ -625,7 +612,7 @@ static partial class AuditLog {
 			return null;
 		}
 		// Exit early if audit log baseline hasn't been initialized.
-		if (!is_audit_log_loaded) {
+		if (!_isLoaded) {
 			Log.Warning("    Must fetch baseline audit logs first.");
 			return null;
 		}
@@ -644,69 +631,68 @@ static partial class AuditLog {
 			// Return the entry if one was found and is new.
 			// Also update the "most recent" audit log entry of that type.
 			if (entry is not null) {
-				if (entry.Id != (audit_log_base[type]?.Id ?? null)) {
-					audit_log_base[type] = entry;
-					return entry;
+				if (entry.Id != (_logsLatest[type]?.Id ?? null)) {
+					_logsLatest[type] = entry;
+					T? entry_t = entry as T;
+					if (entry_t is not null)
+						return entry_t;
 				}
 			}
 		}
 
-		// Return null if nothing could be found.
+		// Return null if nothing could be found even after retries.
 		return null;
 	}
 
-	// Blocks until all Tasks in the List have finished executing.
-	static void task_join(List<Task> tasks) {
-		Task.WaitAll(tasks.ToArray());
-	}
-
-	// Takes a StringWriter and adds DiscordMember / reason data
-	// to it, if they exist / can be found.
-	static void try_add_data(ref StringWriter text, DiscordAuditLogEntry? entry) {
+	// Adds any user / reason data that can be found in the entry
+	// (if entry is non-null).
+	private static async Task<List<string>> AddEntryDataAsync(
+		List<string> data,
+		DiscordAuditLogEntry? entry
+	) {
 		if (entry is null)
-			{ return; }
+			return data;
 
-		// DiscordMember data
+		// Append user.
 		if (Guild is not null) {
-			//UpdateGuild().RunSynchronously();
 			DiscordUser user = entry.UserResponsible;
 			DiscordMember member =
-						Guild.GetMemberAsync(user.Id).Result;
-			text.WriteLine($"*Action by:* {member_string(member)}");
+				await Guild.GetMemberAsync(user.Id);
+			data.Add($"*Action by:* {AsData(member)}");
 		}
 
-		// Reason data
+		// Append reason.
 		string reason = entry.Reason?.Trim() ?? "";
-		if (reason != "") {
-			text.WriteLine($"> {reason}");
-		}
+		if (reason != "")
+			data.Add(reason.Quote());
+
+		return data;
 	}
 
 	// Convenience function for outputting a log message.
-	static void log_entry(string data) {
-		// Log data to console.
-		Log.Information("Audit log entry added.");
-		Log.Debug($"  {data}");
-
+	private static void LogEntry(List<string> data) {
 		// Log data to audit log channel.
 		if (Guild is not null) {
-			DateTimeOffset time = DateTimeOffset.UtcNow;
-			string time_str = $"<t:{time.ToUnixTimeSeconds()}:f>";
-			string msg = $"{l} {time_str}\n{data}";
+			DateTimeOffset now = DateTimeOffset.UtcNow;
+			string line_time = $"{_a} {now.Timestamp(Util.TimestampStyle.DateTimeShort)}";
+			data.Insert(0, line_time);
 			_ = Channels[id_ch.audit].SendMessageAsync(
 				new DiscordMessageBuilder()
-				.WithContent(msg)
+				.WithContent(string.Join("\n", data))
 				.WithAllowedMentions(Mentions.None)
 			);
 		}
+
+		// Log data to console.
+		Log.Information("Audit log entry added.");
+		foreach (string line in data)
+			Log.Debug($"  {line}");
 	}
 
 	// String representation of a user, without needing to ping them.
-	static string member_string(DiscordMember member) {
-		return $"{member.DisplayName} ({member.Tag()})";
-	}
-	// String representation of an emoji.
-	static string emoji_string(DiscordEmoji emoji) {
-		return $"{emoji} ({emoji.GetDiscordName()}): `{emoji.Id}`";
-	}
+	private static string AsData(DiscordMember member) =>
+		$"{member.DisplayName} ({member.Tag()})";
+	// String representation of an emoji (including ID).
+	private static string AsData(DiscordEmoji emoji) =>
+		$"{emoji} ({emoji.GetDiscordName()}): `{emoji.Id}`";
 }
