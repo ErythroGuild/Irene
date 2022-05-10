@@ -88,8 +88,7 @@ static partial class Util {
 			DiscordMember member = await
 				Guild.GetMemberAsync(user.Id);
 			return member;
-		}
-		catch (ServerErrorException) {
+		} catch (ServerErrorException) {
 			return null;
 		}
 	}
@@ -101,10 +100,13 @@ static partial class Util {
 		AuditLogActionType? type) {
 		try {
 			List<DiscordAuditLogEntry> entry =
-				new (await guild.GetAuditLogsAsync(1, null, type));
+				new (await guild.GetAuditLogsAsync(
+					limit: 1,
+					by_member: null,
+					action_type: type
+				));
 			return (entry.Count < 1) ? null : entry[0];
-		}
-		catch {
+		} catch {
 			return null;
 		}
 	}
