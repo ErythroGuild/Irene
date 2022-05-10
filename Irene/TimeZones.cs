@@ -13,7 +13,7 @@ static class TimeZones {
 			tableCompiled.TryAdd(timeZone.DisplayName, timeZone);
 		_tableCompiled = new (tableCompiled);
 
-		Log.Information("  Initialized util: TimeZones");
+		Log.Information("  Initialized module: TimeZones");
 		Log.Debug("    TimeZone cache initialized.");
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
