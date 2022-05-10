@@ -36,7 +36,8 @@ class LongTimer {
 	private decimal _interval;
 	private double _period;
 
-	private const double _maxPeriod = int.MaxValue - 1;
+	private const double _maxPeriod = 14400000;	// 4 hours
+	//private const double _maxPeriod = int.MaxValue - 1;
 	private const decimal _accuracy = 20; // msec
 
 	public LongTimer(double totalMilliseconds, bool autoReset=false)
