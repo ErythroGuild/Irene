@@ -88,6 +88,7 @@ static partial class RecurringEvents {
 				TimeSpan delta = dateTime_next - dateTime_now;
 				timer.Interval = (decimal)delta.TotalMilliseconds;
 				timer.Start();
+				Log.Debug("  Recurrence scheduled for {Time:u}", dateTime_next);
 			};
 			
 			// Return the constructed object.
