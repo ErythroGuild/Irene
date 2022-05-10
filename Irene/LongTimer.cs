@@ -11,8 +11,13 @@ class LongTimer {
 	public decimal Interval {
 		get => _interval;
 		set {
-			// Expected behavior for Timer.Interval.
 			_interval = value;
+			// Expected behavior for Timer.Interval:
+			// Set the interval, then restart the timer if the timer
+			// is already running.
+			Remaining = value;
+			_period = NextPeriod();
+			_timer.Interval = _period;
 			if (_timer is not null && _timer.Enabled) {
 				Stop();
 				Restart();
@@ -29,9 +34,9 @@ class LongTimer {
 
 	private readonly Timer _timer;
 	private decimal _interval;
-	private decimal _period;
+	private double _period;
 
-	private const decimal _maxPeriod = int.MaxValue - 1;
+	private const double _maxPeriod = int.MaxValue - 1;
 	private const decimal _accuracy = 20; // msec
 
 	public LongTimer(double totalMilliseconds, bool autoReset=false)
@@ -44,7 +49,7 @@ class LongTimer {
 		// Event handler for sub-timer elapsed.
 		void SetNextTimer(object? t, ElapsedEventArgs e) {
 			_timer.Stop();
-			Remaining -= _period;
+			Remaining -= (decimal)_period;
 
 			// No absolute value on check--any negative values
 			// count as having triggered the timer.
@@ -61,13 +66,13 @@ class LongTimer {
 
 			// If continuing, set next timer iteration and resume.
 			_period = NextPeriod();
-			_timer.Interval = (double)_period;
+			_timer.Interval = _period;
 			_timer.Start();
 		}
 
 		// Set up sub-timer.
 		_period = NextPeriod();
-		_timer = Util.CreateTimer((double)_period, autoReset);
+		_timer = Util.CreateTimer(_period, autoReset);
 		_timer.Elapsed += SetNextTimer;
 	}
 
@@ -77,15 +82,15 @@ class LongTimer {
 		_timer.Stop();
 		Remaining = Interval;
 		_period = NextPeriod();
-		_timer.Interval = (double)_period; // this resets timer count
+		_timer.Interval = _period; // this resets timer count
 		_timer.Start();
 	}
 	public void Start() => _timer.Start();
 	public void Stop() => _timer.Stop();
 	public void Close() => _timer.Close();
 
-	private decimal NextPeriod() =>
-		(Remaining > _maxPeriod)
+	private double NextPeriod() =>
+		(Remaining > (decimal)_maxPeriod)
 			? _maxPeriod
-			: Interval;
+			: (double)Remaining;
 }
