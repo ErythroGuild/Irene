@@ -8,7 +8,8 @@ namespace Irene.Modules;
 
 static partial class RecurringEvents {
 	// Used in module initialization.
-	// For timezone conversion, see: https://www.worldtimebuddy.com/
+	// For timezone conversion, see:
+	// https://www.timeanddate.com/worldclock/converter.html?p1=234
 	private static async Task<List<Event>> GetEvents_Raid() {
 		TimeSpan t0 = TimeSpan.Zero;
 		List<Task<Event?>> event_tasks = new () {
