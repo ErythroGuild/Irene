@@ -1,6 +1,9 @@
 namespace Irene.Commands;
 
 class Cap : ICommand {
+	private static readonly DateOnly
+		_date_s3CapRemoved = new (2022,  5, 10);
+
 	private const string
 		_optValor    = "valor",
 		_optConquest = "conquest",
@@ -111,7 +114,7 @@ class Cap : ICommand {
 		if (now < Date_Season3.UtcResetTime()) {
 			await Command.SubmitResponseAsync(
 				handler.Interaction,
-				"Valor is **uncapped** from 9.1.5 ~ 9.2.",
+				"Valor is **uncapped** for the rest of season 2.",
 				"Queried valor cap post-9.1.5.",
 				LogLevel.Debug,
 				"Valor cap: uncapped".AsLazy()
@@ -119,12 +122,24 @@ class Cap : ICommand {
 			return;
 		}
 
-		// Season 3.
-		if (now >= Date_Season3.UtcResetTime()) {
+		// Season 3, pre-cap removal.
+		if (now < _date_s3CapRemoved.UtcResetTime()) {
 			TimeSpan duration = now - Date_Season3.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 750 + week * weekly_valor;
 			await SendResponseAsync("Valor", week + 1, cap, handler);
+			return;
+		}
+		
+		// Season 3, post-cap removal.
+		if (now >= _date_s3CapRemoved.UtcResetTime()) {
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Valor is **uncapped** for the rest of season 3.",
+				"Queried valor cap in 9.2 post-removal.",
+				LogLevel.Debug,
+				"Valor cap: uncapped".AsLazy()
+			);
 			return;
 		}
 	}
@@ -191,7 +206,7 @@ class Cap : ICommand {
 		if (now < Date_Season3.UtcResetTime()) {
 			await Command.SubmitResponseAsync(
 				handler.Interaction,
-				"Conquest is **uncapped** from 9.1.5 ~ 9.2.",
+				"Conquest is **uncapped** for the rest of season 2.",
 				"Queried conquest cap post-9.1.5.",
 				LogLevel.Debug,
 				"Conquest cap: uncapped".AsLazy()
@@ -199,12 +214,24 @@ class Cap : ICommand {
 			return;
 		}
 
-		// Season 3 (9.2.0).
-		if (now >= Date_Season3.UtcResetTime()) {
+		// Season 3, pre-cap removal.
+		if (now < _date_s3CapRemoved.UtcResetTime()) {
 			TimeSpan duration = now - Date_Season3.UtcResetTime();
 			int week = duration.Days / 7;  // int division!
 			int cap = 1000 + week * weekly_conquest_new;
 			await SendResponseAsync("Conquest", week + 1, cap, handler);
+			return;
+		}
+
+		// Season 3, post-cap removal.
+		if (now >= _date_s3CapRemoved.UtcResetTime()) {
+			await Command.SubmitResponseAsync(
+				handler.Interaction,
+				"Conquest is **uncapped** for the rest of season 3.",
+				"Queried conquest cap in 9.2 post-removal.",
+				LogLevel.Debug,
+				"Conquest cap: uncapped".AsLazy()
+			);
 			return;
 		}
 	}
