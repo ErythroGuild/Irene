@@ -112,7 +112,7 @@ class Starboard : ICommand {
 				$"Could not parse message ID `{messageId_str}`.\nNo changes made.",
 				"Not updating blacklist: invalid message ID.",
 				LogLevel.Information,
-				"passed arg: {Arg}".AsLazy(),
+				"specified message ID: {Arg}".AsLazy(),
 				messageId_str
 			);
 			return;
@@ -128,11 +128,11 @@ class Starboard : ICommand {
 		if (message is null) {
 			await Command.SubmitResponseAsync(
 				interaction,
-				$"Could not fetch a message with the ID: `{messageId_str}`.\nNo changes made.",
-				"Not updating blacklist: invalid message ID.",
+				$"Could not fetch a message with the ID: `{messageId_str}` from {channel.Mention}.\nNo changes made.",
+				"Not updating blacklist: could not fetch message object.",
 				LogLevel.Information,
-				"invalid message ID: {MessageId}".AsLazy(),
-				messageId_str
+				"channel ID: {ChannelId}, message ID: {MessageId}".AsLazy(),
+				channel.Id, messageId_str
 			);
 			return;
 		}

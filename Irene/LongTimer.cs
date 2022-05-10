@@ -12,15 +12,19 @@ class LongTimer {
 		get => _interval;
 		set {
 			_interval = value;
+			Remaining = value;
 			// Expected behavior for Timer.Interval:
 			// Set the interval, then restart the timer if the timer
 			// is already running.
-			Remaining = value;
-			_period = NextPeriod();
-			_timer.Interval = _period;
-			if (_timer is not null && _timer.Enabled) {
-				Stop();
-				Restart();
+			if (_timer is not null) {
+				// Because _timer is private, it must be set in the ctor
+				// (the only other place it's defined).
+				_period = NextPeriod();
+				_timer.Interval = _period;
+				if (_timer.Enabled) {
+					Stop();
+					Restart();
+				}
 			}
 		}
 	}
