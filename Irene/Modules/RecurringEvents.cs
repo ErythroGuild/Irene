@@ -145,6 +145,8 @@ static partial class RecurringEvents {
 		Util.CreateIfMissing(_pathData, _lock);
 		Util.CreateIfMissing(_pathMemes, _lockMemes);
 		Util.CreateIfMissing(_pathMemeHistory, _lockMemes);
+		Util.CreateIfMissing(_pathDirData, _lockDirData);
+		Util.CreateIfMissing(_pathDirLogs, _lockDirLogs);
 
 		List<Task<List<Event>>> tasks = new () {
 			GetEvents_Raid(),
