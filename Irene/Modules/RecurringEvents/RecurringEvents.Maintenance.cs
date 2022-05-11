@@ -54,11 +54,13 @@ static partial class RecurringEvents {
 		// Read in path data.
 		string? dir_data = null;
 		string? dir_backup = null;
+		string? dir_repo = null;
 		string? id_owner_str = null;
 		lock (_lockDirData) {
 			using StreamReader file = File.OpenText(_pathDirData);
 			dir_data = file.ReadLine();
 			dir_backup = file.ReadLine();
+			dir_repo = file.ReadLine();
 			id_owner_str = file.ReadLine();
 		}
 
@@ -72,9 +74,11 @@ static partial class RecurringEvents {
 		// Construct message.
 		List<string> text = new ()
 			{ $":file_cabinet: Bi-monthly reminder to back up my `/data` folder! Copy all the contents in the folder," };
-		if (dir_data is not null && dir_backup is not null) {
+		if (dir_data is not null && dir_backup is not null && dir_repo is not null) {
 			text.Add($"{t}{a} from:   `{dir_data}`");
 			text.Add($"{t}{a} to:        `{dir_backup}`");
+			text.Add("Also copy `events.txt` and `raids.txt` (from the same folder),");
+			text.Add($"{t}{a} to:        `{dir_repo}`");
 		}
 
 		// Send message.
