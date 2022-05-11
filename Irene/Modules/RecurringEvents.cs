@@ -116,14 +116,16 @@ static partial class RecurringEvents {
 	private static readonly object
 		_lock = new (),
 		_lockMemes = new (),
-		_lockDataDir = new ();
+		_lockDirData = new (),
+		_lockDirLogs = new ();
 
 	private const string
 		_pathData  = @"data/events.txt",
 		_pathTemp  = @"data/events-temp.txt",
 		_pathMemes = @"data/memes.txt",
 		_pathMemeHistory = @"data/memes-history.txt",
-		_pathDataDir = @"config/data-dir.txt";
+		_pathDirData = @"config/dir-data.txt",
+		_pathDirLogs = @"config/dir-logs.txt";
 	private const string _delim = "|||";
 
 	private const string _formatDateTime = "u";
