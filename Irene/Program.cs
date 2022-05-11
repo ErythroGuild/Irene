@@ -9,6 +9,12 @@ using Irene.Modules;
 namespace Irene;
 
 class Program {
+	// Debug flag.
+	public static bool IsDebug { get {
+		bool isDebug = false;
+		CheckDebug(ref isDebug);
+		return isDebug;
+	} }
 	// Discord client objects.
 	public static DiscordClient Client { get; private set; }
 	public static DiscordGuild? Guild  { get; private set; }
@@ -181,7 +187,7 @@ class Program {
 			.CreateLogger();
 	}
 
-	static void Main() {
+	public static void Main() {
 		// Initialize static members.
 		InitStatic();
 
@@ -191,7 +197,7 @@ class Program {
 			.GetAwaiter()
 			.GetResult();
 	}
-	static async Task MainAsync() {
+	private static async Task MainAsync() {
 		// Start configuration timer.
 		_stopwatchConfig.Start();
 
@@ -434,5 +440,11 @@ class Program {
 		_stopwatchDownload.Start();
 		await Client.ConnectAsync();
 		await Task.Delay(-1);
+	}
+
+	// Private method used to define the public "IsDebug" property.
+	[Conditional("DEBUG")]
+	private static void CheckDebug(ref bool isDebug) {
+		isDebug = true;
 	}
 }
