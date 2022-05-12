@@ -18,20 +18,23 @@ class Program {
 	} }
 	// Discord client objects.
 	public static DiscordClient Client { get; private set; }
-	public static DiscordGuild? Guild  { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordChannel>? Channels   { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordEmoji>?   Emojis     { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordRole>?    Roles      { get; private set; }
+	public static DiscordGuild? Guild { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordChannel>? Channels { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordEmoji>? Emojis { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordRole>? Roles { get; private set; }
 	public static ConcurrentDictionary<ulong, DiscordChannel>? VoiceChats { get; private set; }
 
 	// DiscordGuild promise/future objects.
-	// GuildFuture is only set when Guild and all associated variables are set.
-	#pragma warning disable CS8774 // Member must have a non-null value when exiting.
+	// GuildFuture is only set when Guild and all associated variables
+	// are set. This will always be complete when called, since it
+	// should only be called *after* init functions are called.
+	private static Task<DiscordGuild> GuildFuture { get => _guildPromise.Task; }
+	private static TaskCompletionSource<DiscordGuild> _guildPromise = new ();
+	// Member must have a non-null value when exiting.
+	#pragma warning disable CS8774
 	[MemberNotNull(nameof(Guild), nameof(Channels), nameof(Emojis), nameof(Roles), nameof(VoiceChats))]
 	public static async Task AwaitGuildInit() => await GuildFuture;
 	#pragma warning restore CS8774
-	private static Task<DiscordGuild> GuildFuture { get => _guildPromise.Task; }
-	private static TaskCompletionSource<DiscordGuild> _guildPromise = new ();
 
 	// Separate logger pipeline for D#+.
 	private static Serilog.ILogger _loggerDsp;
@@ -467,11 +470,11 @@ class Program {
 				Welcome.Init,
 				Modules.Starboard.Init,
 			};
-
 		static void RunInitializers(List<Action> initializers) {
 			foreach (Action initializer in initializers)
 				initializer.Invoke();
 		}
+
 		RunInitializers(classes);
 		RunInitializers(components);
 		RunInitializers(modules);
