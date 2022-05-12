@@ -11,6 +11,7 @@ public record class TimedInteraction
 	(DiscordInteraction Interaction, Stopwatch Timer);
 
 static class Command {
+	public static ReadOnlyCollection<Action> Initializers { get; }
 	public static ReadOnlyDictionary<string, HelpPageGetter> HelpPages { get; }
 	public static ReadOnlyCollection<DiscordApplicationCommand> Commands { get; }
 	public static ReadOnlyDictionary<string, InteractionHandler> Deferrers { get; }
@@ -23,6 +24,7 @@ static class Command {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
 		// Collate the static properties in temp variables.
+		List<Action> initializers = new ();
 		ConcurrentDictionary<string, HelpPageGetter> helpPages = new ();
 		List<DiscordApplicationCommand> commandList = new ();
 		ConcurrentDictionary<string, InteractionHandler> deferrers = new ();
@@ -37,6 +39,19 @@ static class Command {
 				AbstractCommand command = (AbstractCommand)
 					type.GetConstructor(Type.EmptyTypes)!
 					.Invoke(null);
+
+				// Add all initializers.
+				if (type.ImplementsInterface(typeof(IInit))) {
+					MethodInfo? method_init =
+						type.GetMethod(nameof(IInit.Init));
+					if (method_init is not null) {
+						Action? init = method_init
+							.CreateDelegate(typeof(Action))
+							as Action;
+						if (init is not null)
+							initializers.Add(init);
+					}
+				}
 
 				// Add all application commands to relevant fields.
 				void AddCommands(List<InteractionCommand> commands) {
@@ -65,6 +80,7 @@ static class Command {
 		}
 
 		// Assign the static properties.
+		Initializers = new (initializers);
 		HelpPages = new (helpPages);
 		Commands = new (commandList);
 		Deferrers = new (deferrers);
