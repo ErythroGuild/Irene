@@ -6,7 +6,7 @@ using CRNG = System.Security.Cryptography.RandomNumberGenerator;
 
 namespace Irene.Commands;
 
-class Roll : ICommand {
+class Roll : AbstractCommand {
 	private static readonly CRNG _crng = CRNG.Create();
 	private static readonly object _lock = new ();
 
@@ -50,7 +50,7 @@ class Roll : ICommand {
 			"Concentrate and ask again.",
 		});
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
 			@"`/roll` generates a number between `1` and `100`,",
 			@"`/roll <max>` generates a number between `1` and `max`,",
@@ -60,7 +60,7 @@ class Roll : ICommand {
 		} ) };
 	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
 				"roll",
@@ -108,10 +108,6 @@ class Roll : ICommand {
 			), Defer8BallAsync, Run8BallAsync )
 		};
 	}
-
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task RunRollAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =
@@ -259,9 +255,7 @@ class Roll : ICommand {
 		byte[] raw = new byte[sizeof(ulong)];
 
 		// Make sure generation is thread-safe.
-		lock (_lock) {
-			_crng.GetBytes(raw);
-		}
+		lock (_lock) { _crng.GetBytes(raw); }
 
 		return BitConverter.ToUInt64(raw);
 	}

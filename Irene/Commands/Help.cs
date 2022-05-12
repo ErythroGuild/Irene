@@ -2,7 +2,7 @@
 
 namespace Irene.Commands;
 
-class Help : ICommand {
+class Help : AbstractCommand {
 	private const string _commandHelp = "help";
 	private const string
 		_l = "\U0001F512", // :lock:
@@ -10,7 +10,7 @@ class Help : ICommand {
 		_s = "\U0001F465", // :busts_in_silhouette:
 		_t = "\u2003"    ; // tab
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
 			@"`/help` lists all available commands, along with a short description for each,",
 			@"`/help <command>` shows a more detailed guide on how to use the command.",
@@ -18,7 +18,7 @@ class Help : ICommand {
 		} ) };
 	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
 				_commandHelp,
@@ -36,10 +36,7 @@ class Help : ICommand {
 		};
 	}
 
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-
-	public static List<AutoCompleteHandler> AutoComplete   { get => new () {
+	public override List<AutoCompleteHandler> AutoCompletes { get => new () {
 		new (_commandHelp, AutoCompleteAsync),
 	}; }
 

@@ -8,7 +8,7 @@ using RaidObj = Irene.Modules.Raid;
 
 namespace Irene.Commands;
 
-class Raid : ICommand {
+class Raid : AbstractCommand {
 	// Confirmation messages, indexed by the ID of the user who is
 	// accessing them.
 	private static readonly ConcurrentDictionary<ulong, Confirm> _confirms = new ();
@@ -42,7 +42,7 @@ class Raid : ICommand {
 	private const string _argDate = "date";
 	private const string _idTagPlans = "tag_plans";
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
 			@" `/raid info [share]` displays the plans for the upcoming raid,",
 			//@" `/raid eligibility` checks raid requirements (and if you meet them),",
@@ -55,7 +55,7 @@ class Raid : ICommand {
 		} ) };
 	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
 				_commandRaid,
@@ -165,10 +165,7 @@ class Raid : ICommand {
 		};
 	}
 
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-
-	public static List<AutoCompleteHandler> AutoComplete   { get => new () {
+	public override List<AutoCompleteHandler> AutoCompletes   { get => new () {
 		new (_commandRaid, AutoCompleteAsync),
 	}; }
 	

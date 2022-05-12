@@ -1,18 +1,18 @@
 ﻿namespace Irene.Commands;
 
-class Version : ICommand {
+class Version : AbstractCommand {
 	private const string
 		_pathBuild   = @"config/commit.txt",
 		_pathVersion = @"config/tag.txt";
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
 			@"`/version` displays the most recent release version and currently running build.",
 			"These values are automatically generated from git when the bot is built."
 		} ) };
 	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
 				"version",
@@ -23,10 +23,6 @@ class Version : ICommand {
 			), Command.DeferVisibleAsync, RunAsync )
 		};
 	}
-
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		StreamReader file;

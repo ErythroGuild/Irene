@@ -2,7 +2,7 @@
 
 namespace Irene.Commands;
 
-class Tag: ICommand {
+class Tag : AbstractCommand, IInit {
 	private record class ModalData
 		(bool IsUpdate, string OriginalTag);
 
@@ -32,7 +32,6 @@ class Tag: ICommand {
 		_idTagName    = "tag_name",
 		_idTagContent = "tag_content";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Tag() {
 		// Make sure datafile exists.
@@ -55,7 +54,7 @@ class Tag: ICommand {
 		}
 	}
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
 			@"`/tags view <name> [share]` displays the named tag (optionally to everyone),",
 			@"`/tags list` lists all available tags,",
@@ -67,7 +66,7 @@ class Tag: ICommand {
 		} ) };
 	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
 				_commandTag,
@@ -129,10 +128,7 @@ class Tag: ICommand {
 		};
 	}
 
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-
-	public static List<AutoCompleteHandler> AutoComplete { get => new () {
+	public override List<AutoCompleteHandler> AutoCompletes { get => new () {
 		new (_commandTag, AutoCompleteAsync),
 	}; }
 
@@ -384,7 +380,7 @@ class Tag: ICommand {
 			new TextInputComponent("Content", _idTagContent, value: content, style: TextInputStyle.Paragraph),
 		};
 
-		async Task set_tag(ModalSubmitEventArgs e) {
+		async Task SetTag(ModalSubmitEventArgs e) {
 			Stopwatch stopwatch = Stopwatch.StartNew();
 			Log.Information("Modal submission received (id: {Id}).", e.Interaction.Data.CustomId);
 
@@ -443,7 +439,7 @@ class Tag: ICommand {
 					handler.Interaction.Interaction,
 					title,
 					components,
-					set_tag
+					SetTag
 				);
 				return null;
 			})(),

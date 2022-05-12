@@ -4,7 +4,7 @@ using Entry = Irene.Components.Selection.Option;
 
 namespace Irene.Commands;
 
-class Roles : ICommand {
+class Roles : AbstractCommand, IInit, IAwaitGuild {
 	public enum PingRole {
 		Raid,
 		Mythics, KSM, Gearing,
@@ -92,7 +92,7 @@ class Roles : ICommand {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
 			@"`/roles` shows all available roles, and lets you assign them to yourself.",
 			"You can reassign them at any time.",
@@ -101,7 +101,7 @@ class Roles : ICommand {
 		} ) };
 	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
 				"roles",
@@ -112,10 +112,6 @@ class Roles : ICommand {
 		};
 	}
 
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
-
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// Ensure user is a member. (This should always succeed.)
 		// Roles can only be set for users in the same guild.
@@ -124,7 +120,7 @@ class Roles : ICommand {
 		if (member is null) {
 			string response_error = "Could not determine who you are.";
 			response_error += (Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
-				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
+				? $"\nTry running the command again, in {Channels![id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
 			await Command.SubmitResponseAsync(
 				interaction,
@@ -291,7 +287,7 @@ class Roles : ICommand {
 		}
 
 		// Format welcome message.
-		string response = $"Thank you for subscribing to pings; welcome aboard! :tada:{Emojis[id_e.eryLove]}";
+		string response = $"Thank you for subscribing to pings; welcome aboard! :tada:{Emojis![id_e.eryLove]}";
 		foreach (string welcome in welcomes)
 			response += $"\n\u2022 {welcome}";
 		response += "\n*You can unsubscribe at anytime, or temporarily mute a server / channel.*";

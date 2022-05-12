@@ -4,7 +4,7 @@ using Entry = Irene.Components.Selection.Option;
 
 namespace Irene.Commands;
 
-class Rank : ICommand {
+class Rank : AbstractCommand, IInit {
 	public enum Level {
 		None,
 		Guest, Member, Officer,
@@ -155,7 +155,6 @@ class Rank : ICommand {
 		_commandListTrials = "list-trials",
 		_commandSetErythro = "Set <Erythro>";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Rank() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -191,7 +190,7 @@ class Rank : ICommand {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages { get =>
 		new () { string.Join("\n", new List<string> {
 			@":lock: `/rank set <member>` shows a menu for promoting/demoting the specified member.",
 			@"`/rank set-guild <member>` shows a menu for assigning the guild(s) a member is associated with.",
@@ -201,7 +200,7 @@ class Rank : ICommand {
 		} ) };
 	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
 				"rank",
@@ -252,7 +251,7 @@ class Rank : ICommand {
 		};
 	}
 
-	public static List<InteractionCommand> UserCommands { get =>
+	public override List<InteractionCommand> UserCommands { get =>
 		new () {
 			new ( new (
 				_commandSetErythro,
@@ -262,8 +261,6 @@ class Rank : ICommand {
 			), Command.DeferEphemeralAsync, SetErythroAsync )
 		};
 	}
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task DeferAsync(TimedInteraction interaction) {
 		DeferrerHandler handler = new (interaction, true);

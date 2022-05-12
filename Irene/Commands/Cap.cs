@@ -1,6 +1,6 @@
 namespace Irene.Commands;
 
-class Cap : ICommand {
+class Cap : AbstractCommand {
 	private static readonly DateOnly
 		_date_s3CapRemoved = new (2022,  5, 10);
 
@@ -10,14 +10,14 @@ class Cap : ICommand {
 		_optRenown   = "renown",
 		_optTorghast = "tower-knowledge";
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages { get =>
 		new() { string.Join("\n", new List<string> {
 			@"`/cap <type>` displays the current cap of the resource <type>,",
 			"e.g. renown or valor."
 		}) };
 	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands { get =>
 		new () {
 			new ( new (
 				"cap",
@@ -38,10 +38,6 @@ class Cap : ICommand {
 			), DeferAsync, RunAsync )
 		};
 	}
-
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task DeferAsync(TimedInteraction interaction) {
 		DeferrerHandlerFunc function =

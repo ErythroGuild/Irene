@@ -33,70 +33,34 @@ static class Command {
 		// commands into a single Dictionary.
 		Type[] types = Assembly.GetExecutingAssembly().GetTypes();
 		foreach (Type type in types) {
-			List<Type> interfaces = new (type.GetInterfaces());
-			if (interfaces.Contains(typeof(ICommand))) {
-				// Fetch the property, null-checking at every step.
-				// If any step fails, simply return early.
-				// Also fetch help pages if property is SlashCommand.
-				void AddPropertyInteractions(string name) {
-					PropertyInfo? property =
-						type.GetProperty(name, typeof(List<InteractionCommand>));
-					if (property is null)
-						return;
+			if (type.BaseType == typeof(AbstractCommand)) {
+				AbstractCommand command = (AbstractCommand)
+					type.GetConstructor(Type.EmptyTypes)!
+					.Invoke(null);
 
-					List<InteractionCommand>? commands =
-						property?.GetValue(null) as List<InteractionCommand>
-						?? null;
-					if (commands is null)
-						return;
-
+				// Add all application commands to relevant fields.
+				void AddCommands(List<InteractionCommand> commands) {
 					foreach (InteractionCommand command in commands) {
 						commandList.Add(command.Command);
 						deferrers.TryAdd(command.Command.Name, command.Deferrer);
 						handlers.TryAdd(command.Command.Name, command.Handler);
 					}
-
-					if (name == nameof(ICommand.SlashCommands)) {
-						PropertyInfo? property_help = type.GetProperty(
-							nameof(ICommand.HelpPages),
-							typeof(List<string>)
-						);
-						if (property_help is null)
-							return;
-						HelpPageGetter? func_help =
-							property_help
-								?.GetGetMethod()
-								?.CreateDelegate(typeof(HelpPageGetter))
-								as HelpPageGetter
-							?? null;
-						if (func_help is not null) {
-							foreach (InteractionCommand command in commands)
-								helpPages.TryAdd(command.Command.Name, func_help);
-						}
-					}
 				}
-				void AddAutoCompletes() {
-					PropertyInfo? property = type.GetProperty(
-						nameof(ICommand.AutoComplete),
-						typeof(List<AutoCompleteHandler>)
+				AddCommands(command.SlashCommands);
+				AddCommands(command.UserCommands);
+				AddCommands(command.MessageCommands);
+
+				// Add help pages for all slash commands.
+				foreach (InteractionCommand slashCommand in command.SlashCommands) {
+					helpPages.TryAdd(
+						slashCommand.Command.Name,
+						() => command.HelpPages
 					);
-					if (property is null)
-						return;
-
-					List<AutoCompleteHandler>? handlers =
-						property?.GetValue(null) as List<AutoCompleteHandler>
-						?? null;
-					if (handlers is null)
-						return;
-
-					foreach (AutoCompleteHandler handler in handlers)
-						autoCompletes.TryAdd(handler.CommandName, handler.Handler);
 				}
-				
-				AddPropertyInteractions(nameof(ICommand.SlashCommands));
-				AddPropertyInteractions(nameof(ICommand.UserCommands));
-				AddPropertyInteractions(nameof(ICommand.MessageCommands));
-				AddAutoCompletes();
+
+				// Add all autocompletes.
+				foreach (AutoCompleteHandler handler in command.AutoCompletes)
+					autoCompletes.TryAdd(handler.CommandName, handler.Handler);
 			}
 		}
 
