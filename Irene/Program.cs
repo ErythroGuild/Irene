@@ -301,28 +301,8 @@ class Program {
 				// Set GuildFuture.
 				_guildPromise.SetResult(Guild);
 
-				// Initialize classes.
-				ClassSpec.Init();
-				TimeZones.Init();
-
-				// Initialize discord components.
-				Confirm.Init();
-				Modal.Init();
-				Pages.Init();
-				Selection.Init();
-
 				// Initialize modules.
-				AuditLog.Init();
-				Command.Init();
-				Modules.Raid.Init();
-				RecurringEvents.Init();
-				Welcome.Init();
-				Modules.Starboard.Init();
-
-				// Initialize commands.
-				Commands.Roles.Init();
-				Rank.Init();
-				ClassDiscord.Init();
+				await InitModules();
 
 				// Register (update-by-overwriting) application commands.
 				_stopwatchRegister.Start();
@@ -462,6 +442,43 @@ class Program {
 		_stopwatchDownload.Start();
 		await Client.ConnectAsync();
 		await Task.Delay(-1);
+	}
+
+	private static async Task InitModules() {
+		await AwaitGuildInit();
+
+		// List all initializers.
+		List<Action>
+			classes = new () {
+				ClassSpec.Init,
+				TimeZones.Init,
+			},
+			components = new () {
+				Confirm.Init,
+				Modal.Init,
+				Pages.Init,
+				Selection.Init,
+			},
+			modules = new () {
+				AuditLog.Init,
+				Command.Init,
+				Modules.Raid.Init,
+				RecurringEvents.Init,
+				Welcome.Init,
+				Modules.Starboard.Init,
+			};
+
+		static void RunInitializers(List<Action> initializers) {
+			foreach (Action initializer in initializers)
+				initializer.Invoke();
+		}
+		RunInitializers(classes);
+		RunInitializers(components);
+		RunInitializers(modules);
+		
+		// Run command initializers last.
+		foreach (Action initializer in Command.Initializers)
+			initializer.Invoke();
 	}
 
 	// Private method used to define the public "IsDebug" property.
