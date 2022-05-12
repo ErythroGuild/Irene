@@ -97,7 +97,8 @@ static partial class Util {
 	// try/catch block to handle exceptions.
 	public static async Task<DiscordAuditLogEntry?> LatestAuditLogEntry(
 		this DiscordGuild guild,
-		AuditLogActionType? type) {
+		AuditLogActionType? type
+	) {
 		try {
 			List<DiscordAuditLogEntry> entry =
 				new (await guild.GetAuditLogsAsync(

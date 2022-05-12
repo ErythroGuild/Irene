@@ -207,10 +207,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_WeeklyRaidPlanAnnouncement(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Calculate raid dates and fetch data.
 		DateTimeOffset dateTime_friday = time_trigger.AddDays(3);
@@ -276,10 +273,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_RaidDayMorningAnnouncement(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Fetch saved raid data.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
@@ -323,10 +317,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_RaidFormingSoonReminder(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Fetch saved raid data.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
@@ -385,10 +376,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_RaidFormingAnnouncement(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Fetch saved raid data.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
@@ -421,10 +409,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_RaidSetLogsReminder(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Fetch saved raid data.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
@@ -454,10 +439,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_RaidBreakReminder(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Don't fire event if raid was canceled.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
@@ -476,10 +458,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_OfficerMeetingReminder(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Don't fire event if raid was canceled.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
@@ -497,10 +476,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_OfficerRaidPlansReminder(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Don't fire event if raid was canceled.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
@@ -535,10 +511,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_OfficerPromoteTrialsReminder(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Don't fire event if raid was canceled.
 		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;

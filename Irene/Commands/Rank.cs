@@ -310,7 +310,7 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	public static async Task SetErythroAsync(TimedInteraction interaction) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// Check for permissions.
 		bool doContinue = await
@@ -358,7 +358,7 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	private static async Task SetRankAsync(DeferrerHandler handler) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// Always ephemeral.
 		if (handler.IsDeferrer) {
@@ -460,7 +460,7 @@ class Rank : AbstractCommand, IInit {
 		message_promise.SetResult(message);
 	}
 	private static async Task AssignRank(ComponentInteractionCreateEventArgs e) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		await e.Interaction.AcknowledgeComponentAsync();
 
@@ -529,7 +529,7 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	private static async Task SetGuildAsync(DeferrerHandler handler) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// Always ephemeral.
 		if (handler.IsDeferrer) {
@@ -627,7 +627,7 @@ class Rank : AbstractCommand, IInit {
 
 	}
 	private static async Task AssignGuild(ComponentInteractionCreateEventArgs e) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		await e.Interaction.AcknowledgeComponentAsync();
 
@@ -669,7 +669,7 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	private static async Task SetOfficerAsync(DeferrerHandler handler) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// Always ephemeral.
 		if (handler.IsDeferrer) {
@@ -745,7 +745,7 @@ class Rank : AbstractCommand, IInit {
 		message_promise.SetResult(message);
 	}
 	private static async Task AssignOfficer(ComponentInteractionCreateEventArgs e) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		await e.Interaction.AcknowledgeComponentAsync();
 
@@ -787,7 +787,7 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	private static async Task ListTrialsAsync(DeferrerHandler handler) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// Deferrer is always non-ephemeral.
 		if (handler.IsDeferrer) {

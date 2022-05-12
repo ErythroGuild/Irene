@@ -18,7 +18,6 @@ static class Command {
 	public static ReadOnlyDictionary<string, InteractionHandler> Handlers { get; }
 	public static ReadOnlyDictionary<string, InteractionHandler> AutoCompletes { get; }
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Command() {
 		Stopwatch stopwatch = Stopwatch.StartNew();

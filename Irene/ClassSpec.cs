@@ -232,7 +232,6 @@ static class ClassSpec {
 			[Spec.Warrior_Fury] = "Fury"      ,
 		});
 
-	// Force static initializer to run.
 	public static void Init() { }
 	// Initialize dictionary caches with redundant indices
 	// (improves performance at the cost of memory space).
@@ -298,9 +297,9 @@ static class ClassSpec {
 
 	// Emojis associated with roles/classes.
 	public static DiscordEmoji Emoji(this Role role) =>
-		Emojis[_tableRoleEmoji[role]];
+		Emojis![_tableRoleEmoji[role]];
 	public static DiscordEmoji Emoji(this Class @class) =>
-		Emojis[_tableClassEmoji[@class]];
+		Emojis![_tableClassEmoji[@class]];
 
 	// The categories a Spec falls into.
 	public static Class GetClass(this Spec spec) =>

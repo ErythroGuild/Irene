@@ -24,7 +24,6 @@ class Selection {
 	private static readonly ConcurrentDictionary<ulong, Selection> _selections = new ();
 	private const string _id = "selection";
 	
-	// Force static initializer to run.
 	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
@@ -225,9 +224,8 @@ class Selection {
 		// Construct list of role names.
 		StringWriter text = new ();
 		text.WriteLine($"{name_plural_upper} previously set:");
-		foreach (T option in selected) {
+		foreach (T option in selected)
 			text.Write($"**{options[option].Label}**  ");
-		}
 		return text.ToString()[..^2];
 	}
 

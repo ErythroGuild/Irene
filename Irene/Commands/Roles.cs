@@ -112,7 +112,7 @@ class Roles : AbstractCommand, IInit {
 	}
 
 	public static async Task RunAsync(TimedInteraction interaction) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// Ensure user is a member. (This should always succeed.)
 		// Roles can only be set for users in the same guild.
@@ -180,7 +180,7 @@ class Roles : AbstractCommand, IInit {
 	}
 
 	private static async Task AssignRoles(ComponentInteractionCreateEventArgs e) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// Convert DiscordUser to DiscordMember.
 		DiscordUser user = e.Interaction.User;
@@ -250,7 +250,7 @@ class Roles : AbstractCommand, IInit {
 	// Format and send welcome message to member.
 	// If member has access level above Guest, then skip.
 	private static async Task Welcome(DiscordMember member, List<DiscordRole> roles_added) {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// Skip sending message if conditions aren't met.
 		if (member.HasAccess(AccessLevel.Member))

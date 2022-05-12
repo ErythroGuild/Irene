@@ -149,7 +149,6 @@ class Raid {
 		_keyGroup     = "group",
 		_keyLogId     = "log-id";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Raid() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -248,9 +247,9 @@ class Raid {
 	public string Emoji { get => Date.Emoji; }
 	public string LogLinks { get {
 		DiscordEmoji
-			emoji_wipefest = Emojis[id_e.wipefest],
-			emoji_analyzer = Emojis[id_e.wowanalyzer],
-			emoji_logs = Emojis[id_e.warcraftlogs];
+			emoji_wipefest = Emojis![id_e.wipefest],
+			emoji_analyzer = Emojis![id_e.wowanalyzer],
+			emoji_logs = Emojis![id_e.warcraftlogs];
 
 		List<string> lines = new ();
 		List<GroupDataPair> data = Data
@@ -282,7 +281,7 @@ class Raid {
 		return string.Join("\n", lines);
 	} }
 	public string AnnouncementText { get =>
-		$"{Emoji} {Roles[id_r.raid].Mention} - Forming now!";
+		$"{Emoji} {Roles![id_r.raid].Mention} - Forming now!";
 	}
 
 	// Constructor / serialization / deserialization.
@@ -392,12 +391,9 @@ class Raid {
 
 	// Syntax sugar to call the static methods.
 	public async Task UpdateAnnouncement() {
+		await AwaitGuildInitAsync();
+
 		// Exit early if required data isn't available.
-		if (Guild is null) {
-			Log.Warning("  Failed to update announcement logs for: {RaidHash}", Hash);
-			Log.Information("    Guild not loaded yet.");
-			return;
-		}
 		if (MessageId is null) {
 			Log.Warning("  Failed to update announcement logs for: {RaidHash}", Hash);
 			Log.Information("    No announcement message set.");

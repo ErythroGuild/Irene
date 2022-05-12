@@ -43,10 +43,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_IreneBackupData(DateTimeOffset _) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		const string t = "\u2003";
 		const string a = "\u21D2";
@@ -89,10 +86,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_IreneBackupLogs(DateTimeOffset _) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		const string t = "\u2003";
 		const string a = "\u21D2";

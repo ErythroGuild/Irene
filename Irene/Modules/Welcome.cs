@@ -6,13 +6,14 @@ static class Welcome {
 		_urlRuleOne  = @"https://imgur.com/jxWTK8r",
 		_urlMascot   = @"https://imgur.com/5pKJdPh";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Welcome() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
 		Client.GuildMemberAdded += (irene, e) => {
 			_ = Task.Run(async () => {
+				await AwaitGuildInitAsync();
+
 				DiscordMember member = e.Member;
 
 				// Initialize welcome message.
@@ -28,12 +29,10 @@ static class Welcome {
 				await member.SendMessageAsync(_urlMascot);
 
 				// Notify recruitment officer.
-				if (Guild is not null) {
-					Log.Debug("  Notifying recruitment officer.");
-					string text = $"{Roles[id_r.recruiter].Mention} - " +
-						$"New member {e.Member.Mention} joined the server. :tada:";
-					await Channels[id_ch.officerBots].SendMessageAsync(text);
-				}
+				Log.Debug("  Notifying recruitment officer.");
+				string text = $"{Roles[id_r.recruiter].Mention} - " +
+					$"New member {e.Member.Mention} joined the server. :tada:";
+				await Channels[id_ch.officerBots].SendMessageAsync(text);
 			});
 			return Task.CompletedTask;
 		};

@@ -23,7 +23,6 @@ class Confirm {
 		_idButtonYes = "confirm_yes",
 		_idButtonNo  = "confirm_no" ;
 
-	// Force static initializer to run.
 	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates

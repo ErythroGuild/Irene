@@ -50,7 +50,6 @@ static class Starboard {
 		_pathBlacklist = @"data/starboard-blocked.txt",
 		_pathTemp = @"data/starboard-blocked-temp.txt";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Starboard() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -59,9 +58,7 @@ static class Starboard {
 
 		Client.MessageReactionAdded += (irene, e) => {
 			_ = Task.Run(async () => {
-				// Exit if guild data isn't loaded yet.
-				if (Guild is null || Client is null)
-					return;
+				await AwaitGuildInitAsync();
 
 				// Fetch latest data.
 				// (Sometimes the cached data is missing.)
@@ -92,9 +89,7 @@ static class Starboard {
 	}
 
 	public static async Task<bool?> DoPin(DiscordMessage message) {
-		// Exit if guild data isn't loaded yet.
-		if (Guild is null || Client is null)
-			return null;
+		await AwaitGuildInitAsync();
 
 		// Fetch latest data.
 		// (Sometimes the cached data is missing.)
@@ -183,13 +178,12 @@ static class Starboard {
 	// already exist for this message. Otherwise, updates the react
 	// emoji tallies.
 	public static async Task UpdatePinAsync(DiscordMessage message) {
+		await AwaitGuildInitAsync();
+
 		_workQueue.Enqueue(message);
 		// Let current work task finish first.
 		await _workTask;
 		_workTask = Task.Run(async () => {
-			if (Guild is null)
-				return;
-
 			// Fetching the blacklist separately rather than using
 			// the built-in function is more efficient.
 			// The entire file doesn't need to be read every time.
@@ -258,12 +252,11 @@ static class Starboard {
 	// Removes the pin in the starboard channel for the message,
 	// if one exists.
 	public static async Task RemovePinAsync(DiscordMessage message) {
+		await AwaitGuildInitAsync();
+
 		// Make sure the work task isn't running.
 		await _workTask;
 		_workTask = Task.Run(async () => {
-			if (Guild is null)
-				return;
-
 			DiscordMessage? pin = await FetchPinAsync(message);
 
 			// Return early if no pin existed in the first place.
@@ -284,6 +277,8 @@ static class Starboard {
 	// for that message.
 	// Returns that message if it exists, or null if it doesn't.
 	public static async Task<DiscordMessage?> FetchPinAsync(DiscordMessage message) {
+		await AwaitGuildInitAsync();
+
 		DiscordChannel channel = Channels[id_ch.starboard];
 		ulong id = message.Id;
 

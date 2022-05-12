@@ -176,8 +176,6 @@ static partial class AuditLog {
 		List<string> data = data_in;
 		if (entry is null)
 			return data;
-		if (Guild is null)
-			return data;
 
 		// N.B.: The "After" fields in the OverwriteEntry are always copied
 		// of the "Before" fields; we must use the `entry.Target` fields in
@@ -194,7 +192,7 @@ static partial class AuditLog {
 		ulong entity_id = overwrite.Id;
 		entity_str += overwrite.Type switch {
 			OverwriteType.Member => $"`{Client.GetUserAsync(overwrite.Id).Result.Tag()}`",
-			OverwriteType.Role   => $"`@{Guild.GetRole(entity_id).Name}`",
+			OverwriteType.Role   => $"`@{Guild!.GetRole(entity_id).Name}`",
 			_ => "",
 		};
 		data.Add($"Permissions updated for {entity_str}.");

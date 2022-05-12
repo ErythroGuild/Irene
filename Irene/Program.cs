@@ -34,7 +34,7 @@ class Program {
 	// Member must have a non-null value when exiting.
 	#pragma warning disable CS8774
 	[MemberNotNull(nameof(Guild), nameof(Channels), nameof(Emojis), nameof(Roles), nameof(VoiceChats))]
-	public static async Task AwaitGuildInit() => await GuildFuture;
+	public static async Task AwaitGuildInitAsync() => await GuildFuture;
 	#pragma warning restore CS8774
 
 	// Separate logger pipeline for D#+.
@@ -449,7 +449,7 @@ class Program {
 	}
 
 	private static async Task InitModules() {
-		await AwaitGuildInit();
+		await AwaitGuildInitAsync();
 
 		// List all initializers.
 		List<Action>
