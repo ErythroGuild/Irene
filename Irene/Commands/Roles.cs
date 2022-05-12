@@ -70,7 +70,6 @@ class Roles : AbstractCommand, IInit {
 	const string _pathIntros = @"data/role-intros.txt";
 	const string _delim = "=";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Roles() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -113,14 +112,16 @@ class Roles : AbstractCommand, IInit {
 	}
 
 	public static async Task RunAsync(TimedInteraction interaction) {
+		await AwaitGuildInit();
+
 		// Ensure user is a member. (This should always succeed.)
 		// Roles can only be set for users in the same guild.
 		DiscordUser user = interaction.Interaction.User;
 		DiscordMember? member = await user.ToMember();
 		if (member is null) {
 			string response_error = "Could not determine who you are.";
-			response_error += (Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
-				? $"\nTry running the command again, in {Channels![id_ch.bots].Mention}?"
+			response_error += (interaction.Interaction.ChannelId != id_ch.bots)
+				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
 			await Command.SubmitResponseAsync(
 				interaction,
@@ -179,14 +180,7 @@ class Roles : AbstractCommand, IInit {
 	}
 
 	private static async Task AssignRoles(ComponentInteractionCreateEventArgs e) {
-		// Make sure Guild is initialized.
-		if (Guild is null) {
-			Log.Information("Updating user roles.");
-			Log.Error("  Guild not initialized; could not update roles.");
-			await e.Interaction.AcknowledgeComponentAsync();
-			Log.Information("  Failed to update roles. No changes made.");
-			return;
-		}
+		await AwaitGuildInit();
 
 		// Convert DiscordUser to DiscordMember.
 		DiscordUser user = e.Interaction.User;
@@ -256,9 +250,9 @@ class Roles : AbstractCommand, IInit {
 	// Format and send welcome message to member.
 	// If member has access level above Guest, then skip.
 	private static async Task Welcome(DiscordMember member, List<DiscordRole> roles_added) {
+		await AwaitGuildInit();
+
 		// Skip sending message if conditions aren't met.
-		if (Guild is null)
-			return;
 		if (member.HasAccess(AccessLevel.Member))
 			return;
 		if (roles_added.Count == 0)
@@ -287,7 +281,7 @@ class Roles : AbstractCommand, IInit {
 		}
 
 		// Format welcome message.
-		string response = $"Thank you for subscribing to pings; welcome aboard! :tada:{Emojis![id_e.eryLove]}";
+		string response = $"Thank you for subscribing to pings; welcome aboard! :tada:{Emojis[id_e.eryLove]}";
 		foreach (string welcome in welcomes)
 			response += $"\n\u2022 {welcome}";
 		response += "\n*You can unsubscribe at anytime, or temporarily mute a server / channel.*";

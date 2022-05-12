@@ -28,6 +28,7 @@ class Program {
 	// GuildFuture is only set when Guild and all associated variables
 	// are set. This will always be complete when called, since it
 	// should only be called *after* init functions are called.
+	// `await AwaitGuildInit();` can be used to remove null warnings.
 	private static Task<DiscordGuild> GuildFuture { get => _guildPromise.Task; }
 	private static TaskCompletionSource<DiscordGuild> _guildPromise = new ();
 	// Member must have a non-null value when exiting.

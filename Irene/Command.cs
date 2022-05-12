@@ -108,18 +108,12 @@ static class Command {
 			return AccessLevel.None;
 		}
 
-		// Return no results if guild not initialized yet.
-		if (Guild is null) {
-			Log.Warning("    Guild not initialized yet. Assigning default permissions.");
-			return AccessLevel.None;
-		}
-
 		return GetAccessLevel(member);
 	}
 	// Returns the highest access level the member has access to.
 	public static AccessLevel GetAccessLevel(DiscordMember member) {
 		static bool HasRole(RoleList r, ulong id) =>
-			r.Contains(Program.Roles[id]);
+			r.Contains(Program.Roles![id]);
 		RoleList roles = new (member.Roles);
 		return roles switch {
 			RoleList r when HasRole(r, id_r.admin  ) => AccessLevel.Admin,

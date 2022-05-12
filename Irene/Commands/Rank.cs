@@ -310,6 +310,8 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	public static async Task SetErythroAsync(TimedInteraction interaction) {
+		await AwaitGuildInit();
+
 		// Check for permissions.
 		bool doContinue = await
 			interaction.CheckAccessAsync(false, AccessLevel.Officer);
@@ -356,6 +358,8 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	private static async Task SetRankAsync(DeferrerHandler handler) {
+		await AwaitGuildInit();
+
 		// Always ephemeral.
 		if (handler.IsDeferrer) {
 			await Command.DeferAsync(handler, true);
@@ -366,10 +370,10 @@ class Rank : AbstractCommand, IInit {
 		DiscordMember? member_caller = await
 			handler.Interaction.Interaction.User.ToMember();
 		DiscordMember? member_target =
-			GetResolvedMember(handler.Interaction.Interaction);
+			handler.Interaction.Interaction.GetTargetMember();
 		if (member_caller is null || member_target is null) {
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && handler.Interaction.Interaction.ChannelId != id_ch.bots)
+			response_error += (handler.Interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he'll take care of it!";
 			await Command.SubmitResponseAsync(
@@ -456,14 +460,9 @@ class Rank : AbstractCommand, IInit {
 		message_promise.SetResult(message);
 	}
 	private static async Task AssignRank(ComponentInteractionCreateEventArgs e) {
-		await e.Interaction.AcknowledgeComponentAsync();
+		await AwaitGuildInit();
 
-		// Make sure Guild is initialized.
-		if (Program.Guild is null) {
-			Log.Information("Updating user rank.");
-			Log.Warning("  Rank not updated (guild not initialized).");
-			return;
-		}
+		await e.Interaction.AcknowledgeComponentAsync();
 
 		// Fetch target member from cache.
 		ulong member_id = e.User.Id;
@@ -530,6 +529,8 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	private static async Task SetGuildAsync(DeferrerHandler handler) {
+		await AwaitGuildInit();
+
 		// Always ephemeral.
 		if (handler.IsDeferrer) {
 			await Command.DeferAsync(handler, true);
@@ -546,7 +547,7 @@ class Rank : AbstractCommand, IInit {
 			new (handler.GetArgs()[0].Options);
 		if (args.Count > 0) {
 			member_target =
-				GetResolvedMember(handler.Interaction.Interaction);
+				handler.Interaction.Interaction.GetTargetMember();
 			if (member_caller is not null &&
 				member_target is not null &&
 				member_target.Id != member_caller.Id
@@ -564,7 +565,7 @@ class Rank : AbstractCommand, IInit {
 		// Ensure all needed params can be converted to DiscordMembers.
 		if (member_caller is null || member_target is null) {
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && handler.Interaction.Interaction.ChannelId != id_ch.bots)
+			response_error += (handler.Interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
 			await Command.SubmitResponseAsync(
@@ -626,14 +627,9 @@ class Rank : AbstractCommand, IInit {
 
 	}
 	private static async Task AssignGuild(ComponentInteractionCreateEventArgs e) {
-		await e.Interaction.AcknowledgeComponentAsync();
+		await AwaitGuildInit();
 
-		// Make sure Guild is initialized.
-		if (Program.Guild is null) {
-			Log.Information("Updating user guilds.");
-			Log.Warning("  Guilds not updated (guild not initialized).");
-			return;
-		}
+		await e.Interaction.AcknowledgeComponentAsync();
 
 		// Fetch target member from cache.
 		ulong member_id = e.User.Id;
@@ -673,6 +669,8 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	private static async Task SetOfficerAsync(DeferrerHandler handler) {
+		await AwaitGuildInit();
+
 		// Always ephemeral.
 		if (handler.IsDeferrer) {
 			await Command.DeferAsync(handler, true);
@@ -683,10 +681,10 @@ class Rank : AbstractCommand, IInit {
 		DiscordMember? member_caller = await
 			handler.Interaction.Interaction.User.ToMember();
 		DiscordMember? member_target =
-			GetResolvedMember(handler.Interaction.Interaction);
+			handler.Interaction.Interaction.GetTargetMember();
 		if (member_caller is null || member_target is null) {
 			string response_error = "Could not fetch membership information.";
-			response_error += (Program.Guild is not null && handler.Interaction.Interaction.ChannelId != id_ch.bots)
+			response_error += (handler.Interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
 			await Command.SubmitResponseAsync(
@@ -747,14 +745,9 @@ class Rank : AbstractCommand, IInit {
 		message_promise.SetResult(message);
 	}
 	private static async Task AssignOfficer(ComponentInteractionCreateEventArgs e) {
-		await e.Interaction.AcknowledgeComponentAsync();
+		await AwaitGuildInit();
 
-		// Make sure Guild is initialized.
-		if (Program.Guild is null) {
-			Log.Debug("Updating officer roles.");
-			Log.Warning("  Roles not updated (guild not initialized).");
-			return;
-		}
+		await e.Interaction.AcknowledgeComponentAsync();
 
 		// Fetch target member from cache.
 		ulong member_id = e.User.Id;
@@ -794,22 +787,9 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	private static async Task ListTrialsAsync(DeferrerHandler handler) {
-		if (Program.Guild is null) {
-			if (handler.IsDeferrer) {
-				await Command.DeferAsync(handler, true);
-				return;
-			}
-			await Command.SubmitResponseAsync(
-				handler.Interaction,
-				"Server data not downloaded yet. Try again in a few seconds.",
-				"Guild not initialized yet.",
-				LogLevel.Warning,
-				"No data fetched (guild not initialized). Response sent.".AsLazy()
-			);
-			return;
-		}
+		await AwaitGuildInit();
 
-		// Deferrer is non-ephemeral for the rest.
+		// Deferrer is always non-ephemeral.
 		if (handler.IsDeferrer) {
 			await Command.DeferAsync(handler, false);
 			return;
@@ -865,14 +845,6 @@ class Rank : AbstractCommand, IInit {
 			"List sent. ({EntryCount} entries)".AsLazy(),
 			trials.Count
 		);
-	}
-
-	private static DiscordMember? GetResolvedMember(DiscordInteraction interaction) {
-		List<DiscordMember> members =
-			new (interaction.Data.Resolved.Members.Values);
-		return members.Count > 0
-			? members[0]
-			: null;
 	}
 
 	private static bool IsRankRole(ulong id) =>
