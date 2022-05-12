@@ -27,7 +27,3 @@ public abstract class AbstractCommand {
 interface IInit {
 	public static abstract void Init();
 }
-
-interface IAwaitGuild {
-	public static async Task AwaitGuildAsync() => await GuildFuture;
-}

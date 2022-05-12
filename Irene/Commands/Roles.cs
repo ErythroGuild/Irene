@@ -4,7 +4,7 @@ using Entry = Irene.Components.Selection.Option;
 
 namespace Irene.Commands;
 
-class Roles : AbstractCommand, IInit, IAwaitGuild {
+class Roles : AbstractCommand, IInit {
 	public enum PingRole {
 		Raid,
 		Mythics, KSM, Gearing,
