@@ -24,6 +24,15 @@ class Program {
 	public static ConcurrentDictionary<ulong, DiscordRole>?    Roles      { get; private set; }
 	public static ConcurrentDictionary<ulong, DiscordChannel>? VoiceChats { get; private set; }
 
+	// DiscordGuild promise/future objects.
+	// GuildFuture is only set when Guild and all associated variables are set.
+	#pragma warning disable CS8774 // Member must have a non-null value when exiting.
+	[MemberNotNull(nameof(Guild), nameof(Channels), nameof(Emojis), nameof(Roles), nameof(VoiceChats))]
+	public static async Task AwaitGuildInit() => await GuildFuture;
+	#pragma warning restore CS8774
+	private static Task<DiscordGuild> GuildFuture { get => _guildPromise.Task; }
+	private static TaskCompletionSource<DiscordGuild> _guildPromise = new ();
+
 	// Separate logger pipeline for D#+.
 	private static Serilog.ILogger _loggerDsp;
 
@@ -287,6 +296,9 @@ class Program {
 				// Stop data initialization timer.
 				Log.Debug("    Discord data initialized and populated.");
 				_stopwatchInitData.LogMsecDebug("      Took {DataInitTime} msec.");
+
+				// Set GuildFuture.
+				_guildPromise.SetResult(Guild);
 
 				// Initialize classes.
 				ClassSpec.Init();
