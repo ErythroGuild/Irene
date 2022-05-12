@@ -1,6 +1,7 @@
 ﻿namespace Irene.Commands;
 
 class Version : AbstractCommand {
+	private static readonly object _lock = new ();
 	private const string
 		_pathBuild   = @"config/commit.txt",
 		_pathVersion = @"config/tag.txt";
@@ -24,17 +25,23 @@ class Version : AbstractCommand {
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		StreamReader file;
+		string build = "";
+		string version = "";
 
 		// Read in data.
-		file = File.OpenText(_pathBuild);
-		string build = file.ReadLine() ?? "";
-		if (build.Length > 7)
-			build = build[..7];
-		file.Close();
+		lock (_lock) {
+			file = File.OpenText(_pathBuild);
+			build = file.ReadLine() ?? "";
+			if (build.Length > 7)
+				build = build[..7];
+			file.Close();
+		}
 
-		file = File.OpenText(_pathVersion);
-		string version = file.ReadLine() ?? "";
-		file.Close();
+		lock (_lock) {
+			file = File.OpenText(_pathVersion);
+			version = file.ReadLine() ?? "";
+			file.Close();
+		}
 
 		string output = $"**Irene {version}** build `{build}`";
 
