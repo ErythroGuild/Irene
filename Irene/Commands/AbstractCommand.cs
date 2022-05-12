@@ -23,3 +23,11 @@ public abstract class AbstractCommand {
 
 	public virtual List<AutoCompleteHandler> AutoCompletes { get => new (); }
 }
+
+interface IInit {
+	public static abstract void Init();
+}
+
+interface IInitAsync {
+	public static abstract Task InitAsync();
+}
