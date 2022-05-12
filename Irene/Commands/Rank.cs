@@ -191,13 +191,13 @@ class Rank : AbstractCommand, IInit {
 	}
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@":lock: `/rank set <member>` shows a menu for promoting/demoting the specified member.",
 			@"`/rank set-guild <member>` shows a menu for assigning the guild(s) a member is associated with.",
 			@":lock: `/rank set-officer <member>` shows a menu for assigning specific officer roles to an officer.",
 			@":lock: `/rank list-trials` lists all members who are currently trials.",
 			"Apart from setting your own guild associations, all commands require Officer rank.",
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {
@@ -315,7 +315,7 @@ class Rank : AbstractCommand, IInit {
 		if (!doContinue)
 			return;
 
-		List<string> response_lines = new ();
+		List<string> response = new ();
 
 		// Fetch the first resolved user.
 		DiscordMember member =
@@ -327,7 +327,7 @@ class Rank : AbstractCommand, IInit {
 			await member.GrantRoleAsync(Program.Roles[id_r.guest]);
 			Log.Debug("    User granted guest privileges.");
 			interaction.Timer.LogMsecDebug("    Granted in {Time} msec.", false);
-			response_lines.Add("Guest role granted.");
+			response.Add("Guest role granted.");
 		} else {
 			Log.Debug("    User already had guest privileges.");
 		}
@@ -338,18 +338,17 @@ class Rank : AbstractCommand, IInit {
 			await member.GrantRoleAsync(Program.Roles[id_r.erythro]);
 			Log.Debug("    User granted <Erythro> role.");
 			interaction.Timer.LogMsecDebug("    Granted in {Time} msec.", false);
-			response_lines.Add("Guild role granted.");
+			response.Add("Guild role granted.");
 		} else {
 			Log.Debug("    User already had <Erythro> role.");
 		}
 
 		// Add response for no changes needed.
-		if (response_lines.Count == 0)
-			response_lines.Add("No changes necessary; user has required roles already.");
+		if (response.Count == 0)
+			response.Add("No changes necessary; user has required roles already.");
 
 		// Report.
-		string response = string.Join("\n", response_lines);
-		await interaction.Interaction.UpdateMessageAsync(response);
+		await interaction.Interaction.UpdateMessageAsync(response.ToLines());
 		Log.Debug("  User {Username}#{Discriminator}  set as <Erythro> member.", member.Username, member.Discriminator);
 		interaction.Timer.LogMsecDebug("    Response completed in {Time} msec.");
 	}

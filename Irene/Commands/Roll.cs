@@ -51,13 +51,13 @@ class Roll : AbstractCommand {
 		});
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@"`/roll` generates a number between `1` and `100`,",
 			@"`/roll <max>` generates a number between `1` and `max`,",
 			@"`/roll <min> <max> generates a number between `min` and `max`.",
 			"All ranges are inclusive (e.g. `[1, 100]`).",
 			@"`/8-ball <question> [keep-private]` forecasts the answer to a yes/no question."
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {

@@ -11,11 +11,11 @@ class Help : AbstractCommand {
 		_t = "\u2003"    ; // tab
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@"`/help` lists all available commands, along with a short description for each,",
 			@"`/help <command>` shows a more detailed guide on how to use the command.",
 			"If you have any questions at all, Ernie will be happy to answer them."
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {
@@ -39,7 +39,7 @@ class Help : AbstractCommand {
 	};
 
 	private static List<string> HelpGeneral => new () {
-		{ string.Join("\n", new List<string> {
+		{ new List<string> {
 			"If you need any help, ask, or shoot Ernie a message! :+1:",
 			$"{_s} - public by default",
 			$"{_p} - private by default",
@@ -52,8 +52,8 @@ class Help : AbstractCommand {
 			"",
 			"**Version**",
 			$@"{_s} `/version`: Display the currently running version + build.",
-		} ) },
-		{ string.Join("\n", new List<string> {
+		}.ToLines() },
+		{ new List<string> {
 			"**Roles**",
 			$@"{_p} `/roles`: Set (or clear) roles to be pinged for.",
 			"",
@@ -63,8 +63,8 @@ class Help : AbstractCommand {
 			$@"{_p}{_l} `/rank set-guilds <member>`: Set the guild roles of the specified member.",
 			$@"{_p}{_l} `/rank set-officer <member>`: Set the officer roles of the specified member.",
 			$@"{_s}{_l} `/rank list-trials`: Display a list of all trials (Guest + <Erythro>).",
-		} ) },
-		{ string.Join("\n", new List<string> {
+		}.ToLines() },
+		{ new List<string> {
 			"**Raid**",
 			$@"{_p} `/raid info [share]`: Shows the plans for the upcoming raid.",
 			//$@"{_p} `/raid eligibility`: Shows the raid requirements (and checks if you meet them).",
@@ -76,9 +76,8 @@ class Help : AbstractCommand {
 		//	"",
 		//	"**Keys**",
 		//	$@"{_p} `/keys [share] [sort] [filter]`:",
-		}) },
-		{
-			string.Join("\n", new List<string> {
+		}.ToLines() },
+		{ new List<string> {
 			"**Tags**",
 			$@"{_p} `/tags view <name> [share]`: Display the named tag.",
 			$@"{_p} `/tags list`: List all available tags.",
@@ -87,8 +86,8 @@ class Help : AbstractCommand {
 			//"",
 			//"**Boss Guides**",
 			//$@"{_e} `/boss-guide <raid> <boss> [difficulty] [share] [type]`:",
-		} ) },
-		{ string.Join("\n", new List<string> {
+		}.ToLines() },
+		{ new List<string> {
 			"**In-Game Data**",
 			$@"{_s} `/cap <type>`: Display the current cap of the named resource.",
 			//$@"{_s} `/emissaries <type>`:",
@@ -97,8 +96,8 @@ class Help : AbstractCommand {
 			//"**Solvers**",
 			//$@"{_p} `/solve mrrl`:",
 			//$@"{_p} `/solve lights-out`:",
-		} ) },
-		{ string.Join("\n", new List<string> {
+		}.ToLines() },
+		{ new List<string> {
 			"**Awards**",
 			//$@"{_p} `/commend`:",
 			$@"{_p}{_l} `/best-of block <message-id> <channel>`: Blocks a message from being pinned.",
@@ -107,13 +106,12 @@ class Help : AbstractCommand {
 			//"**Moderation**",
 			//$@"{_s}{_l} `/slowmode <channel>`:",
 			//$@"{_p}{_l} `/change-subject `:",
-		} ) },
-		//{ string.Join("\n", new List<string> {
+		}.ToLines() },
+		//{ new List<string> {
 		//	"****",
 		//	$@"{_p} `/`:",
-		//} ) },
-		{
-			string.Join("\n", new List<string> {
+		//}.ToLines() },
+		{ new List<string> {
 			"**Utilities**",
 			$@"{_s} `/roll`: Generate a number between `1` and `100`.",
 			$@"{_s} `/roll <max>`: Generate a number between `1` and `max`.",
@@ -123,7 +121,7 @@ class Help : AbstractCommand {
 			"**Discord Servers**",
 			$@"{_s} `/invite [erythro|leuko]`: Display the invite link for the guild servers.",
 			$@"{_s} `/class-discord <class>`: Display the invite link(s) for the specified class discord.",
-		} ) },
+		}.ToLines() },
 	};
 
 	public static async Task RunAsync(TimedInteraction interaction) {

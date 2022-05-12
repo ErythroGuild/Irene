@@ -9,11 +9,11 @@ class Invite : AbstractCommand {
 		_urlLeuko   = @"https://discord.gg/zhadQf59xq";
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@"`/invite erythro` fetches the server invite for this server.",
 			@"`/invite leuko` fetches the server invite for the FFXIV sister server.",
 			$"These invite links can also be found in {Channels![id_ch.resources].Mention}."
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {

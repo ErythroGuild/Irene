@@ -72,17 +72,22 @@ static partial class RecurringEvents {
 		List<string> text = new ()
 			{ $":file_cabinet: Bi-monthly reminder to back up my `/data` folder! Copy all the contents in the folder," };
 		if (dir_data is not null && dir_backup is not null && dir_repo is not null) {
-			text.Add($"{t}{a} from:   `{dir_data}`");
-			text.Add($"{t}{a} to:        `{dir_backup}`");
-			text.Add("Also copy (from the same folder), `events.txt`, `raids.txt`, and `tags.txt`,");
-			text.Add($"{t}{a} to:        `{dir_repo}`");
+			text.AddRange(new List<string> {
+				$"{t}{a} from:   `{dir_data}`",
+				$"{t}{a} to:        `{dir_backup}`",
+				"Also copy (from the same folder):",
+				$"{t} - `events.txt`",
+				$"{t} - `raids.txt`",
+				$"{t} - `tags.txt`",
+				$"{t}{a} to:        `{dir_repo}`",
+			} );
 		}
 
 		// Send message.
 		ulong id_owner = ulong.Parse(id_owner_str);
 		DiscordMember member_owner =
 			await Guild.GetMemberAsync(id_owner);
-		await member_owner.SendMessageAsync(string.Join("\n", text));
+		await member_owner.SendMessageAsync(text.ToLines());
 	}
 
 	private static async Task Event_IreneBackupLogs(DateTimeOffset _) {
@@ -121,6 +126,6 @@ static partial class RecurringEvents {
 		ulong id_owner = ulong.Parse(id_owner_str);
 		DiscordMember member_owner =
 			await Guild.GetMemberAsync(id_owner);
-		await member_owner.SendMessageAsync(string.Join("\n", text));
+		await member_owner.SendMessageAsync(text.ToLines());
 	}
 }

@@ -667,7 +667,7 @@ static partial class AuditLog {
 		data.Insert(0, line_time);
 		_ = Channels![id_ch.audit].SendMessageAsync(
 			new DiscordMessageBuilder()
-			.WithContent(string.Join("\n", data))
+			.WithContent(data.ToLines())
 			.WithAllowedMentions(Mentions.None)
 		);
 

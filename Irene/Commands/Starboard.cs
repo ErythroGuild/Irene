@@ -9,12 +9,12 @@ class Starboard : AbstractCommand {
 		_commandPinBestOf = "Pin #best-of";
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@"`/best-of block <message-id> <channel>` blocks a message from being pinned.",
 			@"`/best-of unblock <message-id> <channel>` allows a message to be pinned again.",
 			"When a message is blocked, existing pins are removed.",
 			"Unblocking will only create a pin if the post meets current requirements."
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {

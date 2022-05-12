@@ -92,12 +92,12 @@ class Roles : AbstractCommand, IInit {
 	}
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@"`/roles` shows all available roles, and lets you assign them to yourself.",
 			"You can reassign them at any time.",
 			"You will receive notification pings for the roles you select.",
 			"*(Sometimes Discord will fail to grant you the roles you selected; if that happens, just try again.)*",
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {

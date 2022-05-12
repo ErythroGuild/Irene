@@ -276,7 +276,7 @@ class Raid {
 			break;
 		}
 
-		return string.Join("\n", lines);
+		return lines.ToLines();
 	} }
 	public string AnnouncementText =>
 		$"{Emoji} {Roles![id_r.raid].Mention} - Forming now!";
@@ -311,7 +311,7 @@ class Raid {
 			}
 		}
 
-		return string.Join("\n", lines);
+		return lines.ToLines();
 	}
 	// Returns null if the data is underspecified.
 	private static Raid? Deserialize(string entry) {

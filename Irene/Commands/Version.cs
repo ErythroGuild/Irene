@@ -6,10 +6,10 @@ class Version : AbstractCommand {
 		_pathVersion = @"config/tag.txt";
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@"`/version` displays the most recent release version and currently running build.",
 			"These values are automatically generated from git when the bot is built."
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {
