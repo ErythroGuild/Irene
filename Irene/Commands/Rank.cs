@@ -190,7 +190,7 @@ class Rank : AbstractCommand, IInit {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@":lock: `/rank set <member>` shows a menu for promoting/demoting the specified member.",
 			@"`/rank set-guild <member>` shows a menu for assigning the guild(s) a member is associated with.",
@@ -198,9 +198,8 @@ class Rank : AbstractCommand, IInit {
 			@":lock: `/rank list-trials` lists all members who are currently trials.",
 			"Apart from setting your own guild associations, all commands require Officer rank.",
 		} ) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"rank",
@@ -249,9 +248,8 @@ class Rank : AbstractCommand, IInit {
 				ApplicationCommandType.SlashCommand
 			), DeferAsync, RunAsync )
 		};
-	}
 
-	public override List<InteractionCommand> UserCommands { get =>
+	public override List<InteractionCommand> UserCommands =>
 		new () {
 			new ( new (
 				_commandSetErythro,
@@ -260,7 +258,6 @@ class Rank : AbstractCommand, IInit {
 				type: ApplicationCommandType.UserContextMenu
 			), Command.DeferEphemeralAsync, SetErythroAsync )
 		};
-	}
 
 	public static async Task DeferAsync(TimedInteraction interaction) {
 		DeferrerHandler handler = new (interaction, true);

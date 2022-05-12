@@ -7,7 +7,7 @@ namespace Irene.Components;
 
 class Pages {
 	public const int DefaultPageSize = 8;
-	public static TimeSpan DefaultTimeout { get => TimeSpan.FromMinutes(10); }
+	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
 	// Table of all Pages to handle, indexed by the message ID of the
 	// owning message.
@@ -98,9 +98,8 @@ class Pages {
 
 		return string.Join("\n", _data.GetRange(i_start, i_range));
 	} }
-	private Component[] CurrentButtons { get =>
+	private Component[] CurrentButtons =>
 		GetButtons(_page, _pageCount);
-	}
 
 	// Private constructor.
 	// Use Pages.Create() to create a new instance.

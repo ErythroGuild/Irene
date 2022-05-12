@@ -91,16 +91,15 @@ class Roles : AbstractCommand, IInit {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/roles` shows all available roles, and lets you assign them to yourself.",
 			"You can reassign them at any time.",
 			"You will receive notification pings for the roles you select.",
 			"*(Sometimes Discord will fail to grant you the roles you selected; if that happens, just try again.)*",
 		} ) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"roles",
@@ -109,7 +108,6 @@ class Roles : AbstractCommand, IInit {
 				type: ApplicationCommandType.SlashCommand
 			), Command.DeferEphemeralAsync, RunAsync )
 		};
-	}
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		await AwaitGuildInitAsync();

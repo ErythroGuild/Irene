@@ -15,7 +15,7 @@ class Selection {
 		string? Description
 	);
 
-	public static TimeSpan DefaultTimeout { get => TimeSpan.FromMinutes(10); }
+	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
 	// Table of all Selections to handle, indexed by the message ID of
 	// the owning message.

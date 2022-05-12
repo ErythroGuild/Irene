@@ -42,7 +42,7 @@ class Raid : AbstractCommand {
 	private const string _argDate = "date";
 	private const string _idTagPlans = "tag_plans";
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@" `/raid info [share]` displays the plans for the upcoming raid,",
 			//@" `/raid eligibility` checks raid requirements (and if you meet them),",
@@ -53,9 +53,8 @@ class Raid : AbstractCommand {
 			@":lock: `/raid cancel <date> [do-cancel]` marks raid that day as canceled.",
 			"`<date>` values can always be entered as YYYY-MM-DD if natural phrases aren't working.",
 		} ) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				_commandRaid,
@@ -163,11 +162,10 @@ class Raid : AbstractCommand {
 				ApplicationCommandType.SlashCommand
 			), DeferAsync, RunAsync )
 		};
-	}
 
-	public override List<AutoCompleteHandler> AutoCompletes   { get => new () {
+	public override List<AutoCompleteHandler> AutoCompletes => new () {
 		new (_commandRaid, AutoCompleteAsync),
-	}; }
+	};
 	
 	public static async Task DeferAsync(TimedInteraction interaction) {
 		DeferrerHandler handler = new (interaction, true);

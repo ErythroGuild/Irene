@@ -5,14 +5,13 @@ class Version : AbstractCommand {
 		_pathBuild   = @"config/commit.txt",
 		_pathVersion = @"config/tag.txt";
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/version` displays the most recent release version and currently running build.",
 			"These values are automatically generated from git when the bot is built."
 		} ) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"version",
@@ -22,7 +21,6 @@ class Version : AbstractCommand {
 				ApplicationCommandType.SlashCommand
 			), Command.DeferVisibleAsync, RunAsync )
 		};
-	}
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		StreamReader file;

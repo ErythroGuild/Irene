@@ -82,23 +82,21 @@ class RecurringEvent {
 
 		public readonly BasisType Basis { get; init; }
 		public readonly RuleType Rule { get; init; }
-		public readonly RuleDirection Direction {
-			get => Rule switch {
-				RuleType.BeforeStart or
-				RuleType.BeforeEnd =>
-					RuleDirection.Before,
-				RuleType.Base or
-				RuleType.AfterStart or
-				RuleType.AfterEnd =>
-					RuleDirection.After,
-				RuleType.ClosestStart or
-				RuleType.ClosestEnd =>
-					RuleDirection.Closest,
-				_ =>
-					throw new ArgExcept($"Unknown RuleType {Rule}.",
-						nameof(Rule)),
-			};
-		}
+		public readonly RuleDirection Direction => Rule switch {
+			RuleType.BeforeStart or
+			RuleType.BeforeEnd =>
+				RuleDirection.Before,
+			RuleType.Base or
+			RuleType.AfterStart or
+			RuleType.AfterEnd =>
+				RuleDirection.After,
+			RuleType.ClosestStart or
+			RuleType.ClosestEnd =>
+				RuleDirection.Closest,
+			_ =>
+				throw new ArgExcept($"Unknown RuleType {Rule}.",
+					nameof(Rule)),
+		};
 		public readonly object Index { get; init; }
 
 		public RecurBasis(BasisType basis, RuleType rule, object index) {
@@ -132,7 +130,7 @@ class RecurringEvent {
 		// Return the max/min length of the period of the RecurBasis,
 		// as an absolute value, counting from the start of the rule.
 		// Rule type and surrounding rules are not accounted for.
-		public int PeriodMaxDays { get => Basis switch {
+		public int PeriodMaxDays => Basis switch {
 			BasisType.Days or
 			BasisType.Weeks or
 			BasisType.Months or
@@ -143,8 +141,8 @@ class RecurringEvent {
 			BasisType.LunarPhase =>
 				_periodTable[Basis],
 			_ => throw new InvalidOpExcept($"Unknown BasisType {Basis}."),
-		}; }
-		public int PeriodMinDays { get => Basis switch {
+		};
+		public int PeriodMinDays => Basis switch {
 			BasisType.Days or
 			BasisType.Weeks or
 			BasisType.Months or
@@ -155,7 +153,7 @@ class RecurringEvent {
 			BasisType.LunarPhase =>
 				0,
 			_ => throw new InvalidOpExcept($"Unknown BasisType {Basis}."),
-		}; }
+		};
 		private static readonly ReadOnlyDictionary<BasisType, int> _periodTable =
 			new (new ConcurrentDictionary<BasisType, int>() {
 				[BasisType.Days  ] =   1,
@@ -184,8 +182,8 @@ class RecurringEvent {
 		(DateOnly OutputDate, DateOnly CycleDate);
 	public record class RecurPattern {
 		public RecurTime Time { get; init; }
-		public TimeOnly TimeOnly { get => Time.TimeOnly; }
-		public TimeZoneInfo TimeZone { get => Time.TimeZone; }
+		public TimeOnly TimeOnly => Time.TimeOnly;
+		public TimeZoneInfo TimeZone => Time.TimeZone;
 		public int RecurIndex { get; init; }
 		public List<RecurBasis> Bases { get; init; }
 

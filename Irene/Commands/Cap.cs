@@ -10,14 +10,13 @@ class Cap : AbstractCommand {
 		_optRenown   = "renown",
 		_optTorghast = "tower-knowledge";
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new() { string.Join("\n", new List<string> {
 			@"`/cap <type>` displays the current cap of the resource <type>,",
 			"e.g. renown or valor."
 		}) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"cap",
@@ -37,7 +36,6 @@ class Cap : AbstractCommand {
 				ApplicationCommandType.SlashCommand
 			), DeferAsync, RunAsync )
 		};
-	}
 
 	public static async Task DeferAsync(TimedInteraction interaction) {
 		DeferrerHandlerFunc function =

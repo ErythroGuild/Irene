@@ -50,12 +50,11 @@ class ClassDiscord : AbstractCommand, IInit {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			"`/class-discord <class>` displays the class discord invite.",
 			"Multiple invites are given if available."
 		} ) };
-	}
 
 	public override List<InteractionCommand> SlashCommands { get {
 		// Compile list of all options.

@@ -8,15 +8,14 @@ class Invite : AbstractCommand {
 		_urlErythro = @"https://discord.gg/ADzEwNS",
 		_urlLeuko   = @"https://discord.gg/zhadQf59xq";
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/invite erythro` fetches the server invite for this server.",
 			@"`/invite leuko` fetches the server invite for the FFXIV sister server.",
 			$"These invite links can also be found in {Channels![id_ch.resources].Mention}."
 		} ) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"invite",
@@ -34,7 +33,6 @@ class Invite : AbstractCommand {
 				ApplicationCommandType.SlashCommand
 			), Command.DeferVisibleAsync, RunAsync )
 		};
-	}
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.

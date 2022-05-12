@@ -12,7 +12,7 @@ class Confirm {
 		DefaultStringNo  = "Request canceled. No changes made.",
 		DefaultLabelYes  = "Confirm",
 		DefaultLabelNo   = "Cancel";
-	public static TimeSpan DefaultTimeout { get => TimeSpan.FromSeconds(90); }
+	public static TimeSpan DefaultTimeout => TimeSpan.FromSeconds(90);
 
 	// Table of all Confirms to handle, indexed by the message ID of the
 	// owning message.

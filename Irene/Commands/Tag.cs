@@ -54,7 +54,7 @@ class Tag : AbstractCommand, IInit {
 		}
 	}
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/tags view <name> [share]` displays the named tag (optionally to everyone),",
 			@"`/tags list` lists all available tags,",
@@ -64,9 +64,8 @@ class Tag : AbstractCommand, IInit {
 			"Only officers can set or remove tags.",
 			@"`/suggest tag` if you think one can be improved, or if you have an idea for a new one!",
 		} ) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				_commandTag,
@@ -126,11 +125,10 @@ class Tag : AbstractCommand, IInit {
 				ApplicationCommandType.SlashCommand
 			), DeferAsync, RunAsync )
 		};
-	}
 
-	public override List<AutoCompleteHandler> AutoCompletes { get => new () {
+	public override List<AutoCompleteHandler> AutoCompletes => new () {
 		new (_commandTag, AutoCompleteAsync),
-	}; }
+	};
 
 	public static async Task DeferAsync(TimedInteraction interaction) {
 		DeferrerHandler handler = new (interaction, true);

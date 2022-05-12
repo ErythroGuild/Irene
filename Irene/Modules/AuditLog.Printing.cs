@@ -342,13 +342,6 @@ static partial class AuditLog {
 			channel.Before?.Mention ?? _n,
 			channel.After?.Mention ?? _n
 		);
-	// This should never happen. DiscordOverwrite changes go to
-	// a different DiscordAuditLogEntry type.
-	//private static List<string> PrintChangePermissions(
-	//	List<string> data,
-	//	string label,
-	//	PropertyChange<IReadOnlyList<DiscordOverwrite>> property
-	//)
 	private static List<string> AddIfChanged(
 		List<string> data,
 		string label,

@@ -50,7 +50,7 @@ class Roll : AbstractCommand {
 			"Concentrate and ask again.",
 		});
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/roll` generates a number between `1` and `100`,",
 			@"`/roll <max>` generates a number between `1` and `max`,",
@@ -58,9 +58,8 @@ class Roll : AbstractCommand {
 			"All ranges are inclusive (e.g. `[1, 100]`).",
 			@"`/8-ball <question> [keep-private]` forecasts the answer to a yes/no question."
 		} ) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"roll",
@@ -107,7 +106,6 @@ class Roll : AbstractCommand {
 				ApplicationCommandType.SlashCommand
 			), Defer8BallAsync, Run8BallAsync )
 		};
-	}
 
 	public static async Task RunRollAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =

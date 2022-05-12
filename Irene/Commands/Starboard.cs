@@ -8,16 +8,15 @@ class Starboard : AbstractCommand {
 		_commandUnblock = "unblock",
 		_commandPinBestOf = "Pin #best-of";
 
-	public override List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/best-of block <message-id> <channel>` blocks a message from being pinned.",
 			@"`/best-of unblock <message-id> <channel>` allows a message to be pinned again.",
 			"When a message is blocked, existing pins are removed.",
 			"Unblocking will only create a pin if the post meets current requirements."
 		} ) };
-	}
 
-	public override List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"best-of",
@@ -66,9 +65,8 @@ class Starboard : AbstractCommand {
 				ApplicationCommandType.SlashCommand
 			), Command.DeferEphemeralAsync, RunAsync )
 		};
-	}
 
-	public override List<InteractionCommand> MessageCommands { get =>
+	public override List<InteractionCommand> MessageCommands =>
 		new () {
 			new ( new (
 				_commandPinBestOf,
@@ -77,7 +75,6 @@ class Starboard : AbstractCommand {
 				type: ApplicationCommandType.MessageContextMenu
 			), Command.DeferEphemeralAsync, PinBestOfAsync )
 		};
-	}
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =

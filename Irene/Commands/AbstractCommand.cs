@@ -18,10 +18,10 @@ public abstract class AbstractCommand {
 	public abstract List<string> HelpPages { get; }
 
 	public abstract List<InteractionCommand> SlashCommands { get; }
-	public virtual  List<InteractionCommand> UserCommands    { get => new (); }
-	public virtual  List<InteractionCommand> MessageCommands { get => new (); }
+	public virtual List<InteractionCommand> UserCommands    => new ();
+	public virtual List<InteractionCommand> MessageCommands => new ();
 
-	public virtual List<AutoCompleteHandler> AutoCompletes { get => new (); }
+	public virtual List<AutoCompleteHandler> AutoCompletes => new ();
 }
 
 interface IInit {

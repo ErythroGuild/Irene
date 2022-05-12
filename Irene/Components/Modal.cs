@@ -5,7 +5,7 @@ using ModalCallback = System.Func<DSharpPlus.EventArgs.ModalSubmitEventArgs, Sys
 namespace Irene.Components;
 
 class Modal {
-	public static TimeSpan DefaultTimeout { get => TimeSpan.FromMinutes(20); }
+	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(20);
 
 	private static readonly ConcurrentDictionary<string, Modal> _modals = new ();
 
