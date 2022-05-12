@@ -2,7 +2,7 @@
 
 namespace Irene.Commands;
 
-class ClassDiscord : ICommand {
+class ClassDiscord : AbstractCommand, IInit {
 	private static readonly ReadOnlyDictionary<Class, string> _options =
 		new (new ConcurrentDictionary<Class, string>() {
 			[Class.DK] = "death-knight",
@@ -36,7 +36,6 @@ class ClassDiscord : ICommand {
 		});
 	private static readonly ReadOnlyDictionary<string, string> _optionsToInvites;
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static ClassDiscord() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -51,14 +50,13 @@ class ClassDiscord : ICommand {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			"`/class-discord <class>` displays the class discord invite.",
 			"Multiple invites are given if available."
 		} ) };
-	}
 
-	public static List<InteractionCommand> SlashCommands { get {
+	public override List<InteractionCommand> SlashCommands { get {
 		// Compile list of all options.
 		List<CommandOptionEnum> options = new ();
 		foreach (Class @class in _options.Keys)
@@ -81,10 +79,6 @@ class ClassDiscord : ICommand {
 			), Command.DeferVisibleAsync, RunAsync )
 		};
 	} }
-
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.

@@ -5,11 +5,10 @@ using ModalCallback = System.Func<DSharpPlus.EventArgs.ModalSubmitEventArgs, Sys
 namespace Irene.Components;
 
 class Modal {
-	public static TimeSpan DefaultTimeout { get => TimeSpan.FromMinutes(20); }
+	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(20);
 
 	private static readonly ConcurrentDictionary<string, Modal> _modals = new ();
 
-	// Force static initializer to run.
 	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates

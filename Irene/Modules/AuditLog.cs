@@ -12,7 +12,6 @@ static partial class AuditLog {
 		_r = "\u21A6",
 		_n = "`N/A`";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static AuditLog() {
 		_ = InitAsync();
@@ -36,13 +35,7 @@ static partial class AuditLog {
 	// Initialize the audit log table with "base" values, these can
 	// later be compared to to determine if a new entry was added.
 	private static async Task InitEntriesAsync() {
-		// This module *requires* guilds to be initialized.
-		// There is no reliable way to wait for them.
-		if (Guild is null) {
-			Log.Error("  AuditLog failed to initialize.");
-			Log.Error("    Cannot initialize AuditLog without loaded guild.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Fire off all the requests and wait for them to finish.
 		List<Task> tasks = new ();
@@ -601,16 +594,13 @@ static partial class AuditLog {
 	public static async Task<T?> FindEntryAsync<T>(AuditLogActionType type)
 		where T : DiscordAuditLogEntry
 	{
+		await AwaitGuildInitAsync();
+
 		const int
 			retry_count = 6, // ~3000 msec
 			retry_interval_init = 50, // msec
 			retry_interval_exp = 2;
 
-		// Exit early if guilds aren't loaded.
-		if (Guild is null) {
-			Log.Warning("    Cannot fetch audit logs before guild is ready.");
-			return null;
-		}
 		// Exit early if audit log baseline hasn't been initialized.
 		if (!_isLoaded) {
 			Log.Warning("    Must fetch baseline audit logs first.");
@@ -650,16 +640,16 @@ static partial class AuditLog {
 		List<string> data,
 		DiscordAuditLogEntry? entry
 	) {
+		await AwaitGuildInitAsync();
+
 		if (entry is null)
 			return data;
 
 		// Append user.
-		if (Guild is not null) {
-			DiscordUser user = entry.UserResponsible;
-			DiscordMember member =
-				await Guild.GetMemberAsync(user.Id);
-			data.Add($"*Action by:* {AsData(member)}");
-		}
+		DiscordUser user = entry.UserResponsible;
+		DiscordMember member =
+			await Guild.GetMemberAsync(user.Id);
+		data.Add($"*Action by:* {AsData(member)}");
 
 		// Append reason.
 		string reason = entry.Reason?.Trim() ?? "";
@@ -672,16 +662,14 @@ static partial class AuditLog {
 	// Convenience function for outputting a log message.
 	private static void LogEntry(List<string> data) {
 		// Log data to audit log channel.
-		if (Guild is not null) {
-			DateTimeOffset now = DateTimeOffset.UtcNow;
-			string line_time = $"{_a} {now.Timestamp(Util.TimestampStyle.DateTimeShort)}";
-			data.Insert(0, line_time);
-			_ = Channels[id_ch.audit].SendMessageAsync(
-				new DiscordMessageBuilder()
-				.WithContent(string.Join("\n", data))
-				.WithAllowedMentions(Mentions.None)
-			);
-		}
+		DateTimeOffset now = DateTimeOffset.UtcNow;
+		string line_time = $"{_a} {now.Timestamp(Util.TimestampStyle.DateTimeShort)}";
+		data.Insert(0, line_time);
+		_ = Channels![id_ch.audit].SendMessageAsync(
+			new DiscordMessageBuilder()
+			.WithContent(string.Join("\n", data))
+			.WithAllowedMentions(Mentions.None)
+		);
 
 		// Log data to console.
 		Log.Information("Audit log entry added.");

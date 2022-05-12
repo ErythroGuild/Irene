@@ -2,7 +2,7 @@
 
 namespace Irene.Commands;
 
-class Help : ICommand {
+class Help : AbstractCommand {
 	private const string _commandHelp = "help";
 	private const string
 		_l = "\U0001F512", // :lock:
@@ -10,15 +10,14 @@ class Help : ICommand {
 		_s = "\U0001F465", // :busts_in_silhouette:
 		_t = "\u2003"    ; // tab
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/help` lists all available commands, along with a short description for each,",
 			@"`/help <command>` shows a more detailed guide on how to use the command.",
 			"If you have any questions at all, Ernie will be happy to answer them."
 		} ) };
-	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				_commandHelp,
@@ -34,16 +33,12 @@ class Help : ICommand {
 				ApplicationCommandType.SlashCommand
 			), Command.DeferVisibleAsync, RunAsync)
 		};
-	}
 
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-
-	public static List<AutoCompleteHandler> AutoComplete   { get => new () {
+	public override List<AutoCompleteHandler> AutoCompletes => new () {
 		new (_commandHelp, AutoCompleteAsync),
-	}; }
+	};
 
-	private static List<string> HelpGeneral { get => new () {
+	private static List<string> HelpGeneral => new () {
 		{ string.Join("\n", new List<string> {
 			"If you need any help, ask, or shoot Ernie a message! :+1:",
 			$"{_s} - public by default",
@@ -129,7 +124,7 @@ class Help : ICommand {
 			$@"{_s} `/invite [erythro|leuko]`: Display the invite link for the guild servers.",
 			$@"{_s} `/class-discord <class>`: Display the invite link(s) for the specified class discord.",
 		} ) },
-	}; }
+	};
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// See if general or specific help page is requested.

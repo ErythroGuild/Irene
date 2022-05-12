@@ -43,10 +43,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_IreneBackupData(DateTimeOffset _) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		const string t = "\u2003";
 		const string a = "\u21D2";
@@ -77,7 +74,7 @@ static partial class RecurringEvents {
 		if (dir_data is not null && dir_backup is not null && dir_repo is not null) {
 			text.Add($"{t}{a} from:   `{dir_data}`");
 			text.Add($"{t}{a} to:        `{dir_backup}`");
-			text.Add("Also copy `events.txt` and `raids.txt` (from the same folder),");
+			text.Add("Also copy (from the same folder), `events.txt`, `raids.txt`, and `tags.txt`,");
 			text.Add($"{t}{a} to:        `{dir_repo}`");
 		}
 
@@ -89,10 +86,7 @@ static partial class RecurringEvents {
 	}
 
 	private static async Task Event_IreneBackupLogs(DateTimeOffset _) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		const string t = "\u2003";
 		const string a = "\u21D2";

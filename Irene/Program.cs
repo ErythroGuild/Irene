@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using Spectre.Console;
 
@@ -9,13 +10,32 @@ using Irene.Modules;
 namespace Irene;
 
 class Program {
+	// Debug flag.
+	public static bool IsDebug { get {
+		bool isDebug = false;
+		CheckDebug(ref isDebug);
+		return isDebug;
+	} }
 	// Discord client objects.
 	public static DiscordClient Client { get; private set; }
-	public static DiscordGuild? Guild  { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordChannel> Channels   { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordEmoji>   Emojis     { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordRole>    Roles      { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordChannel> VoiceChats { get; private set; }
+	public static DiscordGuild? Guild { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordChannel>? Channels { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordEmoji>? Emojis { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordRole>? Roles { get; private set; }
+	public static ConcurrentDictionary<ulong, DiscordChannel>? VoiceChats { get; private set; }
+
+	// DiscordGuild promise/future objects.
+	// GuildFuture is only set when Guild and all associated variables
+	// are set. This will always be complete when called, since it
+	// should only be called *after* init functions are called.
+	// `await AwaitGuildInit();` can be used to remove null warnings.
+	private static Task<DiscordGuild> GuildFuture => _guildPromise.Task;
+	private static readonly TaskCompletionSource<DiscordGuild> _guildPromise = new ();
+	// Member must have a non-null value when exiting.
+	#pragma warning disable CS8774
+	[MemberNotNull(nameof(Guild), nameof(Channels), nameof(Emojis), nameof(Roles), nameof(VoiceChats))]
+	public static async Task AwaitGuildInitAsync() => await GuildFuture;
+	#pragma warning restore CS8774
 
 	// Separate logger pipeline for D#+.
 	private static Serilog.ILogger _loggerDsp;
@@ -181,7 +201,7 @@ class Program {
 			.CreateLogger();
 	}
 
-	static void Main() {
+	public static void Main() {
 		// Initialize static members.
 		InitStatic();
 
@@ -191,7 +211,7 @@ class Program {
 			.GetAwaiter()
 			.GetResult();
 	}
-	static async Task MainAsync() {
+	private static async Task MainAsync() {
 		// Start configuration timer.
 		_stopwatchConfig.Start();
 
@@ -200,12 +220,13 @@ class Program {
 			_ = Task.Run(() => {
 				Log.Information("  Logged in to Discord servers.");
 				_stopwatchConnect.LogMsecDebug("    Took {ConnectionTime} msec.");
-#if DEBUG
-				// Update bot status.
-				DiscordActivity helptext =
-					new(@"with 🔥 [DEBUG]", ActivityType.Playing);
-				irene.UpdateStatusAsync(helptext);
-#endif
+
+				if (IsDebug) {
+					// Update bot status.
+					DiscordActivity helptext =
+						new (@"with 🔥 [DEBUG]", ActivityType.Playing);
+					irene.UpdateStatusAsync(helptext);
+				}
 			});
 			return Task.CompletedTask;
 		};
@@ -225,7 +246,9 @@ class Program {
 				_stopwatchInitData.Start();
 
 				// Initialize channels.
-				var channel_ids = typeof(ChannelIDs).GetFields();
+				Channels = new ();
+				FieldInfo[] channel_ids =
+					typeof(ChannelIDs).GetFields();
 				foreach (var channel_id in channel_ids) {
 					ulong id = (ulong)channel_id.GetValue(null)!;
 					DiscordChannel channel = Guild.GetChannel(id);
@@ -236,9 +259,11 @@ class Program {
 				// Initialize emojis.
 				// Fetching entire list of emojis first instead of fetching
 				// each emoji individually to minimize awaiting.
+				Emojis = new ();
+				FieldInfo[] emoji_ids =
+					typeof(EmojiIDs).GetFields();
 				List<DiscordGuildEmoji> emojis =
 					new (await Guild.GetEmojisAsync());
-				var emoji_ids = typeof(EmojiIDs).GetFields();
 				foreach (var emoji_id in emoji_ids) {
 					ulong id = (ulong)emoji_id.GetValue(null)!;
 					foreach (DiscordGuildEmoji emoji in emojis) {
@@ -252,7 +277,9 @@ class Program {
 				Log.Debug("    Emojis populated.");
 
 				// Initialize roles.
-				var role_ids = typeof(RoleIDs).GetFields();
+				Roles = new ();
+				FieldInfo[] role_ids =
+					typeof(RoleIDs).GetFields();
 				foreach (var role_id in role_ids) {
 					ulong id = (ulong)role_id.GetValue(null)!;
 					DiscordRole role = Guild.GetRole(id);
@@ -261,7 +288,9 @@ class Program {
 				Log.Debug("    Roles populated.");
 
 				// Initialize voice chats.
-				var voiceChat_ids = typeof(VoiceChatIDs).GetFields();
+				VoiceChats = new ();
+				FieldInfo[] voiceChat_ids =
+					typeof(VoiceChatIDs).GetFields();
 				foreach (var voiceChat_id in voiceChat_ids) {
 					ulong id = (ulong)voiceChat_id.GetValue(null)!;
 					DiscordChannel channel = Guild.GetChannel(id);
@@ -273,28 +302,11 @@ class Program {
 				Log.Debug("    Discord data initialized and populated.");
 				_stopwatchInitData.LogMsecDebug("      Took {DataInitTime} msec.");
 
-				// Initialize classes.
-				ClassSpec.Init();
-				TimeZones.Init();
-
-				// Initialize discord components.
-				Confirm.Init();
-				Modal.Init();
-				Pages.Init();
-				Selection.Init();
+				// Set GuildFuture.
+				_guildPromise.SetResult(Guild);
 
 				// Initialize modules.
-				AuditLog.Init();
-				Command.Init();
-				Modules.Raid.Init();
-				RecurringEvents.Init();
-				Welcome.Init();
-				Modules.Starboard.Init();
-
-				// Initialize commands.
-				Commands.Roles.Init();
-				Rank.Init();
-				ClassDiscord.Init();
+				await InitModules();
 
 				// Register (update-by-overwriting) application commands.
 				_stopwatchRegister.Start();
@@ -435,4 +447,45 @@ class Program {
 		await Client.ConnectAsync();
 		await Task.Delay(-1);
 	}
+
+	private static async Task InitModules() {
+		await AwaitGuildInitAsync();
+
+		// List all initializers.
+		List<Action>
+			classes = new () {
+				ClassSpec.Init,
+				TimeZones.Init,
+			},
+			components = new () {
+				Confirm.Init,
+				Modal.Init,
+				Pages.Init,
+				Selection.Init,
+			},
+			modules = new () {
+				AuditLog.Init,
+				Command.Init,
+				Modules.Raid.Init,
+				RecurringEvents.Init,
+				Welcome.Init,
+				Modules.Starboard.Init,
+			};
+		static void RunInitializers(List<Action> initializers) {
+			foreach (Action initializer in initializers)
+				initializer.Invoke();
+		}
+
+		RunInitializers(classes);
+		RunInitializers(components);
+		RunInitializers(modules);
+		
+		// Run command initializers last.
+		foreach (Action initializer in Command.Initializers)
+			initializer.Invoke();
+	}
+
+	// Private method used to define the public "IsDebug" property.
+	[Conditional("DEBUG")]
+	private static void CheckDebug(ref bool isDebug) { isDebug = true; }
 }

@@ -2,22 +2,21 @@
 
 namespace Irene.Commands;
 
-class Starboard : ICommand {
+class Starboard : AbstractCommand {
 	private const string
 		_commandBlock = "block",
 		_commandUnblock = "unblock",
 		_commandPinBestOf = "Pin #best-of";
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/best-of block <message-id> <channel>` blocks a message from being pinned.",
 			@"`/best-of unblock <message-id> <channel>` allows a message to be pinned again.",
 			"When a message is blocked, existing pins are removed.",
 			"Unblocking will only create a pin if the post meets current requirements."
 		} ) };
-	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"best-of",
@@ -66,10 +65,8 @@ class Starboard : ICommand {
 				ApplicationCommandType.SlashCommand
 			), Command.DeferEphemeralAsync, RunAsync )
 		};
-	}
 
-	public static List<InteractionCommand> UserCommands { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get =>
+	public override List<InteractionCommand> MessageCommands =>
 		new () {
 			new ( new (
 				_commandPinBestOf,
@@ -78,8 +75,6 @@ class Starboard : ICommand {
 				type: ApplicationCommandType.MessageContextMenu
 			), Command.DeferEphemeralAsync, PinBestOfAsync )
 		};
-	}
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		List<DiscordInteractionDataOption> args =

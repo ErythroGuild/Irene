@@ -11,18 +11,19 @@ public record class TimedInteraction
 	(DiscordInteraction Interaction, Stopwatch Timer);
 
 static class Command {
+	public static ReadOnlyCollection<Action> Initializers { get; }
 	public static ReadOnlyDictionary<string, HelpPageGetter> HelpPages { get; }
 	public static ReadOnlyCollection<DiscordApplicationCommand> Commands { get; }
 	public static ReadOnlyDictionary<string, InteractionHandler> Deferrers { get; }
 	public static ReadOnlyDictionary<string, InteractionHandler> Handlers { get; }
 	public static ReadOnlyDictionary<string, InteractionHandler> AutoCompletes { get; }
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Command() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
 		// Collate the static properties in temp variables.
+		List<Action> initializers = new ();
 		ConcurrentDictionary<string, HelpPageGetter> helpPages = new ();
 		List<DiscordApplicationCommand> commandList = new ();
 		ConcurrentDictionary<string, InteractionHandler> deferrers = new ();
@@ -33,74 +34,52 @@ static class Command {
 		// commands into a single Dictionary.
 		Type[] types = Assembly.GetExecutingAssembly().GetTypes();
 		foreach (Type type in types) {
-			List<Type> interfaces = new (type.GetInterfaces());
-			if (interfaces.Contains(typeof(ICommand))) {
-				// Fetch the property, null-checking at every step.
-				// If any step fails, simply return early.
-				// Also fetch help pages if property is SlashCommand.
-				void AddPropertyInteractions(string name) {
-					PropertyInfo? property =
-						type.GetProperty(name, typeof(List<InteractionCommand>));
-					if (property is null)
-						return;
+			if (type.BaseType == typeof(AbstractCommand)) {
+				AbstractCommand command = (AbstractCommand)
+					type.GetConstructor(Type.EmptyTypes)!
+					.Invoke(null);
 
-					List<InteractionCommand>? commands =
-						property?.GetValue(null) as List<InteractionCommand>
-						?? null;
-					if (commands is null)
-						return;
+				// Add all initializers.
+				if (type.ImplementsInterface(typeof(IInit))) {
+					MethodInfo? method_init =
+						type.GetMethod(nameof(IInit.Init));
+					if (method_init is not null) {
+						Action? init = method_init
+							.CreateDelegate(typeof(Action))
+							as Action;
+						if (init is not null)
+							initializers.Add(init);
+					}
+				}
 
+				// Add all application commands to relevant fields.
+				void AddCommands(List<InteractionCommand> commands) {
 					foreach (InteractionCommand command in commands) {
 						commandList.Add(command.Command);
 						deferrers.TryAdd(command.Command.Name, command.Deferrer);
 						handlers.TryAdd(command.Command.Name, command.Handler);
 					}
-
-					if (name == nameof(ICommand.SlashCommands)) {
-						PropertyInfo? property_help = type.GetProperty(
-							nameof(ICommand.HelpPages),
-							typeof(List<string>)
-						);
-						if (property_help is null)
-							return;
-						HelpPageGetter? func_help =
-							property_help
-								?.GetGetMethod()
-								?.CreateDelegate(typeof(HelpPageGetter))
-								as HelpPageGetter
-							?? null;
-						if (func_help is not null) {
-							foreach (InteractionCommand command in commands)
-								helpPages.TryAdd(command.Command.Name, func_help);
-						}
-					}
 				}
-				void AddAutoCompletes() {
-					PropertyInfo? property = type.GetProperty(
-						nameof(ICommand.AutoComplete),
-						typeof(List<AutoCompleteHandler>)
+				AddCommands(command.SlashCommands);
+				AddCommands(command.UserCommands);
+				AddCommands(command.MessageCommands);
+
+				// Add help pages for all slash commands.
+				foreach (InteractionCommand slashCommand in command.SlashCommands) {
+					helpPages.TryAdd(
+						slashCommand.Command.Name,
+						() => command.HelpPages
 					);
-					if (property is null)
-						return;
-
-					List<AutoCompleteHandler>? handlers =
-						property?.GetValue(null) as List<AutoCompleteHandler>
-						?? null;
-					if (handlers is null)
-						return;
-
-					foreach (AutoCompleteHandler handler in handlers)
-						autoCompletes.TryAdd(handler.CommandName, handler.Handler);
 				}
-				
-				AddPropertyInteractions(nameof(ICommand.SlashCommands));
-				AddPropertyInteractions(nameof(ICommand.UserCommands));
-				AddPropertyInteractions(nameof(ICommand.MessageCommands));
-				AddAutoCompletes();
+
+				// Add all autocompletes.
+				foreach (AutoCompleteHandler handler in command.AutoCompletes)
+					autoCompletes.TryAdd(handler.CommandName, handler.Handler);
 			}
 		}
 
 		// Assign the static properties.
+		Initializers = new (initializers);
 		HelpPages = new (helpPages);
 		Commands = new (commandList);
 		Deferrers = new (deferrers);
@@ -128,18 +107,12 @@ static class Command {
 			return AccessLevel.None;
 		}
 
-		// Return no results if guild not initialized yet.
-		if (Guild is null) {
-			Log.Warning("    Guild not initialized yet. Assigning default permissions.");
-			return AccessLevel.None;
-		}
-
 		return GetAccessLevel(member);
 	}
 	// Returns the highest access level the member has access to.
 	public static AccessLevel GetAccessLevel(DiscordMember member) {
 		static bool HasRole(RoleList r, ulong id) =>
-			r.Contains(Program.Roles[id]);
+			r.Contains(Program.Roles![id]);
 		RoleList roles = new (member.Roles);
 		return roles switch {
 			RoleList r when HasRole(r, id_r.admin  ) => AccessLevel.Admin,

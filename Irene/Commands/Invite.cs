@@ -1,6 +1,6 @@
 ﻿namespace Irene.Commands;
 
-class Invite : ICommand {
+class Invite : AbstractCommand {
 	private const string
 		_optErythro = "erythro",
 		_optLeuko   = "leuko";
@@ -8,15 +8,14 @@ class Invite : ICommand {
 		_urlErythro = @"https://discord.gg/ADzEwNS",
 		_urlLeuko   = @"https://discord.gg/zhadQf59xq";
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/invite erythro` fetches the server invite for this server.",
 			@"`/invite leuko` fetches the server invite for the FFXIV sister server.",
-			$"These invite links can also be found in {Channels[id_ch.resources]}."
+			$"These invite links can also be found in {Channels![id_ch.resources].Mention}."
 		} ) };
-	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"invite",
@@ -34,11 +33,6 @@ class Invite : ICommand {
 				ApplicationCommandType.SlashCommand
 			), Command.DeferVisibleAsync, RunAsync )
 		};
-	}
-
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task RunAsync(TimedInteraction interaction) {
 		// Select the correct invite to return.

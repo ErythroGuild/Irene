@@ -8,7 +8,7 @@ using RaidObj = Irene.Modules.Raid;
 
 namespace Irene.Commands;
 
-class Raid : ICommand {
+class Raid : AbstractCommand {
 	// Confirmation messages, indexed by the ID of the user who is
 	// accessing them.
 	private static readonly ConcurrentDictionary<ulong, Confirm> _confirms = new ();
@@ -42,7 +42,7 @@ class Raid : ICommand {
 	private const string _argDate = "date";
 	private const string _idTagPlans = "tag_plans";
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@" `/raid info [share]` displays the plans for the upcoming raid,",
 			//@" `/raid eligibility` checks raid requirements (and if you meet them),",
@@ -53,9 +53,8 @@ class Raid : ICommand {
 			@":lock: `/raid cancel <date> [do-cancel]` marks raid that day as canceled.",
 			"`<date>` values can always be entered as YYYY-MM-DD if natural phrases aren't working.",
 		} ) };
-	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				_commandRaid,
@@ -163,14 +162,10 @@ class Raid : ICommand {
 				ApplicationCommandType.SlashCommand
 			), DeferAsync, RunAsync )
 		};
-	}
 
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-
-	public static List<AutoCompleteHandler> AutoComplete   { get => new () {
+	public override List<AutoCompleteHandler> AutoCompletes => new () {
 		new (_commandRaid, AutoCompleteAsync),
-	}; }
+	};
 	
 	public static async Task DeferAsync(TimedInteraction interaction) {
 		DeferrerHandler handler = new (interaction, true);

@@ -25,9 +25,8 @@ class Raid {
 		public readonly RaidDay Day;
 
 		// Returns a uniquely identifiable string per date.
-		public string Hash { get =>
+		public string Hash =>
 			string.Join(_separator, new object[] { Tier, Week, Day });
-		}
 		// Each week of the tier has a different emoji associated
 		// with it; the order is fixed between tiers.
 		public string Emoji { get {
@@ -47,8 +46,7 @@ class Raid {
 			DateTimeOffset dateTime_server =
 				TimeZoneInfo.ConvertTime(
 					dateTime.ToUniversalTime(),
-					TimeZone_Server)
-				;
+					TimeZone_Server);
 			DateOnly date =
 				DateOnly.FromDateTime(dateTime_server.DateTime);
 			return TryCreate(date);
@@ -111,9 +109,9 @@ class Raid {
 		public string? LogId { get; set; }
 
 		// Convenience functions for accessing different log websites.
-		public string? UrlLogs     { get => LogId is null ? null : $"{_fragLogs}{LogId}"; }
-		public string? UrlWipefest { get => LogId is null ? null : $"{_fragWipefest}{LogId}"; }
-		public string? UrlAnalyzer { get => LogId is null ? null : $"{_fragAnalyzer}{LogId}"; }
+		public string? UrlLogs     => LogId is null ? null : $"{_fragLogs}{LogId}";
+		public string? UrlWipefest => LogId is null ? null : $"{_fragWipefest}{LogId}";
+		public string? UrlAnalyzer => LogId is null ? null : $"{_fragAnalyzer}{LogId}";
 
 		public RaidData(string? logId) {
 			LogId = logId;
@@ -149,7 +147,6 @@ class Raid {
 		_keyGroup     = "group",
 		_keyLogId     = "log-id";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Raid() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -244,13 +241,13 @@ class Raid {
 	public string? Summary { get; set; }
 	public ulong? MessageId { get; set; }
 	public Dictionary<RaidGroup, RaidData> Data { get; init; }
-	public string Hash { get => Date.Hash; }
-	public string Emoji { get => Date.Emoji; }
+	public string Hash => Date.Hash;
+	public string Emoji => Date.Emoji;
 	public string LogLinks { get {
 		DiscordEmoji
-			emoji_wipefest = Emojis[id_e.wipefest],
-			emoji_analyzer = Emojis[id_e.wowanalyzer],
-			emoji_logs = Emojis[id_e.warcraftlogs];
+			emoji_wipefest = Emojis![id_e.wipefest],
+			emoji_analyzer = Emojis![id_e.wowanalyzer],
+			emoji_logs = Emojis![id_e.warcraftlogs];
 
 		List<string> lines = new ();
 		List<GroupDataPair> data = Data
@@ -281,9 +278,8 @@ class Raid {
 
 		return string.Join("\n", lines);
 	} }
-	public string AnnouncementText { get =>
-		$"{Emoji} {Roles[id_r.raid].Mention} - Forming now!";
-	}
+	public string AnnouncementText =>
+		$"{Emoji} {Roles![id_r.raid].Mention} - Forming now!";
 
 	// Constructor / serialization / deserialization.
 	private Raid(RaidDate date) {
@@ -392,12 +388,9 @@ class Raid {
 
 	// Syntax sugar to call the static methods.
 	public async Task UpdateAnnouncement() {
+		await AwaitGuildInitAsync();
+
 		// Exit early if required data isn't available.
-		if (Guild is null) {
-			Log.Warning("  Failed to update announcement logs for: {RaidHash}", Hash);
-			Log.Information("    Guild not loaded yet.");
-			return;
-		}
 		if (MessageId is null) {
 			Log.Warning("  Failed to update announcement logs for: {RaidHash}", Hash);
 			Log.Information("    No announcement message set.");

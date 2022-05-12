@@ -29,10 +29,7 @@ static partial class RecurringEvents {
 
 	private const int _memeHistorySize = 20;
 	private static async Task Event_WeeklyMemeChannelNameUpdate(DateTimeOffset time_trigger) {
-		if (Guild is null) {
-			Log.Error("  Guild not loaded yet.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Read in all non-empty meme names.
 		List<string> names = new ();

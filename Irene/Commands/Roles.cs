@@ -4,7 +4,7 @@ using Entry = Irene.Components.Selection.Option;
 
 namespace Irene.Commands;
 
-class Roles : ICommand {
+class Roles : AbstractCommand, IInit {
 	public enum PingRole {
 		Raid,
 		Mythics, KSM, Gearing,
@@ -70,7 +70,6 @@ class Roles : ICommand {
 	const string _pathIntros = @"data/role-intros.txt";
 	const string _delim = "=";
 
-	// Force static initializer to run.
 	public static void Init() { }
 	static Roles() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
@@ -92,16 +91,15 @@ class Roles : ICommand {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
-	public static List<string> HelpPages { get =>
+	public override List<string> HelpPages =>
 		new () { string.Join("\n", new List<string> {
 			@"`/roles` shows all available roles, and lets you assign them to yourself.",
 			"You can reassign them at any time.",
 			"You will receive notification pings for the roles you select.",
 			"*(Sometimes Discord will fail to grant you the roles you selected; if that happens, just try again.)*",
 		} ) };
-	}
 
-	public static List<InteractionCommand> SlashCommands { get =>
+	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"roles",
@@ -110,20 +108,17 @@ class Roles : ICommand {
 				type: ApplicationCommandType.SlashCommand
 			), Command.DeferEphemeralAsync, RunAsync )
 		};
-	}
-
-	public static List<InteractionCommand> UserCommands    { get => new (); }
-	public static List<InteractionCommand> MessageCommands { get => new (); }
-	public static List<AutoCompleteHandler> AutoComplete   { get => new (); }
 
 	public static async Task RunAsync(TimedInteraction interaction) {
+		await AwaitGuildInitAsync();
+
 		// Ensure user is a member. (This should always succeed.)
 		// Roles can only be set for users in the same guild.
 		DiscordUser user = interaction.Interaction.User;
 		DiscordMember? member = await user.ToMember();
 		if (member is null) {
 			string response_error = "Could not determine who you are.";
-			response_error += (Guild is not null && interaction.Interaction.ChannelId != id_ch.bots)
+			response_error += (interaction.Interaction.ChannelId != id_ch.bots)
 				? $"\nTry running the command again, in {Channels[id_ch.bots].Mention}?"
 				: "\nIf this still doesn't work in a moment, message Ernie and he will take care of it.";
 			await Command.SubmitResponseAsync(
@@ -183,14 +178,7 @@ class Roles : ICommand {
 	}
 
 	private static async Task AssignRoles(ComponentInteractionCreateEventArgs e) {
-		// Make sure Guild is initialized.
-		if (Guild is null) {
-			Log.Information("Updating user roles.");
-			Log.Error("  Guild not initialized; could not update roles.");
-			await e.Interaction.AcknowledgeComponentAsync();
-			Log.Information("  Failed to update roles. No changes made.");
-			return;
-		}
+		await AwaitGuildInitAsync();
 
 		// Convert DiscordUser to DiscordMember.
 		DiscordUser user = e.Interaction.User;
@@ -260,9 +248,9 @@ class Roles : ICommand {
 	// Format and send welcome message to member.
 	// If member has access level above Guest, then skip.
 	private static async Task Welcome(DiscordMember member, List<DiscordRole> roles_added) {
+		await AwaitGuildInitAsync();
+
 		// Skip sending message if conditions aren't met.
-		if (Guild is null)
-			return;
 		if (member.HasAccess(AccessLevel.Member))
 			return;
 		if (roles_added.Count == 0)
