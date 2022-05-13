@@ -3,6 +3,15 @@
 namespace Irene.Commands;
 
 class Starboard : AbstractCommand {
+	private static readonly ReadOnlyCollection<ChannelType> _channelsText =
+		new (new List<ChannelType> {
+			ChannelType.Text,
+			ChannelType.PublicThread,
+			ChannelType.PrivateThread,
+			ChannelType.News,
+			ChannelType.NewsThread,
+		} );
+
 	private const string
 		_commandBlock = "block",
 		_commandUnblock = "unblock",
@@ -10,8 +19,8 @@ class Starboard : AbstractCommand {
 
 	public override List<string> HelpPages =>
 		new () { new List<string> {
-			@"`/best-of block <message-id> <channel>` blocks a message from being pinned.",
-			@"`/best-of unblock <message-id> <channel>` allows a message to be pinned again.",
+			@"`:lock: /best-of block <message-id> <channel>` blocks a message from being pinned.",
+			@"`:lock: /best-of unblock <message-id> <channel>` allows a message to be pinned again.",
 			"When a message is blocked, existing pins are removed.",
 			"Unblocking will only create a pin if the post meets current requirements."
 		}.ToLines() };
@@ -37,7 +46,8 @@ class Starboard : AbstractCommand {
 								"channel",
 								"The channel the message is in.",
 								ApplicationCommandOptionType.Channel,
-								required: true
+								required: true,
+								channelTypes: _channelsText
 							),
 						}
 					),
@@ -56,7 +66,8 @@ class Starboard : AbstractCommand {
 								"channel",
 								"The channel the message is in.",
 								ApplicationCommandOptionType.Channel,
-								required: true
+								required: true,
+								channelTypes: _channelsText
 							),
 						}
 					),
