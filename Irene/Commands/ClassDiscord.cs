@@ -51,10 +51,10 @@ class ClassDiscord : AbstractCommand, IInit {
 	}
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			"`/class-discord <class>` displays the class discord invite.",
 			"Multiple invites are given if available."
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands { get {
 		// Compile list of all options.

@@ -265,7 +265,7 @@ static partial class RecurringEvents {
 
 		// Send announcement and react.
 		DiscordMessage message = await
-			Channels[id_ch.announce].SendMessageAsync(string.Join("\n", announcement));
+			Channels[id_ch.announce].SendMessageAsync(announcement.ToLines());
 		DiscordEmoji emoji_sunrise =
 			DiscordEmoji.FromName(Client, ":sunrise_over_mountains:");
 		await message.CreateReactionAsync(emoji_raid);
@@ -430,11 +430,11 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string announcement = string.Join("\n", new List<string>() {
+		string announcement = new List<string>() {
 			$"{Roles[id_r.raidOfficer].Mention} -",
 			$"{_t}Reminder to set logs for tonight. :ok_hand: :card_box:",
 			$"{_t}`/raid set-logs`",
-		});
+		}.ToLines();
 		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
 	}
 
@@ -450,10 +450,10 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string announcement = string.Join("\n", new List<string>() {
+		string announcement = new List<string>() {
 			$"{Roles[id_r.raidOfficer].Mention} -",
 			$"{_t}Raid break soon. :slight_smile: :tropical_drink:",
-		});
+		}.ToLines();
 		await Channels[id_ch.officer].SendMessageAsync(announcement);
 	}
 
@@ -502,11 +502,11 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string announcement = string.Join("\n", new List<string>() {
+		string announcement = new List<string>() {
 			$"{Roles[id_r.raidOfficer].Mention} -",
 			$"{_t}Decide on the raid plans for next week (if you haven't already). :ok_hand:",
 			$"{_t}`/raid set-plan`",
-		});
+		}.ToLines();
 		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
 	}
 
@@ -522,11 +522,11 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string announcement = string.Join("\n", new List<string>() {
+		string announcement = new List<string>() {
 			$"{Roles[id_r.recruiter].Mention} -",
 			$"{_t}Go over the 2-week+-trials this week (if there are any). :seedling:",
 			$"{_t}`/rank list-trials`",
-		});
+		}.ToLines();
 		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
 	}
 }

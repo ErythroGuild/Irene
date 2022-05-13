@@ -235,13 +235,13 @@ static class Starboard {
 
 				// Send congrats message (if new post).
 				if (!is_update && author is not null) {
-					List<string> text = new () {
+					string text = new List<string>() {
 						"Congrats! :tada:",
 						$"Your post in {message.Channel.Mention} was extra-popular," +
 							$" and has been included in {Channels[id_ch.starboard].Mention}.",
 						$":champagne_glass: {Emojis[id_e.eryLove]}",
-					};
-					await author.SendMessageAsync(string.Join("\n", text));
+					}.ToLines();
+					await author.SendMessageAsync(text);
 					Log.Information("  Notified original post author.");
 				}
 			}

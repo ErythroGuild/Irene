@@ -44,6 +44,10 @@ static partial class Util {
 		}
 	}
 
+	// Print a List<string> as concatenated lines.
+	public static string ToLines(this List<string> lines) =>
+		string.Join("\n", lines);
+
 	// Create a blank file at the given path, if it doesn't exist.
 	// Returns true if file was created, false otherwise.
 	// `object` is a reference type.

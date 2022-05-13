@@ -96,7 +96,7 @@ class Pages {
 		int i_end = Math.Min(i_start + _pageSize, _data.Count);
 		int i_range = i_end - i_start;
 
-		return string.Join("\n", _data.GetRange(i_start, i_range));
+		return _data.GetRange(i_start, i_range).ToLines();
 	} }
 	private Component[] CurrentButtons =>
 		GetButtons(_page, _pageCount);

@@ -43,7 +43,7 @@ class Raid : AbstractCommand {
 	private const string _idTagPlans = "tag_plans";
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@" `/raid info [share]` displays the plans for the upcoming raid,",
 			//@" `/raid eligibility` checks raid requirements (and if you meet them),",
 			//@":lock: `/raid eligibility <member>` checks raid requirements for a specific member.",
@@ -52,7 +52,7 @@ class Raid : AbstractCommand {
 			@":lock: `/raid set-plan <date>` sets the plans for the given date's raid.",
 			@":lock: `/raid cancel <date> [do-cancel]` marks raid that day as canceled.",
 			"`<date>` values can always be entered as YYYY-MM-DD if natural phrases aren't working.",
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {
@@ -348,7 +348,7 @@ class Raid : AbstractCommand {
 		// Respond to interaction.
 		await Command.SubmitResponseAsync(
 			handler.Interaction,
-			string.Join("\n", response),
+			response.ToLines(),
 			"Sending raid info.",
 			LogLevel.Debug,
 			"Raid info sent.".AsLazy()

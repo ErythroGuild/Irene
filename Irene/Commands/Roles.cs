@@ -67,8 +67,8 @@ class Roles : AbstractCommand, IInit {
 	private static readonly ReadOnlyDictionary<ulong, PingRole> _table_IdToRole;
 
 	private static readonly object _lock = new ();
-	const string _pathIntros = @"data/role-intros.txt";
-	const string _delim = "=";
+	private const string _pathIntros = @"data/role-intros.txt";
+	private const string _delim = "=";
 
 	public static void Init() { }
 	static Roles() {
@@ -92,18 +92,18 @@ class Roles : AbstractCommand, IInit {
 	}
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@"`/roles` shows all available roles, and lets you assign them to yourself.",
 			"You can reassign them at any time.",
 			"You will receive notification pings for the roles you select.",
 			"*(Sometimes Discord will fail to grant you the roles you selected; if that happens, just try again.)*",
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
 				"roles",
-				"Check and assign roles to receive notifications for.",
+				"Check and assign roles to receive notifications.",
 				defaultPermission: true,
 				type: ApplicationCommandType.SlashCommand
 			), Command.DeferEphemeralAsync, RunAsync )

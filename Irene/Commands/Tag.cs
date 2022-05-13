@@ -55,7 +55,7 @@ class Tag : AbstractCommand, IInit {
 	}
 
 	public override List<string> HelpPages =>
-		new () { string.Join("\n", new List<string> {
+		new () { new List<string> {
 			@"`/tags view <name> [share]` displays the named tag (optionally to everyone),",
 			@"`/tags list` lists all available tags,",
 			@":lock: `/tags set <name>` adds (or edits) the content of a named tag,",
@@ -63,7 +63,7 @@ class Tag : AbstractCommand, IInit {
 			"Tag names are case-insensitive, and ignore spaces.",
 			"Only officers can set or remove tags.",
 			@"`/suggest tag` if you think one can be improved, or if you have an idea for a new one!",
-		} ) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {

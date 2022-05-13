@@ -11,10 +11,10 @@ class Cap : AbstractCommand {
 		_optTorghast = "tower-knowledge";
 
 	public override List<string> HelpPages =>
-		new() { string.Join("\n", new List<string> {
+		new() { new List<string> {
 			@"`/cap <type>` displays the current cap of the resource <type>,",
 			"e.g. renown or valor."
-		}) };
+		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {
