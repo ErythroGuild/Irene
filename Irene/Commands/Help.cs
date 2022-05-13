@@ -102,9 +102,9 @@ class Help : AbstractCommand {
 			//$@"{_p} `/commend`:",
 			$@"{_p}{_l} `/best-of block <message-id> <channel>`: Blocks a message from being pinned.",
 			$@"{_p}{_l} `/best-of unblock <message-id> <channel>`: Allows a message to be pinned again.",
-			//"",
-			//"**Moderation**",
-			//$@"{_s}{_l} `/slowmode <channel>`:",
+			"",
+			"**Moderation**",
+			$@"{_s}{_l} `/slowmode <channel> <duration> <interval>`: Enables slowmode on a channel.",
 			//$@"{_p}{_l} `/change-subject `:",
 		}.ToLines() },
 		//{ new List<string> {
