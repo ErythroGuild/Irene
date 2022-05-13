@@ -67,8 +67,8 @@ class Roles : AbstractCommand, IInit {
 	private static readonly ReadOnlyDictionary<ulong, PingRole> _table_IdToRole;
 
 	private static readonly object _lock = new ();
-	const string _pathIntros = @"data/role-intros.txt";
-	const string _delim = "=";
+	private const string _pathIntros = @"data/role-intros.txt";
+	private const string _delim = "=";
 
 	public static void Init() { }
 	static Roles() {
@@ -103,7 +103,7 @@ class Roles : AbstractCommand, IInit {
 		new () {
 			new ( new (
 				"roles",
-				"Check and assign roles to receive notifications for.",
+				"Check and assign roles to receive notifications.",
 				defaultPermission: true,
 				type: ApplicationCommandType.SlashCommand
 			), Command.DeferEphemeralAsync, RunAsync )
