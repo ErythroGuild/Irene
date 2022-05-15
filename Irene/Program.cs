@@ -220,13 +220,6 @@ class Program {
 			_ = Task.Run(() => {
 				Log.Information("  Logged in to Discord servers.");
 				_stopwatchConnect.LogMsecDebug("    Took {ConnectionTime} msec.");
-
-				if (IsDebug) {
-					// Update bot status.
-					DiscordActivity helptext =
-						new (@"with 🔥 [DEBUG]", ActivityType.Playing);
-					irene.UpdateStatusAsync(helptext);
-				}
 			});
 			return Task.CompletedTask;
 		};

@@ -50,9 +50,10 @@ class IreneStatus {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
-	public static async Task SetAndAdd(DiscordActivity status) {
-		await Set(status);
+	public static async Task AddAndSet(DiscordActivity status) {
+		// If set happens first, " - [DEBUG]" gets appended.
 		Add(status);
+		await Set(status);
 	}
 
 	// Returns false if no statuses were available to set.
