@@ -84,7 +84,8 @@ static class Starboard {
 		};
 
 		Log.Information("  Initialized module: Starboard");
-		Log.Debug($"    Registered react event handler, initialized blacklist.");
+		Log.Debug($"    Registered react event handler.");
+		Log.Debug($"    Initialized blacklist.");
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 

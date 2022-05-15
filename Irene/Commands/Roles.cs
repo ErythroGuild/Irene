@@ -87,7 +87,8 @@ class Roles : AbstractCommand, IInit {
 		Util.CreateIfMissing(_pathIntros, _lock);
 
 		Log.Information("  Initialized command: /roles");
-		Log.Debug("    Role conversion cache initialized; data file checked.");
+		Log.Debug("    Role conversion cache initialized.");
+		Log.Debug("    Data file checked.");
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 

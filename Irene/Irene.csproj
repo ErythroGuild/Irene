@@ -62,6 +62,9 @@
     <None Update="data\events.txt">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Update="data\irene-status.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
     <None Update="data\memes.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

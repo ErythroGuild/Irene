@@ -2,8 +2,8 @@
 
 class Invite : AbstractCommand {
 	private const string
-		_optErythro = "erythro",
-		_optLeuko   = "leuko";
+		_optionErythro = "erythro",
+		_optionLeuko   = "leuko";
 	private const string
 		_urlErythro = @"https://discord.gg/ADzEwNS",
 		_urlLeuko   = @"https://discord.gg/zhadQf59xq";
@@ -26,8 +26,8 @@ class Invite : AbstractCommand {
 					ApplicationCommandOptionType.String,
 					required: false,
 					new List<CommandOptionEnum> {
-						new ("Erythro", _optErythro),
-						new ("Leuko", _optLeuko),
+						new ("Erythro", _optionErythro),
+						new ("Leuko", _optionLeuko),
 					} ) },
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
@@ -40,10 +40,10 @@ class Invite : AbstractCommand {
 			interaction.GetArgs();
 		string server = (args.Count > 0)
 			? (string)args[0].Value
-			: _optErythro;
+			: _optionErythro;
 		string invite = server switch {
-			_optErythro => _urlErythro,
-			_optLeuko   => _urlLeuko,
+			_optionErythro => _urlErythro,
+			_optionLeuko   => _urlLeuko,
 			_ => throw new ArgumentException("Invalid slash command parameter."),
 		};
 

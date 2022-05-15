@@ -220,13 +220,6 @@ class Program {
 			_ = Task.Run(() => {
 				Log.Information("  Logged in to Discord servers.");
 				_stopwatchConnect.LogMsecDebug("    Took {ConnectionTime} msec.");
-
-				if (IsDebug) {
-					// Update bot status.
-					DiscordActivity helptext =
-						new (@"with 🔥 [DEBUG]", ActivityType.Playing);
-					irene.UpdateStatusAsync(helptext);
-				}
 			});
 			return Task.CompletedTask;
 		};
@@ -466,6 +459,7 @@ class Program {
 			modules = new () {
 				AuditLog.Init,
 				Command.Init,
+				Modules.IreneStatus.Init,
 				Modules.Raid.Init,
 				RecurringEvents.Init,
 				Welcome.Init,
