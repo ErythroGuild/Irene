@@ -466,6 +466,7 @@ class Program {
 			modules = new () {
 				AuditLog.Init,
 				Command.Init,
+				Modules.IreneStatus.Init,
 				Modules.Raid.Init,
 				RecurringEvents.Init,
 				Welcome.Init,

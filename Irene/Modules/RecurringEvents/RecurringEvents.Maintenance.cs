@@ -77,6 +77,7 @@ static partial class RecurringEvents {
 				$"{t}{a} to:        `{dir_backup}`",
 				"Also copy (from the same folder):",
 				$"{t} - `events.txt`",
+				$"{t} - `irene-status.txt`",
 				$"{t} - `raids.txt`",
 				$"{t} - `tags.txt`",
 				$"{t}{a} to:        `{dir_repo}`",

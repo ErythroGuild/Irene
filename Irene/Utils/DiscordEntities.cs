@@ -70,6 +70,23 @@ static partial class Util {
 		_permissionsTable.ContainsKey(perms) ?
 			_permissionsTable[perms] : "Unknown";
 
+	// Stringify a DiscordActivity (accounting for custom statuses).
+	public static string AsStatusText(this DiscordActivity status) {
+		if (status.ActivityType == ActivityType.Custom) {
+			DiscordCustomStatus custom_status = status.CustomStatus;
+			return $"{custom_status.Emoji} {custom_status.Name}";
+		}
+
+		Dictionary<ActivityType, string> _types = new () {
+			[ActivityType.Playing]     = "Playing ",
+			[ActivityType.Streaming]   = "Streaming ",
+			[ActivityType.ListeningTo] = "Listening to ",
+			[ActivityType.Watching]    = "Watching ",
+			[ActivityType.Competing]   = "Competing in ",
+		};
+		return _types[status.ActivityType] + status.Name;
+	}
+
 	// Returns the DiscordMember equivalent of the DiscordUser.
 	// Returns null if the conversion wasn't possible.
 	public static async Task<DiscordMember?> ToMember(this DiscordUser user) {
