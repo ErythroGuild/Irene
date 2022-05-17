@@ -15,11 +15,11 @@ class Minigame : AbstractCommand {
 	public static ReadOnlyCollection<CommandOptionEnum> GameOptions =>
 		new (new List<CommandOptionEnum> {
 			new (DisplayName(Game.RPS    ), _optionRPS    ),
-			new (DisplayName(Game.RPSLS  ), _optionRPSLS  ),
-			new (DisplayName(Game.Morra  ), _optionMorra  ),
-			new (DisplayName(Game.Balloon), _optionBalloon),
-			new (DisplayName(Game.Duel   ), _optionDuel   ),
-			new (DisplayName(Game.Duel2  ), _optionDuel2  ),
+			//new (DisplayName(Game.RPSLS  ), _optionRPSLS  ),
+			//new (DisplayName(Game.Morra  ), _optionMorra  ),
+			//new (DisplayName(Game.Balloon), _optionBalloon),
+			//new (DisplayName(Game.Duel   ), _optionDuel   ),
+			//new (DisplayName(Game.Duel2  ), _optionDuel2  ),
 		} );
 
 	public static Game OptionToGame(string id) => id switch {
