@@ -205,6 +205,11 @@ class Minigame {
 		if (!did_replace)
 			entries_new.Add(entry);
 
+		// Remove all empty entries.
+		entries_new.RemoveAll(
+			(entry_i) => !entry_i.Contains('\n')
+		);
+
 		// Write to file.
 		entries_new.Sort();
 		lock (_lock) {
