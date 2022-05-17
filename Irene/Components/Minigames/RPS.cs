@@ -57,7 +57,6 @@ class RPS {
 		_loading = ":hourglass:",
 		_loaded  = ":envelope:";
 
-
 	public static void Init() { }
 	static RPS() {
 		// Handler for minigame requests.
