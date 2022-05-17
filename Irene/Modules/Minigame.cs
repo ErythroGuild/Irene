@@ -47,6 +47,16 @@ class Minigame {
 		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
+	public static string DisplayName(Game game) => game switch {
+		Game.RPS     => "Rock-Paper-Scissors",
+		Game.RPSLS   => "Rock-Paper-Scissors-Lizard-Spock",
+		Game.Morra   => "Morra",
+		Game.Balloon => "The Balloon Game",
+		Game.Duel    => "DB Duel",
+		Game.Duel2   => "DB Duel (Advanced)",
+		_ => "",
+	};
+
 	public static string GetRules(Game game) => game switch {
 		Game.RPS =>
 			"""
