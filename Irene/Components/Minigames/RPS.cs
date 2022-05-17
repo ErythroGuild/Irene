@@ -421,7 +421,7 @@ class RPS {
 			result += outcome switch {
 				Outcome.ChallengerWins => "   :triumph:",
 				Outcome.OpponentWins => "   :innocent:",
-				Outcome.Tie => "   :hushed:",
+				Outcome.Tie => " :hushed:",
 				_ => "",
 			};
 		}
