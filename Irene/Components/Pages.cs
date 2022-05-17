@@ -30,45 +30,48 @@ class Pages {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Pages() {
-		Client.ComponentInteractionCreated += async (client, e) => {
-			ulong id = e.Message.Id;
+		Client.ComponentInteractionCreated += (client, e) => {
+			_ = Task.Run(async () => {
+				ulong id = e.Message.Id;
 
-			// Consume all interactions originating from a registered
-			// message, and created by the corresponding component.
-			if (_pages.ContainsKey(id)) {
-				await e.Interaction.AcknowledgeComponentAsync();
-				e.Handled = true;
+				// Consume all interactions originating from a registered
+				// message, and created by the corresponding component.
+				if (_pages.ContainsKey(id)) {
+					await e.Interaction.AcknowledgeComponentAsync();
+					e.Handled = true;
 
-				Pages pages = _pages[id];
+					Pages pages = _pages[id];
 
-				// Can only update if message was already created.
-				if (pages._message is null)
-					return;
+					// Can only update if message was already created.
+					if (pages._message is null)
+						return;
 
-				// Only respond to interactions created by the "owner"
-				// of the component.
-				if (e.User != pages._interaction.User)
-					return;
+					// Only respond to interactions created by the "owner"
+					// of the component.
+					if (e.User != pages._interaction.User)
+						return;
 
-				// Handle buttons.
-				switch (e.Id) {
-				case _idButtonPrev:
-					pages._page--;
-					break;
-				case _idButtonNext:
-					pages._page++;
-					break;
+					// Handle buttons.
+					switch (e.Id) {
+					case _idButtonPrev:
+						pages._page--;
+						break;
+					case _idButtonNext:
+						pages._page++;
+						break;
+					}
+					pages._page = Math.Max(pages._page, 0);
+					pages._page = Math.Min(pages._page, pages._pageCount);
+
+					// Edit original message.
+					// This must be done through the original interaction, as
+					// responses to interactions don't actually "exist" as real
+					// messages.
+					await pages._interaction
+						.EditOriginalResponseAsync(pages.AsWebhookBuilder);
 				}
-				pages._page = Math.Max(pages._page, 0);
-				pages._page = Math.Min(pages._page, pages._pageCount);
-
-				// Edit original message.
-				// This must be done through the original interaction, as
-				// responses to interactions don't actually "exist" as real
-				// messages.
-				await pages._interaction
-					.EditOriginalResponseAsync(pages.AsWebhookBuilder);
-			}
+			});
+			return Task.CompletedTask;
 		};
 		Log.Debug("  Created handler for component: Pages");
 	}

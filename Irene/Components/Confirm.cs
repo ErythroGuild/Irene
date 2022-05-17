@@ -29,27 +29,31 @@ class Confirm {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Confirm() {
-		Client.ComponentInteractionCreated += async (client, e) => {
-			ulong id = e.Message.Id;
+		Client.ComponentInteractionCreated += (client, e) => {
+			_ = Task.Run(async () => {
+				ulong id = e.Message.Id;
 
-			// Consume all interactions originating from a registered
-			// message, and created by the corresponding component.
-			if (_confirms.ContainsKey(id)) {
-				await e.Interaction.AcknowledgeComponentAsync();
-				e.Handled = true;
-				Confirm confirm = _confirms[id];
+				// Consume all interactions originating from a
+				// registered message, and created by the corresponding
+				// component.
+				if (_confirms.ContainsKey(id)) {
+					await e.Interaction.AcknowledgeComponentAsync();
+					e.Handled = true;
+					Confirm confirm = _confirms[id];
 
-				// Only respond to interactions created by the "owner"
-				// of the component.
-				if (e.User != confirm._interaction.User)
-					return;
+					// Only respond to interactions created by the
+					// "owner" of the component.
+					if (e.User != confirm._interaction.User)
+						return;
 
-				// Edit message and pass response to callback.
-				bool isConfirmed = e.Id == _idButtonYes;
-				confirm._isConfirmed = isConfirmed;
-				await confirm.Discard();
-				await confirm._callback(isConfirmed, e);
-			}
+					// Edit message and pass response to callback.
+					bool isConfirmed = e.Id == _idButtonYes;
+					confirm._isConfirmed = isConfirmed;
+					await confirm.Discard();
+					await confirm._callback(isConfirmed, e);
+				}
+			});
+			return Task.CompletedTask;
 		};
 		Log.Debug("  Created handler for component: Confirm");
 	}

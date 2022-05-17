@@ -30,24 +30,27 @@ class Selection {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Selection() {
-		Client.ComponentInteractionCreated += async (client, e) => {
-			ulong id = e.Message.Id;
+		Client.ComponentInteractionCreated += (client, e) => {
+			_ = Task.Run(async () => {
+				ulong id = e.Message.Id;
 
-			// Consume all interactions originating from a registered
-			// message, and created by the corresponding component.
-			if (_selections.ContainsKey(id) && e.Id == _id) {
-				e.Handled = true;
-				Selection selection = _selections[id];
+				// Consume all interactions originating from a registered
+				// message, and created by the corresponding component.
+				if (_selections.ContainsKey(id) && e.Id == _id) {
+					e.Handled = true;
+					Selection selection = _selections[id];
 
-				// Only respond to interactions created by the "owner"
-				// of the component.
-				if (e.User != selection._interaction.User) {
-					await e.Interaction.AcknowledgeComponentAsync();
-					return;
+					// Only respond to interactions created by the "owner"
+					// of the component.
+					if (e.User != selection._interaction.User) {
+						await e.Interaction.AcknowledgeComponentAsync();
+						return;
+					}
+
+					await selection._callback(e);
 				}
-				
-				await selection._callback(e);
-			}
+			});
+			return Task.CompletedTask;
 		};
 		Log.Debug("  Created handler for component: Selection");
 	}
