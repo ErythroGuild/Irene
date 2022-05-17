@@ -326,7 +326,7 @@ class RPS {
 	private DiscordWebhookBuilder GetRequest() {
 		string response =
 			$"""
-			{_opponent.Mention}, {_challenger.Mention} has requested a game of Rock-Paper-Scissors.
+			{_opponent.Mention}, {_challenger.Mention} has requested a game of **Rock-Paper-Scissors**.
 			*You can check rules at any time with `/minigame rules`.*
 			""";
 		return new DiscordWebhookBuilder()
@@ -341,7 +341,7 @@ class RPS {
 			.WithContent($"*Request declined by* {_opponent.Mention}.");
 	private DiscordWebhookBuilder GetRequestTimedOut() =>
 		new DiscordWebhookBuilder()
-			.WithContent($"Request for Rock-Paper-Scissors game with {_opponent.Mention} timed out.");
+			.WithContent($"Request for **Rock-Paper-Scissors** game with {_opponent.Mention} timed out.");
 
 	private DiscordMessageBuilder GetGameSelection() {
 		List<string> response = new () { "**Rock Paper Scissors**" };
