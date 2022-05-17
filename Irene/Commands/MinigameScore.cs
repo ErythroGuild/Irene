@@ -170,7 +170,10 @@ class MinigameScore : AbstractCommand {
 
 		// Collate response.
 		const string dash = "\u2014";
-		List<string> response = new ();
+		const string medal = ":medal:";
+		List<string> response = new () {
+			$"{medal} **{DisplayName(game)} Leaderboard** {medal}"
+		};
 		int i = 0;
 		foreach ((Record, DiscordMember) entry in games_members) {
 			(Record record, DiscordMember member) = entry;
