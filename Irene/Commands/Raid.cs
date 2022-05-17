@@ -623,7 +623,7 @@ class Raid : AbstractCommand {
 		DiscordMessage message = await Command.SubmitResponseAsync(
 			handler.Interaction,
 			confirm.WebhookBuilder,
-			"Raid cancel status updated requested.",
+			"Raid cancel status update requested.",
 			LogLevel.Information,
 			new Lazy<string>(() => {
 				string s = doCancel
