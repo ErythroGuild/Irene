@@ -30,7 +30,7 @@ class Pages {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Pages() {
-		Client.ComponentInteractionCreated += async (client, e) => {
+		Client.ComponentInteractionCreated += (client, e) => {
 			_ = Task.Run(async () => {
 				ulong id = e.Message.Id;
 
@@ -71,6 +71,7 @@ class Pages {
 						.EditOriginalResponseAsync(pages.AsWebhookBuilder);
 				}
 			});
+			return Task.CompletedTask;
 		};
 		Log.Debug("  Created handler for component: Pages");
 	}

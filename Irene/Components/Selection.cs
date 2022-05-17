@@ -30,7 +30,7 @@ class Selection {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Selection() {
-		Client.ComponentInteractionCreated += async (client, e) => {
+		Client.ComponentInteractionCreated += (client, e) => {
 			_ = Task.Run(async () => {
 				ulong id = e.Message.Id;
 
@@ -50,6 +50,7 @@ class Selection {
 					await selection._callback(e);
 				}
 			});
+			return Task.CompletedTask;
 		};
 		Log.Debug("  Created handler for component: Selection");
 	}

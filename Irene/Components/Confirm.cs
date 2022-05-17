@@ -29,7 +29,7 @@ class Confirm {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Confirm() {
-		Client.ComponentInteractionCreated += async (client, e) => {
+		Client.ComponentInteractionCreated += (client, e) => {
 			_ = Task.Run(async () => {
 				ulong id = e.Message.Id;
 
@@ -53,6 +53,7 @@ class Confirm {
 					await confirm._callback(isConfirmed, e);
 				}
 			});
+			return Task.CompletedTask;
 		};
 		Log.Debug("  Created handler for component: Confirm");
 	}
