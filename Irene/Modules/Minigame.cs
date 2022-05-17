@@ -27,6 +27,8 @@ class Minigame {
 			return new (wins, losses);
 		}
 		private const string _separator = "-";
+
+		public static Record Empty => new (0, 0);
 	}
 
 	private static readonly object _lock = new ();
@@ -116,7 +118,7 @@ class Minigame {
 		IDictionary<Game, Record> records = GetRecords(id);
 		return records.ContainsKey(game)
 			? records[game]
-			: new (0, 0);
+			: Record.Empty;
 	}
 
 	// Returns a list of records (of games) for a specific user.
@@ -173,7 +175,7 @@ class Minigame {
 	// Resets or updates the records for a specific game for a
 	// specific user.
 	public static void ResetRecord(ulong id, Game game)
-		{ UpdateRecord(id, game, new Record(0, 0)); }
+		{ UpdateRecord(id, game, Record.Empty); }
 	public static void UpdateRecord(ulong id, Game game, Record record) {
 		IDictionary<Game, Record> records = GetRecords(id);
 		records[game] = record;
@@ -182,7 +184,7 @@ class Minigame {
 		// Only write non-empty records.
 		string entry = id.ToString();
 		foreach (Game game_i in records.Keys) {
-			if (records[game_i] == new Record(0,0))
+			if (records[game_i] == Record.Empty)
 				continue;
 			string record_string = records[game_i].Serialize();
 			entry += $"\n{_indent}{game_i}{_delimiter}{record_string}";
