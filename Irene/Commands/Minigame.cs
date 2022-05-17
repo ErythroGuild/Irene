@@ -15,7 +15,7 @@ class Minigame : AbstractCommand {
 	public static ReadOnlyCollection<CommandOptionEnum> GameOptions =>
 		new (new List<CommandOptionEnum> {
 			new (DisplayName(Game.RPS    ), _optionRPS    ),
-			//new (DisplayName(Game.RPSLS  ), _optionRPSLS  ),
+			new (DisplayName(Game.RPSLS  ), _optionRPSLS  ),
 			//new (DisplayName(Game.Morra  ), _optionMorra  ),
 			//new (DisplayName(Game.Balloon), _optionBalloon),
 			//new (DisplayName(Game.Duel   ), _optionDuel   ),
@@ -175,6 +175,7 @@ class Minigame : AbstractCommand {
 		// Determine game to respond with.
 		MinigameFunc function_game = game switch {
 			Game.RPS => RPS.RespondWithGame,
+			Game.RPSLS => RPSLS.RespondWithGame,
 			_ => throw new NotImplementedException("That game hasn't been implemented yet."),
 		};
 		await function_game.Invoke(

@@ -1,14 +1,14 @@
 ﻿using System.Timers;
 
 using Component = DSharpPlus.Entities.DiscordComponent;
-using RpsAi = Irene.Components.Minigames.AI.RPS;
+using RpslsAi = Irene.Components.Minigames.AI.RPSLS;
 
 using static Irene.Modules.Minigame;
 
 namespace Irene.Components.Minigames;
 
-class RPS {
-	public enum Choice { Rock, Paper, Scissors };
+class RPSLS {
+	public enum Choice { Rock, Paper, Scissors, Lizard, Spock };
 
 	private enum State { Request, Selection, Tie, Result };
 	private enum Outcome { ChallengerWins, OpponentWins, Tie };
@@ -19,14 +19,16 @@ class RPS {
 	// from going out of scope and being destroyed.
 	// NB: The same user can initiate multiple simultaneous games
 	// (unlike non-game components, which are unique per-user).
-	private static readonly ConcurrentDictionary<ulong, RPS> _requests = new ();
-	private static readonly ConcurrentDictionary<ulong, RPS> _games = new ();
+	private static readonly ConcurrentDictionary<ulong, RPSLS> _requests = new ();
+	private static readonly ConcurrentDictionary<ulong, RPSLS> _games = new ();
 
 	private static readonly ReadOnlyDictionary<string, Choice> _idToChoice =
 		new (new ConcurrentDictionary<string, Choice> {
 			[_idButtonRock    ] = Choice.Rock    ,
 			[_idButtonPaper   ] = Choice.Paper   ,
 			[_idButtonScissors] = Choice.Scissors,
+			[_idButtonLizard  ] = Choice.Lizard  ,
+			[_idButtonSpock   ] = Choice.Spock   ,
 		} );
 
 	private static readonly TimeSpan
@@ -34,18 +36,24 @@ class RPS {
 		_timeoutMove    = TimeSpan.FromMinutes(15),
 		_timeDisplayTie = TimeSpan.FromSeconds(3);
 	private const string
-		_idButtonDecline  = "rps_decline",
-		_idButtonAccept   = "rps_accept",
-		_idButtonRock     = "rps_rock",
-		_idButtonPaper    = "rps_paper",
-		_idButtonScissors = "rps_scissors";
+		_idButtonDecline  = "rpsls_decline",
+		_idButtonAccept   = "rpsls_accept",
+		_idButtonRock     = "rpsls_rock",
+		_idButtonPaper    = "rpsls_paper",
+		_idButtonScissors = "rpsls_scissors",
+		_idButtonLizard   = "rpsls_lizard",
+		_idButtonSpock    = "rpsls_spock";
 	private static readonly DiscordEmoji
 		_emojiRockL     = DiscordEmoji.FromUnicode("\u270A"),     // :fist:
 		_emojiRockR     = DiscordEmoji.FromUnicode("\u270A"),
 		_emojiPaperL    = DiscordEmoji.FromUnicode("\U0001F590"), // :hand_splayed:
 		_emojiPaperR    = DiscordEmoji.FromUnicode("\U0001F590"),
 		_emojiScissorsL = DiscordEmoji.FromUnicode("\u270C"),     // :v:
-		_emojiScissorsR = DiscordEmoji.FromUnicode("\u270C");
+		_emojiScissorsR = DiscordEmoji.FromUnicode("\u270C"),
+		_emojiLizardL   = DiscordEmoji.FromUnicode("\U0001F90C"), // :pinched_fingers:
+		_emojiLizardR   = DiscordEmoji.FromUnicode("\U0001F90C"),
+		_emojiSpockL    = DiscordEmoji.FromUnicode("\U0001F596"), // :vulcan:
+		_emojiSpockR    = DiscordEmoji.FromUnicode("\U0001F596");
 	private const string
 		_en      = "\u2002",
 		_dash    = "\u2014",
@@ -58,7 +66,7 @@ class RPS {
 		_loaded  = ":envelope:";
 
 	public static void Init() { }
-	static RPS() {
+	static RPSLS() {
 		// Handler for minigame requests.
 		Client.ComponentInteractionCreated += (client, e) => {
 			_ = Task.Run(async () => {
@@ -70,7 +78,7 @@ class RPS {
 				await e.Interaction.AcknowledgeComponentAsync();
 				e.Handled = true;
 
-				RPS game = _requests[id];
+				RPSLS game = _requests[id];
 				// Only handle relevant users' interactions.
 				if (e.User != game._opponent)
 					return;
@@ -99,7 +107,7 @@ class RPS {
 				await e.Interaction.AcknowledgeComponentAsync();
 				e.Handled = true;
 
-				RPS game = _games[id];
+				RPSLS game = _games[id];
 				// Only handle relevant users' interactions.
 				if (e.User != game._challenger && e.User != game._opponent)
 					return;
@@ -116,7 +124,7 @@ class RPS {
 			return Task.CompletedTask;
 		};
 
-		Log.Debug("  Created handler for minigame: RPS");
+		Log.Debug("  Created handler for minigame: RPSLS");
 	}
 
 	public static async Task RespondWithGame(
@@ -125,7 +133,7 @@ class RPS {
 		DiscordUser opponent
 	) {
 		// Create game object.
-		RPS game = new (
+		RPSLS game = new (
 			interaction.Interaction,
 			challenger,
 			opponent
@@ -138,7 +146,7 @@ class RPS {
 				game.GetRequest(),
 				"Sending minigame request.",
 				LogLevel.Debug,
-				"Request sent: rock-paper-scissors".AsLazy()
+				"Request sent: rock-paper-scissors-lizard-spock".AsLazy()
 			);
 		game._requestId = message.Id;
 		_requests.TryAdd(message.Id, game);
@@ -176,7 +184,7 @@ class RPS {
 
 	// Private constructor.
 	// Use RPS.RespondWithGame() to create a new instance.
-	private RPS(
+	private RPSLS(
 		DiscordInteraction interaction,
 		DiscordUser challenger,
 		DiscordUser opponent
@@ -208,12 +216,26 @@ class RPS {
 			return Outcome.Tie;
 
 		return (_choiceChallenger, _choiceOpponent) switch {
-			(Choice.Rock, Choice.Paper)     => Outcome.OpponentWins,
-			(Choice.Rock, Choice.Scissors)  => Outcome.ChallengerWins,
-			(Choice.Paper, Choice.Rock)     => Outcome.ChallengerWins,
-			(Choice.Paper, Choice.Scissors) => Outcome.OpponentWins,
-			(Choice.Scissors, Choice.Rock)  => Outcome.OpponentWins,
-			(Choice.Scissors, Choice.Paper) => Outcome.ChallengerWins,
+			(Choice.Rock, Choice.Paper)      => Outcome.OpponentWins,
+			(Choice.Rock, Choice.Scissors)   => Outcome.ChallengerWins,
+			(Choice.Rock, Choice.Lizard)     => Outcome.ChallengerWins,
+			(Choice.Rock, Choice.Spock)      => Outcome.OpponentWins,
+			(Choice.Paper, Choice.Rock)      => Outcome.ChallengerWins,
+			(Choice.Paper, Choice.Scissors)  => Outcome.OpponentWins,
+			(Choice.Paper, Choice.Lizard)    => Outcome.OpponentWins,
+			(Choice.Paper, Choice.Spock)     => Outcome.ChallengerWins,
+			(Choice.Scissors, Choice.Rock)   => Outcome.OpponentWins,
+			(Choice.Scissors, Choice.Paper)  => Outcome.ChallengerWins,
+			(Choice.Scissors, Choice.Lizard) => Outcome.ChallengerWins,
+			(Choice.Scissors, Choice.Spock)  => Outcome.OpponentWins,
+			(Choice.Lizard, Choice.Rock)     => Outcome.OpponentWins,
+			(Choice.Lizard, Choice.Paper)    => Outcome.ChallengerWins,
+			(Choice.Lizard, Choice.Scissors) => Outcome.OpponentWins,
+			(Choice.Lizard, Choice.Spock)    => Outcome.ChallengerWins,
+			(Choice.Spock, Choice.Rock)      => Outcome.ChallengerWins,
+			(Choice.Spock, Choice.Paper)     => Outcome.OpponentWins,
+			(Choice.Spock, Choice.Scissors)  => Outcome.ChallengerWins,
+			(Choice.Spock, Choice.Lizard)    => Outcome.OpponentWins,
 			_ => throw new InvalidOperationException("Failed to calculate outcome."),
 		};
 	}
@@ -266,7 +288,7 @@ class RPS {
 				// Fetch choice (AI task also has a fuzzed delay).
 				await Task.Delay(1200);
 				Choice choice =
-					await RpsAi.NextChoice(_challenger.Id);
+					await RpslsAi.NextChoice(_challenger.Id);
 				_choiceOpponent = choice;
 
 				// Update game display.
@@ -325,7 +347,7 @@ class RPS {
 	private DiscordWebhookBuilder GetRequest() {
 		string response =
 			$"""
-			{_opponent.Mention}, {_challenger.Mention} has requested a game of **Rock-Paper-Scissors**.
+			{_opponent.Mention}, {_challenger.Mention} has requested a game of **Rock-Paper-Scissors-Lizard-Spock**.
 			*You can check rules at any time with `/minigame rules`.*
 			""";
 		return new DiscordWebhookBuilder()
@@ -340,16 +362,15 @@ class RPS {
 			.WithContent($"*Request declined by* {_opponent.Mention}.");
 	private DiscordWebhookBuilder GetRequestTimedOut() =>
 		new DiscordWebhookBuilder()
-			.WithContent($"Request for **Rock-Paper-Scissors** game with {_opponent.Mention} timed out.");
+			.WithContent($"Request for **Rock-Paper-Scissors-Lizard-Spock** game with {_opponent.Mention} timed out.");
 
 	private DiscordMessageBuilder GetGameSelection() {
-		List<string> response = new () { "**Rock Paper Scissors**" };
+		List<string> response = new () { "**Rock Paper Scissors Lizard Spock**" };
 
 		string summary = $"{_challenger.Mention} vs {_opponent.Mention}";
 		summary += _ties switch {
 			0 => "",
 			1 => $"{_en}{_dash}{_en}__1 tie__",
-			2 => $"{_en}{_dash}{_en}__{_ties} ties__",
 			_ => $"{_en}{_dash}{_en}__**{_ties} ties!**__",
 		};
 		response.Add(summary);
@@ -371,13 +392,12 @@ class RPS {
 			.AddComponents(GetButtonsGame(true));
 	}
 	private DiscordMessageBuilder GetGameResult() {
-		List<string> response = new () { "**Rock Paper Scissors**" };
+		List<string> response = new () { "**Rock Paper Scissors Lizard Spock**" };
 
 		string summary = $"{_challenger.Mention} vs {_opponent.Mention}";
 		summary += _ties switch {
 			0 => "",
 			1 => $"{_en}{_dash}{_en}__1 tie__",
-			2 => $"{_en}{_dash}{_en}__{_ties} ties__",
 			_ => $"{_en}{_dash}{_en}__**{_ties} ties!**__",
 		};
 		response.Add(summary);
@@ -389,6 +409,8 @@ class RPS {
 			Choice.Rock     => _emojiRockL,
 			Choice.Paper    => _emojiPaperL,
 			Choice.Scissors => _emojiScissorsL,
+			Choice.Lizard   => _emojiLizardL,
+			Choice.Spock    => _emojiSpockL,
 			_ => throw new InvalidOperationException("Invalid challenger choice."),
 		};
 		string arrow_outcome = outcome switch {
@@ -402,6 +424,8 @@ class RPS {
 			Choice.Rock     => _emojiRockR,
 			Choice.Paper    => _emojiPaperR,
 			Choice.Scissors => _emojiScissorsR,
+			Choice.Lizard   => _emojiLizardR,
+			Choice.Spock    => _emojiSpockR,
 			_ => throw new InvalidOperationException("Invalid opponent choice."),
 		};
 		response.Add(status);
@@ -459,9 +483,9 @@ class RPS {
 		// Only record both players if opponent wasn't Irene.
 		if (_opponent != Client.CurrentUser) {
 			Record record_challenger =
-					GetRecord(_challenger.Id, Game.RPS);
+					GetRecord(_challenger.Id, Game.RPSLS);
 			Record record_opponent =
-					GetRecord(_opponent.Id, Game.RPS);
+					GetRecord(_opponent.Id, Game.RPSLS);
 
 			switch (outcome) {
 			case Outcome.ChallengerWins:
@@ -476,12 +500,12 @@ class RPS {
 
 			UpdateRecord(
 				_challenger.Id,
-				Game.RPS,
+				Game.RPSLS,
 				record_challenger
 			);
 			UpdateRecord(
 				_opponent.Id,
-				Game.RPS,
+				Game.RPSLS,
 				record_opponent
 			);
 		}
@@ -489,7 +513,7 @@ class RPS {
 		// If Irene was challenged, record her record.
 		if (_opponent == Client.CurrentUser) {
 			Record record_irene =
-					GetRecord(Client.CurrentUser.Id, Game.RPS);
+					GetRecord(Client.CurrentUser.Id, Game.RPSLS);
 			switch (outcome) {
 			case Outcome.ChallengerWins:
 				record_irene.Losses++;
@@ -500,7 +524,7 @@ class RPS {
 			}
 			UpdateRecord(
 				Client.CurrentUser.Id,
-				Game.RPS,
+				Game.RPSLS,
 				record_irene
 			);
 		}
@@ -542,5 +566,20 @@ class RPS {
 				disabled: !isEnabled,
 				emoji: new (_emojiScissorsL)
 			),
+			new DiscordButtonComponent(
+				ButtonStyle.Primary,
+				_idButtonLizard,
+				"",
+				disabled: !isEnabled,
+				emoji: new (_emojiLizardL)
+			),
+			new DiscordButtonComponent(
+				ButtonStyle.Primary,
+				_idButtonSpock,
+				"",
+				disabled: !isEnabled,
+				emoji: new (_emojiSpockL)
+			),
 		};
+
 }
