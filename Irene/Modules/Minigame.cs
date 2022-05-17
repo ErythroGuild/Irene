@@ -175,7 +175,7 @@ class Minigame {
 			if (records[game_i] == new Record(0,0))
 				continue;
 			string record_string = records[game_i].Serialize();
-			entry += $"\n{game_i}{_delimiter}{record_string}";
+			entry += $"\n{_indent}{game_i}{_delimiter}{record_string}";
 		}
 
 		// Update entry data.
