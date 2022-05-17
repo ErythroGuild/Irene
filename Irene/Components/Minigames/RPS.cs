@@ -419,9 +419,9 @@ class RPS {
 		};
 		if (_opponent == Client.CurrentUser) {
 			result += outcome switch {
-				Outcome.ChallengerWins => " :triumph:",
-				Outcome.OpponentWins => " :innocent:",
-				Outcome.Tie => " :hushed:",
+				Outcome.ChallengerWins => "   :triumph:",
+				Outcome.OpponentWins => "   :innocent:",
+				Outcome.Tie => "   :hushed:",
 				_ => "",
 			};
 		}
