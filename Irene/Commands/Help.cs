@@ -107,10 +107,17 @@ class Help : AbstractCommand {
 			$@"{_s}{_l} `/slowmode <channel> <duration> <interval>`: Enables slowmode on a channel.",
 			//$@"{_p}{_l} `/change-subject `:",
 		}.ToLines() },
-		//{ new List<string> {
-		//	"****",
-		//	$@"{_p} `/`:",
-		//}.ToLines() },
+		{ new List<string> {
+			//"**Birthdays**",
+			//$@"{_p} `/`:",
+			//"",
+			"**Minigames**",
+			$@"{_s} `/minigame play <game> <opponent>`: Requests a game against an opponent.",
+			$@"{_p} `/minigame rules <game>`: Displays the rules for a game.",
+			$@"{_s} `/minigame-score leaderboard <game>`: Displays the game's leaderboard.",
+			$@"{_p} `/minigame-score personal [share]`: Displays your personal records.",
+			$@"{_p} `/minigame-score reset <game>`: Resets a personal record.",
+		}.ToLines() },
 		{ new List<string> {
 			"**Utilities**",
 			$@"{_s} `/roll`: Generate a number between `1` and `100`.",

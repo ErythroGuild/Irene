@@ -15,14 +15,17 @@ class Modal {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Modal() {
-		Client.ModalSubmitted += async (client, e) => {
-			string id = e.Interaction.Data.CustomId;
-			if (_modals.ContainsKey(id)) {
-				e.Handled = true;
-				await _modals[id]._callback(e);
-				_modals[id]._timer.Stop();
-				_modals.TryRemove(id, out _);
-			}
+		Client.ModalSubmitted += (client, e) => {
+			_ = Task.Run(async () => {
+				string id = e.Interaction.Data.CustomId;
+				if (_modals.ContainsKey(id)) {
+					e.Handled = true;
+					await _modals[id]._callback(e);
+					_modals[id]._timer.Stop();
+					_modals.TryRemove(id, out _);
+				}
+			});
+			return Task.CompletedTask;
 		};
 		Log.Debug("  Created handler for component: Modal");
 	}

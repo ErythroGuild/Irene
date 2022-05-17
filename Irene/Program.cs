@@ -455,10 +455,12 @@ class Program {
 				Modal.Init,
 				Pages.Init,
 				Selection.Init,
+				Components.Minigames.RPS.Init,
 			},
 			modules = new () {
 				AuditLog.Init,
 				Command.Init,
+				Modules.Minigame.Init,
 				Modules.IreneStatus.Init,
 				Modules.Raid.Init,
 				RecurringEvents.Init,

@@ -78,6 +78,7 @@ static partial class RecurringEvents {
 				"Also copy (from the same folder):",
 				$"{t} - `events.txt`",
 				$"{t} - `irene-status.txt`",
+				$"{t} - `minigame-scores.txt`",
 				$"{t} - `raids.txt`",
 				$"{t} - `tags.txt`",
 				$"{t}{a} to:        `{dir_repo}`",
