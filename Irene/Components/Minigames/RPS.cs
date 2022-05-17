@@ -417,8 +417,14 @@ class RPS {
 			Outcome.Tie            => "**Tied!**",
 			_ => throw new InvalidOperationException("Unrecognized outcome."),
 		};
-		if (_opponent == Client.CurrentUser && outcome == Outcome.OpponentWins)
-			result += " :innocent:";
+		if (_opponent == Client.CurrentUser) {
+			result += outcome switch {
+				Outcome.ChallengerWins => " :triumph:",
+				Outcome.OpponentWins => " :innocent:",
+				Outcome.Tie => " :hushed:",
+				_ => "",
+			};
+		}
 		response.Add(result);
 
 		// Add disabled game buttons if tie.
