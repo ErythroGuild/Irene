@@ -427,6 +427,10 @@ class RPS {
 		}
 		response.Add(result);
 
+		// Add note that games against Irene don't count for score.
+		if (_opponent == Client.CurrentUser)
+			response.Add("*Games against Irene do not count towards your record.*");
+
 		// Add disabled game buttons if tie.
 		// (Affordance that game will continue.)
 		DiscordMessageBuilder message = new ();
