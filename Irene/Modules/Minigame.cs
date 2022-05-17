@@ -150,7 +150,7 @@ class Minigame {
 	// This method is less efficient than GetRecords(ulong).
 	public static IDictionary<ulong, Record> GetRecords(Game game) {
 		Dictionary<ulong, Record> records = new ();
-		string key = $"{_indent}{game}";
+		string key = $"{_indent}{game}{_delimiter}";
 
 		List<string> entries = GetAllEntries();
 		foreach (string entry in entries) {
