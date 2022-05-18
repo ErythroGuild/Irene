@@ -9,8 +9,15 @@ class Minigame {
 	};
 
 	public record struct Record {
+		public static Record Empty => new (0, 0);
+		private const string _separator = "-";
+
 		public int Wins { get; set; }
 		public int Losses { get; set; }
+		public int Total =>
+			Wins + Losses;
+		public double Winrate =>
+			(double)Wins / Total;
 
 		public Record(int wins, int losses) {
 			Wins = wins;
@@ -26,9 +33,6 @@ class Minigame {
 			int losses = int.Parse(split[1]);
 			return new (wins, losses);
 		}
-		private const string _separator = "-";
-
-		public static Record Empty => new (0, 0);
 	}
 
 	private static readonly object _lock = new ();
@@ -151,6 +155,7 @@ class Minigame {
 	public static IDictionary<ulong, Record> GetRecords(Game game) {
 		Dictionary<ulong, Record> records = new ();
 		string key = $"{_indent}{game}{_delimiter}";
+		// `{_delimiter}` is required here.
 
 		List<string> entries = GetAllEntries();
 		foreach (string entry in entries) {
@@ -180,15 +185,23 @@ class Minigame {
 		IDictionary<Game, Record> records = GetRecords(id);
 		records[game] = record;
 
-		// Create updated entry.
-		// Only write non-empty records.
+		// Create updated (sorted) entry.
 		string entry = id.ToString();
+		List<string> game_data = new ();
 		foreach (Game game_i in records.Keys) {
+			// Only write non-empty records.
 			if (records[game_i] == Record.Empty)
 				continue;
-			string record_string = records[game_i].Serialize();
-			entry += $"\n{_indent}{game_i}{_delimiter}{record_string}";
+			string record_game = records[game_i].Serialize();
+			string line = $"{_indent}{game_i}{_delimiter}{record_game}";
+			game_data.Add(line);
 		}
+		game_data.Sort((string x, string y) => {
+			string[] split_x = x.Split(_delimiter, 2);
+			string[] split_y = y.Split(_delimiter, 2);
+			return split_x[0].CompareTo(split_y[0]);
+		});
+		entry += "\n" + game_data.ToLines();
 
 		// Update entry data.
 		List<string> entries = GetAllEntries();

@@ -5,10 +5,13 @@ using static Irene.Modules.Minigame;
 namespace Irene.Commands;
 
 class MinigameScore : AbstractCommand {
+	private record class MemberRecord(DiscordMember Member, Record Record);
+
 	// Confirmation messages, indexed by the ID of the user who is
 	// accessing them.
 	private static readonly ConcurrentDictionary<ulong, Confirm> _confirms = new ();
 
+	private const int _gamesSortByRate = 5;
 	private const string
 		_commandLeaderboard = "leaderboard",
 		_commandPersonal    = "personal",
@@ -124,7 +127,7 @@ class MinigameScore : AbstractCommand {
 		}
 
 		// Hydrate and sort data.
-		List<(Record, DiscordMember)> games_members = new ();
+		List<MemberRecord> games_members = new ();
 		foreach (ulong id in games.Keys) {
 			DiscordMember member;
 			try {
@@ -132,75 +135,137 @@ class MinigameScore : AbstractCommand {
 			} catch {
 				continue;
 			}
-			games_members.Add((games[id], member));
+			games_members.Add(new (member, games[id]));
 		}
-		games_members.Sort(
-			((Record, DiscordMember) x, (Record, DiscordMember) y) => {
-				// Irene is always listed last.
-				ulong id_irene = Client.CurrentUser.Id;
-				if (x.Item2 == y.Item2)
-					return 0;
-				else if (x.Item2.Id == id_irene)
-					return 1;
-				else if (y.Item2.Id == id_irene)
-					return -1;
-
-				// Above threshold count is always listed before
-				// below threshold count.
-				// When under threshold, sort by score.
-				const int threshold = 5;
-				int x_count = x.Item1.Wins + x.Item1.Losses;
-				int y_count = y.Item1.Wins + y.Item1.Losses;
-				if (x_count < threshold && y_count < threshold) {
-					int x_val = x.Item1.Wins - x.Item1.Losses;
-					int y_val = y.Item1.Wins - y.Item1.Losses;
-					return y_val - x_val;
-				} else if (x_count < threshold) {
-					return 1;
-				} else if (y_count < threshold) {
-					return -1;
-				}
-
-				// When above threshold, sort by rate.
-				float x_rate = (float)x.Item1.Wins / x_count;
-				float y_rate = (float)y.Item1.Wins / y_count;
-				return Math.Sign(y_rate - x_rate);
-			}
-		);
+		games_members.Sort(LeaderboardSort);
 
 		// Collate response.
-		const string dash = "\u2014";
-		const string medal = ":medal:";
-		List<string> response = new () {
-			$"{medal} **{DisplayName(game)}** {medal}"
-		};
-		int i = 0;
-		foreach ((Record, DiscordMember) entry in games_members) {
-			(Record record, DiscordMember member) = entry;
-			i++;
-			string line = $"`#{i}`  ";
-			line += record.Serialize().Bold();
-			line += $"  {dash} ";
-			float rate = (float)record.Wins
-				/ (record.Wins + record.Losses);
-			line += (rate * 100).ToString("F0"); // 0 decimal places
-			line += $"%    {member.Mention}";
-			response.Add(line);
-		}
+		string leaderboard = PrintLeaderboard(game, games_members);
 
 		// Send response.
 		// Ensure nobody is @mentioned by passing an empty list.
 		await Command.SubmitResponseAsync(
 			handler.Interaction,
 			new DiscordWebhookBuilder()
-				.WithContent(response.ToLines())
+				.WithContent(leaderboard)
 				.AddMentions(new List<IMention>()),
 			"Sending leaderboard.",
 			LogLevel.Debug,
 			"{Game} leaderboard: {Count} entries".AsLazy(),
-			DisplayName(game),
-			response.Count
+			DisplayName(game), games.Count
 		);
+	}
+	private static int LeaderboardSort(MemberRecord x, MemberRecord y) {
+		// Irene is always listed last.
+		ulong id_irene = Client.CurrentUser.Id;
+		if (x.Member == y.Member)
+			return 0;
+		else if (x.Member.Id == id_irene)
+			return 1;
+		else if (y.Member.Id == id_irene)
+			return -1;
+
+		// Memoize useful values.
+		// Slightly less efficient but much more readable.
+		int x_count = x.Record.Total;
+		int y_count = y.Record.Total;
+		int x_score = x.Record.Wins - x.Record.Losses;
+		int y_score = y.Record.Wins - y.Record.Losses;
+		int x_percent = (int)Math.Round(x.Record.Winrate);
+		int y_percent = (int)Math.Round(y.Record.Winrate);
+
+		// Above threshold count is always listed before
+		// below threshold count.
+		if (x_count < _gamesSortByRate && y_count < _gamesSortByRate) {
+			// If scores match, sort by total games.
+			if (x_score == y_score)
+				return y_count - x_count;
+			else
+				return y_score - x_score;
+		} else if (x_count < _gamesSortByRate) {
+			return 1;
+		} else if (y_count < _gamesSortByRate) {
+			return -1;
+		}
+
+		// When above threshold, sort by winrate.
+		// If winrates match (within 1%), sort by total games.
+		if (x_percent == y_percent) {
+			return y_count - x_count;
+		} else {
+			return y_percent - x_percent;
+		}
+	}
+	private static string PrintLeaderboard(Game game, List<MemberRecord> records) {
+		// Leaderboard title.
+		const string tada = ":trophy:";
+		List<string> leaderboard = new () {
+			$"{tada}   **{DisplayName(game)}**   {tada}",
+			"",
+		};
+
+		// Find highest win- and loss-counts.
+		// This determines how much records need to be padded.
+		int max_wins = 0;
+		int max_losses = 0;
+		foreach (MemberRecord record in records) {
+			if (record.Record.Wins > max_wins)
+				max_wins = record.Record.Wins;
+			if (record.Record.Losses > max_losses)
+				max_losses = record.Record.Losses;
+		}
+		int digits_wins = 1 + (max_wins / 10); // int division
+		int digits_losses = 1 + (max_losses / 10); // int division
+
+		// Using a regular for-loop because we care about the index.
+		bool do_annotate = false;
+		for (int i=0; i<records.Count; i++) {
+			Record record = records[i].Record;
+			DiscordMember member = records[i].Member;
+
+			// Rank indicator.
+			string rank = i switch {
+				0 => ":first_place:",
+				1 => ":second_place:",
+				2 => ":third_place:",
+				_ => $"`#{i+1}`",
+			};
+			if (member.Id == Client.CurrentUser.Id)
+				rank = ":robot:";
+			string line = $"{rank}    ";
+
+			// Record.
+			string wins = string.Format(
+				string.Format("{{0,{0}}}", digits_wins),
+				record.Wins
+			);
+			string losses = string.Format(
+				string.Format("{{0,-{0}}}", digits_losses),
+				record.Losses
+			);
+			const string dash = "\u2014";
+			line += $"**`{wins}-{losses}`**   {dash} ";
+
+			// Winrate.
+			string rate = $"`{record.Winrate,4:p0}`";
+			if (record.Total < _gamesSortByRate) {
+				do_annotate = true;
+				rate = rate.Italicize();
+			}
+
+			line += $"{rate}    {member.Mention}";
+			leaderboard.Add(line);
+		}
+
+		// Annotate.
+		if (do_annotate) {
+			leaderboard.AddRange(new List<string> {
+				"",
+				$"*\\*Players with fewer than {_gamesSortByRate} games __not__ sorted by winrate.*",
+			});
+		}
+
+		return leaderboard.ToLines();
 	}
 
 	private static async Task ViewPersonalAsync(DeferrerHandler handler) {
@@ -242,12 +307,9 @@ class MinigameScore : AbstractCommand {
 		string response = "*Your personal records:*";
 		foreach (Game game in records.Keys) {
 			Record record = records[game];
-			float winrate = (float)record.Wins
-				/ (record.Wins + record.Losses);
-			winrate *= 100;
 			response += "\n" + $"""
 				**{DisplayName(game)}**
-				{indent}{record.Serialize().Bold()}  {dash} {winrate:F0}%
+				{indent}{record.Serialize().Bold()}  {dash} {record.Winrate:P0}
 				""";
 		}
 
