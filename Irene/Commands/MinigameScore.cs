@@ -201,7 +201,7 @@ class MinigameScore : AbstractCommand {
 		// Leaderboard title.
 		const string tada = ":trophy:";
 		List<string> leaderboard = new () {
-			$"{tada} **{DisplayName(game)}** {tada}",
+			$"{tada}   **{DisplayName(game)}**   {tada}",
 			"",
 		};
 
@@ -245,7 +245,7 @@ class MinigameScore : AbstractCommand {
 				record.Losses
 			);
 			const string dash = "\u2014";
-			line += $"**`{wins}-{losses}`**  {dash}  ";
+			line += $"**`{wins}-{losses}`**   {dash} ";
 
 			// Winrate.
 			string rate = $"`{record.Winrate,4:p0}`";
