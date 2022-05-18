@@ -14,10 +14,10 @@ class Minigame {
 
 		public int Wins { get; set; }
 		public int Losses { get; set; }
-		public int Count =>
+		public int Total =>
 			Wins + Losses;
 		public double Winrate =>
-			(double)Wins / Count;
+			(double)Wins / Total;
 
 		public Record(int wins, int losses) {
 			Wins = wins;

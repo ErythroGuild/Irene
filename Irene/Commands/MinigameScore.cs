@@ -140,58 +140,20 @@ class MinigameScore : AbstractCommand {
 		games_members.Sort(LeaderboardSort);
 
 		// Collate response.
-		const string dash = "\u2014";
-		const string trophy = ":trophy:";
-		List<string> response = new () {
-			$"{trophy} **{DisplayName(game)}** {trophy}",
-			"",
-		};
-		int i = 0;
-		bool do_annotate = false;
-		foreach (MemberRecord entry in games_members) {
-			(DiscordMember member, Record record) = entry;
-			i++;
-			string place = i switch {
-				1 => ":first_place:",
-				2 => ":second_place:",
-				3 => ":third_place:",
-				_ => $"`#{i}`",
-			};
-			if (member.Id == Client.CurrentUser.Id)
-				place = ":robot:";
-			string line = $"{place}    ";
-			line += record.Serialize().Bold();
-			line += $"  {dash} ";
-			float rate = (float)record.Wins
-				/ (record.Wins + record.Losses);
-			string percentage = (rate * 100).ToString("F0") + "%";
-			// Annotate users with fewer games.
-			if (record.Wins + record.Losses < _gamesSortByRate) {
-				do_annotate = true;
-				percentage = percentage.Italicize();
-			}
-			line += $"{percentage}    {member.Mention}";
-			response.Add(line);
-		}
-		if (do_annotate) {
-			response.AddRange(new List<string> {
-				"",
-				$"*Players with fewer than {_gamesSortByRate} games __not__ sorted by winrate.*",
-			});
-		}
+		string leaderboard = PrintLeaderboard(game, games_members);
 
 		// Send response.
 		// Ensure nobody is @mentioned by passing an empty list.
 		await Command.SubmitResponseAsync(
 			handler.Interaction,
 			new DiscordWebhookBuilder()
-				.WithContent(response.ToLines())
+				.WithContent(leaderboard)
 				.AddMentions(new List<IMention>()),
 			"Sending leaderboard.",
 			LogLevel.Debug,
 			"{Game} leaderboard: {Count} entries".AsLazy(),
 			DisplayName(game),
-			response.Count
+			games.Count
 		);
 	}
 	private static int LeaderboardSort(MemberRecord x, MemberRecord y) {
@@ -206,8 +168,8 @@ class MinigameScore : AbstractCommand {
 
 		// Memoize useful values.
 		// Slightly less efficient but much more readable.
-		int x_count = x.Record.Count;
-		int y_count = y.Record.Count;
+		int x_count = x.Record.Total;
+		int y_count = y.Record.Total;
 		int x_score = x.Record.Wins - x.Record.Losses;
 		int y_score = y.Record.Wins - y.Record.Losses;
 		int x_percent = (int)Math.Round(x.Record.Winrate);
@@ -234,6 +196,77 @@ class MinigameScore : AbstractCommand {
 		} else {
 			return y_percent - x_percent;
 		}
+	}
+	private static string PrintLeaderboard(Game game, List<MemberRecord> records) {
+		// Leaderboard title.
+		const string tada = ":trophy:";
+		List<string> leaderboard = new () {
+			$"{tada} **{DisplayName(game)}** {tada}",
+			"",
+		};
+
+		// Find highest win- and loss-counts.
+		// This determines how much records need to be padded.
+		int max_wins = 0;
+		int max_losses = 0;
+		foreach (MemberRecord record in records) {
+			if (record.Record.Wins > max_wins)
+				max_wins = record.Record.Wins;
+			if (record.Record.Losses > max_losses)
+				max_losses = record.Record.Losses;
+		}
+		int digits_wins = 1 + (max_wins / 10); // int division
+		int digits_losses = 1 + (max_losses / 10); // int division
+
+		// Using a regular for-loop because we care about the index.
+		bool do_annotate = false;
+		for (int i=0; i<records.Count; i++) {
+			Record record = records[i].Record;
+			DiscordMember member = records[i].Member;
+
+			// Rank indicator.
+			string rank = i switch {
+				0 => ":first_place:",
+				1 => ":second_place:",
+				2 => ":third_place:",
+				_ => $"`#{i+1}`",
+			};
+			if (member.Id == Client.CurrentUser.Id)
+				rank = ":robot:";
+			string line = $"{rank}    ";
+
+			// Record.
+			string wins = string.Format(
+				string.Format("{{0,{0}}}", digits_wins),
+				record.Wins
+			);
+			string losses = string.Format(
+				string.Format("{{0,-{0}}}", digits_losses),
+				record.Losses
+			);
+			const string dash = "\u2014";
+			line += $"**`{wins}-{losses}`**  {dash}  ";
+
+			// Winrate.
+			string rate = $"`{record.Winrate,4:p0}`";
+			if (record.Total < _gamesSortByRate) {
+				do_annotate = true;
+				rate = rate.Italicize();
+			}
+
+			line += $"{rate}    {member.Mention}";
+			leaderboard.Add(line);
+		}
+
+		// Annotate.
+		if (do_annotate) {
+			leaderboard.AddRange(new List<string> {
+				"",
+				$"*\\*Players with fewer than {_gamesSortByRate} games __not__ sorted by winrate.*",
+			});
+		}
+
+		return leaderboard.ToLines();
 	}
 
 	private static async Task ViewPersonalAsync(DeferrerHandler handler) {
