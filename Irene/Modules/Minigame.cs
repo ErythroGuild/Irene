@@ -200,6 +200,7 @@ class Minigame {
 			string[] split_y = y.Split(_delimiter, 2);
 			return split_x[0].CompareTo(split_y[0]);
 		});
+		entry += "\n" + game_data.ToLines();
 
 		// Update entry data.
 		List<string> entries = GetAllEntries();
