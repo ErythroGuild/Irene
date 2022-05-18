@@ -156,9 +156,9 @@ class MinigameScore : AbstractCommand {
 					int y_val = y.Item1.Wins - y.Item1.Losses;
 					return y_val - x_val;
 				} else if (x_count < threshold) {
-					return -1;
-				} else if (y_count < threshold) {
 					return 1;
+				} else if (y_count < threshold) {
+					return -1;
 				}
 
 				// When above threshold, sort by rate.
