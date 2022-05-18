@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 class Minigame {
 	public enum Game {
@@ -184,15 +184,22 @@ class Minigame {
 		IDictionary<Game, Record> records = GetRecords(id);
 		records[game] = record;
 
-		// Create updated entry.
-		// Only write non-empty records.
+		// Create updated (sorted) entry.
 		string entry = id.ToString();
+		List<string> game_data = new ();
 		foreach (Game game_i in records.Keys) {
+			// Only write non-empty records.
 			if (records[game_i] == Record.Empty)
 				continue;
-			string record_string = records[game_i].Serialize();
-			entry += $"\n{_indent}{game_i}{_delimiter}{record_string}";
+			string record_game = records[game_i].Serialize();
+			string line = $"{_indent}{game_i}{_delimiter}{record_game}";
+			game_data.Add(line);
 		}
+		game_data.Sort((string x, string y) => {
+			string[] split_x = x.Split(_delimiter, 2);
+			string[] split_y = y.Split(_delimiter, 2);
+			return split_x[0].CompareTo(split_y[0]);
+		});
 
 		// Update entry data.
 		List<string> entries = GetAllEntries();
