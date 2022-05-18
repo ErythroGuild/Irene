@@ -9,8 +9,15 @@ class Minigame {
 	};
 
 	public record struct Record {
+		public static Record Empty => new (0, 0);
+		private const string _separator = "-";
+
 		public int Wins { get; set; }
 		public int Losses { get; set; }
+		public int Count =>
+			Wins + Losses;
+		public double Winrate =>
+			(double)Wins / Count;
 
 		public Record(int wins, int losses) {
 			Wins = wins;
@@ -26,9 +33,6 @@ class Minigame {
 			int losses = int.Parse(split[1]);
 			return new (wins, losses);
 		}
-		private const string _separator = "-";
-
-		public static Record Empty => new (0, 0);
 	}
 
 	private static readonly object _lock = new ();
