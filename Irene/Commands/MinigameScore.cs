@@ -172,7 +172,7 @@ class MinigameScore : AbstractCommand {
 		const string dash = "\u2014";
 		const string medal = ":medal:";
 		List<string> response = new () {
-			$"{medal} **{DisplayName(game)} Leaderboard** {medal}"
+			$"{medal} **{DisplayName(game)}** {medal}"
 		};
 		int i = 0;
 		foreach ((Record, DiscordMember) entry in games_members) {
