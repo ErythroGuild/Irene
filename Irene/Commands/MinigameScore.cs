@@ -1,4 +1,4 @@
-﻿using Irene.Components;
+using Irene.Components;
 
 using static Irene.Modules.Minigame;
 
@@ -170,15 +170,24 @@ class MinigameScore : AbstractCommand {
 
 		// Collate response.
 		const string dash = "\u2014";
-		const string medal = ":medal:";
+		const string trophy = ":trophy:";
 		List<string> response = new () {
-			$"{medal} **{DisplayName(game)}** {medal}"
+			$"{trophy} **{DisplayName(game)}** {trophy}",
+			"",
 		};
 		int i = 0;
 		foreach ((Record, DiscordMember) entry in games_members) {
 			(Record record, DiscordMember member) = entry;
 			i++;
-			string line = $"`#{i}`  ";
+			string place = i switch {
+				1 => ":first_place:",
+				2 => ":second_place:",
+				3 => ":third_place:",
+				_ => $"`#{i}`",
+			};
+			if (member.Id == Client.CurrentUser.Id)
+				place = ":robot:";
+			string line = $"{place}    ";
 			line += record.Serialize().Bold();
 			line += $"  {dash} ";
 			float rate = (float)record.Wins
