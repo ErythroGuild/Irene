@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 class Minigame {
 	public enum Game {
@@ -155,6 +155,7 @@ class Minigame {
 	public static IDictionary<ulong, Record> GetRecords(Game game) {
 		Dictionary<ulong, Record> records = new ();
 		string key = $"{_indent}{game}{_delimiter}";
+		// `{_delimiter}` is required here.
 
 		List<string> entries = GetAllEntries();
 		foreach (string entry in entries) {

@@ -1,4 +1,4 @@
-using Irene.Components;
+﻿using Irene.Components;
 
 using static Irene.Modules.Minigame;
 
@@ -152,8 +152,7 @@ class MinigameScore : AbstractCommand {
 			"Sending leaderboard.",
 			LogLevel.Debug,
 			"{Game} leaderboard: {Count} entries".AsLazy(),
-			DisplayName(game),
-			games.Count
+			DisplayName(game), games.Count
 		);
 	}
 	private static int LeaderboardSort(MemberRecord x, MemberRecord y) {
