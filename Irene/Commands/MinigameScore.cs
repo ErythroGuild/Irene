@@ -1,4 +1,4 @@
-﻿using Irene.Components;
+using Irene.Components;
 
 using static Irene.Modules.Minigame;
 
@@ -308,12 +308,9 @@ class MinigameScore : AbstractCommand {
 		string response = "*Your personal records:*";
 		foreach (Game game in records.Keys) {
 			Record record = records[game];
-			float winrate = (float)record.Wins
-				/ (record.Wins + record.Losses);
-			winrate *= 100;
 			response += "\n" + $"""
 				**{DisplayName(game)}**
-				{indent}{record.Serialize().Bold()}  {dash} {winrate:F0}%
+				{indent}{record.Serialize().Bold()}  {dash} {record.Winrate:P0}
 				""";
 		}
 
