@@ -24,6 +24,10 @@ class Minigame {
 			Losses = losses;
 		}
 
+		// Display.
+		public string Print() =>
+			string.Join(_separator, Wins, Losses);
+
 		// Serialization / deserialization.
 		public string Serialize() =>
 			string.Join(_separator, Wins, Losses);

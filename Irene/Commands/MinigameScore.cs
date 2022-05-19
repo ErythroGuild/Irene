@@ -309,7 +309,7 @@ class MinigameScore : AbstractCommand {
 			Record record = records[game];
 			response += "\n" + $"""
 				**{DisplayName(game)}**
-				{indent}{record.Serialize().Bold()}  {dash} {record.Winrate:P0}
+				{indent}{record.Print().Bold()}  {dash} {record.Winrate:P0}
 				""";
 		}
 
@@ -354,7 +354,7 @@ class MinigameScore : AbstractCommand {
 		// Send confirmation for record reset.
 		MessagePromise message_promise = new ();
 		string game_name = DisplayName(game).Bold();
-		string record_string = record.Serialize().Bold();
+		string record_string = record.Print().Bold();
 		Confirm confirm = Confirm.Create(
 			handler.Interaction.Interaction,
 			ResetRecord,
