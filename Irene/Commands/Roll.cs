@@ -56,7 +56,8 @@ class Roll : AbstractCommand {
 			@"`/roll <max>` generates a number between `1` and `max`,",
 			@"`/roll <min> <max> generates a number between `min` and `max`.",
 			"All ranges are inclusive (e.g. `[1, 100]`).",
-			@"`/8-ball <question> [keep-private]` forecasts the answer to a yes/no question."
+			@"`/8-ball <question> [keep-private]` forecasts the answer to a yes/no question.",
+			@"`/coin-flip` displays the result of a coin flip.",
 		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
@@ -104,7 +105,13 @@ class Roll : AbstractCommand {
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
-			), Defer8BallAsync, Run8BallAsync )
+			), Defer8BallAsync, Run8BallAsync ),
+			new ( new (
+				"coin-flip",
+				"Flip a coin.",
+				defaultPermission: true,
+				type: ApplicationCommandType.SlashCommand
+			), Command.DeferVisibleAsync, RunCoinFlipAsync ),
 		};
 
 	public static async Task RunRollAsync(TimedInteraction interaction) {
@@ -217,6 +224,25 @@ class Roll : AbstractCommand {
 			LogLevel.Debug,
 			"Prediction sent: \"{Prediction}\".".AsLazy(),
 			_predictions[index]
+		);
+	}
+
+	public static async Task RunCoinFlipAsync(TimedInteraction interaction) {
+		int random = Random(0, 1) ?? RandomFallback(0, 1);
+		string result = random switch {
+			0 => "Tails!",
+			1 => "Heads!",
+			_ => "",
+		};
+
+		// Respond.
+		await Command.SubmitResponseAsync(
+			interaction,
+			result + " :coin:",
+			"Sending coin flip.",
+			LogLevel.Debug,
+			"Coin flip: {Result}".AsLazy(),
+			result
 		);
 	}
 
