@@ -124,6 +124,7 @@ class Help : AbstractCommand {
 			$@"{_s} `/roll <max>`: Generate a number between `1` and `max`.",
 			$@"{_s} `/roll <min> <max>`: Generate a number between `min` and `max`.",
 			$@"{_s} `/8-ball <query> [keep-private]`: Predict the answer to a yes/no question.",
+			$@"{_s} `/coin-flip`: Displays the result of a coin flip.",
 			"",
 			"**Bot Status**",
 			$@"{_p}{_l} `/irene-status random`: Change the status to a randomly selected one.",

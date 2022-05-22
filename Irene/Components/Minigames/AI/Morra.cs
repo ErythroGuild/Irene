@@ -1,6 +1,4 @@
-﻿using static Irene.Components.Minigames.Morra;
-
-namespace Irene.Components.Minigames.AI;
+﻿namespace Irene.Components.Minigames.AI;
 
 static class Morra {
 	public static async Task<(int, int)> NextChoiceGuess(ulong opponent_id) {
