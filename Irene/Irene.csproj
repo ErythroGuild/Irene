@@ -29,7 +29,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01130" />
+    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01135" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="NLua" Version="1.6.0" />
