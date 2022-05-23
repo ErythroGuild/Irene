@@ -148,7 +148,7 @@ class MinigameScore : AbstractCommand {
 			handler.Interaction,
 			new DiscordWebhookBuilder()
 				.WithContent(leaderboard)
-				.AddMentions(new List<IMention>()),
+				.AddMentions(Mentions.None),
 			"Sending leaderboard.",
 			LogLevel.Debug,
 			"{Game} leaderboard: {Count} entries".AsLazy(),
