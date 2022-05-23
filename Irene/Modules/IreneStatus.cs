@@ -23,22 +23,13 @@ class IreneStatus {
 		_timerRotate.Elapsed += async (obj, e) => {
 			_timerRotate.Stop();
 
+			// SetRandom() includes Set(), which restarts the timer.
+			// No need to set it again.
 			bool didSet = await SetRandom();
 			if (didSet)
 				Log.Information("Changed bot status.");
 			else
 				Log.Information("Attempted to change bot status; none available.");
-
-			double duration_msec = GetRandomDurationMsec();
-			TimeSpan duration =
-				TimeSpan.FromMilliseconds(duration_msec);
-			DateTimeOffset time_next =
-				DateTimeOffset.Now + duration;
-
-			_timerRotate.Interval = (decimal)duration_msec;
-			_timerRotate.Start();
-
-			Log.Debug("Next change attempt: {DateNext:u}", time_next);
 		};
 		_timerRotate.Start();
 
@@ -85,8 +76,15 @@ class IreneStatus {
 
 		// Reset interval for random rotation.
 		_timerRotate.Stop();
-		_timerRotate.Interval = (decimal)GetRandomDurationMsec();
+		
+		double interval_msec = GetRandomDurationMsec();
+		DateTime time_next = DateTime.Now +
+			TimeSpan.FromMilliseconds(interval_msec);
+		Log.Debug("Next change attempt: {DateNext:u}", time_next);
+
+		_timerRotate.Interval = (decimal)interval_msec;
 		_timerRotate.Start();
+
 	}
 
 	// Add a status to the saved list (if there's no duplicate).
