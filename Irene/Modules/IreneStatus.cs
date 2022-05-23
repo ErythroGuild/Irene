@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 class IreneStatus {
 	private static readonly LongTimer _timerRotate;
@@ -104,8 +104,11 @@ class IreneStatus {
 
 		lines.Add(status_string);
 
+		List<string> lines_sorted = new (lines);
+		lines_sorted.Sort();
+
 		lock (_lock) {
-			File.WriteAllLines(_pathTemp, lines);
+			File.WriteAllLines(_pathTemp, lines_sorted);
 			File.Delete(_pathStatus);
 			File.Move(_pathTemp, _pathStatus);
 		}
