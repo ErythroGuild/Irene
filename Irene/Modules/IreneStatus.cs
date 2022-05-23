@@ -1,10 +1,10 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 class IreneStatus {
 	private static readonly LongTimer _timerRotate;
 	private const double
-		_timerDaysBase = 4.0,
-		_timerDaysRange = 3.0;
+		_timerDaysBase = 1.0,
+		_timerDaysRange = 0.4;
 
 	private static readonly object _lock = new ();
 	private const string
