@@ -6,6 +6,8 @@ static partial class Util {
 	// Convenience method for fetching the first resolved member of
 	// the specified kind.
 	// Useful for e.g. user/message context menu commands.
+	public static DiscordAttachment GetTargetAttachment(this DiscordInteraction interaction) =>
+		new List<DiscordAttachment>(interaction.Data.Resolved.Attachments.Values)[0];
 	public static DiscordChannel GetTargetChannel(this DiscordInteraction interaction) =>
 		new List<DiscordChannel>(interaction.Data.Resolved.Channels.Values)[0];
 	public static DiscordMember GetTargetMember(this DiscordInteraction interaction) =>
