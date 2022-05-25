@@ -92,10 +92,10 @@ class Help : AbstractCommand {
 			$@"{_s} `/cap <type>`: Display the current cap of the named resource.",
 			//$@"{_s} `/emissaries <type>`:",
 			//$@"{_s} `/assaults <type>`:",
-			//"",
-			//"**Solvers**",
+			"",
+			"**Solvers**",
 			//$@"{_p} `/solve mrrl`:",
-			//$@"{_p} `/solve lights-out`:",
+			$@"{_p} `/solve mezzonic-cache <screenshot>`: Solves a Mezzonic cache puzzle.",
 		}.ToLines() },
 		{ new List<string> {
 			"**Awards**",

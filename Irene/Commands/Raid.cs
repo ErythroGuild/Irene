@@ -319,7 +319,7 @@ class Raid : AbstractCommand {
 
 		// Compose response.
 		List<string> response = new () {
-			$"Raids are on **Friday** + **Saturday**, from {time_start_str}~{time_end_str} server (CT).",
+			$"Raids are on **Friday** + **Saturday**, from {time_start_str}~{time_end_str}.",
 			//"Use `/raid eligibility` to check raid requirements.",
 			"(if you don't meet raid requirements, talk to an officer! we'll figure something out)",
 			"",

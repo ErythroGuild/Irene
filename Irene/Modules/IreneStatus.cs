@@ -3,8 +3,8 @@
 class IreneStatus {
 	private static readonly LongTimer _timerRotate;
 	private const double
-		_timerDaysBase = 4.0,
-		_timerDaysRange = 3.0;
+		_timerDaysBase = 1.0,
+		_timerDaysRange = 0.4;
 
 	private static readonly object _lock = new ();
 	private const string
@@ -23,22 +23,13 @@ class IreneStatus {
 		_timerRotate.Elapsed += async (obj, e) => {
 			_timerRotate.Stop();
 
+			// SetRandom() includes Set(), which restarts the timer.
+			// No need to set it again.
 			bool didSet = await SetRandom();
 			if (didSet)
 				Log.Information("Changed bot status.");
 			else
 				Log.Information("Attempted to change bot status; none available.");
-
-			double duration_msec = GetRandomDurationMsec();
-			TimeSpan duration =
-				TimeSpan.FromMilliseconds(duration_msec);
-			DateTimeOffset time_next =
-				DateTimeOffset.Now + duration;
-
-			_timerRotate.Interval = (decimal)duration_msec;
-			_timerRotate.Start();
-
-			Log.Debug("Next change attempt: {DateNext:u}", time_next);
 		};
 		_timerRotate.Start();
 
@@ -85,8 +76,15 @@ class IreneStatus {
 
 		// Reset interval for random rotation.
 		_timerRotate.Stop();
-		_timerRotate.Interval = (decimal)GetRandomDurationMsec();
+		
+		double interval_msec = GetRandomDurationMsec();
+		DateTime time_next = DateTime.Now +
+			TimeSpan.FromMilliseconds(interval_msec);
+		Log.Debug("Next change attempt: {DateNext:u}", time_next);
+
+		_timerRotate.Interval = (decimal)interval_msec;
 		_timerRotate.Start();
+
 	}
 
 	// Add a status to the saved list (if there's no duplicate).
@@ -104,8 +102,11 @@ class IreneStatus {
 
 		lines.Add(status_string);
 
+		List<string> lines_sorted = new (lines);
+		lines_sorted.Sort();
+
 		lock (_lock) {
-			File.WriteAllLines(_pathTemp, lines);
+			File.WriteAllLines(_pathTemp, lines_sorted);
 			File.Delete(_pathStatus);
 			File.Move(_pathTemp, _pathStatus);
 		}
