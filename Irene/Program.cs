@@ -407,6 +407,16 @@ class Program {
 				if (msg.Author == irene.CurrentUser)
 					return;
 
+				// React to boost messages.
+				if (msg.MessageType == MessageType.UserPremiumGuildSubscription) {
+					DiscordEmoji emoji_gem =
+						DiscordEmoji.FromUnicode("\U0001F48E");
+					DiscordEmoji emoji_party =
+						DiscordEmoji.FromUnicode("\U0001F973");
+					await msg.CreateReactionAsync(emoji_gem);
+					await msg.CreateReactionAsync(emoji_party);
+				}
+
 				// Trim leading whitespace.
 				string msg_text = msg.Content.TrimStart();
 
