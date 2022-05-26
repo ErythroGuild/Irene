@@ -9,7 +9,7 @@ class Solve : AbstractCommand, IInit {
 	// U: Upper-triangular matrix
 	// P: Permutation matrix
 	private readonly record struct LUP
-		(double[][] L, double[][] U, double[][] P);
+		(int[][] L, int[][] U, int[][] P);
 
 	private static readonly HttpClient _http;
 
@@ -56,43 +56,40 @@ class Solve : AbstractCommand, IInit {
 
 		// HttpClient should only be shared.
 		_http = new ();
-
-		// Note: no longer using LU decomposition to solve, due to
-		// apparent numerical instability. Or possibly other errors?
 		
 		// Initialize solver.
-		double[][] solver_base = new double[25][] {
-			new double[25] { 1,1,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 1,1,1,0,0, 0,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,1,1,1,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,0,1,1,1, 0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,0,0,1,1, 0,0,0,0,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
+		int[][] solver_base = new int[25][] {
+			new int[25] { 1,1,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 1,1,1,0,0, 0,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,1,1,1,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,0,1,1,1, 0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,0,0,1,1, 0,0,0,0,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
 
-			new double[25] { 1,0,0,0,0, 1,1,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,1,0,0,0, 1,1,1,0,0, 0,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,0,1,0,0, 0,1,1,1,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,0,0,1,0, 0,0,1,1,1, 0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,0,0,0,1, 0,0,0,1,1, 0,0,0,0,1, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 1,0,0,0,0, 1,1,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,1,0,0,0, 1,1,1,0,0, 0,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,0,1,0,0, 0,1,1,1,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,0,0,1,0, 0,0,1,1,1, 0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,0,0,0,1, 0,0,0,1,1, 0,0,0,0,1, 0,0,0,0,0, 0,0,0,0,0 },
 
-			new double[25] { 0,0,0,0,0, 1,0,0,0,0, 1,1,0,0,0, 1,0,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0, 0,1,0,0,0, 0,0,0,0,0 },
-			new double[25] { 0,0,0,0,0, 0,0,1,0,0, 0,1,1,1,0, 0,0,1,0,0, 0,0,0,0,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,1,0, 0,0,1,1,1, 0,0,0,1,0, 0,0,0,0,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,1, 0,0,0,1,1, 0,0,0,0,1, 0,0,0,0,0 },
+			new int[25] { 0,0,0,0,0, 1,0,0,0,0, 1,1,0,0,0, 1,0,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0, 0,1,0,0,0, 0,0,0,0,0 },
+			new int[25] { 0,0,0,0,0, 0,0,1,0,0, 0,1,1,1,0, 0,0,1,0,0, 0,0,0,0,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,1,0, 0,0,1,1,1, 0,0,0,1,0, 0,0,0,0,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,1, 0,0,0,1,1, 0,0,0,0,1, 0,0,0,0,0 },
 
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0, 1,1,0,0,0, 1,0,0,0,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0, 0,1,0,0,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,1,0,0, 0,1,1,1,0, 0,0,1,0,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,0, 0,0,1,1,1, 0,0,0,1,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 0,0,0,1,1, 0,0,0,0,1 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0, 1,1,0,0,0, 1,0,0,0,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0, 0,1,0,0,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,1,0,0, 0,1,1,1,0, 0,0,1,0,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,0, 0,0,1,1,1, 0,0,0,1,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 0,0,0,1,1, 0,0,0,0,1 },
 
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0, 1,1,0,0,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,0,0, 0,1,1,1,0 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,0, 0,0,1,1,1 },
-			new double[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 0,0,0,1,1 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0, 1,1,0,0,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,0,0, 0,1,1,1,0 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,0, 0,0,1,1,1 },
+			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 0,0,0,1,1 },
 		};
-		_lupSolver = DecomposeLUP(solver_base);
+		_lupSolver = DecomposeToLUP(solver_base);
 
 		Log.Information("  Initialized command: /solve");
 		Log.Debug("    Downloader & file store initialized.");
@@ -161,7 +158,10 @@ class Solve : AbstractCommand, IInit {
 		if (grid is null) {
 			await Command.SubmitResponseAsync(
 				interaction,
-				"Could not extract grid :(\nHide your UI (default: `Alt`+`Z`) for best results?",
+				"""
+				Could not extract grid. :fearful:
+				If you haven't, try hiding your UI? (default: `Alt`+`Z`)
+				""",
 				"Failed to extract grid.",
 				LogLevel.Debug,
 				"Grid extraction failed.".AsLazy()
@@ -181,7 +181,7 @@ class Solve : AbstractCommand, IInit {
 		}
 
 		int[][] solution = SolveGrid(grid);
-		response += "\n\n**Solution:**\n";
+		response += "\n\n**Minimal solution:**\n";
 		for (int row = 0; row<5; row++) {
 			for (int col = 0; col<5; col++) {
 				response += (solution[row][col] == 1)
@@ -194,8 +194,8 @@ class Solve : AbstractCommand, IInit {
 
 		response += "\n\n" +
 			"""
-			*If detected image was incorrect, try hiding UI for best results.* (default keybind: `Alt`+`Z`)
-			*If solution was incorrect, try exiting and getting a new puzzle (no energy is spent until solved).*
+			*If the grid detected is wrong and your UI is visible, try hiding your UI.* (default: `Alt`+`Z`)
+			*If the solution didn't work, try exiting and getting a new puzzle (this doesn't cost energy).*
 			""";
 
 		await Command.SubmitResponseAsync(
@@ -211,7 +211,6 @@ class Solve : AbstractCommand, IInit {
 
 	private static int[][] ExtractGrid(string filename) {
 		using ResourcesTracker t = new ();
-		//Vec3b hsv = image.Get<Vec3b>(85, 385);
 
 		// Convert into HSV and split to separate channels.
 		Mat image = t.T(new Mat(filename));
@@ -409,49 +408,8 @@ class Solve : AbstractCommand, IInit {
 				augment[row*cols + col] = grid[row][col];
 		}
 
-		// Pseudo-inverse of base state matrix.
-		// See: https://srabbani.com/lights_out.pdf
-		int[][] inverse = new int[25][] {
-			new int[25] { 0,0,0,0,0, 1,0,0,0,0, 1,1,0,0,0, 1,0,1,0,0, 0,1,1,1,0 },
-			new int[25] { 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0, 0,0,0,1,0, 1,1,0,1,1 },
-			new int[25] { 0,0,0,1,0, 0,0,0,1,1, 0,0,1,1,0, 0,1,0,1,0, 1,1,1,0,1 },
-			new int[25] { 0,0,1,1,1, 0,1,0,0,0, 1,1,0,1,1, 0,1,0,0,0, 0,0,1,1,1 },
-			new int[25] { 0,0,0,1,1, 0,0,1,0,1, 0,1,1,1,0, 1,0,0,0,0, 1,0,1,1,0 },
-
-			new int[25] { 0,0,1,0,1, 0,1,1,0,1, 0,0,1,0,0, 0,0,0,1,1, 0,0,0,0,0 },
-			new int[25] { 0,0,1,0,0, 0,1,1,1,0, 1,1,0,0,1, 0,1,0,0,1, 0,0,1,1,0 },
-			new int[25] { 0,0,0,0,1, 0,0,0,1,1, 0,0,0,0,1, 0,0,0,0,0, 0,0,0,0,1 },
-			new int[25] { 0,0,1,0,0, 0,1,1,1,0, 1,0,0,1,1, 1,0,0,1,0, 0,1,1,0,0 },
-			new int[25] { 0,0,1,0,1, 0,1,1,0,1, 1,0,1,0,1, 1,1,0,0,0, 1,0,0,0,1 },
-
-			new int[25] { 0,0,0,0,1, 0,0,0,1,1, 0,0,1,0,1, 1,1,1,1,0, 0,1,0,0,0 },
-			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0 },
-			new int[25] { 0,0,0,1,1, 0,0,1,0,0, 0,1,1,0,1, 1,0,0,0,1, 1,0,1,1,0 },
-			new int[25] { 0,0,1,1,1, 0,1,0,1,0, 1,1,1,0,0, 0,0,0,1,0, 1,1,0,1,1 },
-			new int[25] { 0,0,0,1,0, 0,0,1,1,1, 0,1,0,0,0, 1,1,0,1,0, 0,1,0,1,1 },
-
-			new int[25] { 0,0,1,0,0, 0,1,1,1,0, 1,0,0,0,1, 1,0,1,0,1, 1,0,1,0,0 },
-			new int[25] { 0,0,1,1,0, 0,1,0,0,1, 1,1,0,0,1, 0,1,1,1,0, 0,0,1,0,0 },
-			new int[25] { 0,0,1,0,1, 0,1,1,0,1, 1,0,1,0,0, 1,1,0,1,1, 1,0,0,0,0 },
-			new int[25] { 0,0,0,1,0, 0,0,1,1,1, 0,1,0,0,0, 1,1,0,1,1, 0,1,0,1,0 },
-			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1 },
-
-			new int[25] { 0,0,0,1,1, 0,0,1,0,0, 0,1,1,0,1, 1,0,1,0,1, 1,1,0,0,0 },
-			new int[25] { 0,0,1,1,1, 0,1,0,1,0, 1,1,1,0,0, 0,0,0,0,0, 1,1,1,0,0 },
-			new int[25] { 0,0,0,1,0, 0,0,1,1,1, 0,1,0,0,0, 1,1,0,1,1, 0,1,0,0,0 },
-			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-			new int[25] { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 },
-		};
-
-		// Calculate reference solution.
-		int[] solution_raw = new int[rows * cols];
-		for (int i=0; i<25; i++) {
-			solution_raw[i] = 0;
-			for (int j=0; j<25; j++) {
-				solution_raw[i] += inverse[i][j] * augment[j];
-			}
-			solution_raw[i] %= 2;
-		}
+		// Solve.
+		int[] solution_raw = SolveByLUP(augment);
 
 		// Format solution as grid.
 		int[][] solution0 = new int[rows][];
@@ -514,7 +472,38 @@ class Solve : AbstractCommand, IInit {
 		return solutions[0];
 	}
 
-	private static double[] SolveLUP(double[] augment) {
+	// Another way to solve this would be with the pseudoinverse.
+	// See: https://srabbani.com/lights_out.pdf
+	//   0,0,0,0,0, 1,0,0,0,0, 1,1,0,0,0, 1,0,1,0,0, 0,1,1,1,0
+	//   0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0, 0,0,0,1,0, 1,1,0,1,1
+	//   0,0,0,1,0, 0,0,0,1,1, 0,0,1,1,0, 0,1,0,1,0, 1,1,1,0,1
+	//   0,0,1,1,1, 0,1,0,0,0, 1,1,0,1,1, 0,1,0,0,0, 0,0,1,1,1
+	//   0,0,0,1,1, 0,0,1,0,1, 0,1,1,1,0, 1,0,0,0,0, 1,0,1,1,0
+	//
+	//   0,0,1,0,1, 0,1,1,0,1, 0,0,1,0,0, 0,0,0,1,1, 0,0,0,0,0
+	//   0,0,1,0,0, 0,1,1,1,0, 1,1,0,0,1, 0,1,0,0,1, 0,0,1,1,0
+	//   0,0,0,0,1, 0,0,0,1,1, 0,0,0,0,1, 0,0,0,0,0, 0,0,0,0,1
+	//   0,0,1,0,0, 0,1,1,1,0, 1,0,0,1,1, 1,0,0,1,0, 0,1,1,0,0
+	//   0,0,1,0,1, 0,1,1,0,1, 1,0,1,0,1, 1,1,0,0,0, 1,0,0,0,1
+	//
+	//   0,0,0,0,1, 0,0,0,1,1, 0,0,1,0,1, 1,1,1,1,0, 0,1,0,0,0
+	//   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,1,0,0,0, 1,1,1,0,0
+	//   0,0,0,1,1, 0,0,1,0,0, 0,1,1,0,1, 1,0,0,0,1, 1,0,1,1,0
+	//   0,0,1,1,1, 0,1,0,1,0, 1,1,1,0,0, 0,0,0,1,0, 1,1,0,1,1
+	//   0,0,0,1,0, 0,0,1,1,1, 0,1,0,0,0, 1,1,0,1,0, 0,1,0,1,1
+	//
+	//   0,0,1,0,0, 0,1,1,1,0, 1,0,0,0,1, 1,0,1,0,1, 1,0,1,0,0
+	//   0,0,1,1,0, 0,1,0,0,1, 1,1,0,0,1, 0,1,1,1,0, 0,0,1,0,0
+	//   0,0,1,0,1, 0,1,1,0,1, 1,0,1,0,0, 1,1,0,1,1, 1,0,0,0,0
+	//   0,0,0,1,0, 0,0,1,1,1, 0,1,0,0,0, 1,1,0,1,1, 0,1,0,1,0
+	//   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1
+	//
+	//   0,0,0,1,1, 0,0,1,0,0, 0,1,1,0,1, 1,0,1,0,1, 1,1,0,0,0
+	//   0,0,1,1,1, 0,1,0,1,0, 1,1,1,0,0, 0,0,0,0,0, 1,1,1,0,0
+	//   0,0,0,1,0, 0,0,1,1,1, 0,1,0,0,0, 1,1,0,1,1, 0,1,0,0,0
+	//   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0
+	//   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0
+	private static int[] SolveByLUP(int[] augment) {
 		int size = _lupSolver.P.Length;
 
 		// Ax = b, where:
@@ -529,32 +518,34 @@ class Solve : AbstractCommand, IInit {
 		//   Ux = y
 
 		// Calculate Pb (and just write it as b).
-		double[] b = new double[size];
+		int[] b = new int[size];
 		for (int i=0; i<size; i++) {
 			b[i] = 0;
 			for (int j=0; j<size; j++)
 				b[i] += _lupSolver.P[i][j] * augment[j];
+			b[i] %= 2;
 		}
 
 		// First we solve for intermediate y (Ly=b).
-		double[] y = new double[size];
+		int[] y = new int[size];
 		for (int i=0; i<size; i++) {
-			double b_i = b[i];
+			int b_i = b[i];
 			for (int j=0; j<i; j++)
 				b_i -= _lupSolver.L[i][j] * y[j];
 			// Main diagonal of L is always 1.
 			//y[i] = b_i / _lupSolver.L[i][i];
-			y[i] = b_i;
+			y[i] = ((b_i % 2) + 2) % 2;
 			if (Math.Abs(y[i]) < _roundoff)
 				y[i] = 0;
 		}
 
 		// Next solve for x (Ux=y).
-		double[] x = new double[size];
+		int[] x = new int[size];
 		for (int i=size-1; i>=0; i--) {
-			double y_i = y[i];
+			int y_i = y[i];
 			for (int j=i+1; j<size; j++)
 				y_i -= _lupSolver.U[i][j] * x[j];
+			y_i = ((y_i % 2) + 2) % 2;
 			// If main diagonal of U is 0, use simplest solution (0).
 			if (Math.Abs(_lupSolver.U[i][i]) < _roundoff)
 				x[i] = 0;
@@ -567,50 +558,26 @@ class Solve : AbstractCommand, IInit {
 		return x;
 	}
 
-	private static LUP DecomposeLUP(double[][] matrix) {
+	private static LUP DecomposeToLUP(int[][] matrix) {
 		int size = matrix.Length;
-		double[][] L = Identity(size);
-		double[][] U = Copy(matrix);
-		double[][] P = Identity(size);
+		int[][] L = Identity(size);
+		int[][] U = Copy(matrix);
+		int[][] P = Identity(size);
 
 		for (int i=0; i<size; i++) {
-			//// Find pivot row (partial pivot).
-			//// Finds max first element relative to rest of row.
-			//double max = 0;
-			//int i_pivot = i;
-			//for (int j=i; j<size; j++) {
-			//	double max_i = Math.Abs(U[j][i]);
-			//	if (max_i > max) {
-			//		max = max_i;
-			//		i_pivot = j;
-			//	}
-			//}
-
-			// Calculate the maximum element to check if we need to
-			// exit early.
-			double max = 0;
-			for (int j=i; j<size; j++) {
-				double max_i = Math.Abs(U[j][i]);
-				if (max_i > max)
+			// Find pivot row (partial pivot).
+			// Finds max first element relative to rest of row.
+			int max = 0;
+			int i_pivot = i;
+			for (int j = i; j<size; j++) {
+				int max_i = Math.Abs(U[j][i]);
+				if (max_i > max) {
 					max = max_i;
+					i_pivot = j;
+				}
 			}
 			if (max < _roundoff)
 				continue;
-
-			// If leading element is 0, search for a pivot in the
-			// first row without a leading 0.
-			// This is an alternate method from partial pivot, used
-			// to try to troubleshoot roundoff errors.
-			// (Both implementations give the same exact solutions.)
-			int i_pivot = i;
-			if (Math.Abs(U[i][i]) < _roundoff) {
-				for (int j=i+1; j<size; j++) {
-					if (Math.Abs(U[j][i]) >= _roundoff) {
-						i_pivot = j;
-						break;
-					}
-				}
-			}
 
 			// Pivot.
 			if (i_pivot != i) {
@@ -629,64 +596,68 @@ class Solve : AbstractCommand, IInit {
 			for (int j=i+1; j<size; j++) {
 				// Calculate the outermost column of L by scaling,
 				// starting on the row below the pivot.
+				// U[i][i] cannot be 0 (or we would have skipped
+				// this iteration).
 				L[j][i] = U[j][i] / U[i][i];
 
 				// Update U with subtracted values.
 				// Everything below the main diagonal should be 0.
-				double[] row_subtract = ScaleRow(U, -L[j][i], i);
+				int[] row_subtract = ScaleRow(U, -L[j][i], i);
 				U = AddRow(U, row_subtract, j);
 			}
 		}
 
-		// Sanitize all values below float threshold.
-		// Only U needs to be sanitized; all other matrices are
-		// constructed and are as accurate as possible.
-		for (int i=0; i<size; i++) {
-			for (int j=0; j<size; j++) {
-				if (Math.Abs(U[i][j]) < _roundoff)
-					U[i][j] = 0;
-			}
-		}
+		// Sanitization is only needed for non-integer matrices.
+		//// Sanitize all values below float threshold.
+		//// Only U needs to be sanitized; all other matrices are
+		//// constructed and are as accurate as possible.
+		//for (int i=0; i<size; i++) {
+		//	for (int j=0; j<size; j++) {
+		//		if (Math.Abs(U[i][j]) < _roundoff)
+		//			U[i][j] = 0;
+		//	}
+		//}
 
 		return new LUP(L, U, P);
 	}
 
 	// Matrix manipulation helper functions.
 	// `row` arguments are a 0-based indices to `matrix` rows.
-	private static double[][] Identity(int size) {
-		double[][] identity = new double[size][];
+	private static int[][] Identity(int size) {
+		int[][] identity = new int[size][];
 		for (int i=0; i<size; i++) {
-			identity[i] = new double[size];
+			identity[i] = new int[size];
 			for (int j=0; j<size; j++)
 				identity[i][j] = (i == j) ? 1 : 0;
 		}
 		return identity;
 	}
-	private static double[][] Copy(double[][] matrix) {
+	private static int[][] Copy(int[][] matrix) {
 		int size = matrix.Length;
-		double[][] copy = new double[size][];
+		int[][] copy = new int[size][];
 		for (int row=0; row<size; row++) {
-			copy[row] = new double[size];
+			copy[row] = new int[size];
 			for (int col=0; col<size; col++)
 				copy[row][col] = matrix[row][col];
 		}
 		return copy;
 	}
-	private static double[] ScaleRow(double[][] matrix, double scale, int row) {
-		double[] row_scaled = new double[matrix[row].Length];
+	private static int[] ScaleRow(int[][] matrix, int scale, int row) {
+		int[] row_scaled = new int[matrix[row].Length];
 		for (int i=0; i<row_scaled.Length; i++)
 			row_scaled[i] = scale * matrix[row][i];
 		return row_scaled;
 	}
-	private static double[][] AddRow(double[][] matrix, double[] add, int row) {
+	private static int[][] AddRow(int[][] matrix, int[] add, int row) {
 		for (int i=0; i<add.Length; i++) {
-			matrix[row][i] += add[i];
-			if (Math.Abs(matrix[row][i]) < _roundoff)
-				matrix[row][i] = 0;
+			int x = (((matrix[row][i] + add[i]) % 2) + 2) % 2;
+			matrix[row][i] = x;
+			//if (Math.Abs(matrix[row][i]) < _roundoff)
+			//	matrix[row][i] = 0;
 		}
 		return matrix;
 	}
-	private static double[][] SwapRows(double[][] matrix, int row_a, int row_b) {
+	private static int[][] SwapRows(int[][] matrix, int row_a, int row_b) {
 		for (int i=0; i<matrix[row_a].Length; i++) {
 			(matrix[row_a][i], matrix[row_b][i]) =
 				(matrix[row_b][i], matrix[row_a][i]);
