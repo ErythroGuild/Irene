@@ -109,8 +109,8 @@ class Solve : AbstractCommand, IInit {
 				"Solve an in-game puzzle.",
 				new List<CommandOption> {
 					new (
-						"mezzonic-cache",
-						"Solve a Mezzonic Cache (a.k.a. lights out).",
+						"mezzonic-lock",
+						"Solve a Mezzonic puzzle (a.k.a. lights out).",
 						ApplicationCommandOptionType.SubCommand,
 						options: new List<CommandOption> {
 							new (
