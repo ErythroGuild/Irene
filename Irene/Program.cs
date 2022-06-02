@@ -80,15 +80,16 @@ class Program {
 	// Construct all static members.
 	static Program() {
 		// Display logo (in TrueColor™).
-		List<string> logo_ascii = new () {
-			@"   [#da4331 on black]__ [/][#ffcec9 on black]____  [/][#da4331 on black] ____ [/][#ffcec9 on black]__  __ [/][#da4331 on black] ____[/]",
-			@"   [#da4331 on black]|| [/][#ffcec9 on black]|| \\ [/][#da4331 on black]||    [/][#ffcec9 on black]||\ || [/][#da4331 on black]||   [/]",
-			@"   [#da4331 on black]|| [/][#ffcec9 on black]||_// [/][#da4331 on black]||==  [/][#ffcec9 on black]||\\|| [/][#da4331 on black]||== [/]",
-			@"   [#da4331 on black]|| [/][#ffcec9 on black]|| \\ [/][#da4331 on black]||___ [/][#ffcec9 on black]|| \|| [/][#da4331 on black]||___[/]",
-			@"   [#da4331 on black]   [/][#ffcec9 on black]      [/][#da4331 on black]      [/][#ffcec9 on black]       [/][#da4331 on black]     [/]",
-		};
-		foreach (string line in logo_ascii)
-			AnsiConsole.MarkupLine(line);
+		const string logo_ascii =
+			"""
+			   [#da4331 on black]__ [/][#ffcec9 on black]____  [/][#da4331 on black] ____ [/][#ffcec9 on black]__  __ [/][#da4331 on black] ____[/]
+			   [#da4331 on black]|| [/][#ffcec9 on black]|| \\ [/][#da4331 on black]||    [/][#ffcec9 on black]||\ || [/][#da4331 on black]||   [/]
+			   [#da4331 on black]|| [/][#ffcec9 on black]||_// [/][#da4331 on black]||==  [/][#ffcec9 on black]||\\|| [/][#da4331 on black]||== [/]
+			   [#da4331 on black]|| [/][#ffcec9 on black]|| \\ [/][#da4331 on black]||___ [/][#ffcec9 on black]|| \|| [/][#da4331 on black]||___[/]
+			   [#da4331 on black]   [/][#ffcec9 on black]      [/][#da4331 on black]      [/][#ffcec9 on black]       [/][#da4331 on black]     [/]
+			""";
+		AnsiConsole.Markup(logo_ascii);
+		AnsiConsole.WriteLine();
 
 		// Set up Serilog.
 		InitSerilog();
