@@ -59,6 +59,7 @@ jobs:
         password: ${{ secrets.DEV_PASSWORD }}
         source: "Irene/bin/Publish-Linux/"
         target: "${{ secrets.DEV_DIR_BOTS }}irene/"
+        strip_components: 3
 
     # Restart service on server.
     - name: Start server service
