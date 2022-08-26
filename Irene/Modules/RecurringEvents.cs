@@ -148,7 +148,7 @@ static partial class RecurringEvents {
 		Util.CreateIfMissing(_pathDirLogs, _lockDirLogs);
 
 		List<Task<List<Event>>> tasks = new () {
-			GetEvents_Raid(),
+			//GetEvents_Raid(),
 			GetEvents_Server(),
 			GetEvents_Maintenance(),
 		};

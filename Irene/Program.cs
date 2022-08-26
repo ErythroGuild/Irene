@@ -79,7 +79,7 @@ class Program {
 
 	// Construct all static members.
 	static Program() {
-		// Display logo (in TrueColor™).
+		Console.OutputEncoding = System.Text.Encoding.UTF8;
 		const string logo_ascii =
 			"""
 			   [#da4331 on black]__ [/][#ffcec9 on black]____  [/][#da4331 on black] ____ [/][#ffcec9 on black]__  __ [/][#da4331 on black] ____[/]

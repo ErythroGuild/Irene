@@ -1,13 +1,99 @@
+SFO,14,Saturday
+	raid-date=SFO,14,Saturday
+	canceled=False
+	summary=(H) Rygelon! -> (H) Lords of Dread
+	message-id=982821070467891202
+	group=Salad
+		log-id=QB3yzmWgP42trNTL
+SFO,14,Friday
+	raid-date=SFO,14,Friday
+	canceled=False
+	summary=
+	message-id=982458669914546206
+	group=Spaghetti
+		log-id=ypYNBwAk2TmaGjQq
+SFO,13,Saturday
+	raid-date=SFO,13,Saturday
+	canceled=False
+	summary=
+	message-id=980284342658007070
+	group=Salad
+		log-id=Tdphbqfcvg8rWHm2
+SFO,13,Friday
+	raid-date=SFO,13,Friday
+	canceled=False
+	summary=
+	message-id=979921956549832804
+	group=Salad
+		log-id=MmqZjhKr9GgbQknA
+SFO,12,Saturday
+	raid-date=SFO,12,Saturday
+	canceled=False
+	summary=More heroic Anduin prog :+1:
+	message-id=977747629444329513
+	group=Salad
+		log-id=K7awcqRXfkWphCB6
+SFO,12,Friday
+	raid-date=SFO,12,Friday
+	canceled=False
+	summary=Heroic Anduin prog (yes, today too!) :slight_smile:
+	message-id=977385241197023283
+	group=Salad
+		log-id=vmGDkcY92WpHnzPd
+SFO,11,Saturday
+	raid-date=SFO,11,Saturday
+	canceled=False
+	summary=(H) Anduin Wrynn -> (H) Rygelon maybe
+	message-id=975210912569000027
+	group=Salad
+		log-id=JVbdkKH8xWjaDzLg
+SFO,11,Friday
+	raid-date=SFO,11,Friday
+	canceled=False
+	summary=(N) Jailer :fingers_crossed: -> Heroic Reclear (officer save a lockout)
+	message-id=974848525919748116
+	group=Salad
+		log-id=2Cw1r9JzjDHgYT3x
+SFO,10,Saturday
+	raid-date=SFO,10,Saturday
+	canceled=False
+	summary=(H) Halondrus -> (H) Lihivum  🐐
+	message-id=972674198793228308
+	group=Salad
+		log-id=H6P3MFhmW8vDYp7j
+SFO,10,Friday
+	raid-date=SFO,10,Friday
+	canceled=False
+	summary=The Jailer! then Heroic reclear (Muri, don't forget to save the lockout)
+	message-id=972311811137368154
+	group=Spaghetti
+		log-id=yKkFL6a7f1XxNgmZ
+SFO,9,Saturday
+	raid-date=SFO,9,Saturday
+	canceled=False
+	summary=(H) Xymox -> (H) Halondrus -> (H) Lihuvim
+	message-id=
+	group=Spaghetti
+		log-id=nyRd3h1LPvVNYqwK
+SFO,9,Friday
+	raid-date=SFO,9,Friday
+	canceled=False
+	summary=(N) Rygelon -> (N) Lords of Dread -> (N) Jailer -> Heroic if time
+	message-id=
 SFO,8,Saturday
 	raid-date=SFO,8,Saturday
 	canceled=False
 	summary=H Pantheon, then Xy'mox!
-	message-id=
+	message-id=967600770084143125
+	group=Spaghetti
+		log-id=wAMPrBFKvmWa4zV9
 SFO,8,Friday
 	raid-date=SFO,8,Friday
 	canceled=False
 	summary=N Lords of Dread > (Jailer?) + H Guardian > Dausegne > Skolex
-	message-id=
+	message-id=967238380763095121
+	group=Spaghetti
+		log-id=w6JRPp9jvCzFQbMW
 SFO,7,Saturday
 	raid-date=SFO,7,Saturday
 	canceled=False
