@@ -305,6 +305,24 @@ static class ClassSpec {
 	public static string FullName(this Spec spec) =>
 		$"{spec.Name()} {_classNames[spec.GetClass()]}";
 
+	// Class colors.
+	public static DiscordColor Color(this Class @class) => @class switch {
+		Class.DH => new ("#A330C9"),
+		Class.DK => new ("#C41F3B"),
+		Class.Druid   => new ("#FF7D0A"),
+		Class.Evoker  => new ("#33937F"),
+		Class.Hunter  => new ("#ABD473"),
+		Class.Mage    => new ("#3FC7EB"),
+		Class.Monk    => new ("#00FF96"),
+		Class.Paladin => new ("#F58CBA"),
+		Class.Priest  => new ("#FFFFFF"),
+		Class.Rogue   => new ("#FFF569"),
+		Class.Shaman  => new ("#0070DE"),
+		Class.Warlock => new ("#8788EE"),
+		Class.Warrior => new ("#C79C6E"),
+		_ => throw new ArgumentOutOfRangeException(nameof(@class), "Unrecognized class name."),
+	};
+
 	// Emojis associated with roles/classes.
 	public static DiscordEmoji Emoji(this Role role) =>
 		Emojis![_tableRoleEmoji[role]];
