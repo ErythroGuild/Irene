@@ -5,7 +5,7 @@ static class ClassSpec {
 		Tank, Heal, DPS,
 	}
 	public enum Class {
-		DK, DH, Druid, Hunter,
+		DK, DH, Druid, Evoker, Hunter,
 		Mage, Monk, Paladin, Priest,
 		Rogue, Shaman, Warlock, Warrior,
 	}
@@ -13,6 +13,7 @@ static class ClassSpec {
 		DK_Blood, DK_Frost, DK_Unholy,
 		DH_Vengeance, DH_Havoc,
 		Druid_Bear, Druid_Resto, Druid_Feral, Druid_Balance,
+		Evoker_Dev, Evoker_Pres,
 		Hunter_BM, Hunter_MM, Hunter_SV,
 		Mage_Arcane, Mage_Fire, Mage_Frost,
 		Monk_BRM, Monk_MW, Monk_WW,
@@ -36,6 +37,7 @@ static class ClassSpec {
 			[Class.DK     ] = id_e.dk     ,
 			[Class.DH     ] = id_e.dh     ,
 			[Class.Druid  ] = id_e.druid  ,
+			//[Class.Evoker ] = id_e.evoker ,
 			[Class.Hunter ] = id_e.hunter ,
 			[Class.Mage   ] = id_e.mage   ,
 			[Class.Monk   ] = id_e.monk   ,
@@ -60,6 +62,9 @@ static class ClassSpec {
 			[Spec.Druid_Resto  ] = Role.Heal,
 			[Spec.Druid_Balance] = Role.DPS ,
 			[Spec.Druid_Feral  ] = Role.DPS ,
+
+			[Spec.Evoker_Pres] = Role.Heal,
+			[Spec.Evoker_Dev ] = Role.DPS ,
 
 			[Spec.Hunter_BM] = Role.DPS,
 			[Spec.Hunter_MM] = Role.DPS,
@@ -102,6 +107,7 @@ static class ClassSpec {
 			[Class.DK     ] = new (new List<Spec>() { Spec.DK_Blood    , Spec.DK_Frost    , Spec.DK_Unholy      }),
 			[Class.DH     ] = new (new List<Spec>() { Spec.DH_Vengeance, Spec.DH_Havoc    }),
 			[Class.Druid  ] = new (new List<Spec>() { Spec.Druid_Bear  , Spec.Druid_Resto , Spec.Druid_Feral    , Spec.Druid_Balance }),
+			[Class.Evoker ] = new (new List<Spec>() { Spec.Evoker_Pres , Spec.Evoker_Dev  }),
 			[Class.Hunter ] = new (new List<Spec>() { Spec.Hunter_BM   , Spec.Hunter_MM   , Spec.Hunter_SV      }),
 			[Class.Mage   ] = new (new List<Spec>() { Spec.Mage_Arcane , Spec.Mage_Fire   , Spec.Mage_Frost     }),
 			[Class.Monk   ] = new (new List<Spec>() { Spec.Monk_BRM    , Spec.Monk_MW     , Spec.Monk_WW        }),
@@ -171,6 +177,7 @@ static class ClassSpec {
 			[Class.DK] = "Death Knight",
 			[Class.DH] = "Demon Hunter",
 			[Class.Druid  ] = "Druid"  ,
+			[Class.Evoker ] = "Evoker" ,
 			[Class.Hunter ] = "Hunter" ,
 			[Class.Mage   ] = "Mage"   ,
 			[Class.Monk   ] = "Monk"   ,
@@ -194,6 +201,9 @@ static class ClassSpec {
 			[Spec.Druid_Resto  ] = "Restoration",
 			[Spec.Druid_Feral  ] = "Feral"      ,
 			[Spec.Druid_Balance] = "Balance"    ,
+
+			[Spec.Evoker_Pres] = "Preservation",
+			[Spec.Evoker_Dev ] = "Devastation" ,
 
 			[Spec.Hunter_BM] = "Beast Mastery",
 			[Spec.Hunter_MM] = "Marksmanship" ,
