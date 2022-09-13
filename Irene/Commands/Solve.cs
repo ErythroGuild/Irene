@@ -46,6 +46,21 @@ class Solve : AbstractCommand, IInit {
 	private const string _dirFiles = @"temp/";
 	private const string _prefixFiles = "solve";
 	private const string _separatorFiles = "-";
+	private const string
+		_commandMrrl     = "mrrl",
+		_commandMezzonic = "mezzonic",
+		_commandFugueal  = "fugueal";
+	private const string
+		_optionGhostFood    = "ghost-food",
+		_optionDenseRock    = "particularly-dense-rock",
+		_optionGloop        = "smelly-pile-of-gloop",
+		_optionMurlocLunch  = "healthy-murloc-lunch",
+		_optionSlimySnail   = "extra-slimy-snail",
+		_optionFootDust     = "sea-giant-foot-dust",
+		_optionRosettaStone = "beckoners-rosetta-stone",
+		_optionBloodStone   = "pulsating-blood-stone",
+		_optionPinkyFinger  = "cultist-pinky-finger",
+		_optionAlluringIdol = "overwhelmingly-alluring-idol";
 
 	public static void Init() { }
 	static Solve() {
@@ -109,18 +124,104 @@ class Solve : AbstractCommand, IInit {
 				"Solve an in-game puzzle.",
 				new List<CommandOption> {
 					new (
-						"mezzonic-lock",
-						"Solve a Mezzonic puzzle (a.k.a. lights out).",
+						_commandMrrl,
+						"Get a shopping list of items to trade for.",
 						ApplicationCommandOptionType.SubCommand,
 						options: new List<CommandOption> {
 							new (
-								"screenshot",
-								"A screenshot of your game window.",
-								ApplicationCommandOptionType.Attachment,
-								required: true
+								_optionGhostFood,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionDenseRock,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionGloop,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionMurlocLunch,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionSlimySnail,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionFootDust,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionRosettaStone,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionBloodStone,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionPinkyFinger,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
+							),
+							new (
+								_optionAlluringIdol,
+								"The number required.",
+								ApplicationCommandOptionType.Integer,
+								required: false,
+								minValue: 0
 							),
 						}
 					),
+					new (
+						_commandMezzonic,
+						"Solve a Mezzonic puzzle (a.k.a. lights out).",
+						ApplicationCommandOptionType.SubCommand,
+						options: new List<CommandOption> { new (
+							"screenshot",
+							"A screenshot of your game window.",
+							ApplicationCommandOptionType.Attachment,
+							required: true
+						), }
+					),
+					//new (
+					//	_commandFugueal,
+					//	"Solve a Fugueal puzzle.",
+					//	ApplicationCommandOptionType.SubCommand,
+					//	options: new List<CommandOption> { new (
+					//		"screenshot",
+					//		"A screenshot of your game window.",
+					//		ApplicationCommandOptionType.Attachment,
+					//		required: true
+					//	), }
+					//),
 				},
 				defaultPermission: true,
 				ApplicationCommandType.SlashCommand
