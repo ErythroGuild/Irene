@@ -5,7 +5,7 @@ using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
 using Component = DSharpPlus.Entities.DiscordComponent;
 using SelectOption = DSharpPlus.Entities.DiscordSelectComponentOption;
 
-namespace Irene.Components;
+namespace Irene.Interactables;
 
 class Selection {
 	public readonly record struct Option (

@@ -1,4 +1,4 @@
-﻿using Irene.Components;
+﻿using Irene.Interactables;
 
 using StatusModule = Irene.Modules.IreneStatus;
 

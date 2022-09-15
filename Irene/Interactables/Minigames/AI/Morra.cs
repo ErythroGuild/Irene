@@ -1,4 +1,4 @@
-﻿namespace Irene.Components.Minigames.AI;
+﻿namespace Irene.Interactables.Minigames.AI;
 
 static class Morra {
 	public static async Task<(int, int)> NextChoiceGuess(ulong opponent_id) {

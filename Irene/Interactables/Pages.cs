@@ -3,7 +3,7 @@ using System.Timers;
 using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
 using Component = DSharpPlus.Entities.DiscordComponent;
 
-namespace Irene.Components;
+namespace Irene.Interactables;
 
 class Pages {
 	public const int DefaultPageSize = 8;

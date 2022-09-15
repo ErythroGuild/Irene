@@ -1,11 +1,11 @@
 ﻿using System.Timers;
 
 using Component = DSharpPlus.Entities.DiscordComponent;
-using MorraAi = Irene.Components.Minigames.AI.Morra;
+using MorraAi = Irene.Interactables.Minigames.AI.Morra;
 
 using static Irene.Modules.Minigame;
 
-namespace Irene.Components.Minigames;
+namespace Irene.Interactables.Minigames;
 
 class Morra {
 	private enum State { Request, Selection, Tie, Result };

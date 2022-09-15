@@ -1,6 +1,6 @@
-using Irene.Components;
+using Irene.Interactables;
 
-using Entry = Irene.Components.Selection.Option;
+using Entry = Irene.Interactables.Selection.Option;
 
 namespace Irene.Commands;
 

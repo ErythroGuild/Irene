@@ -4,7 +4,7 @@ using System.Reflection;
 using Spectre.Console;
 
 using Irene.Commands;
-using Irene.Components;
+using Irene.Interactables;
 using Irene.Modules;
 
 namespace Irene;
@@ -469,7 +469,7 @@ class Program {
 				Modal.Init,
 				Pages.Init,
 				Selection.Init,
-				Components.Minigames.RPS.Init,
+				Interactables.Minigames.RPS.Init,
 			},
 			modules = new () {
 				AuditLog.Init,
