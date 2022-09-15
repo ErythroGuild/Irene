@@ -80,13 +80,16 @@ class Program {
 	// Construct all static members.
 	static Program() {
 		Console.OutputEncoding = System.Text.Encoding.UTF8;
+		const string
+			red  = "[#da4331 on black]",
+			pink = "[#ffcec9 on black]";
 		const string logo_ascii =
-			"""
-			   [#da4331 on black]__ [/][#ffcec9 on black]____  [/][#da4331 on black] ____ [/][#ffcec9 on black]__  __ [/][#da4331 on black] ____[/]
-			   [#da4331 on black]|| [/][#ffcec9 on black]|| \\ [/][#da4331 on black]||    [/][#ffcec9 on black]||\ || [/][#da4331 on black]||   [/]
-			   [#da4331 on black]|| [/][#ffcec9 on black]||_// [/][#da4331 on black]||==  [/][#ffcec9 on black]||\\|| [/][#da4331 on black]||== [/]
-			   [#da4331 on black]|| [/][#ffcec9 on black]|| \\ [/][#da4331 on black]||___ [/][#ffcec9 on black]|| \|| [/][#da4331 on black]||___[/]
-			   [#da4331 on black]   [/][#ffcec9 on black]      [/][#da4331 on black]      [/][#ffcec9 on black]       [/][#da4331 on black]     [/]
+			$"""
+			   {red}__ [/]{pink}____  [/]{red} ____ [/]{pink}__  __ [/]{red} ____[/]
+			   {red}|| [/]{pink}|| \\ [/]{red}||    [/]{pink}||\ || [/]{red}||   [/]
+			   {red}|| [/]{pink}||_// [/]{red}||==  [/]{pink}||\\|| [/]{red}||== [/]
+			   {red}|| [/]{pink}|| \\ [/]{red}||___ [/]{pink}|| \|| [/]{red}||___[/]
+			   {red}   [/]{pink}      [/]{red}      [/]{pink}       [/]{red}     [/]
 			""";
 		AnsiConsole.Markup(logo_ascii);
 		AnsiConsole.WriteLine();
