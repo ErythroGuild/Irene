@@ -121,7 +121,6 @@ static partial class RecurringEvents {
 
 	private const string
 		_pathData  = @"data/events.txt",
-		_pathTemp  = @"data/events-temp.txt",
 		_pathMemes = @"data/memes.txt",
 		_pathMemeHistory = @"data/memes-history.txt",
 		_pathDirData = @"config/dir-data.txt",
@@ -256,9 +255,9 @@ static partial class RecurringEvents {
 
 		// Update files.
 		lock (_lock) {
-			File.WriteAllLines(_pathTemp, lines);
+			File.WriteAllLines(_pathData.Temp(), lines);
 			File.Delete(_pathData);
-			File.Move(_pathTemp, _pathData);
+			File.Move(_pathData.Temp(), _pathData);
 		}
 	}
 }

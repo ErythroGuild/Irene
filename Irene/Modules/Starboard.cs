@@ -46,9 +46,7 @@ static class Starboard {
 
 	// Blacklist-related variables.
 	private static readonly object _lock = new ();
-	private const string
-		_pathBlacklist = @"data/starboard-blocked.txt",
-		_pathTemp = @"data/starboard-blocked-temp.txt";
+	private const string _pathBlacklist = @"data/starboard-blocked.txt";
 
 	public static void Init() { }
 	static Starboard() {
@@ -167,9 +165,9 @@ static class Starboard {
 
 		// Write out new blacklist.
 		lock (_lock) {
-			File.WriteAllLines(_pathTemp, blacklist);
+			File.WriteAllLines(_pathBlacklist.Temp(), blacklist);
 			File.Delete(_pathBlacklist);
-			File.Move(_pathTemp, _pathBlacklist);
+			File.Move(_pathBlacklist.Temp(), _pathBlacklist);
 		}
 
 		return didModify;

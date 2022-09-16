@@ -43,9 +43,7 @@ class Slowmode : AbstractCommand, IInit {
 	}
 
 	private static readonly object _lock = new ();
-	private const string
-		_pathSlowmode = @"data/slowmode.txt",
-		_pathTemp = @"data/slowmode-temp.txt";
+	private const string _pathSlowmode = @"data/slowmode.txt";
 	private const string
 		_time15sec = "15 sec",
 		_time1min = "1 min",
@@ -292,9 +290,9 @@ class Slowmode : AbstractCommand, IInit {
 			lines.Add(data_i.Serialize());
 
 		lock (_lock) {
-			File.WriteAllLines(_pathTemp, lines);
+			File.WriteAllLines(_pathSlowmode.Temp(), lines);
 			File.Delete(_pathSlowmode);
-			File.Move(_pathTemp, _pathSlowmode);
+			File.Move(_pathSlowmode.Temp(), _pathSlowmode);
 		}
 	}
 

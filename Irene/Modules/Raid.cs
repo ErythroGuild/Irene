@@ -134,9 +134,7 @@ class Raid {
 	
 	// Internal static data.
 	private static readonly object _lock = new ();
-	private const string
-		_pathData = @"data/raids.txt",
-		_pathTemp = @"data/raids-temp.txt";
+	private const string _pathData = @"data/raids.txt";
 	private const string _indent = "\t";
 	private const string _delim = "=";
 	private const string
@@ -443,9 +441,9 @@ class Raid {
 
 		// Update data file.
 		lock (_lock) {
-			File.WriteAllLines(_pathTemp, entries_sorted.Values);
+			File.WriteAllLines(_pathData.Temp(), entries_sorted.Values);
 			File.Delete(_pathData);
-			File.Move(_pathTemp, _pathData);
+			File.Move(_pathData.Temp(), _pathData);
 		}
 	}
 

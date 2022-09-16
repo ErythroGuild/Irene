@@ -40,9 +40,7 @@ class Minigame {
 	}
 
 	private static readonly object _lock = new ();
-	private const string
-		_pathScores = @"data/minigame-scores.txt",
-		_pathTemp = @"data/minigame-scores-temp.txt";
+	private const string _pathScores = @"data/minigame-scores.txt";
 	private const string _indent = "\t";
 	private const string _delimiter = ":";
 
@@ -230,9 +228,9 @@ class Minigame {
 		// Write to file.
 		entries_new.Sort();
 		lock (_lock) {
-			File.WriteAllLines(_pathTemp, entries_new);
+			File.WriteAllLines(_pathScores.Temp(), entries_new);
 			File.Delete(_pathScores);
-			File.Move(_pathTemp, _pathScores);
+			File.Move(_pathScores.Temp(), _pathScores);
 		}
 	}
 

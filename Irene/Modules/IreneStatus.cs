@@ -7,9 +7,7 @@ class IreneStatus {
 		_timerDaysRange = 0.4;
 
 	private static readonly object _lock = new ();
-	private const string
-		_pathStatus = @"data/irene-status.txt",
-		_pathTemp = @"data/irene-status-temp.txt";
+	private const string _pathStatus = @"data/irene-status.txt";
 	private const string _separator = "=";
 
 	public static void Init() { }
@@ -106,9 +104,9 @@ class IreneStatus {
 		lines_sorted.Sort();
 
 		lock (_lock) {
-			File.WriteAllLines(_pathTemp, lines_sorted);
+			File.WriteAllLines(_pathStatus.Temp(), lines_sorted);
 			File.Delete(_pathStatus);
-			File.Move(_pathTemp, _pathStatus);
+			File.Move(_pathStatus.Temp(), _pathStatus);
 		}
 	}
 
