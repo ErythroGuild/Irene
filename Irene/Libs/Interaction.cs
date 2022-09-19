@@ -1,4 +1,4 @@
-﻿namespace Irene;
+namespace Irene;
 
 // A wrapper class for DiscordInteraction that also handles some related
 // functionality (e.g. timers).
@@ -173,4 +173,30 @@ class Interaction {
 		}
 		return new ReadOnlyDictionary<string, DiscordComponent>(components);
 	}
+
+	// Resolved data.
+	public DiscordAttachment? ResolveAttachment(ulong id) =>
+		Data.Resolved.Attachments.ContainsKey(id)
+			? Data.Resolved.Attachments[id]
+			: null;
+	public DiscordChannel? ResolveChannel(ulong id) =>
+		Data.Resolved.Channels.ContainsKey(id)
+			? Data.Resolved.Channels[id]
+			: null;
+	public DiscordMember? ResolveMember(ulong id) =>
+		Data.Resolved.Members.ContainsKey(id)
+			? Data.Resolved.Members[id]
+			: null;
+	public DiscordMessage? ResolveMessage(ulong id) =>
+		Data.Resolved.Messages.ContainsKey(id)
+			? Data.Resolved.Messages[id]
+			: null;
+	public DiscordRole? ResolveRole(ulong id) =>
+		Data.Resolved.Roles.ContainsKey(id)
+			? Data.Resolved.Roles[id]
+			: null;
+	public DiscordUser? ResolveUser(ulong id) =>
+		Data.Resolved.Users.ContainsKey(id)
+			? Data.Resolved.Users[id]
+			: null;
 }
