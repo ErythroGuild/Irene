@@ -3,6 +3,10 @@
 // A wrapper class for DiscordInteraction that also handles some related
 // functionality (e.g. timers).
 class Interaction {
+	// --------
+	// Properties, constructors, and basic access methods:
+	// --------
+
 	// List of allowed events to register time points at.
 	// These aren't required, e.g., none may be registered.
 	public enum Events {
@@ -14,28 +18,52 @@ class Interaction {
 	public DateTimeOffset TimeReceived { get; }
 	public Dictionary<Events, TimeSpan> TimeOffsets { get; } = new ();
 	public DiscordInteraction Object { get; }
+	public DiscordMessage? TargetMessage { get; } = null;
+	public DiscordUser? TargetUser { get; } = null;
+	// Timer is automatically managed.
+	private Stopwatch Timer { get; }
 
 	// Calculated properties.
 	// These are provided as syntax sugar for common properties.
 	public InteractionType Type { get => Object.Type; }
 	public string Name { get => Object.Data.Name; }
 	public string CustomId { get => Object.Data.CustomId; }
+	public List<string> Values { get => new (Object.Data.Values); }
 	public DiscordUser User { get => Object.User; }
 	public DiscordInteractionData Data { get => Object.Data; }
 
-	// Timer is automatically managed and doesn't need to be public.
-	private Stopwatch Timer { get; }
-	// Constructor is hidden, forcing usage of static factory method--
-	// this implies that the initialization has side effects.
-	private Interaction(DiscordInteraction interaction) {
+	private Interaction(
+		DiscordInteraction interaction,
+		DiscordMessage? targetMessage=null,
+		DiscordUser? targetUser=null
+	) {
 		Timer = Stopwatch.StartNew();
 		TimeReceived = DateTimeOffset.UtcNow;
 		Object = interaction;
+		TargetMessage = targetMessage;
+		TargetUser = targetUser;
 	}
 
-	// Public factory constructor.
-	public static Interaction Register(DiscordInteraction interaction) =>
-		new (interaction);
+	// Public factory constructors.
+	// These cannot be instance methods because some processing needs
+	// to be done before calling the actual constructor, and that isn't
+	// allowed in C#.
+	// The alternative would be a shared Init() method, which is still
+	// clunkier than just using factory methods.
+	public static Interaction FromCommand(InteractionCreateEventArgs e) =>
+		new (e.Interaction);
+	public static Interaction FromContextMenu(ContextMenuInteractionCreateEventArgs e) =>
+		e.Type switch {
+			ApplicationCommandType.MessageContextMenu =>
+				new (e.Interaction, targetMessage: e.TargetMessage),
+			ApplicationCommandType.UserContextMenu =>
+				new (e.Interaction, targetUser: e.TargetUser),
+			_ => throw new ArgumentException("Event args must be a context menu interaction.", nameof(e)),
+		};
+	public static Interaction FromModal(ModalSubmitEventArgs e) =>
+		new (e.Interaction);
+	public static Interaction FromComponent(ComponentInteractionCreateEventArgs e) =>
+		new (e.Interaction);
 
 	// Methods relating to event time points.
 	// RegisterEvent() overwrites any current events of that type.
@@ -47,9 +75,10 @@ class Interaction {
 		TimeReceived + TimeOffsets[id];
 
 
+	// --------
+	// Convenience methods for responding to interactions:
+	// --------
 
-	// Convenience methods for responding to interactions.
-	
 	// Responses to autocomplete interactions:
 	public Task AutocompleteAsync(IList<(string, string)> choices) =>
 		AutocompleteAsync<string>(choices);
@@ -61,7 +90,7 @@ class Interaction {
 		// Create list of choice objects.
 		List<DiscordAutoCompleteChoice> list = new ();
 		foreach ((string, T) pair in pairs)
-			list.Add(new(pair.Item1, pair.Item2));
+			list.Add(new (pair.Item1, pair.Item2));
 
 		// Create interaction response object.
 		DiscordInteractionResponseBuilder builder = new ();
@@ -91,7 +120,7 @@ class Interaction {
 	public Task UpdateComponentAsync(DiscordMessageBuilder message) =>
 		Object.CreateResponseAsync(
 			InteractionResponseType.UpdateMessage,
-			new DiscordInteractionResponseBuilder(message)
+			new (message)
 		);
 	public Task DeferComponentAsync() =>
 		Object.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
@@ -113,4 +142,35 @@ class Interaction {
 		Object.DeleteFollowupMessageAsync(id);
 	public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder message) =>
 		Object.EditOriginalResponseAsync(message);
+
+
+	// --------
+	// Convenience methods for accessing response data:
+	// --------
+
+	// Data relating to command options.
+	public List<DiscordInteractionDataOption> Args {
+		get => (Data.Options is not null)
+			? new (Data.Options)
+			: new ();
+	}
+	public DiscordInteractionDataOption? FocusedArg { get {
+		foreach (DiscordInteractionDataOption arg in Args) {
+			if (arg.Focused)
+				return arg;
+		}
+		return null;
+	} }
+
+	// Data relating to modals.
+	public Dictionary<string, DiscordComponent> GetModalData() { 
+		Dictionary<string, DiscordComponent> components = new ();
+		foreach (DiscordActionRowComponent row in Data.Components) {
+			foreach (DiscordComponent component in row.Components) {
+				if (component.Type is ComponentType.FormInput or ComponentType.Select)
+					components.Add(component.CustomId, component);
+			}
+		}
+		return components;
+	}
 }
