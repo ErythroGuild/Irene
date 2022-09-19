@@ -16,7 +16,8 @@ class Interaction {
 
 	// Properties with backing fields.
 	public DateTimeOffset TimeReceived { get; }
-	public Dictionary<Events, TimeSpan> TimeOffsets { get; } = new ();
+	public IReadOnlyDictionary<Events, TimeSpan> TimeOffsets { get; } =
+		new ReadOnlyDictionary<Events, TimeSpan>(new ConcurrentDictionary<Events, TimeSpan>());
 	public DiscordInteraction Object { get; }
 	public DiscordMessage? TargetMessage { get; } = null;
 	public DiscordUser? TargetUser { get; } = null;
@@ -25,12 +26,12 @@ class Interaction {
 
 	// Calculated properties.
 	// These are provided as syntax sugar for common properties.
-	public InteractionType Type { get => Object.Type; }
-	public string Name { get => Object.Data.Name; }
-	public string CustomId { get => Object.Data.CustomId; }
-	public List<string> Values { get => new (Object.Data.Values); }
-	public DiscordUser User { get => Object.User; }
-	public DiscordInteractionData Data { get => Object.Data; }
+	public InteractionType Type => Object.Type;
+	public string Name => Object.Data.Name;
+	public string CustomId => Object.Data.CustomId;
+	public IList<string> Values => new List<string>(Object.Data.Values);
+	public DiscordUser User => Object.User;
+	public DiscordInteractionData Data => Object.Data;
 
 	private Interaction(
 		DiscordInteraction interaction,
@@ -149,21 +150,20 @@ class Interaction {
 	// --------
 
 	// Data relating to command options.
-	public List<DiscordInteractionDataOption> Args {
-		get => (Data.Options is not null)
-			? new (Data.Options)
-			: new ();
-	}
-	public DiscordInteractionDataOption? FocusedArg { get {
+	public IList<DiscordInteractionDataOption> Args =>
+		(Data.Options is not null)
+			? new List<DiscordInteractionDataOption>(Data.Options)
+			: new List<DiscordInteractionDataOption>();
+	public DiscordInteractionDataOption? GetFocusedArg() {
 		foreach (DiscordInteractionDataOption arg in Args) {
 			if (arg.Focused)
 				return arg;
 		}
 		return null;
-	} }
+	}
 
 	// Data relating to modals.
-	public Dictionary<string, DiscordComponent> GetModalData() { 
+	public IReadOnlyDictionary<string, DiscordComponent> GetModalData() { 
 		Dictionary<string, DiscordComponent> components = new ();
 		foreach (DiscordActionRowComponent row in Data.Components) {
 			foreach (DiscordComponent component in row.Components) {
@@ -171,6 +171,6 @@ class Interaction {
 					components.Add(component.CustomId, component);
 			}
 		}
-		return components;
+		return new ReadOnlyDictionary<string, DiscordComponent>(components);
 	}
 }
