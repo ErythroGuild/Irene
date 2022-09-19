@@ -1,4 +1,4 @@
-namespace Irene;
+﻿namespace Irene;
 
 // A wrapper class for DiscordInteraction that also handles some related
 // functionality (e.g. timers).
@@ -16,13 +16,13 @@ class Interaction {
 
 	// Properties with backing fields.
 	public DateTimeOffset TimeReceived { get; }
-	public IReadOnlyDictionary<Events, TimeSpan> TimeOffsets { get; } =
-		new ReadOnlyDictionary<Events, TimeSpan>(new ConcurrentDictionary<Events, TimeSpan>());
 	public DiscordInteraction Object { get; }
 	public DiscordMessage? TargetMessage { get; } = null;
 	public DiscordUser? TargetUser { get; } = null;
-	// Timer is automatically managed.
+
+	// Private properties.
 	private Stopwatch Timer { get; }
+	private ConcurrentDictionary<Events, TimeSpan> TimeOffsets { get; } = new ();
 
 	// Calculated properties.
 	// These are provided as syntax sugar for common properties.
@@ -71,9 +71,14 @@ class Interaction {
 	public void RegisterEvent(Events id) {
 		TimeOffsets[id] = Timer.Elapsed;
 	}
-	public TimeSpan GetEventDuration(Events id) => TimeOffsets[id];
-	public DateTimeOffset GetEventTime(Events id) =>
-		TimeReceived + TimeOffsets[id];
+	public TimeSpan? GetEventDuration(Events id) =>
+		TimeOffsets.ContainsKey(id)
+			? TimeOffsets[id]
+			: null;
+	public DateTimeOffset? GetEventTime(Events id) =>
+		TimeOffsets.ContainsKey(id)
+			? (TimeReceived + TimeOffsets[id])
+			: null;
 
 
 	// --------
