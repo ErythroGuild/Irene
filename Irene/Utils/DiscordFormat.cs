@@ -1,4 +1,4 @@
-namespace Irene.Utils;
+﻿namespace Irene.Utils;
 
 static partial class Util {
 	// Basic text formatting (single-line).
@@ -16,6 +16,10 @@ static partial class Util {
 		$">>> {input}";
 	public static string CodeBock(this string input, string language="") =>
 		$"```{language}\n{input}\n```";
+
+	// Slash command mention formatting.
+	public static string Mention(this DiscordApplicationCommand command, string display) =>
+		$"</{display}:{command.Id}>";
 
 	// Adjusts to 12-/24-hour clock based on user's client locale.
 	// Default style (no format specifier) is equivalent to ":f"
