@@ -154,13 +154,31 @@ class Interaction {
 	// Convenience methods for accessing response data:
 	// --------
 
-	// Data relating to command options.
-	public IList<DiscordInteractionDataOption> Args =>
-		(Data.Options is not null)
-			? new List<DiscordInteractionDataOption>(Data.Options)
+	// Data relating to command args.
+	public static IList<DiscordInteractionDataOption> GetArgs(Interaction interaction) =>
+		GetArgs(interaction.Data);
+	public static IList<DiscordInteractionDataOption> GetArgs(DiscordInteractionData data) =>
+		(data.Options is not null)
+			? new List<DiscordInteractionDataOption>(data.Options)
 			: new List<DiscordInteractionDataOption>();
-	public DiscordInteractionDataOption? GetFocusedArg() {
-		foreach (DiscordInteractionDataOption arg in Args) {
+	public static IList<DiscordInteractionDataOption> GetArgs(DiscordInteractionDataOption subcommand) =>
+		(subcommand.Options is not null)
+			? new List<DiscordInteractionDataOption>(subcommand.Options)
+			: new List<DiscordInteractionDataOption>();
+
+	public static IDictionary<string, object> UnpackArgs(Interaction interaction) =>
+		UnpackArgs(GetArgs(interaction));
+	public static IDictionary<string, object> UnpackArgs(IList<DiscordInteractionDataOption> args) {
+		Dictionary<string, object> table = new ();
+		foreach (DiscordInteractionDataOption arg in args)
+			table.Add(arg.Name, arg.Value);
+		return table;
+	}
+
+	public static DiscordInteractionDataOption? GetFocusedArg(Interaction interaction) =>
+		GetFocusedArg(GetArgs(interaction));
+	public static DiscordInteractionDataOption? GetFocusedArg(IList<DiscordInteractionDataOption> args) {
+		foreach (DiscordInteractionDataOption arg in args) {
 			if (arg.Focused)
 				return arg;
 		}
