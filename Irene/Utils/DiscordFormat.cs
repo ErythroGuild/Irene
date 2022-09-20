@@ -1,4 +1,4 @@
-﻿namespace Irene.Utils;
+namespace Irene.Utils;
 
 static partial class Util {
 	// Basic text formatting (single-line).
@@ -9,6 +9,7 @@ static partial class Util {
 	public static string Monospace(this string input) => $"`{input}`";
 	public static string Quote(this string input) => $"> {input}";
 	public static string Spoiler(this string input) => $"||{input}||";
+	public static string NoEmbed(this string link) => $"<{link}>";
 
 	// Block text formatting.
 	public static string QuoteBlock(this string input) =>
