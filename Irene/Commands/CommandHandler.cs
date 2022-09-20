@@ -1,175 +1,286 @@
-﻿using static Irene.Commands.CommandHandler.CommandTree;
+﻿using static Irene.Interaction;
 
 using InteractionArg = DSharpPlus.Entities.DiscordInteractionDataOption;
 using DCommand = DSharpPlus.Entities.DiscordApplicationCommand;
-using NodeHandler = System.Func<DSharpPlus.Entities.DiscordInteraction, System.Collections.Generic.Dictionary<string, object>, System.Threading.Tasks.Task>;
+using NodeHandler = System.Func<Irene.Interaction, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
+using Autocompleter = System.Func<Irene.Interaction, object, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
 
-namespace Irene.Commands;
+namespace Irene;
 
+// All application commands (e.g. slash commands, context menu commands)
+// should inherit from this class.
 abstract class CommandHandler {
+	public abstract string HelpText { get; }
+	public abstract CommandTree Tree { get; }
+	public DCommand Command => Tree.Command;
+
+	// Updating a registered command should only be done to populate the
+	// command's ID once it has been registered with Discord.
+	// This method will check that the command name matches, and will
+	// throw an exception if otherwise.
+	public void UpdateRegisteredCommand(DCommand command) {
+		if (command.Name != Command.Name)
+			throw new ArgumentException("New command name doesn't match.", nameof(command));
+		Tree.UpdateRegisteredCommand(command);
+	}
+	public Task HandleAsync(Interaction interaction) =>
+		Tree.HandleAsync(interaction);
+
+
 	public class CommandTree {
-		// The root node can have both group nodes and leaf nodes
+		// --------
+		// Record definitions (used in constructors, etc.):
+		// --------
+
+		// Commands (root-level) and subcommands share a set of fields,
+		// and subcommand groups have their own.
 		public record class GroupArgs(
-				string Name,
-				string Description,
-				Permissions? DefaultPermissions
-			);
+			string Name,
+			string Description,
+			Permissions? DefaultPermissions
+		);
 		public record class LeafArgs(
 			string Name,
 			string Description,
-			List<CommandOption> Options,
+			IList<CommandOption> Options,
 			Permissions? DefaultPermissions
 		);
+		// Handlers are associated with leaf nodes (or the root command).
+		public record class Handler(
+			NodeHandler NodeHandler,
+			IReadOnlyDictionary<string, Autocompleter> Autocompleters
+		);
 
-		public record class RootNode {
-			public readonly DCommand Command;
-			public readonly List<LeafNode>? Leaves;
-			public readonly List<GroupNode>? Groups;
-			public readonly NodeHandler? Handler;
-			public bool IsLeaf => Handler is not null;
 
-			public readonly IReadOnlyDictionary<string, NodeHandler>? LeafTable;
-			public readonly IReadOnlyDictionary<string, GroupNode>? GroupTable;
+		// --------
+		// Properties/fields, constructors, and methods:
+		// --------
 
-			// Construct a root node that has subcommands.
-			public RootNode(GroupArgs args, List<LeafNode> leaves, List<GroupNode> groups) {
-				Leaves = leaves;
-				Groups = groups;
-				Handler = null;
+		// `ITree` handles most logic instead of `CommandTree`.
+		private readonly ITree _tree;
+		public DCommand Command { get; private set; }
 
-				// Collate subcommands from child nodes.
-				List<CommandOption> command_list = new ();
-				foreach (GroupNode group in groups)
-					command_list.Add(group.Group);
-				foreach (LeafNode leaf in leaves)
-					command_list.Add(leaf.Command);
+		// Construct a tree that only has a single command.
+		public CommandTree(
+			LeafArgs args,
+			NodeHandler handler,
+			IDictionary<string, Autocompleter>? autocompleters=null
+		) {
+			autocompleters ??= new Dictionary<string, Autocompleter>();
+			_tree = new RootTree(handler, new (autocompleters));
 
-				Command = new (
-					args.Name,
-					args.Description,
-					command_list,
-					type: ApplicationCommandType.SlashCommand,
-					defaultMemberPermissions: args.DefaultPermissions
-				);
-
-				// Collate subcommand handlers.
-				Dictionary<string, NodeHandler> leafTable = new ();
-				foreach (LeafNode leaf in leaves)
-					leafTable.Add(leaf.Command.Name, leaf.Handler);
-				LeafTable = leafTable;
-
-				Dictionary<string, GroupNode> groupTable = new ();
-				foreach (GroupNode group in groups)
-					groupTable.Add(group.Group.Name, group);
-				GroupTable = groupTable;
-			}
-			// Construct a root node that only has a single command.
-			public RootNode(LeafArgs args, NodeHandler handler) {
-				Leaves = null;
-				Groups = null;
-				Handler = handler;
-				Command = new (
-					args.Name,
-					args.Description,
-					args.Options,
-					type: ApplicationCommandType.SlashCommand,
-					defaultMemberPermissions: args.DefaultPermissions
-				);
-
-				LeafTable = null;
-				GroupTable = null;
-			}
+			Command = new (
+				args.Name,
+				args.Description,
+				args.Options,
+				type: ApplicationCommandType.SlashCommand,
+				defaultMemberPermissions: args.DefaultPermissions
+			);
 		}
+		// Construct a tree with subcommands / subcommand groups.
+		public CommandTree(
+			GroupArgs args,
+			IList<GroupNode> groups,
+			IList<LeafNode> leaves
+		) {
+			_tree = new SubTree(new (groups), new (leaves));
+
+			// Collate all child nodes that are one level down.
+			List<CommandOption> optionList = new ();
+			foreach (GroupNode group in groups)
+				optionList.Add(group.Group);
+			foreach (LeafNode leaf in leaves)
+				optionList.Add(leaf.Command);
+			Command = new (
+				args.Name,
+				args.Description,
+				optionList,
+				type: ApplicationCommandType.SlashCommand,
+				defaultMemberPermissions: args.DefaultPermissions
+			);
+		}
+
+		public void UpdateRegisteredCommand(DCommand command) {
+			Command = command;
+		}
+		public Task HandleAsync(Interaction interaction) =>
+			_tree.HandleAsync(interaction);
+
+
+		// --------
+		// Internal subtree structure implementation:
+		// --------
+
+		// The `GroupNode` and `LeafNode` records are used when defining
+		// a CommandTree implemented via a SubTree.
 		public record class GroupNode {
 			public readonly CommandOption Group;
-			public readonly List<LeafNode> Leaves;
+			public readonly IReadOnlyList<LeafNode> Leaves;
+			public readonly IReadOnlyDictionary<string, Handler> LeafTable;
 
-			public IReadOnlyDictionary<string, NodeHandler> LeafTable;
-
-			public GroupNode(string name, string description, List<LeafNode> leaves) {
-				Leaves = leaves;
+			public GroupNode(string name, string description, IList<LeafNode> leaves) {
+				Leaves = new ReadOnlyCollection<LeafNode>(leaves);
 
 				// Collate subcommands from child nodes.
-				List<CommandOption> command_list = new ();
+				List<CommandOption> commandList = new ();
 				foreach (LeafNode leaf in leaves)
-					command_list.Add(leaf.Command);
-
+					commandList.Add(leaf.Command);
 				Group = new (
 					name,
 					description,
 					ApplicationCommandOptionType.SubCommandGroup,
-					options: command_list
+					options: commandList
 				);
 
-				// Collate subcommand handlers.
-				Dictionary<string, NodeHandler> leafTable = new ();
+				// Populate lookup table.
+				ConcurrentDictionary<string, Handler> leafTable = new ();
 				foreach (LeafNode leaf in leaves)
-					leafTable.Add(leaf.Command.Name, leaf.Handler);
+					leafTable.TryAdd(leaf.Command.Name, leaf.Handler);
 				LeafTable = leafTable;
 			}
 		}
 		public record class LeafNode {
 			public readonly CommandOption Command;
-			public readonly NodeHandler Handler;
+			public readonly Handler Handler;
 
-			public LeafNode(CommandOption command, NodeHandler handler) {
+			public LeafNode(CommandOption command, Handler handler) {
 				Command = command;
 				Handler = handler;
 			}
 		}
 
-		public RootNode Root;
-		public DCommand Command => Root.Command;
-
-		public CommandTree(RootNode root) {
-			Root = root;
-		}
-	}
-
-	public abstract CommandTree Tree { get; init; }
-	public DCommand Command => Tree.Command;
-
-	private RootNode Root => Tree.Root;
-	public Task HandleAsync(DiscordInteraction interaction) {
-		List<InteractionArg> arg_list = interaction.GetArgs();
-		Dictionary<string, object> args = new ();
-
-		void AddArgs(List<InteractionArg> arg_list) {
-			foreach (InteractionArg arg in arg_list)
-				args.Add(arg.Name, arg.Value);
+		// A slash command can have either a single command (`RootTree`),
+		// or it can have child nodes (`SubTree`).
+		private interface ITree {
+			public Task HandleAsync(Interaction interaction);
 		}
 
-		// Invoke from root node.
-		if (Root.IsLeaf) {
-			AddArgs(arg_list);
-			return Root.Handler!
-				.Invoke(interaction, args);
+		private class RootTree: ITree {
+			private readonly Handler _handler;
+
+			public RootTree(
+				NodeHandler handler,
+				ConcurrentDictionary<string, Autocompleter>? autocompleters=null
+			) {
+				autocompleters ??= new ();
+				_handler = new (handler, autocompleters);
+			}
+
+			public Task HandleAsync(Interaction interaction) =>
+				HandleByType(interaction, _handler);
 		}
+		private class SubTree: ITree {
+			private readonly ConcurrentDictionary<string, GroupNode> _groupTable;
+			private readonly ConcurrentDictionary<string, Handler> _leafTable;
 
-		// Invoke leaf child node.
-		string subcommand = arg_list[0].Name;
-		if (Root.LeafTable!.ContainsKey(subcommand)) {
-			arg_list = arg_list[0].GetArgs();
-			AddArgs(arg_list);
-			return Root.LeafTable![subcommand]
-				.Invoke(interaction, args);
-		}
+			public SubTree(List<GroupNode> groups, List<LeafNode> leaves) {
+				// Populate lookup tables.
+				_groupTable = new ();
+				foreach (GroupNode group in groups)
+					_groupTable.TryAdd(group.Group.Name, group);
+				_leafTable = new ();
+				foreach (LeafNode leaf in leaves)
+					_leafTable.TryAdd(leaf.Command.Name, leaf.Handler);
+			}
 
-		// Invoke from group child node.
-		if (Root.GroupTable!.ContainsKey(subcommand)) {
-			GroupNode group = Root.GroupTable![subcommand];
-			arg_list = arg_list[0].GetArgs();
-			subcommand = arg_list[0].Name;
+			public Task HandleAsync(Interaction interaction) {
+				InteractionArg node = GetArgs(interaction)[0];
 
-			if (group.LeafTable.ContainsKey(subcommand)) {
-				arg_list = arg_list[0].GetArgs();
-				AddArgs(arg_list);
-				return group.LeafTable[subcommand]
-					.Invoke(interaction, args);
+				// Check if the subcommand matches any immediate leaves.
+				if (_leafTable.ContainsKey(node.Name))
+					return HandleByType(interaction, node, _leafTable);
+
+				// Check if the subcommand matches any subcommand groups.
+				if (_groupTable.ContainsKey(node.Name)) {
+					GroupNode group = _groupTable[node.Name];
+					node = GetArgs(node)[0];
+					if (group.LeafTable.ContainsKey(node.Name))
+						return HandleByType(interaction, node, group.LeafTable);
+				}
+
+				// Throw exception if nothing matched.
+				throw new ArgumentException("Unrecognized slash command.", nameof(interaction));
 			}
 		}
 
-		// This should never happen.
-		throw new ArgumentException("Unknown slash command.", nameof(interaction));
+
+		// --------
+		// Internal helper functions:
+		// --------
+
+		// `ITree` makes more sense as an interface instead of an abstract
+		// class, so these have to be helper functions instead of members
+		// of `ITree`.
+
+		// Functions to automatically disambiguate which member of a `Handler`
+		// should be invoked.
+		private static Task HandleByType(Interaction interaction, Handler handler) =>
+			interaction.Type switch {
+				InteractionType.ApplicationCommand =>
+					InvokeNodeHandlerFromRoot(interaction, handler),
+				InteractionType.AutoComplete =>
+					InvokeAutocompleterFromRoot(interaction, handler),
+				_ => throw new ArgumentException("The command tree cannot handle that type of interaction.", nameof(interaction))
+			};
+		private static Task HandleByType(
+			Interaction interaction,
+			InteractionArg node,
+			IReadOnlyDictionary<string, Handler> handlers
+		) =>
+			interaction.Type switch {
+				InteractionType.ApplicationCommand =>
+					InvokeNodeHandlerFromNode(interaction, node, handlers),
+				InteractionType.AutoComplete =>
+					InvokeAutocompleterFromNode(interaction, node, handlers),
+				_ => throw new ArgumentException("The command tree cannot handle that type of interaction.", nameof(interaction))
+			};
+
+		// Functions to invoke disambiguated handlers with packaged data.
+		// Invoking the autocompleter will throw if the focused field is
+		// invalid.
+		private static Task InvokeNodeHandlerFromRoot(Interaction interaction, Handler handler) {
+			IList<InteractionArg> argList = GetArgs(interaction);
+			IDictionary<string, object> argTable = UnpackArgs(argList);
+
+			return handler.NodeHandler.Invoke(interaction, argTable);
+		}
+		private static Task InvokeAutocompleterFromRoot(Interaction interaction, Handler handler) {
+			IList<InteractionArg> argList = GetArgs(interaction);
+			IDictionary<string, object> argTable = UnpackArgs(argList);
+			InteractionArg? arg = GetFocusedArg(argList);
+
+			if (arg is null || !handler.Autocompleters.ContainsKey(arg.Name))
+				throw new InvalidOperationException("No autocompleter for the given field was found.");
+			return handler
+				.Autocompleters[arg.Name]
+				.Invoke(interaction, arg.Value, argTable);
+		}
+		private static Task InvokeNodeHandlerFromNode(
+			Interaction interaction,
+			InteractionArg node,
+			IReadOnlyDictionary<string, Handler> handlers
+		) {
+			IList<InteractionArg> argList = GetArgs(node);
+			IDictionary<string, object> argTable = UnpackArgs(argList);
+
+			return handlers[node.Name]
+				.NodeHandler
+				.Invoke(interaction, argTable);
+		}
+		private static Task InvokeAutocompleterFromNode(
+			Interaction interaction,
+			InteractionArg node,
+			IReadOnlyDictionary<string, Handler> handlers
+		) {
+			IList<InteractionArg> argList = GetArgs(node);
+			IDictionary<string, object> argTable = UnpackArgs(argList);
+			InteractionArg? arg = GetFocusedArg(argList);
+
+			if (arg is null || !handlers[node.Name].Autocompleters.ContainsKey(arg.Name))
+				throw new InvalidOperationException("No autocompleter for the given field was found.");
+			return handlers[node.Name]
+				.Autocompleters[arg.Name]
+				.Invoke(interaction, arg.Value, argTable);
+		}
 	}
 }
