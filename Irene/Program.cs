@@ -16,9 +16,11 @@ class Program {
 		CheckDebug(ref isDebug);
 		return isDebug;
 	} }
+
 	// Discord client objects.
 	public static DiscordClient Client { get; private set; }
-	public static DiscordGuild? Guild { get; private set; }
+	public static DiscordGuild? Guild { get; private set; } = null;
+	public static GuildData? Erythro { get; private set; } = null;
 	public static ConcurrentDictionary<ulong, DiscordChannel>? Channels { get; private set; }
 	public static ConcurrentDictionary<ulong, DiscordEmoji>? Emojis { get; private set; }
 	public static ConcurrentDictionary<ulong, DiscordRole>? Roles { get; private set; }
@@ -228,7 +230,27 @@ class Program {
 
 				// Initialize guild.
 				Guild = await irene.GetGuildAsync(Id_Erythro);
-				Log.Information("  Guild fetched and initialized.");
+				Log.Information("  Guild initialized.");
+
+				// Initialize data.
+				Erythro = await GuildData.InitializeData(Client);
+
+				// Initialize commands.
+				CommandDispatcher.Register(Erythro);
+
+				// Collate all command objects.
+				List<CommandHandler> handlers =
+					new (CommandDispatcher.HandlerTable.Values);
+				List<DiscordApplicationCommand> commands = new ();
+				foreach (CommandHandler handler in handlers)
+					commands.Add(handler.Command);
+				// Register (and fetch updated) commands.
+				commands = new (await Client.BulkOverwriteGlobalApplicationCommandsAsync(commands));
+				// Update command objects.
+				foreach (DiscordApplicationCommand command in commands) {
+					CommandDispatcher.HandlerTable[command.Name]
+						.UpdateRegisteredCommand(command);
+				}
 
 				// Start data initialization timer.
 				_stopwatchInitData.Start();
@@ -326,16 +348,16 @@ class Program {
 				.GetEventDuration(Interaction.Events.InitialResponse)
 				?.TotalSeconds
 				?? null;
-			double? finalResponse = interaction
-				.GetEventDuration(Interaction.Events.FinalResponse)
-				?.TotalSeconds
-				?? null;
 			if (initialResponse is not null) {
 				Log.Debug(
 					"  Initial response - {DurationInitial,6:F2} sec",
 					initialResponse
 				);
 			}
+			double? finalResponse = interaction
+				.GetEventDuration(Interaction.Events.FinalResponse)
+				?.TotalSeconds
+				?? null;
 			if (finalResponse is not null) {
 				Log.Debug(
 					"  Final response   - {DurationFinal,6:F2} sec",

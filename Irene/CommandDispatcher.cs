@@ -1,52 +1,51 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
+﻿using System.Reflection;
 
 using Irene.Commands;
 
 namespace Irene;
 
 static class CommandDispatcher {
-	private static ReadOnlyDictionary<string, CommandHandler> _handlerTable;
+	public static IReadOnlyDictionary<string, CommandHandler> HandlerTable { get; private set; }
 
 	static CommandDispatcher() {
-		Register();
+		HandlerTable = new ConcurrentDictionary<string, CommandHandler>();
 	}
 
 	// Registration replaces the internal handler table with a snapshot
 	// of handlers at call time. This is called by the static initializer,
 	// but can also be manually invoked.
-	[MemberNotNull(nameof(_handlerTable))]
-	public static void Register() {
+	public static void Register(GuildData guildData) {
 		ConcurrentDictionary<string, CommandHandler> handlerTable = new ();
 
 		List<Type> types = new (Assembly.GetExecutingAssembly().GetTypes());
 		foreach (Type type in types) {
-			if (type.BaseType != typeof(AbstractCommand))
+			if (type.BaseType != typeof(CommandHandler))
 				continue;
 
-			// Check for a default constructor.
-			ConstructorInfo? constructor = type.GetConstructor(Type.EmptyTypes);
+			// Check for the standard `GuildData` constructor.
+			ConstructorInfo? constructor =
+				type.GetConstructor(new Type[1] {typeof(GuildData)});
 			if (constructor is null) {
 				Log.Error("Could not find default constructor for CommandHandler class: {ClassName}", type.FullName);
 				continue;
 			}
 
 			// Create an handler instance to register to the lookup table.
-			// Passing `null` to `Invoke()` invokes with no args.
-			CommandHandler handler = (CommandHandler)constructor.Invoke(null);
+			CommandHandler handler =
+				(CommandHandler)constructor.Invoke(new object[1] {guildData});
 			handlerTable.TryAdd(handler.Command.Name, handler);
 		}
 
 		Log.Debug("Registered {HandlerCount} commands.", handlerTable.Count);
-		_handlerTable = new (handlerTable);
+		HandlerTable = handlerTable;
 	}
 
 	public static bool CanHandle(string commandName) =>
-		_handlerTable.ContainsKey(commandName);
+		HandlerTable.ContainsKey(commandName);
 	public static Task HandleAsync(string commandName, Interaction interaction) {
-		if (!_handlerTable.ContainsKey(commandName))
+		if (!HandlerTable.ContainsKey(commandName))
 			throw new ArgumentException("Unregistered command.", nameof(commandName));
 
-		return _handlerTable[commandName].HandleAsync(interaction);
+		return HandlerTable[commandName].HandleAsync(interaction);
 	}
 }
