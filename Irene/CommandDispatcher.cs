@@ -4,6 +4,8 @@ namespace Irene;
 
 static class CommandDispatcher {
 	public static IReadOnlyDictionary<string, CommandHandler> HandlerTable { get; private set; }
+	public static IReadOnlyList<CommandHandler> Handlers =>
+		new List<CommandHandler>(HandlerTable.Values);
 
 	static CommandDispatcher() {
 		HandlerTable = new ConcurrentDictionary<string, CommandHandler>();

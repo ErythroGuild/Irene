@@ -239,8 +239,8 @@ class Program {
 				CommandDispatcher.Register(Erythro);
 
 				// Collate all command objects.
-				List<CommandHandler> handlers =
-					new (CommandDispatcher.HandlerTable.Values);
+				IReadOnlyList<CommandHandler> handlers =
+					CommandDispatcher.Handlers;
 				List<DiscordApplicationCommand> commands = new ();
 				foreach (CommandHandler handler in handlers)
 					commands.Add(handler.Command);
