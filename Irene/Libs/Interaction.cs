@@ -109,6 +109,12 @@ class Interaction {
 	}
 
 	// Responses to command interactions:
+	public Task RespondCommandAsync(string message, bool isEphemeral = false) {
+		DiscordMessageBuilder messageBuilder =
+			new DiscordMessageBuilder()
+			.WithContent(message);
+		return RespondCommandAsync(messageBuilder, isEphemeral);
+	}
 	public Task RespondCommandAsync(DiscordMessageBuilder message, bool isEphemeral=false) =>
 		Object.CreateResponseAsync(
 			InteractionResponseType.ChannelMessageWithSource,
