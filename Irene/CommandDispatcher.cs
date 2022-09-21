@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
 
-using Irene.Commands;
-
 namespace Irene;
 
 static class CommandDispatcher {
