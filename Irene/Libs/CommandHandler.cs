@@ -9,6 +9,8 @@ namespace Irene;
 
 // All application commands (e.g. slash commands, context menu commands)
 // should inherit from this class.
+// To implement e.g. both slash commands and context menu commands, create
+// two separate classes inheriting from this class, one for each.
 abstract class CommandHandler {
 	public abstract string HelpText { get; }
 	public abstract CommandTree Tree { get; }

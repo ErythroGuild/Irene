@@ -48,12 +48,6 @@ class Program {
 		_stopwatchInitData = new (),
 		_stopwatchRegister = new ();
 
-	// Command queue.
-	private record class InteractionHandlerData
-		(InteractionHandler Handler, TimedInteraction Data);
-	private static readonly ConcurrentQueue<InteractionHandlerData> _queueHandlers = new ();
-	private static Task _taskHandlers = Task.CompletedTask;
-
 	// File paths for config files.
 	private const string
 		_pathToken = @"config/token.txt",
@@ -320,84 +314,71 @@ class Program {
 			return Task.CompletedTask;
 		};
 
+		// Log standard interaction data.
+		static void LogInteractionData(Interaction interaction) {
+			Log.Information(
+				"{FlagDM}Command processed: /{CommandName}",
+				interaction.Object.Channel.IsPrivate ? "[DM] " : "",
+				interaction.Name
+			);
+			Log.Debug(
+				"  Received: {TimestampReceived:HH:mm:ss.fff}",
+				interaction.TimeReceived.ToLocalTime()
+			);
+			double? initialResponse = interaction
+				.GetEventDuration(Interaction.Events.InitialResponse)
+				?.TotalSeconds
+				?? null;
+			double? finalResponse = interaction
+				.GetEventDuration(Interaction.Events.FinalResponse)
+				?.TotalSeconds
+				?? null;
+			if (initialResponse is not null) {
+				Log.Debug(
+					"  Initial response - {DurationInitial,6:F2} sec",
+					initialResponse
+				);
+			}
+			if (finalResponse is not null) {
+				Log.Debug(
+					"  Final response   - {DurationFinal,6:F2} sec",
+					finalResponse
+				);
+			}
+		}
+		// Even though this is used for context menu commands, the event
+		// args always use `InteractionCreateEventArgs`. This means the
+		// actual `Interaction` object must be created outside with an
+		// appropriately specialized factory method, and passed in.
+		static async Task HandleInteraction(Interaction interaction, InteractionCreateEventArgs e) {
+			string commandName = interaction.Name;
+
+			if (!CommandDispatcher.CanHandle(commandName)) {
+				Log.Error("Unrecognized command: /{CommandName}", commandName);
+				return;
+			}
+			e.Handled = true;
+			await CommandDispatcher.HandleAsync(commandName, interaction);
+
+			// Filter for autocomplete interactions (to avoid filling
+			// logs with noise).
+			// Autocomplete info needs to be logged by the handler itself.
+			if (e.Interaction.Type == InteractionType.AutoComplete)
+				return;
+			LogInteractionData(interaction);
+		}
 		// Interaction received.
 		Client.InteractionCreated += (irene, e) => {
 			_ = Task.Run(async () => {
-				TimedInteraction interaction =
-					new (e.Interaction, Stopwatch.StartNew());
-				string name = e.Interaction.Data.Name;
-
-				switch (e.Interaction.Type) {
-				case InteractionType.ApplicationCommand:
-					Log.Information("Command received: /{CommandName}.", name);
-					if (Command.Handlers.ContainsKey(name)) {
-						e.Handled = true;
-						// Immediately run deferrer.
-						await Command.Deferrers[name].Invoke(interaction);
-						// Queue the handler for later.
-						_queueHandlers.Enqueue(new (
-							Command.Handlers[name],
-							interaction
-						) );
-						// If handlers aren't being dequeued, start.
-						if (_taskHandlers.Status == TaskStatus.RanToCompletion) {
-							_taskHandlers = Task.Run(() => {
-								while (!_queueHandlers.IsEmpty) {
-									_queueHandlers.TryDequeue(out InteractionHandlerData? handlerData);
-									if (handlerData is null)
-										continue;
-									handlerData.Handler.Invoke(handlerData.Data);
-								}
-							});
-						}
-					} else {
-						Log.Warning("  Unrecognized command.");
-					}
-					break;
-				case InteractionType.AutoComplete:
-					if (Command.AutoCompletes.ContainsKey(name)) {
-						e.Handled = true;
-						await Command.AutoCompletes[name].Invoke(interaction);
-					} else {
-						Log.Warning("  Unrecognized auto-complete.");
-					}
-					break;
-				}
-
+				Interaction interaction = Interaction.FromCommand(e);
+				await HandleInteraction(interaction, e);
 			});
 			return Task.CompletedTask;
 		};
 		Client.ContextMenuInteractionCreated += (irene, e) => {
 			_ = Task.Run(async () => {
-				TimedInteraction interaction =
-					new (e.Interaction, Stopwatch.StartNew());
-				string name = e.Interaction.Data.Name;
-
-				Log.Information("Context menu command received: {CommandName}.", name);
-				if (Command.Handlers.ContainsKey(name)) {
-					e.Handled = true;
-					// Immediately run deferrer.
-					await Command.Deferrers[name].Invoke(interaction);
-					// Queue the handler for later.
-					_queueHandlers.Enqueue(new (
-						Command.Handlers[name],
-						interaction
-					) );
-					// If handlers aren't being dequeued, start.
-					if (_taskHandlers.Status == TaskStatus.RanToCompletion) {
-						_taskHandlers = Task.Run(() => {
-							while (!_queueHandlers.IsEmpty) {
-								_queueHandlers.TryDequeue(out InteractionHandlerData? handlerData);
-								if (handlerData is null)
-									continue;
-								handlerData.Handler.Invoke(handlerData.Data);
-							}
-						});
-					}
-				}
-				else {
-					Log.Warning("  Unrecognized context menu command.");
-				}
+				Interaction interaction = Interaction.FromContextMenu(e);
+				await HandleInteraction(interaction, e);
 			});
 			return Task.CompletedTask;
 		};
