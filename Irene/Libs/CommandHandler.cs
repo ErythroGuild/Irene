@@ -7,15 +7,28 @@ using Autocompleter = System.Func<Irene.Interaction, object, System.Collections.
 
 namespace Irene;
 
-// All application commands (e.g. slash commands, context menu commands)
-// should inherit from this class.
-// To implement e.g. both slash commands and context menu commands, create
-// two separate classes inheriting from this class, one for each.
+// Usage:
+// To implement an application command (slash commands or context menu
+// commands), inherit from this class.
+// Override the two abstract methods (`.HelpText` and `CreateTree()`),
+// and provide a constructor that takes a single `GuildData` argument,
+// and calls the base constructor.
+// To implement both slash commands and context menu commands, derive
+// two separate classes, one for each. (They can be in the same file.)
+
 abstract class CommandHandler {
 	public abstract string HelpText { get; }
-	public abstract CommandTree Tree { get; }
-	public DCommand Command => Tree.Command;
+	// `CreateTree()` should define the `CommandTree` of this command.
+	public abstract CommandTree CreateTree();
 
+	public CommandTree Tree { get; }
+	public DCommand Command => Tree.Command;
+	protected GuildData Erythro { get; }
+
+	public CommandHandler(GuildData erythro) {
+		Tree = CreateTree();
+		Erythro = erythro;
+	}
 	// Updating a registered command should only be done to populate the
 	// command's ID once it has been registered with Discord.
 	// This method will check that the command name matches, and will

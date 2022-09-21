@@ -32,7 +32,7 @@ class GuildData {
 	}
 	// This can be called to re-initialize data.
 	public async Task PopulateData() {
-		Log.Information("Populating guild data...");
+		Log.Information("(Re-)populating guild data...");
 
 		Guild = await Client.GetGuildAsync(Id_Erythro);
 
