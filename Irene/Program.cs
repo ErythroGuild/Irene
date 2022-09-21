@@ -65,11 +65,8 @@ class Program {
 		_templateConsoleError   = @"[red]{Timestamp:H:mm:ss}[/] [invert red][{Level}][/] {Message:lj}{NewLine}{Exception}",
 		_templateFile           = @"{Timestamp:yyyy-MM-dd HH:mm:ss.fff} > [{Level:u3}] {Message:j}{NewLine}{Exception}";
 
-	// Discord IDs.
-	private const ulong _id_Erythro = 317723973968461824;
-
 	public static async Task UpdateGuild() =>
-		Guild = await Client.GetGuildAsync(_id_Erythro);
+		Guild = await Client.GetGuildAsync(Id_Erythro);
 
 	// Construct all static members.
 	static Program() {
@@ -230,7 +227,7 @@ class Program {
 				_stopwatchDownload.LogMsecDebug("    Took {DownloadTime} msec.");
 
 				// Initialize guild.
-				Guild = await irene.GetGuildAsync(_id_Erythro);
+				Guild = await irene.GetGuildAsync(Id_Erythro);
 				Log.Information("  Guild fetched and initialized.");
 
 				// Start data initialization timer.
@@ -302,7 +299,7 @@ class Program {
 				// Register (update-by-overwriting) application commands.
 				_stopwatchRegister.Start();
 				try {
-					await Client.BulkOverwriteGuildApplicationCommandsAsync(_id_Erythro, Command.Commands);
+					await Client.BulkOverwriteGuildApplicationCommandsAsync(Id_Erythro, Command.Commands);
 					Log.Information("  Application commands registered.");
 					_stopwatchRegister.LogMsecDebug("    Took {RegisterTime} msec.");
 					Log.Debug("    Registered {CommandCount} commands.", Command.Commands.Count);
