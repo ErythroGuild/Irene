@@ -3,6 +3,9 @@
 namespace Irene;
 
 static class Const {
+	// Guild ID.
+	public const ulong Id_Erythro = 317723973968461824;
+
 	// Standard formatting strings.
 	public const string
 		Format_IsoDate = @"yyyy-MM-dd";
@@ -63,6 +66,25 @@ static class Const {
 			// Testing
 			test   = 489274692255875091,
 			ingest = 777935219193020426;
+	}
+	public static class VoiceChatIDs {
+		public const ulong
+			// Social
+			hangout = 442986379392319490,
+			afk     = 545060010967957534,
+
+			// Gaming
+			dungeon1 = 442986315865128960,
+			dungeon2 = 542094075784986654,
+			dungeon3 = 783838007454597121,
+			raid1    = 443001346678063104,
+			raid2    = 670853551869919232,
+
+			// Officer
+			officer = 542093594618757140,
+
+			// Testing
+			heartwood = 498636532530282512;
 	}
 	public static class EmojiIDs {
 		public const ulong
@@ -148,24 +170,5 @@ static class Const {
 			gearing = 854879377930453002,
 			events  = 771584406724935710,
 			herald  = 712469431573544972;
-	}
-	public static class VoiceChatIDs {
-		public const ulong
-			// Social
-			hangout = 442986379392319490,
-			afk     = 545060010967957534,
-
-			// Gaming
-			dungeon1 = 442986315865128960,
-			dungeon2 = 542094075784986654,
-			dungeon3 = 783838007454597121,
-			raid1    = 443001346678063104,
-			raid2    = 670853551869919232,
-
-			// Officer
-			officer = 542093594618757140,
-
-			// Testing
-			heartwood = 498636532530282512;
 	}
 }
