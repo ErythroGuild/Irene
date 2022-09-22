@@ -1,9 +1,8 @@
-﻿namespace Irene.Modules;
+﻿using static Irene.Commands.Invite;
+
+namespace Irene.Modules;
 
 class Invite {
-	public const string
-		Opt_Erythro = "erythro",
-		Opt_Leuko   = "leuko";
 	private const string
 		_urlErythro = @"https://discord.gg/ADzEwNS",
 		_urlLeuko   = @"https://discord.gg/zhadQf59xq";

@@ -9,6 +9,9 @@ class Invite : CommandHandler {
 	public const string
 		Label_Erythro = "Erythro",
 		Label_Leuko   = "Leuko";
+	public const string
+		Opt_Erythro = "erythro",
+		Opt_Leuko   = "leuko";
 
 	public Invite(GuildData erythro) : base (erythro) { }
 
@@ -28,8 +31,8 @@ class Invite : CommandHandler {
 				ApplicationCommandOptionType.String,
 				required: false,
 				new List<CommandOptionEnum> {
-					new (Label_Erythro, Module.Opt_Erythro),
-					new (Label_Leuko  , Module.Opt_Leuko  ),
+					new (Label_Erythro, Opt_Erythro),
+					new (Label_Leuko  , Opt_Leuko  ),
 				}
 			) },
 			Permissions.None
