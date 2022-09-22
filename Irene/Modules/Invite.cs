@@ -2,15 +2,15 @@
 
 class Invite {
 	public const string
-		Id_Erythro = "erythro",
-		Id_Leuko   = "leuko";
+		Opt_Erythro = "erythro",
+		Opt_Leuko   = "leuko";
 	private const string
 		_urlErythro = @"https://discord.gg/ADzEwNS",
 		_urlLeuko   = @"https://discord.gg/zhadQf59xq";
 
 	public static string GetInvite(string id) => id switch {
-		Id_Erythro => _urlErythro,
-		Id_Leuko   => _urlLeuko  ,
+		Opt_Erythro => _urlErythro,
+		Opt_Leuko   => _urlLeuko  ,
 		_ => throw new ArgumentException("Unknown invite selection.", nameof(id)),
 	};
 }

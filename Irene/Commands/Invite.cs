@@ -28,8 +28,8 @@ class Invite : CommandHandler {
 				ApplicationCommandOptionType.String,
 				required: false,
 				new List<CommandOptionEnum> {
-					new (Label_Erythro, Module.Id_Erythro),
-					new (Label_Leuko  , Module.Id_Leuko  ),
+					new (Label_Erythro, Module.Opt_Erythro),
+					new (Label_Leuko  , Module.Opt_Leuko  ),
 				}
 			) },
 			Permissions.None
