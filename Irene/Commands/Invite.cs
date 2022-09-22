@@ -45,7 +45,7 @@ class Invite : CommandHandler {
 			? (string)args[Arg_Server]
 			: Opt_Erythro;
 		string link = Module.GetInvite(id);
-		interaction.RegisterEvent(Interaction.Events.FinalResponse);
+		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(link);
 	}
 }

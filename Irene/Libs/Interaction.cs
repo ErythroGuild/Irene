@@ -80,6 +80,9 @@ class Interaction {
 			? (TimeReceived + TimeOffsets[id])
 			: null;
 
+	public void RegisterInitialResponse() => RegisterEvent(Events.FinalResponse);
+	public void RegisterFinalResponse() => RegisterEvent(Events.FinalResponse);
+
 
 	// --------
 	// Convenience methods for responding to interactions:
