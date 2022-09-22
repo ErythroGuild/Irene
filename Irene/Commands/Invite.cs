@@ -41,7 +41,9 @@ class Invite : CommandHandler {
 	);
 
 	public static async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
-		string id = (string)args[Arg_Server];
+		string id = args.ContainsKey(Arg_Server)
+			? (string)args[Arg_Server]
+			: Opt_Erythro;
 		string link = Module.GetInvite(id);
 		interaction.RegisterEvent(Interaction.Events.FinalResponse);
 		await interaction.RespondCommandAsync(link);
