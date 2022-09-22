@@ -349,7 +349,7 @@ class Program {
 				?? null;
 			if (initialResponse is not null) {
 				Log.Debug(
-					"  Initial response - {DurationInitial,5:D} msec",
+					"  Initial response - {DurationInitial,5:F0} msec",
 					initialResponse
 				);
 			}
@@ -359,7 +359,7 @@ class Program {
 				?? null;
 			if (finalResponse is not null) {
 				Log.Debug(
-					"  Final response   - {DurationFinal,5:D} msec",
+					"  Final response   - {DurationFinal,5:F0} msec",
 					finalResponse
 				);
 			}
