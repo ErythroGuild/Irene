@@ -335,8 +335,8 @@ class Program {
 		// Log standard interaction data.
 		static void LogInteractionData(Interaction interaction) {
 			Log.Information(
-				"{FlagDM}Command processed: /{CommandName}",
-				interaction.Object.Channel.IsPrivate ? "[DM] " : "",
+				"Command processed:{FlagDM} /{CommandName}",
+				interaction.Object.Channel.IsPrivate ? " [DM]" : "",
 				interaction.Name
 			);
 			Log.Debug(
@@ -345,21 +345,21 @@ class Program {
 			);
 			double? initialResponse = interaction
 				.GetEventDuration(Interaction.Events.InitialResponse)
-				?.TotalSeconds
+				?.TotalMilliseconds
 				?? null;
 			if (initialResponse is not null) {
 				Log.Debug(
-					"  Initial response - {DurationInitial,6:F2} sec",
+					"  Initial response - {DurationInitial,5:D} msec",
 					initialResponse
 				);
 			}
 			double? finalResponse = interaction
 				.GetEventDuration(Interaction.Events.FinalResponse)
-				?.TotalSeconds
+				?.TotalMilliseconds
 				?? null;
 			if (finalResponse is not null) {
 				Log.Debug(
-					"  Final response   - {DurationFinal,6:F2} sec",
+					"  Final response   - {DurationFinal,5:D} msec",
 					finalResponse
 				);
 			}
