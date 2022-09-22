@@ -315,7 +315,7 @@ class Program {
 				_guildPromise.SetResult(Guild);
 
 				// Initialize modules.
-				await InitModules();
+				EnsureStaticConstruction();
 
 				// Register (update-by-overwriting) application commands.
 				_stopwatchRegister.Start();
@@ -331,6 +331,56 @@ class Program {
 			});
 			return Task.CompletedTask;
 		};
+		// Search through all (Irene's) types to find ones which have
+		// static constructors, and ensure that they're called, without
+		// needing to manually call an empty `Init()` method.
+		static void EnsureStaticConstruction() {
+			List<Type> typesAll = new (Assembly.GetExecutingAssembly().GetTypes());
+			List<Type> typesIrene = new ();
+
+			// Filter all types to only select the ones inside the same
+			// namespace as `Program` (or further nested ones). Since
+			// namespaces have strict naming rules, we can safely split
+			// the namespace string on '.'.
+			string? namespaceIrene = typeof(Program).Namespace;
+			foreach (Type type in typesAll) {
+				string @namespace = type.Namespace ?? "";
+				string[] namespaces = @namespace.Split('.', 2);
+				if (namespaces[0] == namespaceIrene) {
+					typesIrene.Add(type);
+				}
+			}
+
+			// Ensure relevant static constructors have been called.
+			foreach (Type type in typesIrene) {
+				// See Microsoft's documentation for `GetConstructors()`.
+				// These flags are the exact ones needed to fetch static
+				// constructors.
+				List<ConstructorInfo> constructors = new (
+					type.GetConstructors(
+						BindingFlags.Public |
+						BindingFlags.Static |
+						BindingFlags.NonPublic |
+						BindingFlags.Instance
+					)
+				);
+
+				// Note: calling the constructor directly risks calling
+				// the static constructor more than once. Instead, check
+				// for the presence of a static constructor, and if one
+				// exists, we use the following method to call it (if
+				// it hasn't been called yet), and register the runtime
+				// that it _has_ been called.
+				foreach (ConstructorInfo constructor in constructors) {
+					if (constructor.IsStatic) {
+						System.Runtime.CompilerServices
+							.RuntimeHelpers
+							.RunClassConstructor(type.TypeHandle);
+						break;
+					}
+				}
+			}
+		}
 
 		// Log standard interaction data.
 		static void LogInteractionData(Interaction interaction) {
@@ -452,46 +502,6 @@ class Program {
 		_stopwatchDownload.Start();
 		await Client.ConnectAsync();
 		await Task.Delay(-1);
-	}
-
-	private static async Task InitModules() {
-		await AwaitGuildInitAsync();
-
-		// List all initializers.
-		List<Action>
-			classes = new () {
-				ClassSpec.Init,
-				TimeZones.Init,
-			},
-			components = new () {
-				Confirm.Init,
-				Modal.Init,
-				Pages.Init,
-				Selection.Init,
-				Interactables.Minigames.RPS.Init,
-			},
-			modules = new () {
-				AuditLog.Init,
-				Command.Init,
-				Minigame.Init,
-				IreneStatus.Init,
-				Raid.Init,
-				RecurringEvents.Init,
-				Welcome.Init,
-				Starboard.Init,
-			};
-		static void RunInitializers(List<Action> initializers) {
-			foreach (Action initializer in initializers)
-				initializer.Invoke();
-		}
-
-		RunInitializers(classes);
-		RunInitializers(components);
-		RunInitializers(modules);
-		
-		// Run command initializers last.
-		foreach (Action initializer in Command.Initializers)
-			initializer.Invoke();
 	}
 
 	// Private method used to define the public "IsDebug" property.
