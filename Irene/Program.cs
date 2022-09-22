@@ -3,7 +3,6 @@ using System.Reflection;
 
 using Spectre.Console;
 
-using Irene.Commands;
 using Irene.Interactables;
 using Irene.Modules;
 
@@ -474,12 +473,12 @@ class Program {
 			modules = new () {
 				AuditLog.Init,
 				Command.Init,
-				Modules.Minigame.Init,
-				Modules.IreneStatus.Init,
-				Modules.Raid.Init,
+				Minigame.Init,
+				IreneStatus.Init,
+				Raid.Init,
 				RecurringEvents.Init,
 				Welcome.Init,
-				Modules.Starboard.Init,
+				Starboard.Init,
 			};
 		static void RunInitializers(List<Action> initializers) {
 			foreach (Action initializer in initializers)
