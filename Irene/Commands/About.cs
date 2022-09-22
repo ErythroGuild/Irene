@@ -1,6 +1,6 @@
 ﻿namespace Irene.Commands;
 
-class Version : AbstractCommand {
+class About : AbstractCommand {
 	private static readonly object _lock = new ();
 	private const string
 		_pathBuild   = @"config/commit.txt",
@@ -8,14 +8,14 @@ class Version : AbstractCommand {
 
 	public override List<string> HelpPages =>
 		new () { new List<string> {
-			@"`/version` displays the most recent release version and currently running build.",
+			@"`/about` displays the most recent release version and currently running build.",
 			"These values are automatically generated from git when the bot is built."
 		}.ToLines() };
 
 	public override List<InteractionCommand> SlashCommands =>
 		new () {
 			new ( new (
-				"version",
+				"about",
 				"Display the build the bot is currently running.",
 				options: null,
 				defaultPermission: true,
