@@ -21,6 +21,11 @@ static partial class Util {
 	public static string Mention(this DiscordApplicationCommand command, string display) =>
 		$"</{display}:{command.Id}>";
 
+	// Mention formatting.
+	public static string MentionUserId(this ulong id) => $"<@{id}>";
+	public static string MentionChannelId(this ulong id) => $"<#{id}>";
+	public static string MentionRoleId(this ulong id) => $"<@&{id}>";
+
 	// Adjusts to 12-/24-hour clock based on user's client locale.
 	// Default style (no format specifier) is equivalent to ":f"
 	// (DateTimeShort).
