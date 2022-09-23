@@ -79,6 +79,7 @@ class Random : CommandHandler {
 		$"""
 		{Command.Mention($"{Id_Command} {Id_Number}")} functions the same as `/roll`.
 		{Command.Mention($"{Id_Command} {Id_CoinFlip}")} displays the result of a coin flip.
+		{Command.Mention($"{Id_Command} {Id_Card}")} draws a card from a standard deck.
 		{Command.Mention($"{Id_Command} {Id_8Ball}")} `<question> [share]` forecasts the answer to a yes/no question.
 		    If `[share]` isn't specified, the response will be private.
 		""";
@@ -127,6 +128,14 @@ class Random : CommandHandler {
 			),
 			new (
 				new (
+					Id_Card,
+					"Draw a card.",
+					ApplicationCommandOptionType.SubCommand
+				),
+				new (DrawCardAsync)
+			),
+			new (
+				new (
 					Id_8Ball,
 					@"Forecast the answer to a yes/no question.",
 					ApplicationCommandOptionType.SubCommand,
@@ -159,6 +168,26 @@ class Random : CommandHandler {
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(response);
 		interaction.SetResponseSummary(result ? "Heads" : "Tails");
+	}
+
+	public async Task DrawCardAsync(Interaction interaction, IDictionary<string, object> _) {
+		Module.PlayingCard card = Module.DrawCard();
+		string suit = card.Suit switch {
+			Module.Suit.Spades   => "\u2664", // white spade suit
+			Module.Suit.Hearts   => "\u2661", // white heart suit
+			Module.Suit.Diamonds => "\u2662", // white diamond suit
+			Module.Suit.Clubs    => "\u2667", // white club suit
+			Module.Suit.Joker    => "\U0001F0CF", // :black_joker:
+			_ => throw new InvalidOperationException("Invalid card drawn."),
+		};
+		string value = card.Value ?? "";
+		string response = (card.Suit != Module.Suit.Joker)
+			? $"{suit} **{value}**"
+			: suit;
+
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response);
+		interaction.SetResponseSummary(response);
 	}
 
 	public async Task Predict8BallAsync(Interaction interaction, IDictionary<string, object> args) {

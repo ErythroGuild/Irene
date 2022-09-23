@@ -168,6 +168,38 @@ class Roll {
 	public static bool FlipCoin() =>
 		(GenerateRawValue() % 2) == 0;
 
+	public enum Suit { Spades, Hearts, Diamonds, Clubs, Joker }
+	public record struct PlayingCard(Suit Suit, string? Value);
+	public static PlayingCard DrawCard() {
+		int i = (int)RandomWithFallback(0, 53);
+
+		if (i is 52 or 53)
+			return new PlayingCard(Suit.Joker, null);
+
+		int suit_i = i / 13; // int division!
+		int value_i = i - (suit_i * 13);
+
+		// New deck order :)
+		Suit suit = suit_i switch {
+			0 => Suit.Spades,
+			1 => Suit.Diamonds,
+			2 => Suit.Clubs,
+			3 => Suit.Hearts,
+			_ => throw new InvalidOperationException("Invalid card drawn."),
+		};
+
+		string value = value_i switch {
+			  0 => "A",
+			<=9 => (value_i + 1).ToString(),
+			 10 => "J",
+			 11 => "Q",
+			 12 => "K",
+			_ => throw new InvalidOperationException("Invalid card drawn."),
+		};
+
+		return new (suit, value);
+	}
+
 	// The input query is normalized and hashed, and then used to select
 	// a prediction. The hash is tied to the date of the query.
 	// The overall result isn't guaranteed to be cryptographically-secure,
