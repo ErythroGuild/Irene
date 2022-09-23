@@ -1,10 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
-
-using CRNG = System.Security.Cryptography.RandomNumberGenerator;
-
-using Module = Irene.Modules.Roll;
+﻿using Module = Irene.Modules.Roll;
 
 namespace Irene.Commands;
 
@@ -69,27 +63,94 @@ class Roll : CommandHandler {
 	}
 }
 
-class CoinFlip : CommandHandler {
-	public const string Id_Command = "coin-flip";
+class Random : CommandHandler {
+	public const string
+		Id_Command   = "random",
+		Id_Number    = "number",
+		Id_CoinFlip  = "coin-flip",
+		Id_Card      = "card",
+		Id_8Ball     = "8-ball",
+		Arg_Question = "question",
+		Arg_Share    = "share";
 
-	public CoinFlip(GuildData erythro) : base (erythro) { }
+	public Random(GuildData erythro) : base (erythro) { }
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Id_Command)} displays the result of a coin flip.
+		{Command.Mention($"{Id_Command} {Id_Number}")} functions the same as `/roll`.
+		{Command.Mention($"{Id_Command} {Id_CoinFlip}")} displays the result of a coin flip.
+		{Command.Mention($"{Id_Command} {Id_8Ball}")} `<question> [share]` forecasts the answer to a yes/no question.
+		    If `[share]` isn't specified, the response will be private.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
 			Id_Command,
-			"Flip a coin.",
-			new List<CommandOption>(),
+			"Generate a randomized outcome.",
 			Permissions.None
 		),
-		RespondAsync
+		new List<CommandTree.GroupNode>(),
+		new List<CommandTree.LeafNode> {
+			new (
+				new (
+					Id_Number,
+					"Generate a random number.",
+					ApplicationCommandOptionType.SubCommand,
+					options: new List<CommandOption> {
+						new (
+							Roll.Arg_Min,
+							"The lower bound (inclusive).",
+							ApplicationCommandOptionType.Integer,
+							required: false,
+							minValue: Roll.Value_Min,
+							maxValue: Roll.Value_Max
+						),
+						new (
+							Roll.Arg_Max,
+							"The upper bound (inclusive).",
+							ApplicationCommandOptionType.Integer,
+							required: false,
+							minValue: Roll.Value_Min,
+							maxValue: Roll.Value_Max
+						),
+					}
+				),
+				new (new Roll(Erythro).RespondAsync)
+			),
+			new (
+				new (
+					Id_CoinFlip,
+					"Flip a coin.",
+					ApplicationCommandOptionType.SubCommand
+				),
+				new (FlipCoinAsync)
+			),
+			new (
+				new (
+					Id_8Ball,
+					@"Forecast the answer to a yes/no question.",
+					ApplicationCommandOptionType.SubCommand,
+					options: new List<CommandOption> {
+						new (
+							Arg_Question,
+							@"The yes/no question to answer.",
+							ApplicationCommandOptionType.String,
+							required: true
+						),
+						new (
+							Arg_Share,
+							"Whether the prediction is public.",
+							ApplicationCommandOptionType.Boolean,
+							required: false
+						),
+					}
+				),
+				new (Predict8BallAsync)
+			),
+		}
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> _) {
+	public async Task FlipCoinAsync(Interaction interaction, IDictionary<string, object> _) {
 		bool result = Module.FlipCoin();
 		string response = (result switch {
 			true  => Erythro.Emoji(id_e.heads),
@@ -99,46 +160,8 @@ class CoinFlip : CommandHandler {
 		await interaction.RespondCommandAsync(response);
 		interaction.SetResponseSummary(result ? "Heads" : "Tails");
 	}
-}
 
-class Magic8Ball : CommandHandler {
-	public const string
-		Id_Command   = "8-ball",
-		Arg_Question = "question",
-		Arg_Share    = "share";
-
-	public Magic8Ball(GuildData erythro) : base(erythro) { }
-
-	public override string HelpText =>
-		$"""
-		{Command.Mention(Id_Command)} `<question> [share]` forecasts the answer to a yes/no question.
-		    If `[share]` isn't specified, the response will be private.
-		""";
-
-	public override CommandTree CreateTree() => new (
-		new (
-			Id_Command,
-			@"Forecast the answer to a yes/no question.",
-			new List<CommandOption> {
-				new (
-					Arg_Question,
-					@"The yes/no question to answer.",
-					ApplicationCommandOptionType.String,
-					required: true
-				),
-				new (
-					Arg_Share,
-					"Whether the prediction is public.",
-					ApplicationCommandOptionType.Boolean,
-					required: false
-				),
-			},
-			Permissions.None
-		),
-		RespondAsync
-	);
-
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+	public async Task Predict8BallAsync(Interaction interaction, IDictionary<string, object> args) {
 		string question = (string)args[Arg_Question];
 		bool doShare = args.ContainsKey(Arg_Share)
 			? (bool)args[Arg_Share]
