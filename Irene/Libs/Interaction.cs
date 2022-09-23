@@ -19,6 +19,7 @@ class Interaction {
 	public DiscordInteraction Object { get; }
 	public DiscordMessage? TargetMessage { get; } = null;
 	public DiscordUser? TargetUser { get; } = null;
+	public string? ResponseSummary { get; private set; } = null;
 
 	// Private properties.
 	private Stopwatch Timer { get; }
@@ -82,6 +83,14 @@ class Interaction {
 
 	public void RegisterInitialResponse() => RegisterEvent(Events.FinalResponse);
 	public void RegisterFinalResponse() => RegisterEvent(Events.FinalResponse);
+
+	// Methods relating to response summaries.
+	public void SetResponseSummary(string summary) {
+		ResponseSummary = summary;
+	}
+	public void ClearResponseSummary() {
+		ResponseSummary = null;
+	}
 
 
 	// --------

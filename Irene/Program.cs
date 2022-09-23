@@ -392,10 +392,12 @@ class Program {
 				interaction.Object.Channel.IsPrivate ? " [DM]" : "",
 				interaction.Name
 			);
+
 			Log.Debug(
 				"  Received: {TimestampReceived:HH:mm:ss.fff}",
 				interaction.TimeReceived.ToLocalTime()
 			);
+
 			double? initialResponse = interaction
 				.GetEventDuration(Interaction.Events.InitialResponse)
 				?.TotalMilliseconds
@@ -406,6 +408,7 @@ class Program {
 					initialResponse
 				);
 			}
+
 			double? finalResponse = interaction
 				.GetEventDuration(Interaction.Events.FinalResponse)
 				?.TotalMilliseconds
@@ -415,6 +418,14 @@ class Program {
 					"  Final response   - {DurationFinal,5:F0} msec",
 					finalResponse
 				);
+			}
+
+			string? responseSummary = interaction.ResponseSummary;
+			if (responseSummary is not null) {
+				Log.Debug("  Response summary:");
+				string[] lines = responseSummary.Split("\n");
+				foreach (string line in lines)
+					Log.Debug("    {ResponseLine}", line);
 			}
 		}
 		// Even though this is used for context menu commands, the event
