@@ -251,6 +251,9 @@ class Program {
 						.UpdateRegisteredCommand(command);
 				}
 
+				// Update status module with registered command count.
+				About.SetRegisteredCommands(commands.Count);
+
 				// Start data initialization timer.
 				_stopwatchInitData.Start();
 

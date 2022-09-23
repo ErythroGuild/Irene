@@ -1,58 +1,33 @@
-﻿namespace Irene.Commands;
+﻿using Module = Irene.Modules.About;
 
-class About : AbstractCommand {
-	private static readonly object _lock = new ();
-	private const string
-		_pathBuild   = @"config/commit.txt",
-		_pathVersion = @"config/tag.txt";
+namespace Irene.Commands;
 
-	public override List<string> HelpPages =>
-		new () { new List<string> {
-			@"`/about` displays the most recent release version and currently running build.",
-			"These values are automatically generated from git when the bot is built."
-		}.ToLines() };
+class About : CommandHandler {
+	public const string Id_Command = "about";
 
-	public override List<InteractionCommand> SlashCommands =>
-		new () {
-			new ( new (
-				"about",
-				"Display the build the bot is currently running.",
-				options: null,
-				defaultPermission: true,
-				ApplicationCommandType.SlashCommand
-			), Command.DeferVisibleAsync, RunAsync )
-		};
+	public About(GuildData erythro) : base (erythro) { }
 
-	public static async Task RunAsync(TimedInteraction interaction) {
-		StreamReader file;
-		string build = "";
-		string version = "";
+	public override string HelpText =>
+		$"""
+		{Command.Mention(Id_Command)} displays the currently running version and status.
+		""";
 
-		// Read in data.
-		lock (_lock) {
-			file = File.OpenText(_pathBuild);
-			build = file.ReadLine() ?? "";
-			if (build.Length > 7)
-				build = build[..7];
-			file.Close();
-		}
+	public override CommandTree CreateTree() => new (
+		new (
+			Id_Command,
+			"Display bot version and status.",
+			new List<CommandOption>(),
+			Permissions.None
+		),
+		RespondAsync
+	);
 
-		lock (_lock) {
-			file = File.OpenText(_pathVersion);
-			version = file.ReadLine() ?? "";
-			file.Close();
-		}
-
-		string output = $"**Irene {version}** build `{build}`";
-
-		// Respond with data.
-		await Command.SubmitResponseAsync(
-			interaction,
-			output,
-			"Sending version information.",
-			LogLevel.Debug,
-			"{Version}, build {Build}".AsLazy(),
-			version, build
-		);
+	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> _) {
+		DiscordMessageBuilder response =
+			new DiscordMessageBuilder()
+			.WithEmbed(Module.CollateStatusEmbed())
+			.WithAllowedMentions(Mentions.None);
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response);
 	}
 }
