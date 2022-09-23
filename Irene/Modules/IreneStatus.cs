@@ -57,7 +57,7 @@ class IreneStatus {
 		}
 
 		// Set a random status.
-		int i = Random.Shared.Next(0, statuses.Count);
+		int i = System.Random.Shared.Next(0, statuses.Count);
 		await Set(statuses[i]);
 		return true;
 	}
@@ -131,7 +131,7 @@ class IreneStatus {
 	// Returns a random duration for changing status.
 	// Parameters are const fields of IreneStatus.
 	private static double GetRandomDurationMsec() {
-		double random = Random.Shared.NextDouble();
+		double random = System.Random.Shared.NextDouble();
 		random = 2 * random - 1; // -> [-1.0, 1.0)
 		double days = _timerDaysBase + random * _timerDaysRange;
 		return TimeSpan.FromDays(days).TotalMilliseconds;

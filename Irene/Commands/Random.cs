@@ -1,4 +1,4 @@
-﻿using Module = Irene.Modules.Roll;
+﻿using Module = Irene.Modules.Random;
 
 namespace Irene.Commands;
 

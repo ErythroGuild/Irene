@@ -6,7 +6,7 @@ using CRNG = System.Security.Cryptography.RandomNumberGenerator;
 
 namespace Irene.Modules;
 
-class Roll {
+class Random {
 	private static readonly CRNG _crng = CRNG.Create();
 	private static readonly object _lock = new ();
 
@@ -67,7 +67,7 @@ class Roll {
 	// to a cryptographically-INsecure number if that fails.
 	// Note: Lower bound MUST be non-negative.
 	public static long RandomWithFallback(long low, long high) {
-		long? output = Random(low, high);
+		long? output = RandomSecure(low, high);
 		if (output is not null)
 			return output.Value;
 
@@ -79,7 +79,7 @@ class Roll {
 	// between low and high, inclusive.
 	// Returns null if timed out.
 	// Note: Lower bound MUST be non-negative.
-	public static long? Random(long low, long high) {
+	public static long? RandomSecure(long low, long high) {
 		// Order of operations is always important, to stay within the
 		// valid range of the underlying data type.
 
