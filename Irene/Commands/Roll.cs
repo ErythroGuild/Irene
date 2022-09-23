@@ -4,283 +4,152 @@ using System.Text.RegularExpressions;
 
 using CRNG = System.Security.Cryptography.RandomNumberGenerator;
 
+using Module = Irene.Modules.Roll;
+
 namespace Irene.Commands;
 
-class Roll : AbstractCommand {
-	private static readonly CRNG _crng = CRNG.Create();
-	private static readonly object _lock = new ();
+class Roll : CommandHandler {
+	public const string
+		Id_Command = "roll",
+		Arg_Min    = "min",
+		Arg_Max    = "max";
+	// Valid argument ranges for min/max args.
+	public const int
+		Value_Min = 0,
+		Value_Max = 1000000000; // 10^9 < 2^31, API uses signed int32
 
-	// Timeout if this many attempts at generating a random number
-	// were made.
-	private const int _maxTries = 8;
-	// Limit range to values smaller than int (which will be smaller
-	// than the ulong that the raw CRNG will generate).
-	// Making the minimum value positive allows use of unsigned math
-	// for the number generation intermediary steps.
-	// int: -2,147,483,648 ~ 2,147,483,647
-	private const int _minRange = 1,
-		_maxRange = 1000000000; // 10^9
+	public Roll(GuildData erythro) : base (erythro) { }
 
-	private static readonly ReadOnlyCollection<string> _predictions =
-		new (new List<string>() {
-			// Positive
-			"It is certain.",
-			"It is decidedly so.",
-			"Without a doubt.",
-			"Yes definitely.",
-			"You may rely on it.",
-			"As I see it, yes.",
-			"Most likely.",
-			"Outlook good.",
-			"Yes.",
-			"Signs point to yes.",
+	public override string HelpText =>
+		$"""
+		{Command.Mention(Id_Command)} generates a number between `1` and `100`,
+		{Command.Mention(Id_Command)} `<max>` generates a number between `1` and `max`,
+		{Command.Mention(Id_Command)} `<min> <max>` generates a number between `min` and `max`.
+		    All ranges are inclusive, e.g. `[7, 23]`.
+		""";
 
-			// Negative
-			"Don't count on it.",
-			"My reply is no.",
-			"My sources say no.",
-			"Outlook not so good.",
-			"Very doubtful.",
+	public override CommandTree CreateTree() => new (
+		new (
+			Id_Command,
+			"Generate a random number.",
+			new List<CommandOption> {
+				new (
+					Arg_Min,
+					"The lower bound (inclusive).",
+					ApplicationCommandOptionType.Integer,
+					required: false,
+					minValue: Value_Min,
+					maxValue: Value_Max
+				),
+				new (
+					Arg_Max,
+					"The upper bound (inclusive).",
+					ApplicationCommandOptionType.Integer,
+					required: false,
+					minValue: Value_Min,
+					maxValue: Value_Max
+				),
+			},
+			Permissions.None
+		),
+		RespondAsync
+	);
 
-			// Non-committal
-			"Reply hazy, try again.",
-			"Ask again later.",
-			"Better not tell you now.",
-			"Cannot predict now.",
-			"Concentrate and ask again.",
-		});
-
-	public override List<string> HelpPages =>
-		new () { new List<string> {
-			@"`/roll` generates a number between `1` and `100`,",
-			@"`/roll <max>` generates a number between `1` and `max`,",
-			@"`/roll <min> <max> generates a number between `min` and `max`.",
-			"All ranges are inclusive (e.g. `[1, 100]`).",
-			@"`/8-ball <question> [keep-private]` forecasts the answer to a yes/no question.",
-			@"`/coin-flip` displays the result of a coin flip.",
-		}.ToLines() };
-
-	public override List<InteractionCommand> SlashCommands =>
-		new () {
-			new ( new (
-				"roll",
-				"Generate a number in a given range (inclusive).",
-				new List<CommandOption> {
-					new (
-						"min",
-						"Smallest number to generate.",
-						ApplicationCommandOptionType.Integer,
-						required: false,
-						minValue: _minRange,
-						maxValue: _maxRange
-					),
-					new (
-						"max",
-						"Biggest number to generate.",
-						ApplicationCommandOptionType.Integer,
-						required: false,
-						minValue: _minRange,
-						maxValue: _maxRange
-					),
-				},
-				defaultPermission: true,
-				ApplicationCommandType.SlashCommand
-			), Command.DeferVisibleAsync, RunRollAsync ),
-			new ( new (
-				"8-ball",
-				@"Forecast the answer to a yes/no question.",
-				new List<CommandOption>() {
-					new (
-						"question",
-						@"A yes/no question to answer.",
-						ApplicationCommandOptionType.String,
-						required: true
-					),
-					new (
-						"keep-private",
-						"Keep response visible only to self.",
-						ApplicationCommandOptionType.Boolean,
-						required: false
-					),
-				},
-				defaultPermission: true,
-				ApplicationCommandType.SlashCommand
-			), Defer8BallAsync, Run8BallAsync ),
-			new ( new (
-				"coin-flip",
-				"Flip a coin.",
-				defaultPermission: true,
-				type: ApplicationCommandType.SlashCommand
-			), Command.DeferVisibleAsync, RunCoinFlipAsync ),
-		};
-
-	public static async Task RunRollAsync(TimedInteraction interaction) {
-		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
-		int low, high;
-
-		// Convert an argument from object -> long -> int.
-		// (If a direct cast is tried, an InvalidCastException will be
-		// thrown.)
-		static int ArgToInt(DiscordInteractionDataOption arg) =>
-			(int)(long)arg.Value;
-
-		// Assign range based on args.
-		(low, high) = args.Count switch {
-			0 => (1, 100),
-			1 => (1, ArgToInt(args[0])),
-			2 => (ArgToInt(args[0]), ArgToInt(args[1])),
-			_ => throw new ArgumentException("Too many arguments provided."),
-		};
-
-		// Make sure the higher number is actually higher.
-		// (System.Random also expects this.)
-		if (low > high)
-			(low, high) = (high, low);
-
-		Log.Debug("  Generating number in the range [{Min}, {Max}].", low, high);
-
-		// Generate a random number, falling back to non-cryptographic
-		// method if cryptographic method fails.
-		int? x = Random(low, high);
-		bool didFail = false;
-		if (x is null) {
-			didFail = true;
-			Log.Warning("  Could not generate a secure number. Falling back to alternate method.");
-			x = RandomFallback(low, high);
-		}
-
-		// Stringify result.
-		// "n" - number:
-		//     Integral and decimal digits, group separators, and a
-		//     decimal separator with optional negative sign.
-		string output = ((int)x).ToString("n0");
-		output = output.Bold();
-		if ((low, high) != (1, 100))
-			output += $"    ({low}-{high})";
-
-		// Return data.
-		await Command.SubmitResponseAsync(
-			interaction,
-			$"  {output}",
-			"Sending random number.",
-			LogLevel.Debug,
-			"Random number sent: {X}.".AsLazy(),
-			x
-		);
-
-		// If fallback generation was used, calculate the probability
-		// that the fallback was needed.
-		if (didFail) {
-			ulong range = (ulong)(high - low + 1);
-			ulong max = ulong.MaxValue;
-			decimal p = max % range / (decimal) max;
-			p = (decimal)Math.Pow((double)p, _maxTries);
-
-			Log.Information("    Failed to generate secure number {Attempts} times.", _maxTries);
-			Log.Debug("    Probability of this occuring: {Probability:p}%.", p);
-		}
+	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+		List<int> argList = new ();
+		// `object` -> `long` -> `int` prevents an `InvalidCastException`.
+		// This is because D#+ returns a `long`, even though the value
+		// will always fit into an `int`.
+		foreach (object arg in args.Values)
+			argList.Add((int)(long)arg);
+		string response = Module.SlashRoll(argList);
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response);
+		interaction.SetResponseSummary(response);
 	}
+}
 
-	public static async Task Defer8BallAsync(TimedInteraction interaction) {
-		// Check for "private" response option.
-		bool doHide = false;
-		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
-		if (args.Count > 1)
-			doHide = (bool)args[1].Value;
-		await Command.DeferAsync(interaction, doHide);
+class CoinFlip : CommandHandler {
+	public const string Id_Command = "coin-flip";
+
+	public CoinFlip(GuildData erythro) : base (erythro) { }
+
+	public override string HelpText =>
+		$"""
+		{Command.Mention(Id_Command)} displays the result of a coin flip.
+		""";
+
+	public override CommandTree CreateTree() => new (
+		new (
+			Id_Command,
+			"Flip a coin.",
+			new List<CommandOption>(),
+			Permissions.None
+		),
+		RespondAsync
+	);
+
+	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> _) {
+		bool result = Module.FlipCoin();
+		string response = (result switch {
+			true  => Erythro.Emoji(id_e.heads),
+			false => Erythro.Emoji(id_e.tails),
+		}).ToString();
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response);
+		interaction.SetResponseSummary(result ? "Heads" : "Tails");
 	}
-	public static async Task Run8BallAsync(TimedInteraction interaction) {
-		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
+}
 
-		// Strip input argument (lower case, remove punctuation).
-		// Newlines are converted to spaces.
-		// (Format question for output.)
-		string arg_original = (string)args[0].Value;
-		arg_original = arg_original.Replace('\n', ' ');
-		string arg_stripped = arg_original.ToLower();
-		arg_stripped = Regex.Replace(arg_stripped, @"[^a-zA-Z0-9]", "");
-		arg_stripped += DateTime.Now.ToString(Format_IsoDate);
-		
-		// (MD5) Hash input.
-		byte[] arg_raw = Encoding.ASCII.GetBytes(arg_stripped);
-		byte[] hash_raw = MD5.Create().ComputeHash(arg_raw);
+class Magic8Ball : CommandHandler {
+	public const string
+		Id_Command   = "8-ball",
+		Arg_Question = "question",
+		Arg_Share    = "share";
 
-		// Calculate result from hash.
-		// This is technically NOT a uniform sample, but it is more
-		// than close enough and not worth implementing a fallback
-		// (which would also need to be deterministic).
-		ulong hash = BitConverter.ToUInt64(hash_raw);
-		int index = (int)(hash % (ulong)_predictions.Count);
+	public Magic8Ball(GuildData erythro) : base(erythro) { }
 
-		// Respond.
-		string prediction = $"> {arg_original}\n{_predictions[index]}";
-		await Command.SubmitResponseAsync(
-			interaction,
-			prediction,
-			"Sending prediction.",
-			LogLevel.Debug,
-			"Prediction sent: \"{Prediction}\".".AsLazy(),
-			_predictions[index]
-		);
-	}
+	public override string HelpText =>
+		$"""
+		{Command.Mention(Id_Command)} `<question> [share]` forecasts the answer to a yes/no question.
+		    If `[share]` isn't specified, the response will be private.
+		""";
 
-	public static async Task RunCoinFlipAsync(TimedInteraction interaction) {
-		int random = Random(0, 1) ?? RandomFallback(0, 1);
-		string result = random switch {
-			0 => "Tails!",
-			1 => "Heads!",
-			_ => "",
-		};
+	public override CommandTree CreateTree() => new (
+		new (
+			Id_Command,
+			@"Forecast the answer to a yes/no question.",
+			new List<CommandOption> {
+				new (
+					Arg_Question,
+					@"The yes/no question to answer.",
+					ApplicationCommandOptionType.String,
+					required: true
+				),
+				new (
+					Arg_Share,
+					"Whether the prediction is public.",
+					ApplicationCommandOptionType.Boolean,
+					required: false
+				),
+			},
+			Permissions.None
+		),
+		RespondAsync
+	);
 
-		// Respond.
-		await Command.SubmitResponseAsync(
-			interaction,
-			result + " :coin:",
-			"Sending coin flip.",
-			LogLevel.Debug,
-			"Coin flip: {Result}".AsLazy(),
-			result
-		);
-	}
+	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+		string question = (string)args[Arg_Question];
+		bool doShare = args.ContainsKey(Arg_Share)
+			? (bool)args[Arg_Share]
+			: false;
+		DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+		// Date doesn't need to be server time--the crystal ball works
+		// in mysterious ways, after all.
 
-	// Returns a thread-safe, cryptographically-secure
-	// pseudorandom number, between low and high, inclusive.
-	// Returns null if timed out.
-	private static int? Random(int low, int high) {
-		// Set up needed variables.
-		ulong range = (ulong)(high - low + 1);
-		ulong max = ulong.MaxValue;
-		ulong cutoff = max - max % range;
-		ulong output;
-
-		// Attempt to generate a number within the cutoff range.
-		for (int i=0; i<_maxTries; i++) {
-			ulong raw = GetRawBytes();
-			if (raw < cutoff) {
-				Log.Debug("    Generated in {Attempts} attempt(s).", i+1);
-				output = (ulong)low + raw % range;
-				return (int)output;
-			}
-		}
-		// Return null if we hit max attempts.
-		return null;
-	}
-
-	// Returns a thread-safe, but not cryptographically-secure
-	// pseudorandom number, between low and high, inclusive.
-	private static int RandomFallback(int low, int high) =>
-		System.Random.Shared.Next(low, high + 1);
-
-	// Stitch a ulong from raw bytes.
-	private static ulong GetRawBytes() {
-		byte[] raw = new byte[sizeof(ulong)];
-
-		// Make sure generation is thread-safe.
-		lock (_lock) { _crng.GetBytes(raw); }
-
-		return BitConverter.ToUInt64(raw);
+		string response = Module.Magic8Ball(question, today);
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, !doShare);
+		interaction.SetResponseSummary(response);
 	}
 }
