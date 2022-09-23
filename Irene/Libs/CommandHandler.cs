@@ -61,10 +61,19 @@ abstract class CommandHandler {
 			Permissions? DefaultPermissions
 		);
 		// Handlers are associated with leaf nodes (or the root command).
-		public record class Handler(
-			NodeHandler NodeHandler,
-			IReadOnlyDictionary<string, Autocompleter> Autocompleters
-		);
+		public record class Handler {
+			public NodeHandler NodeHandler { get; }
+			public IReadOnlyDictionary<string, Autocompleter> Autocompleters { get; }
+
+			public Handler(
+				NodeHandler nodeHandler,
+				IReadOnlyDictionary<string, Autocompleter>? autocompleters=null
+			) {
+				NodeHandler = nodeHandler;
+				Autocompleters = autocompleters
+					?? new Dictionary<string, Autocompleter>();
+			}
+		}
 
 
 		// --------
