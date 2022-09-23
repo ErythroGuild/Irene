@@ -40,7 +40,7 @@ class Invite : CommandHandler {
 		RespondAsync
 	);
 
-	public static async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
 		string id = args.ContainsKey(Arg_Server)
 			? (string)args[Arg_Server]
 			: Opt_Erythro;
