@@ -29,5 +29,12 @@ class About : CommandHandler {
 			.WithAllowedMentions(Mentions.None);
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(response);
+		interaction.SetResponseSummary(
+			$"""
+			Irene {Module.String_Version} build {Module.String_Build}
+			[status info] [...]
+			Uptime: {Module.GetUptime():c}
+			"""
+		);
 	}
 }

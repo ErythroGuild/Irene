@@ -63,5 +63,6 @@ class Cap : CommandHandler {
 			message.String,
 			message.IsEphemeral
 		);
+		interaction.SetResponseSummary(message.String);
 	}
 }

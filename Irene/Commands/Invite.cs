@@ -47,5 +47,6 @@ class Invite : CommandHandler {
 		string link = Module.GetInvite(id);
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(link);
+		interaction.SetResponseSummary(link);
 	}
 }
