@@ -17,6 +17,9 @@ class About {
 		_colorOnline  = new ("#57F287"),
 		_colorIdle    = new ("#FEE75C"),
 		_colorBusy    = new ("#ED4245");
+	private const double
+		_memoryLowerLimit = 90.0,
+		_memoryUpperLimit = 150.0;
 	private const ulong _idMaintainer = 165557736287764483;
 	private const string
 		_linkSourceCode      = @"https://github.com/ErythroGuild/irene",
@@ -69,12 +72,15 @@ class About {
 		//string helpLink = CommandDispatcher.HandlerTable[Commands.Help.Id_Command]
 		//	.Command
 		//	.Mention(Commands.Help.Id_Command);
+		string statusMemoryUsage =
+			StatusCircle(GetMemoryUsageStatus());
 
 		string bodyText =
 			$"""
 			**<Erythro>**'s community management bot.
 
 			{statusAvailableCommands} **Available commands:** {RegisteredCommandCount} ({helpLink})
+			{statusMemoryUsage}  **Memory usage:** {GetMemoryUsageMB():F0} MB
 
 			Maintained by {GetMaintainerMention()} with {_charLove}
 			[Source Code]({_linkSourceCode}){_charSpaceN}{_charHeart}{_charSpaceN}[Acknowledgments]({_linkAcknowledgments})
@@ -95,6 +101,35 @@ class About {
 	public static UserStatus GetBotStatus() =>
 		Erythro?.Client.CurrentUser.Presence.Status
 			?? throw new InvalidOperationException("`About` module not initialized properly.");
+	// Returns MB (1000 kB).
+	public static double GetMemoryUsageMB() {
+		Process irene = Process.GetCurrentProcess();
+		irene.Refresh();
+
+		long bytes = irene.PrivateMemorySize64;
+		// bytes -> kilobytes -> megabytes
+		double megabytes = (double)bytes / 1000 / 1000;
+		// This gives a more conservative (i.e. higher) result.
+		return megabytes;
+	}
+	public static string GetMaintainerMention() =>
+		_idMaintainer.MentionUserId();
+	public static TimeSpan GetUptime() {
+		DateTimeOffset startTime = Process.GetCurrentProcess()
+			.StartTime
+			.ToUniversalTime();
+		return DateTimeOffset.UtcNow - startTime;
+	}
+
+	// Status indication methods.
+	public static Status GetMemoryUsageStatus() {
+		double usage = GetMemoryUsageMB();
+		return usage switch {
+			<_memoryLowerLimit => Status.Good,
+			<_memoryUpperLimit => Status.Idle,
+			_ => Status.Error,
+		};
+	}
 	public static Status GetAvailableCommandsStatus() {
 		int available = RegisteredCommandCount;
 		// The table is the more direct (efficient) representation.
@@ -113,14 +148,6 @@ class About {
 		}
 
 		return Status.Error;
-	}
-	public static string GetMaintainerMention() =>
-		_idMaintainer.MentionUserId();
-	public static TimeSpan GetUptime() {
-		DateTimeOffset startTime = Process.GetCurrentProcess()
-			.StartTime
-			.ToUniversalTime();
-		return DateTimeOffset.UtcNow - startTime;
 	}
 
 	// Public methods for setting status information.
