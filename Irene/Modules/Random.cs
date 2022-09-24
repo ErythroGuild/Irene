@@ -170,8 +170,9 @@ class Random {
 
 	public enum Suit { Spades, Hearts, Diamonds, Clubs, Joker }
 	public record struct PlayingCard(Suit Suit, string? Value);
-	public static PlayingCard DrawCard() {
-		int i = (int)RandomWithFallback(0, 53);
+	public static PlayingCard DrawCard(bool includeJokers=true) {
+		int max = includeJokers ? 53 : 51;
+		int i = (int)RandomWithFallback(0, max);
 
 		if (i is 52 or 53)
 			return new PlayingCard(Suit.Joker, null);
