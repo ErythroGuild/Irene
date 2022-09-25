@@ -2,33 +2,18 @@
 
 namespace Irene;
 
+// An extended timer class based on `DateTimeOffset`.
+// An inner `System.Timers.Timer` loops at max interval length, until
+// the remaining interval is small enough to be within the inner timer's
+// capacity.
 class LongTimer {
+	public TimeSpan Interval { get; private set; }
+	public DateTimeOffset End { get; private set; }
+	public TimeSpan Remaining => End - DateTimeOffset.UtcNow;
 	public bool AutoReset { get; set; }
-	public bool Enabled {
-		get => _timer.Enabled;
-		set => _timer.Enabled = value;
-	}
-	public decimal Interval {
-		get => _interval;
-		set {
-			_interval = value;
-			Remaining = value;
-			// Expected behavior for Timer.Interval:
-			// Set the interval, then restart the timer if the timer
-			// is already running.
-			if (_timer is not null) {
-				// Because _timer is private, it must be set in the ctor
-				// (the only other place it's defined).
-				_period = NextPeriod();
-				_timer.Interval = _period;
-				if (_timer.Enabled) {
-					Stop();
-					Restart();
-				}
-			}
-		}
-	}
-	public decimal Remaining { get; private set; }
+	// An small threshold for triggering the elapsed event.
+	public static readonly TimeSpan InternalAccuracy =
+		TimeSpan.FromMilliseconds(20);
 
 	public event ElapsedEventHandler? Elapsed;
 	protected virtual void OnElapsed(ElapsedEventArgs e) {
@@ -36,65 +21,81 @@ class LongTimer {
 		handler?.Invoke(this, e);
 	}
 
-	private readonly Timer _timer;
-	private decimal _interval;
-	private double _period;
+	private Timer _internalTimer;
+	// According to documentation, the max interval value (in msec) for
+	// `System.Timers.Timer` is `<= Int32.MaxValue`. Here it's set smaller
+	// to be conservative.
+	// This value can be reduced to test if `LongTimer` is working.
+	private static readonly TimeSpan _internalPeriodMax =
+		TimeSpan.FromMilliseconds(int.MaxValue * 0.5);
 
-	private const double _maxPeriod = int.MaxValue - 1;
-	private const decimal _accuracy = 20; // msec
+	// The private constructor doesn't create an initialized instance.
+	// Use the public factory methods to create instances instead.
+	private LongTimer(TimeSpan interval, DateTimeOffset end, bool autoReset) {
+		Interval = interval;
+		End = end;
+		AutoReset = autoReset;
+		_internalTimer = new (); // Needs to be overwritten in `Initialize()`.
+	}
 
-	public LongTimer(double totalMilliseconds, bool autoReset=false)
-		: this ((decimal)totalMilliseconds, autoReset) { }
-	public LongTimer(decimal totalMilliseconds, bool autoReset=false) {
-		Interval = totalMilliseconds;
-		Remaining = Interval;
-		Elapsed = null;
+	// When constructing via a point in time, it doesn't make sense for
+	// the timer to auto-reset (there's no directly-defined period).
+	public static LongTimer Create(DateTimeOffset end) =>
+		Create(end - DateTimeOffset.UtcNow, end, false);
+	public static LongTimer Create(TimeSpan interval, bool autoReset=false) =>
+		Create(interval, DateTimeOffset.UtcNow + interval, autoReset);
+	public static LongTimer Create(TimeSpan interval, DateTimeOffset end, bool autoReset=false) {
+		LongTimer instance = new (interval, end, autoReset);
+		instance.InitializeTimer();
+		return instance;
+	}
 
-		// Event handler for sub-timer elapsed.
-		void SetNextTimer(object? t, ElapsedEventArgs e) {
-			_timer.Stop();
-			Remaining -= (decimal)_period;
+	public void Cancel() => _internalTimer.Stop();
+	public void SetAndStart(DateTimeOffset end) {
+		Initialize(end - DateTimeOffset.UtcNow, end, false);
+	}
+	public void SetAndStart(TimeSpan interval, bool autoReset=false) {
+		Initialize(interval, DateTimeOffset.UtcNow + interval, autoReset);
+	}
+	public void SetAndStart(TimeSpan interval, DateTimeOffset end, bool autoReset=false) {
+		Initialize(interval, end, autoReset);
+	}
 
-			// No absolute value on check--any negative values
-			// count as having triggered the timer.
-			if (Remaining < _accuracy) {
-				// Fire elapsed event.
-				OnElapsed(e);
+	private void Initialize(TimeSpan interval, DateTimeOffset end, bool autoReset) {
+		Interval = interval;
+		End = end;
+		AutoReset = autoReset;
+		InitializeTimer();
+	}
+	private void InitializeTimer() {
+		_internalTimer = Util.CreateTimer(NextInternalPeriod, false);
+		_internalTimer.Elapsed += SetNextTimer;
+		_internalTimer.Start();
+	}
+	private void SetNextTimer(object? timer, ElapsedEventArgs e) {
+		_internalTimer.Stop();
 
-				// Continue or terminate based on AutoReset.
-				if (AutoReset)
-					Remaining = Interval;
-				else
-					return;
-			}
+		// Check that we didn't overshoot the end point in between when
+		// the internal timer triggered, and this delegate is processed.
+		// No absolute value needed--negative values should have triggered.
+		if (Remaining < InternalAccuracy) {
+			// Fire registered event.
+			OnElapsed(e);
 
-			// If continuing, set next timer iteration and resume.
-			_period = NextPeriod();
-			_timer.Interval = _period;
-			_timer.Start();
+			// Terminate if not resetting.
+			if (!AutoReset)
+				return;
+
+			// Else, set up for the next iteration.
+			End = DateTimeOffset.UtcNow + Interval;
 		}
 
-		// Set up sub-timer.
-		_period = NextPeriod();
-		_timer = Util.CreateTimer(_period, autoReset);
-		_timer.Elapsed += SetNextTimer;
+		_internalTimer.Interval =
+			NextInternalPeriod.TotalMilliseconds;
+		_internalTimer.Start();
 	}
-
-	// Resets the remaining time to the full interval, and then
-	// starts the timer over again.
-	public void Restart() {
-		_timer.Stop();
-		Remaining = Interval;
-		_period = NextPeriod();
-		_timer.Interval = _period; // this resets timer count
-		_timer.Start();
-	}
-	public void Start() => _timer.Start();
-	public void Stop() => _timer.Stop();
-	public void Close() => _timer.Close();
-
-	private double NextPeriod() =>
-		(Remaining > (decimal)_maxPeriod)
-			? _maxPeriod
-			: (double)Remaining;
+	private TimeSpan NextInternalPeriod =>
+		(Remaining > _internalPeriodMax)
+			? _internalPeriodMax
+			: Remaining;
 }
