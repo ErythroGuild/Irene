@@ -1,9 +1,7 @@
-﻿namespace Irene;
+namespace Irene;
 
 static class ClassSpec {
-	public enum Role {
-		Tank, Heal, DPS,
-	}
+	public enum Role { Tank, Heal, DPS, }
 	public enum Class {
 		DK, DH, Druid, Evoker, Hunter,
 		Mage, Monk, Paladin, Priest,

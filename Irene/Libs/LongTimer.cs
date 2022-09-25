@@ -11,7 +11,7 @@ class LongTimer {
 	public DateTimeOffset End { get; private set; }
 	public TimeSpan Remaining => End - DateTimeOffset.UtcNow;
 	public bool AutoReset { get; set; }
-	// An small threshold for triggering the elapsed event.
+	// A small threshold for triggering the elapsed event.
 	public static readonly TimeSpan InternalAccuracy =
 		TimeSpan.FromMilliseconds(20);
 

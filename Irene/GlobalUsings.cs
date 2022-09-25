@@ -28,9 +28,9 @@ global using static Irene.Program;
 
 // Type aliases.
 global using id_ch = Irene.Const.ChannelIDs;
+global using id_vc = Irene.Const.VoiceChatIDs;
 global using id_e  = Irene.Const.EmojiIDs;
 global using id_r  = Irene.Const.RoleIDs;
-global using id_vc = Irene.Const.VoiceChatIDs;
 
 global using AccessLevel = Irene.Commands.Rank.Level;
 global using MessagePromise = System.Threading.Tasks.TaskCompletionSource<DSharpPlus.Entities.DiscordMessage>;
