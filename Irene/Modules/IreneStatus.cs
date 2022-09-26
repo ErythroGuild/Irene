@@ -85,10 +85,19 @@ class IreneStatus {
 		await Add(status);
 	}
 
-	public static async Task SetRandom() {
+	// Returns false if there were no saved statuses to choose from.
+	public static async Task<bool> SetRandom() {
 		DateTimeOffset refresh = DateTimeOffset.UtcNow + GetRandomInterval();
-		Status status = await GetRandomStatus();
+
+		Status status;
+		try {
+			status = await GetRandomStatus();
+		} catch (InvalidOperationException) {
+			return false;
+		}
+
 		await Set(status, refresh);
+		return true;
 	}
 
 
