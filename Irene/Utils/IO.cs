@@ -75,4 +75,12 @@ static partial class Util {
 		}
 		return did_create;
 	}
+	public static bool CreateIfMissing(string path) {
+		bool did_create = false;
+		if (!File.Exists(path)) {
+			File.Create(path).Close();
+			did_create = true;
+		}
+		return did_create;
+	}
 }
