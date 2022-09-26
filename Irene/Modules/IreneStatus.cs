@@ -1,4 +1,5 @@
-﻿using System.Timers; // ElapsedEventArgs
+﻿using System.Globalization; // CultureInfo
+using System.Timers; // ElapsedEventArgs
 
 namespace Irene.Modules;
 
@@ -65,6 +66,8 @@ class IreneStatus {
 		_pathCurrent  = @"data/irenestatus-current.txt";
 	private const string _separator = "<<<";
 	private const string _formatDateTime = "u";
+	private static readonly CultureInfo _formatCulture =
+		CultureInfo.InvariantCulture;
 
 	static IreneStatus() {
 		Util.CreateIfMissing(_pathStatuses);
@@ -154,7 +157,7 @@ class IreneStatus {
 
 		string output = string.Join(
 			_separator,
-			NextRefresh.Value.ToString(_formatDateTime),
+			NextRefresh.Value.ToString(_formatDateTime, _formatCulture),
 			CurrentStatus.ToString()
 		);
 		await _queueCurrent.Run(
@@ -178,7 +181,7 @@ class IreneStatus {
 				refresh = DateTimeOffset.ParseExact(
 					split[0],
 					_formatDateTime,
-					null
+					_formatCulture
 				);
 				status = Status.FromString(split[1]);
 			} catch (FormatException) { }
