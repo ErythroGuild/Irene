@@ -1,193 +1,162 @@
 ﻿using Irene.Interactables;
 
-using StatusModule = Irene.Modules.IreneStatus;
+using Microsoft.VisualBasic;
+
+using Module = Irene.Modules.IreneStatus;
 
 namespace Irene.Commands;
 
-class IreneStatus : AbstractCommand {
-	private static readonly ReadOnlyDictionary<string, ActivityType> _statusTypes =
-		new (new ConcurrentDictionary<string, ActivityType>() {
-			[_optionPlaying  ] = ActivityType.Playing    ,
-			[_optionListening] = ActivityType.ListeningTo,
-			[_optionWatching ] = ActivityType.Watching   ,
-			[_optionCompeting] = ActivityType.Competing  ,
-		} );
+class IreneStatus : CommandHandler {
+	public const string
+		Command_Status = "irene-status",
+		Command_Set    = "set",
+		Command_Random = "random",
+		Command_List   = "list",
+		Arg_Type   = "type",
+		Arg_Status = "status";
+	public const string
+		Label_Playing   = "Playing",
+		Label_Listening = "Listening to",
+		Label_Watching  = "Watching",
+		Label_Competing = "Competing in";
+	public const string
+		Option_Playing   = "Playing",
+		Option_Listening = "Listening to",
+		Option_Watching  = "Watching",
+		Option_Competing = "Competing in";
 
-	private const string
-		_commandRandom = "random",
-		_commandSet = "set",
-		_commandList = "list";
-	private const string
-		_optionPlaying   = "playing"     ,
-		_optionListening = "listening-to",
-		_optionWatching  = "watching"    ,
-		_optionCompeting = "competing-in";
+	public IreneStatus(GuildData erythro) : base (erythro) { }
 
-	public override List<string> HelpPages =>
-		new () { new List<string> {
-			@":lock: `/irene-status random` chooses a random status,",
-			@":lock: `/irene-status set <type> <status>` sets and saves a new status.",
-			@"`/irene-status list` lists all possible statuses.",
-			"Statuses also randomly rotate every so often.",
-		}.ToLines() };
+	public override string HelpText =>
+		$"""
+		{Command.Mention($"{Command_Status} {Command_Set}")} `<{Arg_Type}> <{Arg_Status}>` sets and saves a new status,
+		{Command.Mention($"{Command_Status} {Command_Random}")} randomly picks a saved status.
+		{Command.Mention($"{Command_Status} {Command_List}")} lists all saved statuses.
+		""";
 
-	public override List<InteractionCommand> SlashCommands =>
-		new () {
-			new (new (
-				"irene-status",
-				"Set Irene's activity status.",
-				options: new List<CommandOption> {
-					new (
-						_commandRandom,
-						"Choose a random status",
-						ApplicationCommandOptionType.SubCommand
-					),
-					new (
-						_commandSet,
-						"Set and save a new status.",
-						ApplicationCommandOptionType.SubCommand,
-						options: new List<CommandOption> {
-							new (
-								"type",
-								"The type of the status.",
-								ApplicationCommandOptionType.String,
-								required: true,
-								new List<CommandOptionEnum> {
-									new ("Playing", _optionPlaying),
-									new ("Listening to", _optionListening),
-									new ("Watching", _optionWatching),
-									new ("Competing in", _optionCompeting),
-								}
-							),
-							new (
-								"status",
-								"The text of the status.",
-								ApplicationCommandOptionType.String,
-								required: true
-							),
-						}
-					),
-					new (
-						_commandList,
-						"List all possible statuses.",
-						ApplicationCommandOptionType.SubCommand
-					),
-				},
-				defaultPermission: true,
-				ApplicationCommandType.SlashCommand
-			), Command.DeferEphemeralAsync, RunAsync )
-		};
-
-	public static async Task RunAsync(TimedInteraction interaction) {
-		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
-		string command = args[0].Name;
-
-		// Check for permissions.
-		bool doContinue;
-		switch (command) {
-		case _commandRandom:
-		case _commandSet:
-			doContinue = await
-				interaction.CheckAccessAsync(false, AccessLevel.Officer);
-			if (!doContinue)
-				return;
-			break;
+	public override CommandTree CreateTree() => new (
+		new (
+			Command_Status,
+			"Change Irene's activity status.",
+			Permissions.ManageGuild
+		),
+		new List<CommandTree.GroupNode>(),
+		new List<CommandTree.LeafNode> {
+			new (
+				new (
+					Command_Set,
+					"Set and save a new status.",
+					ApplicationCommandOptionType.SubCommand,
+					options: new List<CommandOption> {
+						new (
+							Arg_Type,
+							"The type of the status.",
+							ApplicationCommandOptionType.String,
+							required: true,
+							new List<CommandOptionEnum> {
+								new (Label_Playing  , Option_Playing  ),
+								new (Label_Listening, Option_Listening),
+								new (Label_Watching , Option_Watching ),
+								new (Label_Competing, Option_Competing),
+							}
+						),
+						new (
+							Arg_Status,
+							"The text of the status.",
+							ApplicationCommandOptionType.String,
+							required: true
+						),
+					}
+				),
+				new (SetAsync)
+			),
+			new (
+				new (
+					Command_Random,
+					"Randomly pick a saved status.",
+					ApplicationCommandOptionType.SubCommand
+				),
+				new (RandomizeAsync)
+			),
+			new (
+				new (
+					Command_List,
+					"List all saved statuses.",
+					ApplicationCommandOptionType.SubCommand
+				),
+				new (ListAsync)
+			),
 		}
+	);
 
-		// Dispatch the correct subcommand.
-		InteractionHandler handler = command switch {
-			_commandRandom => RandomAsync,
-			_commandSet    => SetAsync   ,
-			_commandList   => ListAsync  ,
-			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
+	public async Task SetAsync(Interaction interaction, IDictionary<string, object> args) {
+		ActivityType type = (string)args[Arg_Type] switch {
+			Option_Playing   => ActivityType.Playing    ,
+			Option_Listening => ActivityType.ListeningTo,
+			Option_Watching  => ActivityType.Watching   ,
+			Option_Competing => ActivityType.Competing  ,
+			_ => throw new ArgumentException("Unknown status type.", nameof(args)),
 		};
-		await handler.Invoke(interaction);
+		string status = (string)args[Arg_Status];
+		DateTimeOffset endTime = DateTimeOffset.UtcNow + TimeSpan.FromDays(1);
+		await Module.SetAndAdd(new (type, status), endTime);
+
+		string response = ":astronaut: Status updated! (and added to pool)";
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
 	}
 
-	private static async Task RandomAsync(TimedInteraction interaction) {
-		bool didSet = await StatusModule.SetRandom();
-
-		// Indicate if nothing was set.
-		if (!didSet) {
-			await Command.SubmitResponseAsync(
-				interaction,
-				"No statuses available to choose from.\nTry :lock: `/irene-status set`?",
-				"No statuses available to set.",
-				LogLevel.Debug,
-				"Status unchanged.".AsLazy()
-			);
-			return;
-		}
-
-		// Send success response.
-		await Command.SubmitResponseAsync(
-			interaction,
-			"Random status set! :astronaut:",
-			"Status set to a random choice.",
-			LogLevel.Debug,
-			"Status randomly selected.".AsLazy()
-		);
+	public async Task RandomizeAsync(Interaction interaction, IDictionary<string, object> args) {
+		bool didSet = await Module.SetRandom();
+		string response = didSet
+			? $"""
+				No saved statuses available to choose from.
+				(add some with {Command.Mention($"{Command_Status} {Command_Set}")}?)
+				"""
+			: "Random status set! :astronaut:";
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
 	}
 
-	private static async Task SetAsync(TimedInteraction interaction) {
-		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs()[0].GetArgs();
+	public async Task ListAsync(Interaction interaction, IDictionary<string, object> args) {
+		IList<Module.Status> statuses = await Module.GetAll();
 
-		// Parse arguments.
-		string type_string = (string)args[0].Value;
-		ActivityType type = _statusTypes[type_string];
-		string content = (string)args[1].Value;
-
-		// Construct status object and dispatch.
-		DiscordActivity status = new (content, type);
-		await StatusModule.AddAndSet(status);
-
-		// Respond.
-		await Command.SubmitResponseAsync(
-			interaction,
-			"Status updated! (and added to pool) :astronaut:",
-			"Status updated and added to pool.",
-			LogLevel.Debug,
-			"Status updated and saved: {Status}".AsLazy(),
-			status.AsStatusText()
-		);
-	}
-
-	private static async Task ListAsync(TimedInteraction interaction) {
-		// Fetch all statuses.
-		HashSet<DiscordActivity> statuses =
-			new (StatusModule.GetAll());
-
-		// Special case if no statuses available.
+		// Special case if no saved statuses are available.
 		if (statuses.Count == 0) {
-			await Command.SubmitResponseAsync(
-				interaction,
-				"No statuses available.\nTry :lock: `/irene-status set`?",
-				"No statuses found to send.",
-				LogLevel.Debug,
-				"No list sent.".AsLazy()
-			);
+			string responseEmpty = $"""
+				No statuses saved.
+				(add some with {Command.Mention($"{Command_Status} {Command_Set}")}?)
+				""";
+			interaction.RegisterFinalResponse();
+			await interaction.RespondCommandAsync(responseEmpty);
+			interaction.SetResponseSummary(responseEmpty);
 			return;
 		}
 
-		// Format and sort all results.
-		List<string> strings = new ();
-		foreach (DiscordActivity status in statuses)
-			strings.Add(status.AsStatusText());
-		strings.Sort();
+		// Convert all statuses to strings for display.
+		List<string> lines = new ();
+		foreach (Module.Status status in statuses)
+			lines.Add(status.AsStatusText());
+		// Should already be sorted.
 
-		// Create Pages object for response.
+		// Create Pages interactable for response.
 		DiscordMessage message;
-		MessagePromise message_promise = new ();
+		MessagePromise messagePromise = new ();
 		DiscordWebhookBuilder response = Pages.Create(
-			interaction.Interaction,
-			message_promise.Task,
-			strings,
+			interaction.Object,
+			messagePromise.Task,
+			lines,
 			pageSize: 12
 		);
 
 		// Send List of statuses, and complete promise.
+		interaction.RegisterFinalResponse();
+
+		message
+		interaction.SetResponseSummary($"<List of {lines.Count} available statuses sent.>");
+		return;
 		message = await Command.SubmitResponseAsync(
 			interaction,
 			response,
@@ -196,6 +165,6 @@ class IreneStatus : AbstractCommand {
 			"List of possible statuses sent: {Count}".AsLazy(),
 			strings.Count
 		);
-		message_promise.SetResult(message);
+		messagePromise.SetResult(message);
 	}
 }
