@@ -12,10 +12,10 @@ class Cap : CommandHandler {
 		Label_Renown   = "Renown",
 		Label_Torghast = "Tower Knowledge";
 	public const string
-		Opt_Valor    = "valor",
-		Opt_Conquest = "conquest",
-		Opt_Renown   = "renown",
-		Opt_Torghast = "tower-knowledge";
+		Option_Valor    = "valor",
+		Option_Conquest = "conquest",
+		Option_Renown   = "renown",
+		Option_Torghast = "tower-knowledge";
 
 	public Cap(GuildData erythro) : base (erythro) { }
 
@@ -34,10 +34,10 @@ class Cap : CommandHandler {
 				ApplicationCommandOptionType.String,
 				required: true,
 				new List<CommandOptionEnum> {
-					new (Label_Valor   , Opt_Valor	),
-					new (Label_Conquest, Opt_Conquest),
-					new (Label_Renown  , Opt_Renown  ),
-					new (Label_Torghast, Opt_Torghast),
+					new (Label_Valor   , Option_Valor	),
+					new (Label_Conquest, Option_Conquest),
+					new (Label_Renown  , Option_Renown  ),
+					new (Label_Torghast, Option_Torghast),
 				}
 			) },
 			Permissions.None
@@ -49,10 +49,10 @@ class Cap : CommandHandler {
 		string id = (string)args[Arg_Resource];
 		Func<DateTimeOffset, Module.HideableString> calculator =
 			id switch {
-				Opt_Valor    => Module.DisplayValor,
-				Opt_Conquest => Module.DisplayConquest,
-				Opt_Renown   => Module.DisplayRenown,
-				Opt_Torghast => Module.DisplayTorghast,
+				Option_Valor    => Module.DisplayValor,
+				Option_Conquest => Module.DisplayConquest,
+				Option_Renown   => Module.DisplayRenown,
+				Option_Torghast => Module.DisplayTorghast,
 				_ => throw new ArgumentException("Unrecognized resource type.", nameof(args)),
 			};
 

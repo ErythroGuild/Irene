@@ -17,8 +17,8 @@ class Roll : CommandHandler {
 	public override string HelpText =>
 		$"""
 		{Command.Mention(Command_Roll)} generates a number between `1` and `100`,
-		{Command.Mention(Command_Roll)} `<max>` generates a number between `1` and `max`,
-		{Command.Mention(Command_Roll)} `<min> <max>` generates a number between `min` and `max`.
+		{Command.Mention(Command_Roll)} `<{Arg_Max}>` generates a number between `1` and `{Arg_Max}`,
+		{Command.Mention(Command_Roll)} `<{Arg_Min}> <{Arg_Max}>` generates a number between `{Arg_Min}` and `{Arg_Max}`.
 		    All ranges are inclusive, e.g. `[7, 23]`.
 		""";
 
@@ -80,8 +80,8 @@ class Random : CommandHandler {
 		{Command.Mention($"{Command_Random} {Command_Number}")} functions the same as `/roll`.
 		{Command.Mention($"{Command_Random} {Command_Coin}")} displays the result of a coin flip.
 		{Command.Mention($"{Command_Random} {Command_Card}")} draws a card from a standard deck.
-		{Command.Mention($"{Command_Random} {Command_8Ball}")} `<question> [share]` forecasts the answer to a yes/no question.
-		    If `[share]` isn't specified, the response will be private.
+		{Command.Mention($"{Command_Random} {Command_8Ball}")} `<{Arg_Question}> [{Arg_Share}]` forecasts the answer to a yes/no question.
+		    If `[{Arg_Share}]` isn't specified, the response will be private.
 		""";
 
 	public override CommandTree CreateTree() => new (

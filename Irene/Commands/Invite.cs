@@ -10,8 +10,8 @@ class Invite : CommandHandler {
 		Label_Erythro = "Erythro",
 		Label_Leuko   = "Leuko";
 	public const string
-		Opt_Erythro = "erythro",
-		Opt_Leuko   = "leuko";
+		Option_Erythro = "erythro",
+		Option_Leuko   = "leuko";
 
 	public Invite(GuildData erythro) : base (erythro) { }
 
@@ -31,8 +31,8 @@ class Invite : CommandHandler {
 				ApplicationCommandOptionType.String,
 				required: false,
 				new List<CommandOptionEnum> {
-					new (Label_Erythro, Opt_Erythro),
-					new (Label_Leuko  , Opt_Leuko  ),
+					new (Label_Erythro, Option_Erythro),
+					new (Label_Leuko  , Option_Leuko  ),
 				}
 			) },
 			Permissions.None
@@ -43,7 +43,7 @@ class Invite : CommandHandler {
 	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
 		string id = args.ContainsKey(Arg_Server)
 			? (string)args[Arg_Server]
-			: Opt_Erythro;
+			: Option_Erythro;
 		string link = Module.GetInvite(id);
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(link);
