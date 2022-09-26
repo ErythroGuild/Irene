@@ -7,23 +7,37 @@ class TaskQueue {
 	private readonly ConcurrentQueue<Task> _queue = new ();
 	private Task _task = Task.CompletedTask; // initialize as available
 
-	public void Add(Task action) {
+	// `AddAsync` overloads will queue a task to be run successively,
+	// and will return when the queued task has been completed.
+	public async Task Run(Task action) {
 		_queue.Enqueue(action);
+		StartQueue();
+		await action;
+	}
+	public async Task<TResult> Run<TResult>(Task<TResult> action) {
+		_queue.Enqueue(action);
+		StartQueue();
+		return await action;
+	}
 
-		if (!IsRunning) {
-			_task = Task.Run(async () => {
-				while (!_queue.IsEmpty) {
-					_queue.TryDequeue(out Task? task);
+	// A helper method to ensure the queue is being worked on. Returns
+	// immediately if the queue is already running.
+	private void StartQueue() {
+		if (IsRunning)
+			return;
 
-					if (task is null)
-						continue;
+		_task = Task.Run(async () => {
+			while (!_queue.IsEmpty) {
+				_queue.TryDequeue(out Task? task);
 
-					if (task.Status == TaskStatus.Created)
-						task.Start();
+				if (task is null)
+					continue;
 
-					await task;
-				}
-			});
-		}
+				if (task.Status == TaskStatus.Created)
+					task.Start();
+
+				await task;
+			}
+		});
 	}
 }
