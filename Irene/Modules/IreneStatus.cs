@@ -98,11 +98,13 @@ class IreneStatus {
 
 	// Methods for R/W the entire list of possible statuses. These methods
 	// sort the statuses after/before R/W, respectively.
+	// Statuses are de-duplicated before being written to file.
 	private static async Task WriteStatusesToFile(IList<Status> statuses) {
-		List<string> lines = new ();
+		HashSet<string> statusSet = new ();
 		foreach (Status status in statuses)
-			lines.Add(status.ToString());
+			statusSet.Add(status.ToString());
 
+		List<string> lines = new (statusSet);
 		lines.Sort();
 		await _queueStatuses.Run(
 			File.WriteAllLinesAsync(_pathStatuses, lines)
