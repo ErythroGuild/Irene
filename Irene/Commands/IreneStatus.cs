@@ -1,7 +1,5 @@
 ﻿using Irene.Interactables;
 
-using Microsoft.VisualBasic;
-
 using Module = Irene.Modules.IreneStatus;
 
 namespace Irene.Commands;
@@ -144,27 +142,18 @@ class IreneStatus : CommandHandler {
 		// Create Pages interactable for response.
 		DiscordMessage message;
 		MessagePromise messagePromise = new ();
-		DiscordWebhookBuilder response = Pages.Create(
-			interaction.Object,
-			messagePromise.Task,
-			lines,
-			pageSize: 12
-		);
+		//DiscordMessageBuilder response = Pages.Create(
+		//	interaction.Object,
+		//	messagePromise.Task,
+		//	lines,
+		//	pageSize: 12
+		//);
 
 		// Send List of statuses, and complete promise.
 		interaction.RegisterFinalResponse();
-
-		message
+		//message = await interaction.RespondCommandAsync(response);
+		//messagePromise.SetResult(message);
 		interaction.SetResponseSummary($"<List of {lines.Count} available statuses sent.>");
 		return;
-		message = await Command.SubmitResponseAsync(
-			interaction,
-			response,
-			"Sending list of statuses.",
-			LogLevel.Debug,
-			"List of possible statuses sent: {Count}".AsLazy(),
-			strings.Count
-		);
-		messagePromise.SetResult(message);
 	}
 }
