@@ -12,7 +12,17 @@ class IreneStatus {
 			Description = description;
 		}
 
-		public DiscordActivity ToActivity(bool isDebug=false) => isDebug
+		public string AsStatusText() {
+			string type = Type switch {
+				ActivityType.Playing     => "Playing"     ,
+				ActivityType.ListeningTo => "Listening to",
+				ActivityType.Watching    => "Watching"    ,
+				ActivityType.Competing   => "Competing in",
+				_ => throw new InvalidOperationException("Invalid status type."),
+			};
+			return $"{type} {Description}";
+		}
+		public DiscordActivity AsActivity(bool isDebug=false) => isDebug
 			? new ($"{Description} - [DEBUG]", Type)
 			: new (Description, Type);
 
@@ -212,7 +222,7 @@ class IreneStatus {
 		Task taskFile = WriteCurrentToFile();
 
 		// Set the connection status.
-		DiscordActivity activity = status.ToActivity(IsDebug);
+		DiscordActivity activity = status.AsActivity(IsDebug);
 		UserStatus userStatus = IsDebug
 			? UserStatus.DoNotDisturb
 			: UserStatus.Online;
