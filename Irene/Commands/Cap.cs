@@ -4,7 +4,7 @@ namespace Irene.Commands;
 
 class Cap : CommandHandler {
 	public const string
-		Id_Command   = "cap",
+		Command_Cap  = "cap",
 		Arg_Resource = "resource";
 	public const string
 		Label_Valor    = "Valor",
@@ -21,12 +21,12 @@ class Cap : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Id_Command)} `<{Arg_Resource}>` displays the current cap of the resource (e.g. valor).
+		{Command.Mention(Command_Cap)} `<{Arg_Resource}>` displays the current cap of the resource (e.g. valor).
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Id_Command,
+			Command_Cap,
 			"Display the current cap of a resource.",
 			new List<CommandOption> { new (
 				Arg_Resource,

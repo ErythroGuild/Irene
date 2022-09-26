@@ -4,7 +4,7 @@ namespace Irene.Commands;
 
 class Invite : CommandHandler {
 	public const string
-		Id_Command = "invite",
+		Command_Invite = "invite",
 		Arg_Server = "server";
 	public const string
 		Label_Erythro = "Erythro",
@@ -17,13 +17,13 @@ class Invite : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Id_Command)} `<{Arg_Server}>` links an invite to the selected discord server.
+		{Command.Mention(Command_Invite)} `<{Arg_Server}>` links an invite to the selected discord server.
 		    These invite links can also be found in {Erythro.Channel(id_ch.resources).Mention}.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Id_Command,
+			Command_Invite,
 			"Show invite links for the guild discord servers.",
 			new List<CommandOption> { new (
 				Arg_Server,

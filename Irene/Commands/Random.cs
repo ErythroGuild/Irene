@@ -4,9 +4,9 @@ namespace Irene.Commands;
 
 class Roll : CommandHandler {
 	public const string
-		Id_Command = "roll",
-		Arg_Min    = "min",
-		Arg_Max    = "max";
+		Command_Roll = "roll",
+		Arg_Min = "min",
+		Arg_Max = "max";
 	// Valid argument ranges for min/max args.
 	public const int
 		Value_Min = 0,
@@ -16,15 +16,15 @@ class Roll : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Id_Command)} generates a number between `1` and `100`,
-		{Command.Mention(Id_Command)} `<max>` generates a number between `1` and `max`,
-		{Command.Mention(Id_Command)} `<min> <max>` generates a number between `min` and `max`.
+		{Command.Mention(Command_Roll)} generates a number between `1` and `100`,
+		{Command.Mention(Command_Roll)} `<max>` generates a number between `1` and `max`,
+		{Command.Mention(Command_Roll)} `<min> <max>` generates a number between `min` and `max`.
 		    All ranges are inclusive, e.g. `[7, 23]`.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Id_Command,
+			Command_Roll,
 			"Generate a random number.",
 			new List<CommandOption> {
 				new (
@@ -65,28 +65,28 @@ class Roll : CommandHandler {
 
 class Random : CommandHandler {
 	public const string
-		Id_Command   = "random",
-		Id_Number    = "number",
-		Id_CoinFlip  = "coin-flip",
-		Id_Card      = "card",
-		Id_8Ball     = "8-ball",
-		Arg_Question = "question",
-		Arg_Share    = "share";
+		Command_Random = "random",
+		Command_Number = "number",
+		Command_Coin   = "coin-flip",
+		Command_Card   = "card",
+		Command_8Ball  = "8-ball",
+		Arg_Question   = "question",
+		Arg_Share      = "share";
 
 	public Random(GuildData erythro) : base (erythro) { }
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention($"{Id_Command} {Id_Number}")} functions the same as `/roll`.
-		{Command.Mention($"{Id_Command} {Id_CoinFlip}")} displays the result of a coin flip.
-		{Command.Mention($"{Id_Command} {Id_Card}")} draws a card from a standard deck.
-		{Command.Mention($"{Id_Command} {Id_8Ball}")} `<question> [share]` forecasts the answer to a yes/no question.
+		{Command.Mention($"{Command_Random} {Command_Number}")} functions the same as `/roll`.
+		{Command.Mention($"{Command_Random} {Command_Coin}")} displays the result of a coin flip.
+		{Command.Mention($"{Command_Random} {Command_Card}")} draws a card from a standard deck.
+		{Command.Mention($"{Command_Random} {Command_8Ball}")} `<question> [share]` forecasts the answer to a yes/no question.
 		    If `[share]` isn't specified, the response will be private.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Id_Command,
+			Command_Random,
 			"Generate a randomized outcome.",
 			Permissions.None
 		),
@@ -94,7 +94,7 @@ class Random : CommandHandler {
 		new List<CommandTree.LeafNode> {
 			new (
 				new (
-					Id_Number,
+					Command_Number,
 					"Generate a random number.",
 					ApplicationCommandOptionType.SubCommand,
 					options: new List<CommandOption> {
@@ -120,7 +120,7 @@ class Random : CommandHandler {
 			),
 			new (
 				new (
-					Id_CoinFlip,
+					Command_Coin,
 					"Flip a coin.",
 					ApplicationCommandOptionType.SubCommand
 				),
@@ -128,7 +128,7 @@ class Random : CommandHandler {
 			),
 			new (
 				new (
-					Id_Card,
+					Command_Card,
 					"Draw a card.",
 					ApplicationCommandOptionType.SubCommand
 				),
@@ -136,7 +136,7 @@ class Random : CommandHandler {
 			),
 			new (
 				new (
-					Id_8Ball,
+					Command_8Ball,
 					@"Forecast the answer to a yes/no question.",
 					ApplicationCommandOptionType.SubCommand,
 					options: new List<CommandOption> {

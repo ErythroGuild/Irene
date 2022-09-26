@@ -3,18 +3,18 @@
 namespace Irene.Commands;
 
 class About : CommandHandler {
-	public const string Id_Command = "about";
+	public const string Command_About = "about";
 
 	public About(GuildData erythro) : base (erythro) { }
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Id_Command)} displays the currently running version and status.
+		{Command.Mention(Command_About)} displays the currently running version and status.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Id_Command,
+			Command_About,
 			"Display bot version and status.",
 			new List<CommandOption>(),
 			Permissions.None
