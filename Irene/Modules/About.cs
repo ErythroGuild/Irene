@@ -80,7 +80,7 @@ class About {
 			**<Erythro>**'s community management bot.
 
 			{statusAvailableCommands} **Available commands:** {RegisteredCommandCount} ({helpLink})
-			{statusMemoryUsage}  **Memory usage:** {GetMemoryUsageMB():F0} MB
+			{statusMemoryUsage} **Memory usage:** {GetMemoryUsageMB():F0} MB
 
 			Maintained by {GetMaintainerMention()} with {_charLove}
 			[Source Code]({_linkSourceCode}){_charSpaceN}{_charHeart}{_charSpaceN}[Acknowledgments]({_linkAcknowledgments})
