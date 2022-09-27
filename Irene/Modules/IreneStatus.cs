@@ -1,4 +1,4 @@
-﻿using System.Globalization; // CultureInfo
+using System.Globalization; // CultureInfo
 using System.Timers; // ElapsedEventArgs
 
 namespace Irene.Modules;
@@ -128,13 +128,15 @@ class IreneStatus {
 
 		List<string> lines = new (statusSet);
 		lines.Sort();
-		await _queueStatuses.Run(
-			File.WriteAllLinesAsync(_pathStatuses, lines)
-		);
+		await _queueStatuses.Run(new Task<Task>(async () => {
+			await File.WriteAllLinesAsync(_pathStatuses, lines);
+		}));
 	}
 	private static async Task<IList<Status>> ReadStatusesFromFile() {
-		List<string> lines = new (await
-			_queueStatuses.Run(File.ReadAllLinesAsync(_pathStatuses))
+		List<string> lines = await _queueStatuses.Run(
+			new Task<Task<List<string>>>(async () => {
+				return new List<string>(await File.ReadAllLinesAsync(_pathStatuses));
+			})
 		);
 		lines.Sort();
 
@@ -160,34 +162,36 @@ class IreneStatus {
 			NextRefresh.Value.ToString(_formatDateTime, _formatCulture),
 			CurrentStatus.ToString()
 		);
-		await _queueCurrent.Run(
-			File.WriteAllTextAsync(_pathCurrent, output)
-		);
+		await _queueCurrent.Run(new Task<Task>(async () => {
+			await File.WriteAllTextAsync(_pathCurrent, output);
+		}));
 	}
 	// This method does NOT update the internal state of `IreneStatus`.
 	private static async Task<(DateTimeOffset?, Status?)> ReadCurrentFromFile() {
-		return await _queueCurrent.Run(T());
-		static async Task<(DateTimeOffset?, Status?)> T() {
-			DateTimeOffset? refresh = null;
-			Status? status = null;
-			using StreamReader file = File.OpenText(_pathCurrent);
+		DateTimeOffset? refresh = null;
+		Status? status = null;
 
-			string line = await file.ReadLineAsync() ?? "";
-			string[] split = line.Split(_separator, 2);
-			if (split.Length < 2)
-				return (null, null);
+		string line = await _queueCurrent.Run(
+			new Task<Task<string>>(async () => {
+				using StreamReader file = File.OpenText(_pathCurrent);
+				return await file.ReadLineAsync() ?? "";
+			})
+		);
 
-			try {
-				refresh = DateTimeOffset.ParseExact(
-					split[0],
-					_formatDateTime,
-					_formatCulture
-				);
-				status = Status.FromString(split[1]);
-			} catch (FormatException) { }
+		string[] split = line.Split(_separator, 2);
+		if (split.Length < 2)
+			return (null, null);
 
-			return (refresh, status);
-		}
+		try {
+			refresh = DateTimeOffset.ParseExact(
+				split[0],
+				_formatDateTime,
+				_formatCulture
+			);
+			status = Status.FromString(split[1]);
+		} catch (FormatException) { }
+
+		return (refresh, status);
 	}
 
 
@@ -201,10 +205,11 @@ class IreneStatus {
 		(DateTimeOffset? refresh, Status? status) = await
 			ReadCurrentFromFile();
 
-		if (refresh is null || status is null) {
+		if (refresh is null || refresh < DateTimeOffset.Now)
 			refresh = DateTimeOffset.UtcNow + GetRandomInterval();
+
+		if (status is null)
 			status = await GetRandomStatus();
-		}
 
 		await Set(status, refresh.Value);
 	}
