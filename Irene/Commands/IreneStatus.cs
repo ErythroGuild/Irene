@@ -107,9 +107,9 @@ class IreneStatus : CommandHandler {
 
 	public async Task RandomizeAsync(Interaction interaction, IDictionary<string, object> args) {
 		bool didSet = await Module.SetRandom();
-		string response = didSet
+		string response = !didSet
 			? $"""
-				No saved statuses available to choose from.
+				No saved statuses available to choose from. :duck:
 				(add some with {Command.Mention($"{Command_Status} {Command_Set}")}?)
 				"""
 			: "Random status set! :astronaut:";
@@ -124,7 +124,7 @@ class IreneStatus : CommandHandler {
 		// Special case if no saved statuses are available.
 		if (statuses.Count == 0) {
 			string responseEmpty = $"""
-				No statuses saved.
+				No statuses saved. :duck:
 				(add some with {Command.Mention($"{Command_Status} {Command_Set}")}?)
 				""";
 			interaction.RegisterFinalResponse();
