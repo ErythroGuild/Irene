@@ -44,7 +44,13 @@ class Invite : CommandHandler {
 		string id = args.ContainsKey(Arg_Server)
 			? (string)args[Arg_Server]
 			: Option_Erythro;
-		string link = Module.GetInvite(id);
+		Module.Server server = id switch {
+			Option_Erythro => Module.Server.Erythro,
+			Option_Leuko   => Module.Server.Leuko  ,
+			_ => throw new ArgumentException("Unknown server selected.", nameof (args)),
+		};
+		string link = Module.GetInvite(server);
+
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(link);
 		interaction.SetResponseSummary(link);
