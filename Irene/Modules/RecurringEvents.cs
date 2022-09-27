@@ -57,14 +57,12 @@ static partial class RecurringEvents {
 			// Calculate initial value for timer.
 			if (data.PeekNext() is null)
 				return null;
-			dateTime_now = DateTimeOffset.Now;
 			dateTime_next = data.GetNext()!.Value;
-			TimeSpan delta = dateTime_next.Value - dateTime_now;
 
 			// Set up timer.
-			LongTimer timer = new (delta.TotalMilliseconds);
+			LongTimer timer = LongTimer.Create(dateTime_next.Value);
 			timer.Elapsed += async (t, e) => {
-				timer.Stop();
+				timer.Cancel();
 				DateTimeOffset dateTime_now = DateTimeOffset.Now;
 
 				// Run the action and update records of execution.
@@ -85,15 +83,12 @@ static partial class RecurringEvents {
 
 				// Set up the next occurrence.
 				DateTimeOffset dateTime_next = data.GetNext()!.Value;
-				TimeSpan delta = dateTime_next - dateTime_now;
-				timer.Interval = (decimal)delta.TotalMilliseconds;
-				timer.Start();
+				timer.SetAndStart(dateTime_next);
 				Log.Debug("  Recurrence scheduled for {Time:u}", dateTime_next);
 			};
 			
 			// Return the constructed object.
 			Event @event = new (id, data, action, timer);
-			@event._timer.Start();
 			return @event;
 		}
 
