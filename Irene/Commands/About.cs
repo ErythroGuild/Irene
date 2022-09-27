@@ -1,4 +1,6 @@
-﻿using Module = Irene.Modules.About;
+﻿using System.Linq;
+
+using Module = Irene.Modules.About;
 
 namespace Irene.Commands;
 
@@ -29,11 +31,18 @@ class About : CommandHandler {
 			.WithAllowedMentions(Mentions.None);
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(response);
+
+		// Extract status data from the submitted response.
+		string[] bodyText = response.Embed.Description.Split('\n');
+		List<string> statusText = new ();
+		foreach (string line in bodyText[2..^4])
+			statusText.Add(line[3..]);
+
 		interaction.SetResponseSummary(
 			$"""
 			Irene {Module.String_Version} build {Module.String_Build}
-			[status info] [...]
-			Uptime: {Module.GetUptime():c}
+			{string.Join("\n", statusText)}
+			{response.Embed.Footer.Text}
 			"""
 		);
 	}
