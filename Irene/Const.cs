@@ -3,6 +3,9 @@
 namespace Irene;
 
 static class Const {
+	// Guild ID.
+	public const ulong Id_Erythro = 317723973968461824;
+
 	// Standard formatting strings.
 	public const string
 		Format_IsoDate = @"yyyy-MM-dd";
@@ -64,6 +67,25 @@ static class Const {
 			test   = 489274692255875091,
 			ingest = 777935219193020426;
 	}
+	public static class VoiceChatIDs {
+		public const ulong
+			// Social
+			hangout = 442986379392319490,
+			afk     = 545060010967957534,
+
+			// Gaming
+			dungeon1 = 442986315865128960,
+			dungeon2 = 542094075784986654,
+			dungeon3 = 783838007454597121,
+			raid1    = 443001346678063104,
+			raid2    = 670853551869919232,
+
+			// Officer
+			officer = 542093594618757140,
+
+			// Testing
+			heartwood = 498636532530282512;
+	}
 	public static class EmojiIDs {
 		public const ulong
 			erythro = 651475835387248660,
@@ -85,6 +107,10 @@ static class Const {
 			wowanalyzer  = 699648774099828796,
 			lorrgs       = 946214790043410462,
 
+			// Coins
+			heads = 1022712367999615006,
+			tails = 1022712370579124294,
+
 			// Roles
 			tank = 708431859369115790,
 			heal = 708431859435962418,
@@ -100,6 +126,7 @@ static class Const {
 			dk      = 676750707759513611,
 			dh      = 676750708175011860,
 			druid   = 676750708447641611,
+			//evoker  = ,
 			hunter  = 676750708879523850,
 			mage    = 676750710699720736,
 			monk    = 676750843286126624,
@@ -147,24 +174,5 @@ static class Const {
 			gearing = 854879377930453002,
 			events  = 771584406724935710,
 			herald  = 712469431573544972;
-	}
-	public static class VoiceChatIDs {
-		public const ulong
-			// Social
-			hangout = 442986379392319490,
-			afk     = 545060010967957534,
-
-			// Gaming
-			dungeon1 = 442986315865128960,
-			dungeon2 = 542094075784986654,
-			dungeon3 = 783838007454597121,
-			raid1    = 443001346678063104,
-			raid2    = 670853551869919232,
-
-			// Officer
-			officer = 542093594618757140,
-
-			// Testing
-			heartwood = 498636532530282512;
 	}
 }

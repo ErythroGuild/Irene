@@ -1,4 +1,4 @@
-﻿using Irene.Components;
+﻿using Irene.Interactables;
 
 using static Irene.Modules.Minigame;
 

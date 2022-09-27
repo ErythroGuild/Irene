@@ -3,7 +3,7 @@ using System.Timers;
 using ConfirmCallback = System.Func<bool, DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, System.Threading.Tasks.Task>;
 using Component = DSharpPlus.Entities.DiscordComponent;
 
-namespace Irene.Components;
+namespace Irene.Interactables;
 
 class Confirm {
 	public const string

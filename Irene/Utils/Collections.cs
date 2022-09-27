@@ -23,4 +23,10 @@ static partial class Util {
 			list.Add(@object);
 		return list;
 	}
+
+	// Pick and interpolate a random string from a list of templates.
+	public static string ChooseRandom(IList<string> templates, params object[] data) {
+		int i = Random.Shared.Next(0, templates.Count);
+		return string.Format(templates[i], data);
+	}
 }

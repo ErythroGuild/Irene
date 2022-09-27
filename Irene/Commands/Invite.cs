@@ -1,60 +1,58 @@
-﻿namespace Irene.Commands;
+﻿using Module = Irene.Modules.Invite;
 
-class Invite : AbstractCommand {
-	private const string
-		_optionErythro = "erythro",
-		_optionLeuko   = "leuko";
-	private const string
-		_urlErythro = @"https://discord.gg/ADzEwNS",
-		_urlLeuko   = @"https://discord.gg/zhadQf59xq";
+namespace Irene.Commands;
 
-	public override List<string> HelpPages =>
-		new () { new List<string> {
-			@"`/invite erythro` fetches the server invite for this server.",
-			@"`/invite leuko` fetches the server invite for the FFXIV sister server.",
-			$"These invite links can also be found in {Channels![id_ch.resources].Mention}."
-		}.ToLines() };
+class Invite : CommandHandler {
+	public const string
+		Command_Invite = "invite",
+		Arg_Server = "server";
+	public const string
+		Label_Erythro = "Erythro",
+		Label_Leuko   = "Leuko";
+	public const string
+		Option_Erythro = "erythro",
+		Option_Leuko   = "leuko";
 
-	public override List<InteractionCommand> SlashCommands =>
-		new () {
-			new ( new (
-				"invite",
-				"Show invite links for the guild discord servers.",
-				new List<CommandOption> { new (
-					"server",
-					"The server to get an invite link to.",
-					ApplicationCommandOptionType.String,
-					required: false,
-					new List<CommandOptionEnum> {
-						new ("Erythro", _optionErythro),
-						new ("Leuko", _optionLeuko),
-					} ) },
-				defaultPermission: true,
-				ApplicationCommandType.SlashCommand
-			), Command.DeferVisibleAsync, RunAsync )
+	public Invite(GuildData erythro) : base (erythro) { }
+
+	public override string HelpText =>
+		$"""
+		{Command.Mention(Command_Invite)} `<{Arg_Server}>` links an invite to the selected discord server.
+		    These invite links can also be found in {Erythro.Channel(id_ch.resources).Mention}.
+		""";
+
+	public override CommandTree CreateTree() => new (
+		new (
+			Command_Invite,
+			"Show invite links for the guild discord servers.",
+			new List<CommandOption> { new (
+				Arg_Server,
+				"The server to get an invite link to.",
+				ApplicationCommandOptionType.String,
+				required: false,
+				new List<CommandOptionEnum> {
+					new (Label_Erythro, Option_Erythro),
+					new (Label_Leuko  , Option_Leuko  ),
+				}
+			) },
+			Permissions.None
+		),
+		RespondAsync
+	);
+
+	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+		string id = args.ContainsKey(Arg_Server)
+			? (string)args[Arg_Server]
+			: Option_Erythro;
+		Module.Server server = id switch {
+			Option_Erythro => Module.Server.Erythro,
+			Option_Leuko   => Module.Server.Leuko  ,
+			_ => throw new ArgumentException("Unknown server selected.", nameof (args)),
 		};
+		string link = Module.GetInvite(server);
 
-	public static async Task RunAsync(TimedInteraction interaction) {
-		// Select the correct invite to return.
-		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
-		string server = (args.Count > 0)
-			? (string)args[0].Value
-			: _optionErythro;
-		string invite = server switch {
-			_optionErythro => _urlErythro,
-			_optionLeuko   => _urlLeuko,
-			_ => throw new ArgumentException("Invalid slash command parameter."),
-		};
-
-		// Send invite link.
-		await Command.SubmitResponseAsync(
-			interaction,
-			invite,
-			"Sending invite link.",
-			LogLevel.Debug,
-			"Invite link for \"{Server}\": {Link}".AsLazy(),
-			server, invite
-		);
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(link);
+		interaction.SetResponseSummary(link);
 	}
 }

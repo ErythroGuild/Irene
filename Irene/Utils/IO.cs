@@ -1,4 +1,6 @@
-﻿namespace Irene.Utils;
+﻿using System.Text.RegularExpressions;
+
+namespace Irene.Utils;
 
 static partial class Util {
 	// Converting strings to/from single-line, easily parseable text.
@@ -33,6 +35,18 @@ static partial class Util {
 	// Syntax sugar for passing a string as a Lazy<string>.
 	public static Lazy<string> AsLazy(this string str) => new (str);
 
+	// Returns the filename with "-temp" inserted at the end of the name,
+	// before the file extension.
+	// Throws if the filename doesn't end with a file extension.
+	public static string Temp(this string filename) {
+		Regex regex_filename = new (@".\.\w+$");
+		if (!regex_filename.IsMatch(filename))
+			throw new ArgumentException("Original filename must have a file extension.", nameof(filename));
+
+		int i = filename.LastIndexOf('.');
+		return filename.Insert(i, "-temp");
+	}
+
 	// Returns all of the string up to the first newline if one exists,
 	// and returns the entire string otherwise.
 	public static string FirstLineElided(this string input) {
@@ -58,6 +72,14 @@ static partial class Util {
 				File.Create(path).Close();
 				did_create = true;
 			}
+		}
+		return did_create;
+	}
+	public static bool CreateIfMissing(string path) {
+		bool did_create = false;
+		if (!File.Exists(path)) {
+			File.Create(path).Close();
+			did_create = true;
 		}
 		return did_create;
 	}

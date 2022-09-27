@@ -1,11 +1,11 @@
-﻿using static Irene.Components.Minigames.RPS;
+﻿using static Irene.Interactables.Minigames.RPSLS;
 
-namespace Irene.Components.Minigames.AI;
+namespace Irene.Interactables.Minigames.AI;
 
-static class RPS {
+static class RPSLS {
 	public static async Task<Choice> NextChoice(ulong opponent_id) {
 		// Select choice.
-		Choice choice = (Choice)Random.Shared.Next(3);
+		Choice choice = (Choice)Random.Shared.Next(5);
 
 		// Fuzzed delay.
 		await Task.Delay(Random.Shared.Next(0, 1800));

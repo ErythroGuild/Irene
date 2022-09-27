@@ -419,14 +419,14 @@ static partial class AuditLog {
 					data.Add($"{_t}Emoji added:");
 					foreach (ulong id in emojis_added) {
 						DiscordEmoji emoji = e.EmojisAfter[id];
-						data.Add($"{_t2}{AsData(emoji)}`");
+						data.Add($"{_t2}{AsData(emoji)}");
 					}
 				}
 				if (emojis_removed.Count > 0) {
 					data.Add($"{_t}Emoji removed:");
 					foreach (ulong id in emojis_removed) {
 						DiscordEmoji emoji = e.EmojisBefore[id];
-						data.Add($"{_t2}{AsData(emoji)}`");
+						data.Add($"{_t2}{AsData(emoji)}");
 					}
 				}
 				// No need to print additions; already displayed.
@@ -462,7 +462,7 @@ static partial class AuditLog {
 				// Format output.
 				List<string> data = new ();
 				data.Add($"**Invite created:** `{inv.Code}`");
-				data.Add($"Created by {user.Tag()}, can be used {inv.MaxUses} times, expires in {expiry:g}.`");
+				data.Add($"Created by {user.Tag()}, can be used {inv.MaxUses} times, expires in {expiry:g}.");
 				data.Add($"This invite grants {(inv.IsTemporary ? "temporary" : "normal")} access.");
 				data = await AddEntryDataAsync(data, entry);
 				LogEntry(data);
@@ -484,7 +484,7 @@ static partial class AuditLog {
 				// Format output.
 				List<string> data = new ();
 				data.Add($"**Invite deleted:** `{inv.Code}`");
-				data.Add($"Created by {user.Tag()}, expired in {expiry:g}.`");
+				data.Add($"Created by {user.Tag()}, expired in {expiry:g}.");
 				data.Add($"This invite granted {(inv.IsTemporary ? "temporary" : "normal")} access.");
 				data = await AddEntryDataAsync(data, entry);
 				LogEntry(data);

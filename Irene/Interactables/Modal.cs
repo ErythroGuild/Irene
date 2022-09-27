@@ -2,7 +2,7 @@
 
 using ModalCallback = System.Func<DSharpPlus.EventArgs.ModalSubmitEventArgs, System.Threading.Tasks.Task>;
 
-namespace Irene.Components;
+namespace Irene.Interactables;
 
 class Modal {
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(20);

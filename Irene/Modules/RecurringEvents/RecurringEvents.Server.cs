@@ -56,7 +56,7 @@ static partial class RecurringEvents {
 		// needs here it suffices.
 		// If the name was in history, keep checking the next name
 		// until a fresh one is found.
-		Random rng = new ();
+		System.Random rng = new ();
 		int i = rng.Next(names.Count);
 		string name = names[i];
 		if (names.Count > _memeHistorySize) {
