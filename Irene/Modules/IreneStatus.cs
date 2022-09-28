@@ -1,4 +1,4 @@
-using System.Globalization; // CultureInfo
+﻿using System.Globalization; // CultureInfo
 using System.Timers; // ElapsedEventArgs
 
 namespace Irene.Modules;
@@ -54,7 +54,7 @@ class IreneStatus {
 	public static Status? CurrentStatus { get; private set; } = null;
 	public static DateTimeOffset? NextRefresh { get; private set; } = null;
 
-	private static LongTimer? _timerRefresh = null;
+	private static LongTimer _timerRefresh;
 	private static readonly TimeSpan
 		_refreshInterval = new (22,  0,  0),
 		_refreshVariance = new ( 2, 30,  0);
@@ -72,6 +72,13 @@ class IreneStatus {
 	static IreneStatus() {
 		Util.CreateIfMissing(_pathStatuses);
 		Util.CreateIfMissing(_pathCurrent);
+
+		// The timer duration is set in `InitializeCurrent()`.
+		_timerRefresh = LongTimer.Create(_refreshInterval);
+		_timerRefresh.Disable();
+		_timerRefresh.Elapsed += async (timer, e) => {
+			await RefreshHandler(timer, e);
+		};
 
 		_ = InitializeCurrent();
 
@@ -238,27 +245,23 @@ class IreneStatus {
 
 		await Task.WhenAll(taskFile, taskDiscord);
 
-		_timerRefresh?.Cancel();
-		_timerRefresh = LongTimer.Create(end);
-		_timerRefresh.Elapsed += async (timer, e) => {
-			await RefreshHandler(timer, e);
-		};
+		_timerRefresh.Disable();
+		_timerRefresh.SetAndEnable(end);
 	}
 
-	// Used as:
+	// Note: This only needs to be attached once; there is no need for
+	// multiple instances (which would then need to be disposed of).
+	// Usage:
 	//     _timerRefresh.Elapsed += async (timer, e) => {
 	//         await RefreshHandler(timer, e);
 	//     };
 	private static async Task RefreshHandler(object? timer, ElapsedEventArgs e) {
-		_timerRefresh?.Cancel();
+		_timerRefresh.Disable();
 
+		Log.Warning("bOoP");
+
+		// `SetRandom()` takes care of updating the timer for us.
 		await SetRandom();
-
-		// `NextRefresh` is not null after awaiting `Set()`.
-		_timerRefresh = LongTimer.Create(NextRefresh!.Value);
-		_timerRefresh.Elapsed += async (timer, e) => {
-			await RefreshHandler(timer, e);
-		};
 	}
 
 	// Get a random `TimeSpan` within the range of:
