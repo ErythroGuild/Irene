@@ -11,8 +11,7 @@ static partial class RecurringEvents {
 		public string Id { get; init; }
 		public RecurringEvent Data { get; init; }
 		public EventAction Action { get; init; }
-
-		private readonly LongTimer _timer;
+		public LongTimer Timer { get; }
 
 		public static async Task<Event?> Create(
 			string id,
@@ -61,8 +60,8 @@ static partial class RecurringEvents {
 
 			// Set up timer.
 			LongTimer timer = LongTimer.Create(dateTime_next.Value);
-			timer.Elapsed += async (t, e) => {
-				timer.Cancel();
+			timer.Elapsed += async (_, _) => {
+				timer.Disable();
 				DateTimeOffset dateTime_now = DateTimeOffset.Now;
 
 				// Run the action and update records of execution.
@@ -83,7 +82,7 @@ static partial class RecurringEvents {
 
 				// Set up the next occurrence.
 				DateTimeOffset dateTime_next = data.GetNext()!.Value;
-				timer.SetAndStart(dateTime_next);
+				timer.SetAndEnable(dateTime_next);
 				Log.Debug("  Recurrence scheduled for {Time:u}", dateTime_next);
 			};
 			
@@ -103,7 +102,7 @@ static partial class RecurringEvents {
 			Id = id;
 			Data = data;
 			Action = action;
-			_timer = timer;
+			Timer = timer;
 		}
 	}
 
