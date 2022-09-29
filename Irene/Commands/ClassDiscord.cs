@@ -1,102 +1,60 @@
 ﻿using static Irene.ClassSpec;
 
+using Module = Irene.Modules.ClassDiscord;
+
 namespace Irene.Commands;
 
-class ClassDiscord : AbstractCommand, IInit {
-	private static readonly ReadOnlyDictionary<Class, string> _options =
-		new (new ConcurrentDictionary<Class, string>() {
-			[Class.DK] = "death-knight",
-			[Class.DH] = "demon-hunter",
-			[Class.Druid  ] = "druid"  ,
-			[Class.Hunter ] = "hunter" ,
-			[Class.Mage   ] = "mage"   ,
-			[Class.Monk   ] = "monk"   ,
-			[Class.Paladin] = "paladin",
-			[Class.Priest ] = "priest" ,
-			[Class.Rogue  ] = "rogue"  ,
-			[Class.Shaman ] = "shaman" ,
-			[Class.Warlock] = "warlock",
-			[Class.Warrior] = "warrior",
-		});
-	private static readonly ReadOnlyDictionary<Class, string> _invites =
-		new (new ConcurrentDictionary<Class, string>() {
-			[Class.DK     ] = @"https://discord.gg/acherus"       ,
-			[Class.DH     ] = @"https://discord.gg/felhammer"     ,
-			[Class.Druid  ] = @"https://discord.gg/dreamgrove"    ,
-			[Class.Hunter ] = @"https://discord.gg/trueshot"      ,
-			[Class.Mage   ] = @"https://discord.gg/makGfZA"       ,
-			[Class.Monk   ] = @"https://discord.gg/peakofserenity",
-			[Class.Paladin] = @"https://discord.gg/hammerofwrath" ,
-			[Class.Rogue  ] = @"https://discord.gg/ravenholdt"    ,
-			[Class.Warlock] = @"https://discord.gg/blackharvest"  ,
-			[Class.Warrior] = @"https://discord.gg/skyhold"       ,
+class ClassDiscord : CommandHandler {
+	public const string
+		Command_ClassDiscord = "class-discord",
+		Arg_Class = "class";
 
-			[Class.Priest] = @"https://discord.gg/warcraftpriests" + "\n" + @"https://discord.gg/focusedwill (disc-only)",
-			[Class.Shaman] = @"https://discord.gg/earthshrine"     + "\n" + @"https://discord.gg/AcTek6e (resto-only)"   ,
-		});
-	private static readonly ReadOnlyDictionary<string, string> _optionsToInvites;
+	public ClassDiscord(GuildData erythro) : base(erythro) { }
 
-	public static void Init() { }
-	static ClassDiscord() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
+	public override string HelpText =>
+		$"""
+		{Command.Mention(Command_ClassDiscord)} `<{Arg_Class}>` links an invite to the class discord server.
+		""";
 
-		ConcurrentDictionary<string, string> optionsToInvites = new ();
-		foreach (Class @class in _options.Keys)
-			optionsToInvites.TryAdd(_options[@class], _invites[@class]);
-		_optionsToInvites = new (optionsToInvites);
+	public override CommandTree CreateTree() => new (
+		new (
+			Command_ClassDiscord,
+			"Get the invite link to a class discord.",
+			new List<CommandOption> { new (
+				Arg_Class,
+				"The class discord to get an invite to.",
+				ApplicationCommandOptionType.String,
+				required: true,
+				new List<CommandOptionEnum> {
+					OptionFromClass(Class.DH     ),
+					OptionFromClass(Class.DK     ),
+					OptionFromClass(Class.Druid  ),
+					OptionFromClass(Class.Evoker ),
+					OptionFromClass(Class.Hunter ),
+					OptionFromClass(Class.Mage   ),
+					OptionFromClass(Class.Monk   ),
+					OptionFromClass(Class.Paladin),
+					OptionFromClass(Class.Priest ),
+					OptionFromClass(Class.Rogue  ),
+					OptionFromClass(Class.Shaman ),
+					OptionFromClass(Class.Warlock),
+					OptionFromClass(Class.Warrior),
+				}
+			) },
+			Permissions.None
+		),
+		RespondAsync
+	);
 
-		Log.Information("  Initialized command: /class-discord");
-		Log.Debug("    Class discord invite cache initialized.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
-	}
+	private static CommandOptionEnum OptionFromClass(Class @class) =>
+		new (@class.Name(), @class.ToString());
 
-	public override List<string> HelpPages =>
-		new () { new List<string> {
-			"`/class-discord <class>` displays the class discord invite.",
-			"Multiple invites are given if available."
-		}.ToLines() };
+	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+		Class @class = Enum.Parse<Class>((string)args[Arg_Class]);
+		string response = Module.GetInvite(@class);
 
-	public override List<InteractionCommand> SlashCommands { get {
-		// Compile list of all options.
-		List<CommandOptionEnum> options = new ();
-		foreach (Class @class in _options.Keys)
-			options.Add(new (@class.Name(), _options[@class]));
-
-		// Construct slash command object.
-		return new () {
-			new ( new (
-				"class-discord",
-				"Get the invite link for a class discord server.",
-				new List<CommandOption> { new (
-					"class",
-					"The class to get an invite for.",
-					ApplicationCommandOptionType.String,
-					required: true,
-					options
-				) },
-				defaultPermission: true,
-				ApplicationCommandType.SlashCommand
-			), Command.DeferVisibleAsync, RunAsync )
-		};
-	} }
-
-	public static async Task RunAsync(TimedInteraction interaction) {
-		// Select the correct invite to return.
-		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
-		string @class = (string)args[0].Value;
-		string invite = _optionsToInvites[@class];
-
-		// Send invite link.
-		await Command.SubmitResponseAsync(
-			interaction,
-			invite,
-			"Sending invite link.",
-			LogLevel.Debug,
-			new Lazy<string>(() => {
-				string invite_line = invite.FirstLineElided();
-				return $"Invite link for \"{@class}\": {invite_line}";
-			})
-		);
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response);
+		interaction.SetResponseSummary(response);
 	}
 }
