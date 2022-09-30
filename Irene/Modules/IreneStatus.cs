@@ -1,4 +1,4 @@
-using System.Globalization; // CultureInfo
+﻿using System.Globalization; // CultureInfo
 using System.Timers; // ElapsedEventArgs
 
 namespace Irene.Modules;
@@ -46,11 +46,13 @@ class IreneStatus {
 	public static Status? CurrentStatus { get; private set; } = null;
 	public static DateTimeOffset? NextRefresh { get; private set; } = null;
 
+	// Refresh variables determine when the status cycles itself.
 	private static LongTimer _timerRefresh;
 	private static readonly TimeSpan
 		_refreshInterval = new (22,  0,  0),
 		_refreshVariance = new ( 2, 30,  0);
-	private static TaskQueue
+	// Queues control access to data files.
+	private static readonly TaskQueue
 		_queueStatuses = new (),
 		_queueCurrent  = new ();
 	private const string
