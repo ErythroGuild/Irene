@@ -1,4 +1,4 @@
-﻿namespace Irene.Utils;
+namespace Irene.Utils;
 
 static partial class Util {
 	// A table of all (non-deprecated) permissions, categorized and
@@ -91,19 +91,20 @@ static partial class Util {
 	// Returns null if the conversion wasn't possible.
 	public static async Task<DiscordMember?> ToMember(this DiscordUser user) {
 		// Check if trivially convertible.
-		DiscordMember? member_n = user as DiscordMember;
-		if (member_n is not null)
-			return member_n;
+		DiscordMember? member = user as DiscordMember;
+		if (member is not null)
+			return member;
 
 		// Check if guild is loaded (to convert users with).
-		if (Guild is null)
+		if (Erythro is null)
 			return null;
 
 		// Fetch the member by user ID.
-		await UpdateGuild();
 		try {
-			DiscordMember member = await
-				Guild.GetMemberAsync(user.Id);
+			// We always want to update cache, to ensure our resolved
+			// member data (e.g. roles) is fully up-to-date. There is
+			// no other way to determine if the data is outdated.
+			member = await Erythro.Guild.GetMemberAsync(user.Id, true);
 			return member;
 		} catch (ServerErrorException) {
 			return null;
