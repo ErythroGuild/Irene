@@ -11,7 +11,7 @@ static partial class RecurringEvents {
 		public string Id { get; init; }
 		public RecurringEvent Data { get; init; }
 		public EventAction Action { get; init; }
-		public LongTimer Timer { get; }
+		private readonly LongTimer _timer;
 
 		public static async Task<Event?> Create(
 			string id,
@@ -102,7 +102,7 @@ static partial class RecurringEvents {
 			Id = id;
 			Data = data;
 			Action = action;
-			Timer = timer;
+			_timer = timer;
 		}
 	}
 
