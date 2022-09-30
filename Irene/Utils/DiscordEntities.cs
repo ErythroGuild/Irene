@@ -1,10 +1,10 @@
-namespace Irene.Utils;
+﻿namespace Irene.Utils;
 
 static partial class Util {
 	// A table of all (non-deprecated) permissions, categorized and
 	// sorted corresponding to the desktop client's display order.
-	private static readonly ReadOnlyDictionary<Permissions, string> _permissionsTable =
-		new (new ConcurrentDictionary<Permissions, string>() {
+	private static readonly IReadOnlyDictionary<Permissions, string> _permissionsTable =
+		new ConcurrentDictionary<Permissions, string> {
 			// General permissions
 			[Permissions.AccessChannels] = "View channels"  ,
 			[Permissions.ManageChannels] = "Manage channels",
@@ -60,7 +60,7 @@ static partial class Util {
 			[Permissions.Administrator] = "Administrator",
 			[Permissions.All ] = "All" ,
 			[Permissions.None] = "None",
-		});
+		};
 
 	// Returns a list of permission flags.
 	public static IReadOnlyList<Permissions> PermissionsFlags() =>
