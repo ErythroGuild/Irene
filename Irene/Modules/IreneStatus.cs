@@ -1,4 +1,4 @@
-﻿using System.Globalization; // CultureInfo
+using System.Globalization; // CultureInfo
 using System.Timers; // ElapsedEventArgs
 
 namespace Irene.Modules;
@@ -13,16 +13,8 @@ class IreneStatus {
 			Description = description;
 		}
 
-		public string AsStatusText() {
-			string type = Type switch {
-				ActivityType.Playing     => "Playing"     ,
-				ActivityType.ListeningTo => "Listening to",
-				ActivityType.Watching    => "Watching"    ,
-				ActivityType.Competing   => "Competing in",
-				_ => throw new InvalidOperationException("Invalid status type."),
-			};
-			return $"{type} {Description}";
-		}
+		public string AsStatusText() =>
+			AsActivity(false).AsStatusText();
 		public DiscordActivity AsActivity(bool isDebug=false) => isDebug
 			? new ($"{Description} - [DEBUG]", Type)
 			: new (Description, Type);
