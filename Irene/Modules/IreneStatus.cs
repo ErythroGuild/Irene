@@ -13,16 +13,8 @@ class IreneStatus {
 			Description = description;
 		}
 
-		public string AsStatusText() {
-			string type = Type switch {
-				ActivityType.Playing     => "Playing"     ,
-				ActivityType.ListeningTo => "Listening to",
-				ActivityType.Watching    => "Watching"    ,
-				ActivityType.Competing   => "Competing in",
-				_ => throw new InvalidOperationException("Invalid status type."),
-			};
-			return $"{type} {Description}";
-		}
+		public string AsStatusText() =>
+			AsActivity(false).AsStatusText();
 		public DiscordActivity AsActivity(bool isDebug=false) => isDebug
 			? new ($"{Description} - [DEBUG]", Type)
 			: new (Description, Type);
@@ -54,11 +46,13 @@ class IreneStatus {
 	public static Status? CurrentStatus { get; private set; } = null;
 	public static DateTimeOffset? NextRefresh { get; private set; } = null;
 
+	// Refresh variables determine when the status cycles itself.
 	private static LongTimer _timerRefresh;
 	private static readonly TimeSpan
 		_refreshInterval = new (22,  0,  0),
 		_refreshVariance = new ( 2, 30,  0);
-	private static TaskQueue
+	// Queues control access to data files.
+	private static readonly TaskQueue
 		_queueStatuses = new (),
 		_queueCurrent  = new ();
 	private const string
