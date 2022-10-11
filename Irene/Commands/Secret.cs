@@ -28,9 +28,21 @@ class Secret : CommandHandler {
 	);
 
 	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
-		string placeholder = "What do we have here? The time is not yet ripe...";
+		DateTimeOffset now = DateTimeOffset.UtcNow;
+		string attempt = (string)args[Arg_Passphrase];
+		DiscordMember? member = await interaction.User.ToMember();
+
+		if (member is null) {
+			string error = "Could not fetch your data. Try again in a bit?";
+			interaction.RegisterFinalResponse();
+			await interaction.RespondCommandAsync(error, true);
+			interaction.SetResponseSummary(error);
+			return;
+		}
+
+		string response = await Module.Respond(now, attempt, member, Erythro);
 		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(placeholder, true);
-		interaction.SetResponseSummary(placeholder);
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
 	}
 }

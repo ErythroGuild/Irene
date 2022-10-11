@@ -76,6 +76,9 @@
     <None Update="data\role-intros.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="data\secret-responses.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
     <None Update="data\tags.txt">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
