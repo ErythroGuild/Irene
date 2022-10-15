@@ -80,6 +80,7 @@ static partial class RecurringEvents {
 				$"{t} - `irene-status.txt`",
 				$"{t} - `minigame-scores.txt`",
 				$"{t} - `raids.txt`",
+				$"{t} - `secret-progress.txt",
 				$"{t} - `tags.txt`",
 				$"{t}{a} to:        `{dir_repo}`",
 			} );

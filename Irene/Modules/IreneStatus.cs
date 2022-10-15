@@ -110,6 +110,8 @@ class IreneStatus {
 			return false;
 		}
 
+		Log.Information("Randomizing status text.");
+		Log.Debug("  {Status}");
 		await Set(status, refresh);
 		return true;
 	}
@@ -251,8 +253,6 @@ class IreneStatus {
 	//     };
 	private static async Task RefreshHandler(object? timer, ElapsedEventArgs e) {
 		_timerRefresh.Disable();
-
-		Log.Warning("bOoP");
 
 		// `SetRandom()` takes care of updating the timer for us.
 		await SetRandom();
