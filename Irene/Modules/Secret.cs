@@ -156,6 +156,8 @@ class Secret {
 	private const string
 		_responseNotReady = "What do we have here? The time is not yet ripe...",
 		_responseIncorrect = "That is not what I was looking for...";
+	private const ulong
+		_idAdmin = 165557736287764483;
 
 	static Secret() {
 		Util.CreateIfMissing(_pathResponses);
@@ -171,6 +173,21 @@ class Secret {
 			stages.Add(Stage.FromString(line.Trim()));
 		}
 		_stages = stages;
+
+		// Register handlers for admin "hint" commands.
+		Client.MessageCreated += async (irene, e) => {
+			if (e.Author.Id == _idAdmin && e.Channel.IsPrivate) {
+				string command = e.Message.Content;
+				const string prefix = "kirasath: ";
+				if (command.StartsWith(prefix)) {
+					e.Handled = true;
+					string message = command.Replace(prefix, null);
+					DiscordChannel kirasath = await
+						irene.GetChannelAsync(id_ch.kirasath);
+					await kirasath.SendMessageAsync(message);
+				}
+			}
+		};
 	}
 
 	public static async Task<string> Respond(
