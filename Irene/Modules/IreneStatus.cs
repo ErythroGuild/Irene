@@ -111,7 +111,7 @@ class IreneStatus {
 		}
 
 		Log.Information("Randomizing status text.");
-		Log.Debug("  {Status}");
+		Log.Debug("  {Status}", status.AsStatusText());
 		await Set(status, refresh);
 		return true;
 	}
