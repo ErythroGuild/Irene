@@ -1,435 +1,371 @@
 ﻿namespace Irene.Modules;
 
-static class Starboard {
-	// The actual work of pinning messages to the starboard should
-	// happen in a well-ordered fashion (ensured by this queue).
-	private static readonly ConcurrentQueue<DiscordMessage> _workQueue = new ();
-	private static Task _workTask = Task.CompletedTask;
+class Starboard {
+	private record class ChannelSettings(
+		int Threshold,
+		bool HasSpoilers,
+		DiscordColor EmbedColor
+	);
+	private record struct ChannelMessage {
+		public readonly ulong ChannelId;
+		public readonly ulong MessageId;
 
-	// Cache-related variables.
-	// The cache itself is indexed by message ID of the starboarded
-	// message, and contains the messages in the starboard channel.
-	private const int _cacheSize = 20;
-	private static readonly TimeSpan _cacheDuration = TimeSpan.FromDays(90);
-	private static readonly ConcurrentQueue<ulong> _cacheQueue = new ();
-	private static readonly ConcurrentDictionary<ulong, DiscordMessage?> _cache = new ();
+		public ChannelMessage(DiscordMessage message) :
+			this (message.ChannelId, message.Id) { }
+		public ChannelMessage(ulong channelId, ulong messageId) {
+			ChannelId = channelId;
+			MessageId = messageId;
+		}
 
-	// Embed-related variables.
-	private static readonly ReadOnlyDictionary<ulong, int> _channelThresholds =
-		new (new ConcurrentDictionary<ulong, int>() {
-			[id_ch.general ] = 4,
-			[id_ch.sharing ] = 4,
-			[id_ch.spoilers] = 4,
-			[id_ch.memes   ] = 6,
-			[id_ch.tts     ] = 4,
-			[id_ch.bots    ] = 4,
-			[id_ch.news    ] = 4,
-		});
-	private static readonly ReadOnlyCollection<ulong> _spoilerChannels =
-		new (new List<ulong> () {
-			id_ch.spoilers,
-		});
-	private static readonly ReadOnlyDictionary<ulong, DiscordColor> _channelColors =
-		new (new ConcurrentDictionary<ulong, DiscordColor>() {
-			[id_ch.general ] = new ("#FFCEC9"),
-			[id_ch.sharing ] = new ("#DA4331"),
-			[id_ch.spoilers] = new ("#FFCEC9"),
-			[id_ch.memes   ] = new ("#3E0600"),
-			[id_ch.tts     ] = new ("#FFCEC9"),
-			[id_ch.bots    ] = new ("#3E0600"),
-			[id_ch.news    ] = new ("#FFCEC9"),
-		});
+		private const string _separator = ">";
+		public static ChannelMessage FromString(string input) {
+			string[] split = input.Split(_separator, 2);
+			return new (ulong.Parse(split[0]), ulong.Parse(split[1]));
+		}
+		public override string ToString() =>
+			string.Join(_separator, ChannelId, MessageId);
+	}
 
-	private const int _capEmojiDisplay = 4;
-	private const int _capCharsPreview = 420; // hi Ambi
-	private const string _footerPrefix = "id: ";
 
-	// Blacklist-related variables.
-	private static readonly object _lock = new ();
-	private const string _pathBlacklist = @"data/starboard-blocked.txt";
+	// --------
+	// Properties and fields:
+	// --------
 
-	public static void Init() { }
+	private static readonly TaskQueue
+		_queueCandidates  = new (), // messages to check
+		_queueFileBlocked = new (), // file access
+		_queueFileForced  = new (); // file access
+	// The cache of recently pinned posts is indexed by the channel/message
+	// IDs of the original posts, and the values are the corresponding
+	// messages in the starboard channel.
+	private static readonly HotQueueMap<ChannelMessage, DiscordMessage> _cache;
+	private const int _cacheSize = 16;
+	private const string
+		_pathBlocked = @"data/starboard-blocked.txt",
+		_pathForced  = @"data/starboard-forced.txt";
+	private static readonly DiscordColor
+		_colorBlack = new ("#000000"),
+		_colorDark  = new ("#3E0600"),
+		_colorRed   = new ("#DA4331"),
+		_colorLight = new ("#FFCEC9");
+	private const int
+		_capEmojiPreview = 4,
+		_capCharsPreview = 420; // hi Ambi
+	private const string
+		_nbsp  = "\u00A0",
+		_emsp  = "\u2003",
+		_ellip = "\u2026";
+
 	static Starboard() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
+		Util.CreateIfMissing(_pathBlocked);
+		Util.CreateIfMissing(_pathForced);
 
-		Util.CreateIfMissing(_pathBlacklist, _lock);
+		// Cache starts out empty and gets populated naturally.
+		_cache = new (_cacheSize);
 
-		Client.MessageReactionAdded += (irene, e) => {
+		// Queue up any candidate updates to the starboard.
+		static Task HandleReaction(DiscordMessage messagePartial) {
 			_ = Task.Run(async () => {
-				await AwaitGuildInitAsync();
-
-				// Fetch latest data.
-				// (Sometimes the cached data is missing.)
-				DiscordChannel channel = await
-					Client.GetChannelAsync(e.Message.ChannelId);
 				DiscordMessage message = await
-					channel.GetMessageAsync(e.Message.Id);
-				DiscordUser author = message.Author;
-
-				// Check if a pin should be made.
-				if (e.User == Client.CurrentUser || e.User == author)
-					return;
-				bool? doPin = await DoPin(message);
-				if (doPin is null || !doPin.Value)
-					return;
-
-				// Add pin if passed check.
-				// Since the task for adding a pin handles queueing,
-				// there's no need to await it here.
-				_ = UpdatePinAsync(message);
+					PopulatePartialMessage(messagePartial);
+				await _queueCandidates.Run(new Task<Task>(async () => {
+					await RefreshStarredPost(message);
+				}));
 			});
 			return Task.CompletedTask;
-		};
-
-		Log.Information("  Initialized module: Starboard");
-		Log.Debug($"    Registered react event handler.");
-		Log.Debug($"    Initialized blacklist.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
+		}
+		Client.MessageReactionAdded +=
+			(irene, e) => HandleReaction(e.Message);
+		Client.MessageReactionRemoved +=
+			(irene, e) => HandleReaction(e.Message);
 	}
 
-	public static async Task<bool?> DoPin(DiscordMessage message) {
-		await AwaitGuildInitAsync();
 
-		// Fetch latest data.
-		// (Sometimes the cached data is missing.)
-		DiscordChannel channel = await
-			Client.GetChannelAsync(message.ChannelId);
-		message = await
-			channel.GetMessageAsync(message.Id);
-		DiscordUser author = message.Author;
+	// --------
+	// Public interface methods:
+	// --------
 
-		// Return false if message isn't in a tracked channel.
-		if (!_channelThresholds.ContainsKey(channel.Id))
-			return false;
+	// Refreshing a starred post will go through all the relevant checks
+	// (blocklist, forcelist, regular requirements). It will update any
+	// existing posts, create a new post if needed, and delete the existing
+	// post if one shouldn't exist.
+	// Returns the message embedding the starred post, or null if the
+	// corresponding post should not exist.
+	public static async Task<DiscordMessage?> RefreshStarredPost(DiscordMessage message) {
+		bool shouldStar = await ShouldStar(message);
 
-		// Populate set of reacting users.
-		// Don't include bots or the author themselves.
-		HashSet<DiscordUser> users = new ();
-		foreach (DiscordReaction reaction in message.Reactions) {
-			// By default this only fetches the first 25,
-			// but we only are checking for having enough to
-			// pass the threshold, not the actual count.
-			HashSet<DiscordUser> users_i = new (await
-				message.GetReactionsAsync(reaction.Emoji)
-			);
-			users.UnionWith(users_i);
-		}
-		users.RemoveWhere(user =>
-			user.IsBot || user == author
-		);
-
-		// Add pin if enough people reacted.
-		return users.Count >= _channelThresholds[channel.Id];
-	}
-	
-	// Return whether or not the message has been blacklisted.
-	public static bool IsBlacklisted(DiscordMessage message) {
-		List<string> blacklist = new ();
-		lock (_lock) {
-			blacklist.AddRange(File.ReadAllLines(_pathBlacklist));
-		}
-		blacklist.RemoveAll(line => line == "");
-
-		return blacklist.Contains(message.Id.ToString());
-	}
-
-	// Toggle a discord message's blacklist status.
-	// Returns true if blacklist was updated (a message ID was
-	// blocked or unblocked).
-	public static bool SetBlacklist(DiscordMessage message, bool doBlock=true) {
-		ulong messageId = message.Id;
-
-		// Read in current blacklist.
-		List<string> blacklist = new ();
-		lock (_lock) {
-			blacklist.AddRange(File.ReadAllLines(_pathBlacklist));
-		}
-		blacklist.RemoveAll(line => line == "");
-		
-		// Add/remove message from blacklist.
-		bool didModify = false;
-		string id = messageId.ToString();
-		if (!doBlock && blacklist.Contains(id)) {
-			blacklist.RemoveAll(line => line == id);
-			didModify = true;
-		}
-		if (doBlock && !blacklist.Contains(id)) {
-			blacklist.Add(id);
-			didModify = true;
-		}
-
-		// Sort blacklist, sanitize list.
-		HashSet<string> blacklist_set = new (blacklist);
-		blacklist = new (blacklist_set);
-		blacklist.Sort();
-
-		// Write out new blacklist.
-		lock (_lock) {
-			File.WriteAllLines(_pathBlacklist.Temp(), blacklist);
-			File.Delete(_pathBlacklist);
-			File.Move(_pathBlacklist.Temp(), _pathBlacklist);
-		}
-
-		return didModify;
-	}
-
-	// Creates a new pin in the starboard channel if one doesn't
-	// already exist for this message. Otherwise, updates the react
-	// emoji tallies.
-	public static async Task UpdatePinAsync(DiscordMessage message) {
-		await AwaitGuildInitAsync();
-
-		_workQueue.Enqueue(message);
-		// Let current work task finish first.
-		await _workTask;
-		_workTask = Task.Run(async () => {
-			// Fetching the blacklist separately rather than using
-			// the built-in function is more efficient.
-			// The entire file doesn't need to be read every time.
-			List<string> blacklist = new ();
-			lock (_lock) {
-				blacklist.AddRange(File.ReadAllLines(_pathBlacklist));
-			}
-			blacklist.RemoveAll(line => line == "");
-
-			while (!_workQueue.IsEmpty) {
-				// Work through items in order.
-				_workQueue.TryDequeue(out DiscordMessage? message);
-				if (message is null)
-					continue;
-
-				// Skip blacklisted items.
-				ulong id = message.Id;
-				if (blacklist.Contains(id.ToString()))
-					continue;
-
-				// Determine if an update is needed.
-				// Construct the (updated) embed data.
-				DiscordMessage? pin = await FetchPinAsync(message);
-				DiscordMember? author = await message.Author.ToMember();
-				bool is_update = pin is not null;
-				DiscordEmbed embed = AsEmbed(message);
-
-				if (pin is not null) {
-					await pin.ModifyAsync(embed);
-				} else {
-					string author_name =
-						author?.Nickname ?? message.Author.Tag();
-					Log.Information("Adding new post to starboard.");
-					Log.Debug($"  {author_name}, in #{message.Channel.Name}");
-
-					DiscordChannel channel = Channels[id_ch.starboard];
-					pin = await channel.SendMessageAsync(embed);
-				}
-
-				// Update cache.
-				if (!_cache.ContainsKey(id)) {
-					_cacheQueue.Enqueue(id);
-					_cache.TryAdd(id, pin);
-					if (_cacheQueue.Count > _cacheSize) {
-						_cacheQueue.TryDequeue(out ulong id_discard);
-						_cache.TryRemove(id_discard, out _);
-					}
-				}
-
-				// Send congrats message (if new post).
-				if (!is_update && author is not null) {
-					string text = new List<string>() {
-						"Congrats! :tada:",
-						$"Your post in {message.Channel.Mention} was extra-popular," +
-							$" and has been included in {Channels[id_ch.starboard].Mention}.",
-						$":champagne_glass: {Emojis[id_e.eryLove]}",
-					}.ToLines();
-					await author.SendMessageAsync(text);
-					Log.Information("  Notified original post author.");
-				}
-			}
-		});
-		await _workTask;
-	}
-
-	// Removes the pin in the starboard channel for the message,
-	// if one exists.
-	public static async Task RemovePinAsync(DiscordMessage message) {
-		await AwaitGuildInitAsync();
-
-		// Make sure the work task isn't running.
-		await _workTask;
-		_workTask = Task.Run(async () => {
-			DiscordMessage? pin = await FetchPinAsync(message);
-
-			// Return early if no pin existed in the first place.
-			if (pin is null)
-				return;
-
-			// Invalidate cache and remove cache.
-			ulong id = message.Id;
-			if (_cache.ContainsKey(id))
-				_cache[id] = null;
-			await pin.Channel.DeleteMessageAsync(pin);
-
-		});
-		await _workTask;
-	}
-
-	// Searches through the starboard channel for an existing pin
-	// for that message.
-	// Returns that message if it exists, or null if it doesn't.
-	public static async Task<DiscordMessage?> FetchPinAsync(DiscordMessage message) {
-		await AwaitGuildInitAsync();
-
-		DiscordChannel channel = Channels[id_ch.starboard];
-		ulong id = message.Id;
-
-		// Check cache for existing pinned message.
-		if (_cache.ContainsKey(id) && _cache[id] is not null)
-			return _cache[id];
-
-		// Fetch recent messages.
-		IReadOnlyList<DiscordMessage> messages =
-			await channel.GetMessagesAsync();
-		if (messages.Count == 0)
+		if (shouldStar) {
+			// Create (or update) a starred post.
+			return await OverwriteStarredPost(message);
+		} else {
+			// Ensure starred post is deleted.
+			await DeleteStarredPost(message);
 			return null;
+		}
+	}
 
-		// Set the time at which to give up searching.
-		DateTimeOffset time_untracked =
-			DateTimeOffset.UtcNow - _cacheDuration;
+	// "Blocked" messages are never added to the starboard, and will
+	// always return false when checking if a message should be starred.
+	public static async Task<bool> IsBlocked(DiscordMessage message) {
+		string id = new ChannelMessage(message).ToString();
+		List<string> blocklist = await ReadAllBlocked();
+		return blocklist.Contains(id);
+	}
+	// Returns false if block/unblock was redundant; true otherwise.
+	// Blocking a message will:
+	// - remove its post from the starboard
+	// - remove the message from the forcelist
+	// Unblocking a message will:
+	// - add a post to the starboard (if requirements are met)
+	public static async Task<bool> Block(DiscordMessage message, bool doBlock=true) {
+		string id = new ChannelMessage(message).ToString();
+		List<string> blocklist = await ReadAllBlocked();
+		List<string> forcelist = await ReadAllForced();
+		List<Task> tasks = new ();
 
-		// Search through existing messages.
+		// Remove message from forcelist if it's being blocked.
+		if (doBlock && forcelist.Contains(id)) {
+			forcelist.Remove(id);
+			tasks.Add(WriteAllForced(forcelist));
+		}
+
+		// Short-circuit redundant block/unblock.
+		if (doBlock == blocklist.Contains(id)) {
+			await Task.WhenAll(tasks);
+			return false;
+		}
+
+		// Update blocklist.
+		if (doBlock)
+			// Inserting the most recent entry at the start theoretically
+			// increases read performance.
+			blocklist.Insert(0, id);
+		else
+			blocklist.Remove(id);
+		tasks.Add(WriteAllBlocked(blocklist));
+
+		// Update starboard.
+		await Task.WhenAll(tasks);
+		await RefreshStarredPost(message);
+
+		return true;
+	}
+
+	// "Forced" messages are added to the starboard, and will always
+	// return true when checking if a message should be starred.
+	public static async Task<bool> IsForced(DiscordMessage message) {
+		string id = new ChannelMessage(message).ToString();
+		List<string> forcelist = await ReadAllForced();
+		return forcelist.Contains(id);
+	}
+	// Returns false if the force/unforce was redundant; true otherwise.
+	// Forcing a message will:
+	// - create/update the starboard
+	// - remove the message from the blocklist
+	// Unforcing a message will:
+	// - remove its post from the starboard (if requirements aren't met)
+	public static async Task<bool> Force(DiscordMessage message, bool doForce=true) {
+		string id = new ChannelMessage(message).ToString();
+		List<string> forcelist = await ReadAllForced();
+		List<string> blocklist = await ReadAllBlocked();
+		List<Task> tasks = new ();
+
+		// Remove message from blocklist if it's being forced.
+		if (doForce && blocklist.Contains(id)) {
+			blocklist.Remove(id);
+			tasks.Add(WriteAllBlocked(blocklist));
+		}
+
+		// Short-circuit redundant force/unforce.
+		if (doForce == forcelist.Contains(id)) {
+			await Task.WhenAll(tasks);
+			return false;
+		}
+
+		// Update forcelist.
+		if (doForce)
+			// Inserting the most recent entry at the start theoretically
+			// increases read performance.
+			forcelist.Insert(0, id);
+		else
+			forcelist.Remove(id);
+		tasks.Add(WriteAllForced(forcelist));
+
+		// Update starboard.
+		await Task.WhenAll(tasks);
+		await RefreshStarredPost(message);
+
+		return true;
+	}
+
+
+	// --------
+	// Starboard posting helper methods:
+	// --------
+
+	// Updates starboard post for the specified message, or creates a
+	// new one if one doesn't exist already. Creating a new post will
+	// also notify the author and update the cache.
+	// The input message is not checked against requirements.
+	// Returns the updated message from the starboard channel.
+	private static async Task<DiscordMessage> OverwriteStarredPost(DiscordMessage message) {
+		ChannelSettings? settings = GetSettings(message.ChannelId);
+		if (settings is null)
+			throw new InvalidOperationException("Attempted to create starred post in an unsupported channel.");
+
+		DiscordMessage? post = await FindStarredPost(message);
+		DiscordEmbed embed = await CreateEmbed(message, settings);
+		if (post is not null) {
+			return await post.ModifyAsync(embed);
+		} else {
+			Log.Information("Adding new post to starboard.");
+			Log.Debug("  Original post: #{Channel}", message.Channel.Name);
+			post = await GetStarboard().SendMessageAsync(embed);
+			await NotifyAuthor(message);
+			_cache.Push(new ChannelMessage(message), post);
+			return post;
+		}
+	}
+	// Delete the corresponding starboard post, and flush it from cache
+	// (if it was in cache).
+	private static async Task DeleteStarredPost(DiscordMessage message) {
+		DiscordMessage? post = await FindStarredPost(message);
+		if (post is not null) {
+			Log.Information("Removing post from starboard.");
+			Log.Debug("  Original post: #{Channel}", message.Channel.Name);
+			await post.DeleteAsync();
+		}
+		_cache.Flush(new ChannelMessage(message));
+	}
+
+	// Find a starred post (the message in the starboard channel) for
+	// a given input message, if it exists.
+	// Returns null if no existing starred post was found.
+	private static async Task<DiscordMessage?> FindStarredPost(DiscordMessage message) {
+		// Check cache for existing pinned message.
+		ChannelMessage id = new (message);
+		bool wasCached = _cache.TryAccess(id, out DiscordMessage? cacheValue);
+		if (wasCached)
+			return cacheValue;
+
+		DiscordChannel starboard = GetStarboard();
+
+		// Initialize data for upcoming loop.
+		int searchSize = 60;
+		List<DiscordMessage> messages =
+			new (await starboard.GetMessagesAsync(searchSize));
+
+		// Search through messages until we reach the beginning of the
+		// channel, or until the timestamp of the fetched messages predates
+		// the creation of the specified input message.
 		while (messages.Count > 0) {
+			// Check through fetched messages for a matching message.
 			foreach (DiscordMessage message_i in messages) {
-				if (message_i.Timestamp < time_untracked)
-					return null;
-
-				IReadOnlyList<DiscordEmbed> embeds =
-					message_i.Embeds;
-				if (embeds.Count == 0)
+				IReadOnlyList<DiscordEmbed> embeds = message_i.Embeds;
+				if (embeds.Count != 1)
 					continue;
 				DiscordEmbed embed = embeds[0];
-				if (embed.Footer is null)
-					continue;
-				string? footer_text = embed.Footer.Text;
-				if (footer_text is null)
-					continue;
-
-				if (footer_text.StartsWith(_footerPrefix)) {
-					string id_i =
-						footer_text.Replace(_footerPrefix, "");
-					if (id_i == id.ToString())
-						return message_i;
+				if (IsMatch(message, embed)) {
+					_cache.Push(new ChannelMessage(message), message_i);
+					return message_i;
 				}
+				if (message_i.Timestamp < message.Timestamp)
+					return null;
 			}
-			ulong id_last = messages[^1].Id;
-			messages = await
-				channel.GetMessagesBeforeAsync(id_last);
+
+			// Fetch more messages to check through.
+			ulong idPrev = messages[^1].Id;
+			messages = new
+				(await starboard.GetMessagesBeforeAsync(idPrev, searchSize));
 		}
 
-		// Could not find matching message.
+		// If the loop finishes, then nothing was found.
 		return null;
 	}
+	
 
-	// Returns the message *embedded* into an embed.
-	private static DiscordEmbed AsEmbed(DiscordMessage message) {
+	// --------
+	// Internal (queued) file I/O methods:
+	// --------
+
+	// File I/O for blocklist.
+	private static async Task WriteAllBlocked(List<string> blocklist) {
+		await _queueFileBlocked.Run(new Task<Task>(async () => {
+			await File.WriteAllLinesAsync(_pathBlocked, blocklist);
+		}));
+	}
+	private static async Task<List<string>> ReadAllBlocked() =>
+		await _queueFileBlocked.Run(
+			new Task<Task<List<string>>> (async () => {
+				return new (await File.ReadAllLinesAsync(_pathBlocked));
+			})
+		);
+
+	// File I/O for forcelist.
+	private static async Task WriteAllForced(List<string> forcelist) {
+		await _queueFileForced.Run(new Task<Task>(async () => {
+			await File.WriteAllLinesAsync(_pathForced, forcelist);
+		}));
+	}
+	private static async Task<List<string>> ReadAllForced() =>
+		await _queueFileForced.Run(
+			new Task<Task<List<string>>> (async () => {
+				return new (await File.ReadAllLinesAsync(_pathForced));
+			})
+		);
+
+
+	// --------
+	// Embed formatting methods:
+	// --------
+
+	// Returns an embed that can be directly posted to the starboard.
+	private static async Task<DiscordEmbed> CreateEmbed(DiscordMessage message, ChannelSettings settings) {
 		// Fetch author name.
-		string author_name;
-		if (message.Channel is not null && !message.Channel.IsPrivate) {
-			// Check for webhook.
-			if (message.Author.IsBot && message.Author.Discriminator == "0000") {
-				author_name = message.Author.Username;
-			} else {
-				DiscordMember? author =
-					message.Author as DiscordMember;
-				author_name = author?.DisplayName ??
-					message.Author.Tag();
-			}
-		} else {
-			author_name = message.Author.Tag();
-		}
+		// Webhooks should be formatted without a tag.
+		string author = message.WebhookMessage
+			? message.Author.Username
+			: (await message.Author.ToMember())
+				?.DisplayName ?? message.Author.Tag();
 
-		// Get content strings.
-		string emoji_list = PrintEmojiList(message.Reactions);
-		string? content = GetSummary(message);
+		// Construct summary string.
+		string emojiPreview = PreviewEmojis(message);
+		string? content = Summarize(message);
 		if (content is not null) {
-			if (DoSpoiler(message))
+			if (settings.HasSpoilers)
 				content = content.Spoiler();
-			content += "\n" + emoji_list;
+			content += "\n" + emojiPreview;
 		} else {
-			content = emoji_list;
+			content = emojiPreview;
 		}
 
-		// Create the embed object.
-		DiscordEmbedBuilder embed =
-			new DiscordEmbedBuilder()
-			.WithAuthor(author_name, null, message.Author.AvatarUrl)
+		// Construct embed object.
+		DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
+			.WithAuthor(author, null, message.Author.AvatarUrl)
 			.WithTitle($"\u21D2 #{message.Channel?.Name}")
 			.WithUrl(message.JumpLink)
-			.WithColor(_channelColors[message.ChannelId])
-			.WithDescription(content)
-			.WithFooter(_footerPrefix + message.Id.ToString());
+			.WithColor(settings.EmbedColor)
+			.WithDescription(content);
 
-		// Add thumbnail if applicable.
-		string? thumbnail = GetThumbnail(message);
-		if (DoSpoiler(message))
+		// Add thumbnail (if applicable).
+		string? thumbnail = PreviewThumbnail(message);
+		if (settings.HasSpoilers)
 			thumbnail = null;
 		if (thumbnail is not null)
 			embed = embed.WithThumbnail(thumbnail);
 
 		return embed.Build();
 	}
-
-	// Returns whether or not the message is from a channel that
-	// needs to be spoiled.
-	private static bool DoSpoiler(DiscordMessage message) =>
-		_spoilerChannels.Contains(message.ChannelId);
-
-	// Returns a thumbnail of the crossposted message.
-	// Returns null if there is nothing to preview.
-	private static string? GetThumbnail(DiscordMessage message) {
-		// Only fetch thumbnails for regular messages.
-		switch (message.MessageType) {
-		case MessageType.Default:
-		case MessageType.Reply:
-			break;
-		default:
-			return null;
-		}
-
-		// Return early if no thumbnail content exists.
-		List<DiscordAttachment> files = new (message.Attachments);
-		List<DiscordEmbed> embeds = new (message.Embeds);
-		if (files.Count == 0 && embeds.Count == 0)
-			return null;
-
-		// Return image thumbnail if exists.
-		foreach (DiscordAttachment file in files) {
-			if (file.MediaType.StartsWith("image"))
-				return file.Url;
-		}
-
-		// Return embed thumbnail if exists.
-		if (embeds.Count > 0) {
-			if (embeds[0].Image is not null)
-				return embeds[0].Image.Url.ToString();
-			if (embeds[0].Thumbnail is not null)
-				return embeds[0].Thumbnail.Url.ToString();
-		}
-
-		return null;
-	}
-
+	
 	// Returns a string representation of the crossposted message.
 	// Returns null if the content is blank or unrecognized.
-	private static string? GetSummary(DiscordMessage message) {
-		const string ellipsis = "\u2026";
-
+	private static string? Summarize(DiscordMessage message) {
 		// Return generic messages for specific message types.
 		// Filter unsupported message types.
 		switch (message.MessageType) {
 		case MessageType.Default:
 		case MessageType.Reply:
-		case MessageType.ApplicationCommand:
-		case MessageType.ContextMenuCommand:
-			break;
+			break; // Continue summarization logic.
 		case MessageType.ChannelPinnedMessage:
 			return "pinned message to the channel";
 		case MessageType.GuildMemberJoin:
@@ -442,64 +378,239 @@ static class Starboard {
 			return "server boosted to level 2";
 		case MessageType.TierThreeUserPremiumGuildSubscription:
 			return "server boosted to level 3";
+		case MessageType.ChannelFollowAdd:
+			return "followed announcements channel";
+		case MessageType.GuildDiscoveryDisqualified:
+			return "server removed from server discovery";
+		case MessageType.GuildDiscoveryRequalified:
+			return "server re-added to server discovery";
+		case MessageType.GuildDiscoveryGracePeriodInitialWarning:
+		case MessageType.GuildDiscoveryGracePeriodFinalWarning:
+			return "server has not met server discovery requirements";
+		case MessageType.ApplicationCommand:
+		case MessageType.ContextMenuCommand:
+			return "used a command";
+		case MessageType.GuildInviteReminder:
+			return "invite friends to join the server";
 		case MessageType.AutoModAlert:
-			throw new NotImplementedException("AutoMod alert messages not recognized yet.");
+			return "automod blocked a message";
+		default:
+			//MessageType.RecipientAdd      (group DM)
+			//MessageType.RecipientRemove   (group DM)
+			//MessageType.Call              (DM, group DM)
+			//MessageType.ChannelNameChange (group DM)
+			//MessageType.ChannelIconChange (group DM)
+			return null;
+		}
+
+		// Return trimmed message content (if non-empty).
+		string? text = message.Content.Trim();
+		if (text != "") {
+			return (text.Length <= _capCharsPreview)
+				? text
+				: $"{text[.._capCharsPreview]} [{_ellip}]";
+		}
+
+		// Return embed summary (if available).
+		List<DiscordEmbed> embeds = new (message.Embeds);
+		foreach (DiscordEmbed embed in embeds) {
+			text = Summarize(embed);
+			if (text is not null)
+				return text;
+		}
+
+		// Return null if summarization failed.
+		return null;
+	}
+	private static string? Summarize(DiscordEmbed embed) {
+		string title = embed.Title.Trim();
+		if (title != "")
+			return title;
+
+		string description = embed.Description.Trim();
+		if (description != "") {
+			return (description.Length <= _capCharsPreview)
+				? description
+				: $"{description[.._capCharsPreview]} [{_ellip}]";
+		}
+
+		// Return null if summarization failed.
+		return null;
+	}
+	
+	private static string PreviewEmojis(DiscordMessage message) {
+		// Sort (and cap) list of emojis.
+		List<DiscordReaction> reactions = new (message.Reactions);
+		reactions.Sort((x, y) => y.Count - x.Count);
+		bool doElide = reactions.Count > _capEmojiPreview;
+		if (doElide)
+			reactions = reactions.GetRange(0, _capEmojiPreview);
+
+		// Concatenate all emojis for display.
+		string text = "";
+		foreach (DiscordReaction reaction in reactions)
+			text += $"{reaction.Emoji}{_nbsp}**{reaction.Count}**{_emsp}";
+		if (doElide)
+			text += _ellip;
+		else
+			text = text[..^_emsp.Length];
+
+		return text;
+	}
+	// Returns a thumbnail url for the crossposted message.
+	// Returns null if there is nothing to preview, or if the thumbnail
+	// is a spoiler image.
+	private static string? PreviewThumbnail(DiscordMessage message) {
+		// Only fetch thumbnails for "regular" messages.
+		switch (message.MessageType) {
+		case MessageType.Default:
+		case MessageType.Reply:
+			break;
 		default:
 			return null;
 		}
 
-		// Return trimmed message content if available.
-		string text = message.Content.Trim();
-		if (text != "") {
-			string preview = text;
-			return (preview.Length <= _capCharsPreview)
-				? preview
-				: preview[.._capCharsPreview] + $" [{ellipsis}]";
+		// Check, in order, files, then embeds, then stickers.
+		// Return as soon as a valid thumbnail is found.
+		// This is roughly equivalent to checking if any exist (at all)
+		// at the start, and has minimal additional impact on performance.
+
+		List<DiscordAttachment> files = new (message.Attachments);
+		foreach (DiscordAttachment file in files) {
+			if (file.MediaType.StartsWith("image") &&
+				!file.FileName.StartsWith("SPOILER_")
+			)
+				{ return file.Url; }
 		}
 
-		// Return embed summary if available.
 		List<DiscordEmbed> embeds = new (message.Embeds);
-		if (embeds.Count == 0)
-			return null;
-		string title = embeds[0].Title.Trim();
-		if (title != "")
-			return title;
-		string description = embeds[0].Description.Trim();
-		if (description != "") {
-			return (description.Length <= _capCharsPreview)
-				? description
-				: $"{description[.._capCharsPreview]} [{ellipsis}]";
+		foreach (DiscordEmbed embed in embeds) {
+			if (embed.Image is not null)
+				return embed.Image.Url.ToString();
+			if (embed.Thumbnail is not null)
+				return embed.Thumbnail.Url.ToString();
 		}
 
-		// Return null if no summary could be created.
+		List<DiscordMessageSticker> stickers = new (message.Stickers);
+		foreach (DiscordMessageSticker sticker in stickers) {
+			if (sticker.StickerUrl is not null)
+				return sticker.StickerUrl;
+		}
+
+		// Return null if no valid thumbnails were found.
 		return null;
 	}
 
-	// Returns a formatting string describing the emojis.
-	private static string PrintEmojiList(IReadOnlyList<DiscordReaction> reacts) {
-		const string
-			nbsp      = "\u00A0",
-			separator = "\u2003",
-			ellipsis  = "\u2026";
 
-		// Sort (and cap) list of emojis.
-		List<DiscordReaction> reacts_list = new (reacts);
-		reacts_list.Sort((x, y) => { return y.Count - x.Count; });
-		bool is_elided = reacts_list.Count > _capEmojiDisplay;
-		if (is_elided)
-			reacts_list = reacts_list.GetRange(0, _capEmojiDisplay);
+	// --------
+	// Other internal helper/component methods:
+	// --------
 
-		// Format as string.
-		string text = "";
-		foreach (DiscordReaction reaction in reacts_list) {
-			text += $"{reaction.Emoji}{nbsp}" +
-				$"**{reaction.Count}**{separator}";
+	// The DiscordMessage returned from the "reaction added" event is
+	// incomplete; this method fetches the full message object.
+	// According to official API docs, the partial object has:
+	// - user ID
+	// - channel ID
+	// - message ID
+	// - guild ID (nullable)
+	// - member object (nullable)
+	// - emoji (partial object)
+	private static async Task<DiscordMessage> PopulatePartialMessage(DiscordMessage message) {
+		if (Erythro is null)
+			throw new InvalidOperationException("Guild not initialized yet.");
+
+		DiscordChannel channel = await
+			Erythro.Client.GetChannelAsync(message.ChannelId);
+		return await channel.GetMessageAsync(message.Id);
+	}
+
+	// Convenience function holding settings for allowed channels.
+	// Returns null if a channel should be ignored for the starboard.
+	private static ChannelSettings? GetSettings(ulong channelId) =>
+		channelId switch {
+			id_ch.general  => new (4, false, _colorLight),
+			id_ch.sharing  => new (4, false, _colorRed  ),
+			id_ch.spoilers => new (4, true , _colorLight),
+			id_ch.memes    => new (6, false, _colorDark ),
+			id_ch.bots     => new (4, false, _colorDark ),
+			id_ch.news     => new (6, false, _colorRed  ),
+			_ => null,
+		};
+	// Convenience function for fetching an instantiated starboard channel.
+	private static DiscordChannel GetStarboard() {
+		if (Erythro is null)
+			throw new InvalidOperationException("Guild not initialized yet.");
+		return Erythro.Channel(id_ch.starboard);
+	}
+	
+	// Checks if the given embed is a summary of a message.
+	private static bool IsMatch(DiscordMessage message, DiscordEmbed embed) {
+		string link = embed.Url.ToString();
+		string id = $"{message.ChannelId}/{message.Id}";
+		return link.EndsWith(id);
+	}
+	// Checks if the given message meets the requirements to be posted
+	// to the starboard, including checking the blocklist/forcelist.
+	private static async Task<bool> ShouldStar(DiscordMessage message) {
+		// Check blocklist and forcelist.
+		string id = new ChannelMessage(message).ToString();
+		List<string> blocklist = await ReadAllBlocked();
+		if (blocklist.Contains(id))
+			return false;
+		List<string> forcelist = await ReadAllForced();
+		if (forcelist.Contains(id))
+			return true;
+
+		ChannelSettings? settings = GetSettings(message.ChannelId);
+
+		// No need to check for private channels--they won't have settings
+		// defined in the first place, and will always return null here.
+		if (settings is null)
+			return false;
+
+		// First pass: quick check if total reaction count even passes
+		// threshold (without checking for duplicate/OP reactions).
+		List<DiscordReaction> reactions = new (message.Reactions);
+		int reactionCount = 0;
+		foreach (DiscordReaction reaction in reactions)
+			reactionCount += reaction.Count;
+		if (reactionCount < settings.Threshold)
+			return false;
+
+		// Fetch all reaction data in parallel and check for duplicate
+		// reactions / reactions from OP.
+		List<Task<IReadOnlyList<DiscordUser>>> tasks = new ();
+		foreach (DiscordReaction reaction in reactions)
+			tasks.Add(message.GetReactionsAsync(reaction.Emoji));
+		// By default this only fetches 25 users, but we're only checking
+		// to pass the threshold, not to get the actual count.
+		await Task.WhenAll(tasks);
+
+		HashSet<DiscordUser> users = new ();
+		foreach (Task<IReadOnlyList<DiscordUser>> task in tasks)
+			users.UnionWith(await task);
+		users.Remove(message.Author); // no exception if not found
+
+		// Return result.
+		return users.Count >= settings.Threshold;
+	}
+
+	// Send a message to the author of a starred post.
+	private static async Task NotifyAuthor(DiscordMessage message) {
+		DiscordMember? author = await message.Author.ToMember();
+		if (author is null) {
+			Log.Warning("Could not convert {Author} to member object.", message.Author.Tag());
+			return;
 		}
-		if (is_elided)
-			text += ellipsis;
-		if (text.EndsWith(separator))
-			text = text[..^separator.Length];
 
-		return text;
+		if (Erythro is null)
+			throw new InvalidOperationException("Guild not initialized yet.");
+
+		Log.Information("  Notifying message author: {Author}", author.Tag());
+		await author.SendMessageAsync($"""
+			Congrats! :tada:
+			Your post in {message.Channel.Mention} was extra-popular, and has been included in {GetStarboard().Mention}.
+			{Erythro.Emoji(id_e.eryLove)} {Erythro.Emoji(id_e.erythro)}
+			""");
 	}
 }
