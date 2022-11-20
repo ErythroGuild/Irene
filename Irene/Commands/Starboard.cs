@@ -1,216 +1,202 @@
-﻿using StarboardObj = Irene.Modules.Starboard;
+﻿using Module = Irene.Modules.Starboard;
 
 namespace Irene.Commands;
 
-class Starboard : AbstractCommand {
-	private static readonly ReadOnlyCollection<ChannelType> _channelsText =
-		new (new List<ChannelType> {
+class Starboard : CommandHandler {
+	public const string
+		Command_BestOf  = "best-of",
+		Command_Block   = "block",
+		Command_Unblock = "unblock",
+		Command_Pin     = "pin",
+		Command_Unpin   = "unpin";
+	public const string
+		Arg_Id      = "message-id",
+		Arg_Channel = "channel";
+
+	private static readonly IReadOnlyList<ChannelType> _channelsText =
+		new List<ChannelType> {
 			ChannelType.Text,
 			ChannelType.PublicThread,
 			ChannelType.PrivateThread,
 			ChannelType.News,
 			ChannelType.NewsThread,
-		} );
-
-	private const string
-		_commandBlock = "block",
-		_commandUnblock = "unblock",
-		_commandPinBestOf = "Pin #best-of";
-
-	public override List<string> HelpPages =>
-		new () { new List<string> {
-			@"`:lock: /best-of block <message-id> <channel>` blocks a message from being pinned.",
-			@"`:lock: /best-of unblock <message-id> <channel>` allows a message to be pinned again.",
-			"When a message is blocked, existing pins are removed.",
-			"Unblocking will only create a pin if the post meets current requirements."
-		}.ToLines() };
-
-	public override List<InteractionCommand> SlashCommands =>
-		new () {
-			new ( new (
-				"best-of",
-				"Manage messages on the best-of channel.",
-				options: new List<CommandOption> {
-					new (
-						_commandBlock,
-						"Prevent a message from being pinned.",
-						ApplicationCommandOptionType.SubCommand,
-						options: new List<CommandOption> {
-							new (
-								"message-id",
-								"The message ID to block.",
-								ApplicationCommandOptionType.String,
-								required: true
-							),
-							new (
-								"channel",
-								"The channel the message is in.",
-								ApplicationCommandOptionType.Channel,
-								required: true,
-								channelTypes: _channelsText
-							),
-						}
-					),
-					new (
-						_commandUnblock,
-						"Allow a message to be pinned again.",
-						ApplicationCommandOptionType.SubCommand,
-						options: new List<CommandOption> {
-							new (
-								"message-id",
-								"The message ID to block.",
-								ApplicationCommandOptionType.String,
-								required: true
-							),
-							new (
-								"channel",
-								"The channel the message is in.",
-								ApplicationCommandOptionType.Channel,
-								required: true,
-								channelTypes: _channelsText
-							),
-						}
-					),
-				},
-				defaultPermission: true,
-				ApplicationCommandType.SlashCommand
-			), Command.DeferEphemeralAsync, RunAsync )
 		};
+	private static readonly List<CommandOption> _optionsMessage = new () {
+		new (
+			Arg_Id,
+			"The message ID to block.",
+			ApplicationCommandOptionType.String,
+			required: true
+		),
+		new (
+			Arg_Channel,
+			"The channel where the message was posted.",
+			ApplicationCommandOptionType.Channel,
+			required: true,
+			channelTypes: _channelsText
+		),
+	};
 
-	public override List<InteractionCommand> MessageCommands =>
-		new () {
-			new ( new (
-				_commandPinBestOf,
-				"",	// description field must be "" instead of null
-				defaultPermission: true,
-				type: ApplicationCommandType.MessageContextMenu
-			), Command.DeferEphemeralAsync, PinBestOfAsync )
-		};
+	public Starboard(GuildData erythro) : base (erythro) { }
 
-	public static async Task RunAsync(TimedInteraction interaction) {
-		List<DiscordInteractionDataOption> args =
-			interaction.GetArgs();
-		string command = args[0].Name;
+	public override string HelpText =>
+		$"""
+		:lock: {Command.Mention(Command_Block)} `<{Arg_Id}> <{Arg_Channel}>` blocks a message from being pinned,
+		:lock: {Command.Mention(Command_Unblock)} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be pinned.
+		:lock: {Command.Mention(Command_Pin)} `<{Arg_Id}> <{Arg_Channel}>` immediately pins a message,
+		:lock: {Command.Mention(Command_Unpin)} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be unpinned.
+		    The list of blocked and force-pinned messages are mutually exclusive.
+		    Adding to one list will also remove from the other.
+		""";
 
-		// Check for permissions.
-		bool doContinue;
-		doContinue = await
-			interaction.CheckAccessAsync(false, AccessLevel.Officer);
-		if (!doContinue)
-			return;
-
-		// Use subcommand name to determine if blocking or unblocking.
-		bool doBlock = command switch {
-			_commandBlock   => true,
-			_commandUnblock => false,
-			_ => throw new ArgumentException("Unrecognized subcommand.", nameof(interaction)),
-		};
-
-		// Parse message ID.
-		string messageId_str = (string)args[0].GetArgs()[0].Value;
-		ulong? messageId = null;
-		try {
-			messageId = ulong.Parse(messageId_str);
-		} catch (FormatException) { }
-		if (messageId is null) {
-			await Command.SubmitResponseAsync(
-				interaction,
-				$"Could not parse message ID `{messageId_str}`.\nNo changes made.",
-				"Not updating blacklist: invalid message ID.",
-				LogLevel.Information,
-				"specified message ID: {Arg}".AsLazy(),
-				messageId_str
-			);
-			return;
+	public override CommandTree CreateTree() => new (
+		new (
+			Command_BestOf,
+			"Manage messages in the best-of channel.",
+			Permissions.ManageMessages
+		),
+		new List<CommandTree.GroupNode>(),
+		new List<CommandTree.LeafNode> {
+			new (
+				new (
+					Command_Block,
+					"Prevent a message from being pinned.",
+					ApplicationCommandOptionType.SubCommand,
+					options: _optionsMessage
+				),
+				new (BlockAsync)
+			),
+			new (
+				new (
+					Command_Unblock,
+					"Allow a message to be pinned.",
+					ApplicationCommandOptionType.SubCommand,
+					options: _optionsMessage
+				),
+				new (UnblockAsync)
+			),
+			new (
+				new (
+					Command_Pin,
+					"Immediately pin a message.",
+					ApplicationCommandOptionType.SubCommand,
+					options: _optionsMessage
+				),
+				new (PinAsync)
+			),
+			new (
+				new (
+					Command_Unpin,
+					"Allow a message to be unpinned.",
+					ApplicationCommandOptionType.SubCommand,
+					options: _optionsMessage
+				),
+				new (UnpinAsync)
+			),
 		}
+	);
 
-		// Parse channel and fetch message object.
-		DiscordChannel channel =
-			interaction.Interaction.GetTargetChannel();
-		DiscordMessage? message = null;
-		try {
-			message = await channel.GetMessageAsync(messageId.Value);
-		} catch (Exception) { }
-		if (message is null) {
-			await Command.SubmitResponseAsync(
-				interaction,
-				$"Could not fetch a message with the ID: `{messageId_str}` from {channel.Mention}.\nNo changes made.",
-				"Not updating blacklist: could not fetch message object.",
-				LogLevel.Information,
-				"channel ID: {ChannelId}, message ID: {MessageId}".AsLazy(),
-				channel.Id, messageId_str
-			);
-			return;
-		}
+	public async Task BlockAsync(Interaction interaction, IDictionary<string, object> args) {
+		ulong id = ulong.Parse((string)args[Arg_Id]);
+		DiscordChannel channel = (DiscordChannel)args[Arg_Channel];
+		DiscordMessage message = await ParseMessageAsync(id, channel);
 
-		// Update blacklist.
-		bool didUpdate =
-			StarboardObj.SetBlacklist(message, doBlock);
-		string response = (doBlock, didUpdate) switch {
-			(true , true ) => $"Successfully added `{messageId_str}` to blocked messages.",
-			(true , false) => $"`{messageId_str}` already added to blocked messages; no changes made.",
-			(false, true ) => $"Successfully removed `{messageId_str}` from blocked messages.",
-			(false, false) => $"`{messageId_str}` not currently blocked; no changes made.",
-		};
+		bool isRedundant = !await Module.Block(message);
+		string response = isRedundant
+			? ":no_entry_sign: That message was already blocked; no changes neccessary."
+			: ":no_entry_sign: Blocked message from being pinned.";
 
-		// Update pins.
-		if (doBlock && didUpdate) {
-			bool hasPin = (await StarboardObj.FetchPinAsync(message))
-				is not null;
-			if (hasPin) {
-				await StarboardObj.RemovePinAsync(message);
-				response += "\nRemoved existing pin.";
-			}
-		}
-		if (!doBlock && didUpdate) {
-			bool doPin = await StarboardObj.DoPin(message) ?? false;
-			if (doPin) {
-				await StarboardObj.UpdatePinAsync(message);
-				response += "\nPinned message (it meets requirements).";
-			}
-		}
-
-		// Submit response.
-		await Command.SubmitResponseAsync(
-			interaction,
-			response,
-			"Updating blocked messages.",
-			LogLevel.Debug,
-			"Blocked: {DoBlock}, ID: {MessageId}".AsLazy(),
-			doBlock, messageId
-		);
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
 	}
 
-	public static async Task PinBestOfAsync(TimedInteraction interaction) {
-		// Check for permissions.
-		bool doContinue = await
-			interaction.CheckAccessAsync(false, AccessLevel.Officer);
-		if (!doContinue)
-			return;
-		Log.Information("  Pinning message to #best-of.");
+	public async Task UnblockAsync(Interaction interaction, IDictionary<string, object> args) {
+		ulong id = ulong.Parse((string)args[Arg_Id]);
+		DiscordChannel channel = (DiscordChannel)args[Arg_Channel];
+		DiscordMessage message = await ParseMessageAsync(id, channel);
 
-		// Fetch the first resolved message.
-		DiscordMessage message =
-			interaction.Interaction.GetTargetMessage();
+		bool isRedundant = !await Module.Block(message, false);
+		string response = isRedundant
+			? ":page_with_curl: That message was already unblocked; no changes neccessary."
+			: ":page_with_curl: Allowing message to be pinned.";
 
-		// Check that message is not on the blacklist.
-		string response;
-		bool isBlocked = StarboardObj.IsBlacklisted(message);
-		if (isBlocked) {
-			response =
-				":no_entry_sign: That message has been blocked from #best-of.\n" +
-				"If you still want to pin it, unblock it first with `/best-of unblock`.\n" +
-				"See `/help best-of` for more details.";
-			await interaction.Interaction.UpdateMessageAsync(response);
-			Log.Information("    Message not pinned--blocked with blacklist.");
-			interaction.Timer.LogMsecDebug("    Processed in {Time} msec.");
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
+	}
+
+	public async Task PinAsync(Interaction interaction, IDictionary<string, object> args) {
+		ulong id = ulong.Parse((string)args[Arg_Id]);
+		DiscordChannel channel = (DiscordChannel)args[Arg_Channel];
+		DiscordMessage message = await ParseMessageAsync(id, channel);
+
+		bool isRedundant = !await Module.Force(message);
+		string response = isRedundant
+			? ":pushpin: That message was already pinned; no changes neccessary."
+			: ":pushpin: Pinning message.";
+
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
+	}
+
+	public async Task UnpinAsync(Interaction interaction, IDictionary<string, object> args) {
+		ulong id = ulong.Parse((string)args[Arg_Id]);
+		DiscordChannel channel = (DiscordChannel)args[Arg_Channel];
+		DiscordMessage message = await ParseMessageAsync(id, channel);
+
+		bool isRedundant = !await Module.Force(message, false);
+		string response = isRedundant
+			? ":page_with_curl: That message could already be unpinned; no changes neccessary."
+			: ":page_with_curl: Message can now be unpinned.";
+
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
+	}
+
+	private static Task<DiscordMessage> ParseMessageAsync(ulong id, DiscordChannel channel) =>
+		channel.GetMessageAsync(id);
+}
+
+class StarboardContext : CommandHandler {
+	public const string
+		Command_PinBestOf = "Pin #best-of";
+
+	public StarboardContext(GuildData erythro) : base (erythro) { }
+
+	public override string HelpText =>
+		$"""
+		:lock: `> {Command_PinBestOf}` immediately pins a message.
+		    If this message was previously blocked, it will be unblocked.
+		""";
+
+	public override CommandTree CreateTree() => new (
+		new (
+			Command_PinBestOf,
+			"",
+			new List<CommandOption>(),
+			Permissions.ManageMessages
+		),
+		PinAsync,
+		ApplicationCommandType.MessageContextMenu
+	);
+
+	public async Task PinAsync(Interaction interaction, IDictionary<string, object> args) {
+		DiscordMessage? message = interaction.TargetMessage;
+		if (message is null) {
+			Log.Error("No target message found for context menu command.");
 			return;
 		}
 
-		// Proceed to pin message.
-		await StarboardObj.UpdatePinAsync(message);
-		response = "Successfully pinned message.";
-		await interaction.Interaction.UpdateMessageAsync(response);
-		interaction.Timer.LogMsecDebug("  Pinned in {Time} msec.");
+		bool isRedundant = !await Module.Force(message);
+		string response = isRedundant
+			? ":pushpin: That message was already pinned; no changes neccessary."
+			: ":pushpin: Successfully pinned message!";
+
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
 	}
 }
