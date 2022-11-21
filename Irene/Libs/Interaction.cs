@@ -208,7 +208,7 @@ class Interaction {
 		Dictionary<string, DiscordComponent> components = new ();
 		foreach (DiscordActionRowComponent row in Data.Components) {
 			foreach (DiscordComponent component in row.Components) {
-				if (component.Type is ComponentType.FormInput or ComponentType.Select)
+				if (component.Type is ComponentType.FormInput)
 					components.Add(component.CustomId, component);
 			}
 		}
