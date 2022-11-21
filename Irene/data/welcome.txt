@@ -1,12 +1,9 @@
-﻿<:erythro:651475835387248660> Welcome to **<Erythro>**!
-We're glad to have you here. :tada: (A human should be along to assist you shortly.)
+﻿<:erythro:651475835387248660> Welcome to **<Erythro>**, we're glad to have you! <:ery_love:860386122566991883>
+(A human should be along to assist you shortly.)
 
 *In the meantime—*
-• Set your nickname to what you want us to call you. (doesn't have to be your toon's name)
-• Subscsribe to pings you're interested in with `/roles` (in e.g. <#613034262823698452>).
-• If you're not an <Erythro> member, also check out `/rank set-guild`.
-• Mute channels you're not interested in (e.g. <#778102942141382678>).
-• Check out our <#443002035604815872> and <#542093130502111252>.
-• Say hello once you've made yourself at home! :wave:
+• Set up your pings with `/roles`,
+• Check out our many <#542093130502111252>,
+• Say hello! :wave:
 
 <:h_kerri_innocent:588052203357470724> We hope you enjoy your stay with us. <:h_jaina_smile:588049943634378753>
