@@ -1,6 +1,5 @@
 using System.Timers;
 
-using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
 using Component = DSharpPlus.Entities.DiscordComponent;
 
 namespace Irene.Interactables;
@@ -9,22 +8,19 @@ class Pages {
 	public const int DefaultPageSize = 8;
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
-	// Table of all Pages to handle, indexed by the message ID of the
-	// owning message.
+	// Master table of all Pages to handle, indexed by the message ID
+	// of the owning message.
 	// This also serves as a way to "hold" fired timers, preventing them
-	// from going out of scope and being destroyed.
+	// from prematurely going out of scope and being destroyed.
 	private static readonly ConcurrentDictionary<ulong, Pages> _pages = new ();
 	private const string
-		_idButtonPrev = "list_prev",
-		_idButtonNext = "list_next",
-		_idButtonPage = "list_page";
-	private static readonly string[] _ids = new string[]
-		{ _idButtonPrev, _idButtonNext, _idButtonPage };
+		_idButtonPrev = "pages_list_prev",
+		_idButtonNext = "pages_list_next",
+		_idButtonPage = "pages_list_page";
 	private const string
 		_labelPrev = "\u25B2",
 		_labelNext = "\u25BC";
 
-	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
 	// that each event has to filter through until it hits the correct
@@ -37,17 +33,14 @@ class Pages {
 				// Consume all interactions originating from a registered
 				// message, and created by the corresponding component.
 				if (_pages.ContainsKey(id)) {
-					await e.Interaction.AcknowledgeComponentAsync();
-					e.Handled = true;
-
 					Pages pages = _pages[id];
 
 					// Can only update if message was already created.
 					if (pages._message is null)
 						return;
 
-					// Only respond to interactions created by the "owner"
-					// of the component.
+					// Only respond to interactions created by the owner
+					// of the interactable.
 					if (e.User != pages._interaction.User)
 						return;
 
@@ -63,37 +56,24 @@ class Pages {
 					pages._page = Math.Max(pages._page, 0);
 					pages._page = Math.Min(pages._page, pages._pageCount);
 
-					// Edit original message.
-					// This must be done through the original interaction, as
-					// responses to interactions don't actually "exist" as real
-					// messages.
-					await pages._interaction
-						.EditOriginalResponseAsync(pages.AsWebhookBuilder);
+					// Update original message.
+					Interaction interaction = Interaction.FromComponent(e);
+					await interaction.UpdateComponentAsync(pages.BuildMessage());
+					e.Handled = true;
 				}
 			});
 			return Task.CompletedTask;
 		};
-		Log.Debug("  Created handler for component: Pages");
 	}
 
-	// Instance (configuration) properties.
+	// Instance properties.
+	private readonly Interaction _interaction;
+	private DiscordMessage? _message = null;
+	private readonly Timer _timer;
 	private readonly List<string> _data;
 	private int _page;
 	private readonly int _pageCount;
 	private readonly int _pageSize;
-	private DiscordMessage? _message;
-	private readonly DiscordInteraction _interaction;
-	private readonly Timer _timer;
-
-	// Generated instance properties.
-	private DiscordWebhookBuilder AsWebhookBuilder { get {
-		DiscordWebhookBuilder webhook =
-			new DiscordWebhookBuilder()
-			.WithContent(CurrentContent);
-		if (_pageCount > 1)
-			webhook = webhook.AddComponents(CurrentButtons);
-		return webhook;
-	} }
 	private string CurrentContent { get {
 		int i_start = _page * _pageSize;
 		int i_end = Math.Min(i_start + _pageSize, _data.Count);
@@ -101,72 +81,11 @@ class Pages {
 
 		return _data.GetRange(i_start, i_range).ToLines();
 	} }
-	private Component[] CurrentButtons =>
-		GetButtons(_page, _pageCount);
 
-	// Private constructor.
-	// Use Pages.Create() to create a new instance.
-	private Pages(
-		List<string> data,
-		int pageSize,
-		DiscordInteraction interaction,
-		Timer timer
-	) {
-		// Calculate page count.
-		// It's convenient to save this result.
-		double pageCount = data.Count / (double)pageSize;
-		pageCount = Math.Round(Math.Ceiling(pageCount));
-
-		_data = data;
-		_page = 0;
-		_pageCount = (int)pageCount;
-		_pageSize = pageSize;
-		_interaction = interaction;
-		_timer = timer;
-	}
-
-	// Manually time-out the timer (and fire the elapsed handler).
-	public async Task Discard() {
-		const double delay = 0.1;
-		_timer.Stop();
-		_timer.Interval = delay; // arbitrarily small interval, must be >0
-		_timer.Start();
-		await Task.Delay(TimeSpan.FromMilliseconds(delay));
-	}
-
-	// Cleanup task to dispose of all resources.
-	// Does not check for _message being completed yet.
-	private async Task Cleanup() {
-		if (_message is null)
-			return;
-
-		// Remove held references.
-		_pages.TryRemove(_message.Id, out _);
-
-		// Update message to disable component.
-		// Interaction responses behave as webhooks and need to be
-		// constructed as such.
-		_message = await _interaction.GetOriginalResponseAsync();
-		DiscordWebhookBuilder message_new =
-			new DiscordWebhookBuilder()
-			.WithContent(_message.Content);
-		if (_pageCount > 1) {
-			List<ComponentRow> rows = ComponentsButtonsDisabled(
-				new List<ComponentRow>(_message.Components)
-			);
-			if (rows.Count > 0)
-				message_new.AddComponents(rows);
-		}
-
-		// Edit original message.
-		// This must be done through the original interaction, as
-		// responses to interactions don't actually "exist" as real
-		// messages.
-		await _interaction.EditOriginalResponseAsync(message_new);
-	}
-
-	public static DiscordWebhookBuilder Create(
-		DiscordInteraction interaction,
+	// Public factory method constructor.
+	// Use this method to instantiate a new interactable.
+	public static DiscordMessageBuilder Create(
+		Interaction interaction,
 		Task<DiscordMessage> messageTask,
 		IReadOnlyList<string> data,
 		int? pageSize=null,
@@ -178,9 +97,9 @@ class Pages {
 
 		// Construct partial Pages object.
 		Pages pages = new (
+			interaction,
 			new List<string>(data),
 			pageSize.Value,
-			interaction,
 			timer
 		);
 		messageTask.ContinueWith((messageTask) => {
@@ -197,56 +116,104 @@ class Pages {
 				await pages.Cleanup();
 		};
 
-		return pages.AsWebhookBuilder;
+		return pages.BuildMessage();
+	}
+	private Pages(
+		Interaction interaction,
+		List<string> data,
+		int pageSize,
+		Timer timer
+	) {
+		// Calculate page count.
+		// It's convenient to save this result, since it's used on every
+		// button press.
+		double pageCount = data.Count / (double)pageSize;
+		pageCount = Math.Round(Math.Ceiling(pageCount));
+
+		_interaction = interaction;
+		_timer = timer;
+		_data = data;
+		_page = 0;
+		_pageCount = (int)pageCount;
+		_pageSize = pageSize;
+	}
+
+	// Manually time-out the timer (and fire the elapsed handler).
+	public async Task Discard() {
+		_timer.Stop();
+		const double delay = 0.1;
+		_timer.Interval = delay; // arbitrarily small interval, must be >0
+		_timer.Start();
+		await Task.Delay(TimeSpan.FromMilliseconds(delay));
+	}
+
+	// Cleanup task to dispose of all resources.
+	// Assumes _message has been set; returns immediately if it hasn't.
+	private async Task Cleanup() {
+		if (_message is null)
+			return;
+
+		// Remove held references.
+		_pages.TryRemove(_message.Id, out _);
+
+		// Re-fetch message.
+		_message = await RefetchMessage(_message);
+
+		// Rebuild message as disabled.
+		await _interaction.EditResponseAsync(BuildWebhook(false));
+
+		Log.Debug("Cleaned up Pages interactable.");
+		Log.Debug("  Channel ID: {ChannelId}", _message.ChannelId);
+		Log.Debug("  Message ID: {MessageId}", _message.Id);
+	}
+
+	// Construct a message based on the current instance's data.
+	private DiscordMessageBuilder BuildMessage(bool isEnabled=true) {
+		DiscordMessageBuilder message =
+			new DiscordMessageBuilder()
+			.WithContent(CurrentContent);
+		if (_pageCount > 1)
+			message = message.AddComponents(GetButtons(isEnabled));
+		return message;
+	}
+	private DiscordWebhookBuilder BuildWebhook(bool isEnabled=true) {
+		DiscordWebhookBuilder webhook =
+			new DiscordWebhookBuilder()
+			.WithContent(CurrentContent);
+		if (_pageCount > 1)
+			webhook = webhook.AddComponents(GetButtons(isEnabled));
+		return webhook;
 	}
 
 	// Returns a row of buttons for paginating the data.
-	private static Component[] GetButtons(int page, int total) =>
+	private Component[] GetButtons(bool isEnabled=true) =>
+		GetButtons(_page, _pageCount, isEnabled);
+	private static Component[] GetButtons(int page, int total, bool isEnabled=true) =>
 		new Component[] {
 			new DiscordButtonComponent(
 				ButtonStyle.Secondary,
 				_idButtonPrev,
 				_labelPrev,
-				disabled: (page + 1 == 1)
+				disabled: !isEnabled || (page + 1 == 1)
 			),
 			new DiscordButtonComponent(
 				ButtonStyle.Secondary,
 				_idButtonPage,
-				$"{page + 1} / {total}"
+				$"{page + 1} / {total}",
+				disabled: !isEnabled
 			),
 			new DiscordButtonComponent(
 				ButtonStyle.Secondary,
 				_idButtonNext,
 				_labelNext,
-				disabled: (page + 1 == total)
+				disabled: !isEnabled || (page + 1 == total)
 			),
 		};
-	
-	// Return a new list of components, with any DiscordButtonComponents
-	// (with a matching ID) disabled.
-	private static List<ComponentRow> ComponentsButtonsDisabled(
-		List<ComponentRow> rows
-	) {
-		List<ComponentRow> rows_new = new ();
 
-		foreach (ComponentRow row in rows) {
-			List<Component> components_new = new ();
-
-			foreach (Component component in row.Components) {
-				if (component is
-					DiscordButtonComponent button &&
-					Array.IndexOf(_ids, component.CustomId) != -1
-				) {
-					button.Disable();
-					components_new.Add(button);
-				} else {
-					components_new.Add(component);
-				}
-			}
-
-			rows_new.Add(new ComponentRow(components_new));
-		}
-
-		return rows_new;
+	// Repopulate a message using only its ID and channel ID.
+	private static async Task<DiscordMessage> RefetchMessage(DiscordMessage message) {
+		DiscordChannel channel = await
+			Client.GetChannelAsync(message.ChannelId);
+		return await channel.GetMessageAsync(message.Id);
 	}
 }
