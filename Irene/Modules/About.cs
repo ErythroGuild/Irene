@@ -69,10 +69,10 @@ class About {
 
 		string statusAvailableCommands =
 			StatusCircle(GetAvailableCommandsStatus());
-		string helpLink = "";
-		//string helpLink = CommandDispatcher.HandlerTable[Commands.Help.Id_Command]
-		//	.Command
-		//	.Mention(Commands.Help.Id_Command);
+		string helpLink =
+			CommandDispatcher.HandlerTable[Commands.Help.Command_Help]
+			.Command
+			.Mention(Commands.Help.Command_Help);
 		string statusMemoryUsage =
 			StatusCircle(GetMemoryUsageStatus());
 
