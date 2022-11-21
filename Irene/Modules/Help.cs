@@ -19,6 +19,7 @@ class Help {
 	// Returns the compiled list of help text for all available commands,
 	// paginated with interactable Pages.
 	public static List<string> GeneralHelp() {
+		const string flower = "\u273F";
 		IReadOnlyDictionary<string, CommandHandler> commands =
 			CommandDispatcher.HandlerTable;
 
@@ -29,69 +30,69 @@ class Help {
 			{HelpText(Commands.Help.Command_Help)}
 			    *If you need any help, ask, or DM Ernie! :+1:*
 
-			**About**
+			{flower} **About** {flower}
 			{HelpText(Commands.About.Command_About)}
 
-			**Audit Logs**
+			{flower} **Audit Logs** {flower}
 			{/*HelpText("audit-log")*/ "[WIP]"}
 
-			**Discord Servers**
+			{flower} **Discord Servers** {flower}
 			{HelpText(Commands.Invite.Command_Invite)}
 			{HelpText(Commands.ClassDiscord.Command_ClassDiscord)}
 			""",
 
 			//$"""
-			//**Rank**
+			//{flower} **Rank** {flower}
 			//{HelpText("rank")}
 			//
-			//**Roles**
+			//{flower} **Roles** {flower}
 			//{HelpText("roles")}
 			//
-			//**Birthday**
+			//{flower} **Birthday** {flower}
 			//{HelpText("birthday")}
 			//""",
 
 			//$"""
-			//**Keys**
+			//{flower} **Keys** {flower}
 			//{HelpText("keys")}
 			//
-			//**Raid**
+			//{flower} **Raid** {flower}
 			//{HelpText("raid")}
 			//""",
 
 			//$"""
-			//**Roster**
+			//{flower} **Roster** {flower}
 			//{HelpText("roster")}
 			//{HelpText("craft")}
 			//""",
 
 			//$"""
-			//**Tags**
+			//{flower} **Tags** {flower}
 			//{HelpText("tags")}
 			//
-			//**Boss Guides**
+			//{flower} **Boss Guides** {flower}
 			//{HelpText("boss-guide")}
 			//
-			//**Farming Guides**
+			//{flower} **Farming Guides** {flower}
 			//{HelpText("farm-guide")}
 			//""",
 
 			$"""
-			**In-Game Data**
+			{flower} **In-Game Data** {flower}
 			{HelpText(Commands.Cap.Command_Cap)}
 			{/*HelpText("emissaries")*/ "[WIP]"}
 			{/*HelpText("assaults")*/ "[WIP]"}
 			
-			**Solvers**
+			{flower} **Solvers** {flower}
 			{/*HelpText("solve")*/ "[WIP]"}
 			""",
 
 			$"""
-			**Awards**
+			{flower} **Awards** {flower}
 			{/*HelpText("commend")*/ "[WIP]"}
 			{HelpText(Commands.Starboard.Command_BestOf)}
 			
-			**Moderation**
+			{flower} **Moderation** {flower}
 			{/*HelpText("move-post")*/ "[WIP]"}
 			{/*HelpText("slowmode")*/ "[WIP]"}
 			{/*HelpText("change-subject")*/ "[WIP]"}
@@ -99,11 +100,11 @@ class Help {
 			""",
 
 			$"""
-			**Utilities**
+			{flower} **Utilities** {flower}
 			{HelpText(Commands.Roll.Command_Roll)}
 			{HelpText(Commands.Random.Command_Random)}
 
-			**Bot Status**
+			{flower} **Bot Status** {flower}
 			{HelpText(Commands.IreneStatus.Command_Status)}
 			""",
 		};
