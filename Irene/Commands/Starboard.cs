@@ -186,19 +186,19 @@ class Starboard : CommandHandler {
 
 class StarboardContext : CommandHandler {
 	public const string
-		Command_PinBestOf = "Pin #best-of";
+		Command_Pin = "Pin to #best-of";
 
 	public StarboardContext(GuildData erythro) : base (erythro) { }
 
 	public override string HelpText =>
 		$"""
-		:lock: `> {Command_PinBestOf}` immediately pins a message.
+		:lock: `> {Command_Pin}` immediately pins a message.
 		    If this message was previously blocked, it will be unblocked.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_PinBestOf,
+			Command_Pin,
 			"",
 			new List<CommandOption>(),
 			Permissions.ManageMessages
