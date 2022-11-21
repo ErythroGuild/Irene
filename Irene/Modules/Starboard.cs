@@ -219,7 +219,7 @@ class Starboard {
 			return await post.ModifyAsync(embed);
 		} else {
 			Log.Information("Adding new post to starboard.");
-			Log.Debug("  Original post: #{Channel}", message.Channel.Name);
+			Log.Debug("  Originally posted in #{Channel}", message.Channel.Name);
 			post = await GetStarboard().SendMessageAsync(embed);
 			await NotifyAuthor(message);
 			_cache.Push(new ChannelMessage(message), post);
@@ -334,7 +334,8 @@ class Starboard {
 		if (content is not null) {
 			if (settings.HasSpoilers)
 				content = content.Spoiler();
-			content += "\n" + emojiPreview;
+			if (emojiPreview != "")
+				content += "\n" + emojiPreview;
 		} else {
 			content = emojiPreview;
 		}
@@ -452,7 +453,7 @@ class Starboard {
 			text += $"{reaction.Emoji}{_nbsp}**{reaction.Count}**{_emsp}";
 		if (doElide)
 			text += _ellip;
-		else
+		else if (reactions.Count > 0)
 			text = text[..^_emsp.Length];
 
 		return text;
@@ -610,7 +611,7 @@ class Starboard {
 		await author.SendMessageAsync($"""
 			Congrats! :tada:
 			Your post in {message.Channel.Mention} was extra-popular, and has been included in {GetStarboard().Mention}.
-			{Erythro.Emoji(id_e.eryLove)} {Erythro.Emoji(id_e.erythro)}
+			{Erythro.Emoji(id_e.eryLove)}
 			""");
 	}
 }

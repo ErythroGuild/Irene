@@ -97,9 +97,11 @@ class Starboard : CommandHandler {
 	);
 
 	public async Task BlockAsync(Interaction interaction, IDictionary<string, object> args) {
-		ulong id = ulong.Parse((string)args[Arg_Id]);
-		DiscordChannel channel = (DiscordChannel)args[Arg_Channel];
-		DiscordMessage message = await ParseMessageAsync(id, channel);
+		DiscordMessage? message = await ParseMessageAsync(interaction, args);
+		if (message is null) {
+			await RespondParseFailureAsync(interaction);
+			return;
+		}
 
 		bool isRedundant = !await Module.Block(message);
 		string response = isRedundant
@@ -112,9 +114,11 @@ class Starboard : CommandHandler {
 	}
 
 	public async Task UnblockAsync(Interaction interaction, IDictionary<string, object> args) {
-		ulong id = ulong.Parse((string)args[Arg_Id]);
-		DiscordChannel channel = (DiscordChannel)args[Arg_Channel];
-		DiscordMessage message = await ParseMessageAsync(id, channel);
+		DiscordMessage? message = await ParseMessageAsync(interaction, args);
+		if (message is null) {
+			await RespondParseFailureAsync(interaction);
+			return;
+		}
 
 		bool isRedundant = !await Module.Block(message, false);
 		string response = isRedundant
@@ -127,9 +131,11 @@ class Starboard : CommandHandler {
 	}
 
 	public async Task PinAsync(Interaction interaction, IDictionary<string, object> args) {
-		ulong id = ulong.Parse((string)args[Arg_Id]);
-		DiscordChannel channel = (DiscordChannel)args[Arg_Channel];
-		DiscordMessage message = await ParseMessageAsync(id, channel);
+		DiscordMessage? message = await ParseMessageAsync(interaction, args);
+		if (message is null) {
+			await RespondParseFailureAsync(interaction);
+			return;
+		}
 
 		bool isRedundant = !await Module.Force(message);
 		string response = isRedundant
@@ -142,9 +148,11 @@ class Starboard : CommandHandler {
 	}
 
 	public async Task UnpinAsync(Interaction interaction, IDictionary<string, object> args) {
-		ulong id = ulong.Parse((string)args[Arg_Id]);
-		DiscordChannel channel = (DiscordChannel)args[Arg_Channel];
-		DiscordMessage message = await ParseMessageAsync(id, channel);
+		DiscordMessage? message = await ParseMessageAsync(interaction, args);
+		if (message is null) {
+			await RespondParseFailureAsync(interaction);
+			return;
+		}
 
 		bool isRedundant = !await Module.Force(message, false);
 		string response = isRedundant
@@ -156,8 +164,24 @@ class Starboard : CommandHandler {
 		interaction.SetResponseSummary(response);
 	}
 
-	private static Task<DiscordMessage> ParseMessageAsync(ulong id, DiscordChannel channel) =>
-		channel.GetMessageAsync(id);
+	// The same logic can be used to extract the message object every
+	// time, since parameters and names are all shared.
+	private static async Task<DiscordMessage?> ParseMessageAsync(Interaction interaction, IDictionary<string, object> args) {
+		ulong id = ulong.Parse((string)args[Arg_Id]);
+		DiscordChannel? channel =
+			interaction.ResolveChannel((ulong)args[Arg_Channel]);
+
+		return (channel is null)
+			? null
+			: await channel.GetMessageAsync(id);
+	}
+	private static async Task RespondParseFailureAsync(Interaction interaction) {
+		Log.Warning("Failed to parse message object.");
+		string response = "Could not parse channel ID.";
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
+	}
 }
 
 class StarboardContext : CommandHandler {
