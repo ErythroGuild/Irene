@@ -203,8 +203,8 @@ class StarboardContext : CommandHandler {
 			new List<CommandOption>(),
 			Permissions.ManageMessages
 		),
-		PinAsync,
-		ApplicationCommandType.MessageContextMenu
+		ApplicationCommandType.MessageContextMenu,
+		PinAsync
 	);
 
 	public async Task PinAsync(Interaction interaction, IDictionary<string, object> args) {

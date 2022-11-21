@@ -43,6 +43,7 @@ class ClassDiscord : CommandHandler {
 			) },
 			Permissions.None
 		),
+		ApplicationCommandType.SlashCommand,
 		RespondAsync
 	);
 

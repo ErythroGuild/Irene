@@ -46,6 +46,7 @@ class Roll : CommandHandler {
 			},
 			Permissions.None
 		),
+		ApplicationCommandType.SlashCommand,
 		RespondAsync
 	);
 

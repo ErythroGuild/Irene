@@ -37,6 +37,7 @@ class Invite : CommandHandler {
 			) },
 			Permissions.None
 		),
+		ApplicationCommandType.SlashCommand,
 		RespondAsync
 	);
 

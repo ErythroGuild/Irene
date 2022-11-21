@@ -24,6 +24,7 @@ class Secret : CommandHandler {
 			) },
 			Permissions.None
 		),
+		ApplicationCommandType.SlashCommand,
 		RespondAsync
 	);
 

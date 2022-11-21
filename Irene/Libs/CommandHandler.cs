@@ -87,11 +87,10 @@ abstract class CommandHandler {
 		// Construct a tree that only has a single command.
 		public CommandTree(
 			LeafArgs args,
+			ApplicationCommandType type,
 			NodeHandler handler,
-			ApplicationCommandType? type=ApplicationCommandType.SlashCommand,
 			IDictionary<string, Autocompleter>? autocompleters=null
 		) {
-			type ??= ApplicationCommandType.SlashCommand;
 			autocompleters ??= new Dictionary<string, Autocompleter>();
 			_tree = new RootTree(handler, new (autocompleters));
 
@@ -99,7 +98,7 @@ abstract class CommandHandler {
 				args.Name,
 				args.Description,
 				args.Options,
-				type: type.Value,
+				type: type,
 				defaultMemberPermissions: args.DefaultPermissions
 			);
 		}
