@@ -88,8 +88,10 @@ abstract class CommandHandler {
 		public CommandTree(
 			LeafArgs args,
 			NodeHandler handler,
+			ApplicationCommandType? type=ApplicationCommandType.SlashCommand,
 			IDictionary<string, Autocompleter>? autocompleters=null
 		) {
+			type ??= ApplicationCommandType.SlashCommand;
 			autocompleters ??= new Dictionary<string, Autocompleter>();
 			_tree = new RootTree(handler, new (autocompleters));
 
@@ -97,7 +99,7 @@ abstract class CommandHandler {
 				args.Name,
 				args.Description,
 				args.Options,
-				type: ApplicationCommandType.SlashCommand,
+				type: type.Value,
 				defaultMemberPermissions: args.DefaultPermissions
 			);
 		}

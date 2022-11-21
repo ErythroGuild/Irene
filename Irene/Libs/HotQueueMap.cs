@@ -95,6 +95,37 @@ class HotQueueMap<TKey, TValue>
 		return true;
 	}
 
+	// Returns true if a matching key was removed from the cache, returns
+	// false otherwise (no changes were made).
+	public bool Flush(TKey key) {
+		// Search forward through the cache for existing key.
+		for (var i = 0; i<_cache.Length; i++) {
+			// Assigning a temporary here allows the compiler to correctly
+			// analyze nullability.
+			(TKey Key, TValue Value)? pair = _cache[i];
+
+			// Reached end of cache without finding key.
+			if (pair is null)
+				return false;
+
+			// Shift everything past the found key backwards by one.
+			if (pair.Value.Key.Equals(key)) {
+				for (var j = i+1; j<_cache.Length; j++)
+					_cache[i] = _cache[j];
+				// The shift won't affect the found key when its index
+				// is exactly at the end of the cache. Manually set it
+				// to null for this case.
+				if (i == _cache.Length)
+					_cache[i] = null;
+				return true;
+			}
+		}
+
+		// If we ran through the entire loop, it means the key wasn't
+		// in our cache.
+		return false;
+	}
+
 	// "Bubbles" the item at `_cache[i]` to the front (index 0).
 	// `i` being signed is important to ensure the reverse loop terminates.
 	private void Bubble(int i) {

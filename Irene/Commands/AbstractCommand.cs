@@ -25,9 +25,9 @@ public abstract class AbstractCommand {
 }
 
 interface IInit {
-	public static abstract void Init();
+	public static void Init() { }
 }
 
 interface IInitAsync {
-	public static abstract Task InitAsync();
+	public static Task InitAsync() { return Task.CompletedTask; }
 }
