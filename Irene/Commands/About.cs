@@ -21,6 +21,7 @@ class About : CommandHandler {
 			new List<CommandOption>(),
 			Permissions.None
 		),
+		ApplicationCommandType.SlashCommand,
 		RespondAsync
 	);
 

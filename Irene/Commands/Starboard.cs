@@ -10,7 +10,7 @@ class Starboard : CommandHandler {
 		Command_Pin     = "pin",
 		Command_Unpin   = "unpin";
 	public const string
-		Arg_Id      = "message-id",
+		Arg_Id      = "id",
 		Arg_Channel = "channel";
 
 	private static readonly IReadOnlyList<ChannelType> _channelsText =
@@ -41,12 +41,12 @@ class Starboard : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		:lock: {Command.Mention(Command_Block)} `<{Arg_Id}> <{Arg_Channel}>` blocks a message from being pinned,
-		:lock: {Command.Mention(Command_Unblock)} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be pinned.
-		:lock: {Command.Mention(Command_Pin)} `<{Arg_Id}> <{Arg_Channel}>` immediately pins a message,
-		:lock: {Command.Mention(Command_Unpin)} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be unpinned.
-		    The list of blocked and force-pinned messages are mutually exclusive.
-		    Adding to one list will also remove from the other.
+		:lock: {Command.Mention($"{Command_BestOf} {Command_Block}")} `<{Arg_Id}> <{Arg_Channel}>` blocks a message from being pinned,
+		:lock: {Command.Mention($"{Command_BestOf} {Command_Unblock}")} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be pinned.
+		:lock: {Command.Mention($"{Command_BestOf} {Command_Pin}")} `<{Arg_Id}> <{Arg_Channel}>` immediately pins a message,
+		:lock: {Command.Mention($"{Command_BestOf} {Command_Unpin}")} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be unpinned.
+		    The list of blocked and pinned messages are mutually exclusive.
+		    Adding to one list will remove from the other.
 		""";
 
 	public override CommandTree CreateTree() => new (
@@ -186,25 +186,25 @@ class Starboard : CommandHandler {
 
 class StarboardContext : CommandHandler {
 	public const string
-		Command_PinBestOf = "Pin #best-of";
+		Command_Pin = "Pin to #best-of";
 
 	public StarboardContext(GuildData erythro) : base (erythro) { }
 
 	public override string HelpText =>
 		$"""
-		:lock: `> {Command_PinBestOf}` immediately pins a message.
+		:lock: `> {Command_Pin}` immediately pins a message.
 		    If this message was previously blocked, it will be unblocked.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_PinBestOf,
+			Command_Pin,
 			"",
 			new List<CommandOption>(),
 			Permissions.ManageMessages
 		),
-		PinAsync,
-		ApplicationCommandType.MessageContextMenu
+		ApplicationCommandType.MessageContextMenu,
+		PinAsync
 	);
 
 	public async Task PinAsync(Interaction interaction, IDictionary<string, object> args) {

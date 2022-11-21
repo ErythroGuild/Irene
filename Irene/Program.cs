@@ -246,13 +246,24 @@ class Program {
 				// Register (and fetch updated) commands.
 				commands = new (await Client.BulkOverwriteGlobalApplicationCommandsAsync(commands));
 				// Update command objects.
+				int countSlash = 0;
+				int countContext = 0;
 				foreach (DiscordApplicationCommand command in commands) {
 					CommandDispatcher.HandlerTable[command.Name]
 						.UpdateRegisteredCommand(command);
+					switch (command.Type) {
+					case ApplicationCommandType.SlashCommand:
+						countSlash++;
+						break;
+					case ApplicationCommandType.MessageContextMenu:
+					case ApplicationCommandType.UserContextMenu:
+						countContext++;
+						break;
+					}
 				}
 
 				// Update status module with registered command count.
-				About.SetRegisteredCommands(commands.Count);
+				About.SetRegisteredCommands(countSlash, countContext);
 
 				// Start data initialization timer.
 				_stopwatchInitData.Start();

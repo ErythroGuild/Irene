@@ -42,6 +42,7 @@ class Cap : CommandHandler {
 			) },
 			Permissions.None
 		),
+		ApplicationCommandType.SlashCommand,
 		RespondAsync
 	);
 

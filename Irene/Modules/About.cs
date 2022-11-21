@@ -6,7 +6,8 @@ class About {
 	public static readonly string
 		String_Version,
 		String_Build;
-	public static int RegisteredCommandCount { get; private set; } = 0;
+	public static int SlashCommandCount   { get; private set; } = 0;
+	public static int ContextCommandCount { get; private set; } = 0;
 
 	// Private fields / constants.
 	private static readonly object _lock = new ();
@@ -68,10 +69,10 @@ class About {
 
 		string statusAvailableCommands =
 			StatusCircle(GetAvailableCommandsStatus());
-		string helpLink = "";
-		//string helpLink = CommandDispatcher.HandlerTable[Commands.Help.Id_Command]
-		//	.Command
-		//	.Mention(Commands.Help.Id_Command);
+		string helpLink =
+			CommandDispatcher.HandlerTable[Commands.Help.Command_Help]
+			.Command
+			.Mention(Commands.Help.Command_Help);
 		string statusMemoryUsage =
 			StatusCircle(GetMemoryUsageStatus());
 
@@ -79,7 +80,7 @@ class About {
 			$"""
 			**<Erythro>**'s community management bot.
 
-			{statusAvailableCommands} **Available commands:** {RegisteredCommandCount} ({helpLink})
+			{statusAvailableCommands} **Available commands:** {SlashCommandCount} [+{ContextCommandCount}] ({helpLink})
 			{statusMemoryUsage} **Memory usage:** {GetMemoryUsageMB():F0} MB
 
 			Maintained by {GetMaintainerMention()} with {_charLove}
@@ -131,18 +132,20 @@ class About {
 		};
 	}
 	public static Status GetAvailableCommandsStatus() {
-		int available = RegisteredCommandCount;
+		int slashCount = SlashCommandCount;
+		int contextCount = ContextCommandCount;
+		int registeredCount = slashCount + contextCount;
 		// The table is the more direct (efficient) representation.
-		int total = CommandDispatcher.HandlerTable.Count;
+		int definedCount = CommandDispatcher.HandlerTable.Count;
 
-		if (available == total) {
-			return (total == 0)
+		if (registeredCount == definedCount) {
+			return (definedCount == 0)
 				? Status.Idle
 				: Status.Good;
 		}
 
-		if (available < total) {
-			return (available == 0)
+		if (registeredCount < definedCount) {
+			return (registeredCount == 0)
 				? Status.Error
 				: Status.Idle;
 		}
@@ -151,8 +154,9 @@ class About {
 	}
 
 	// Public methods for setting status information.
-	public static void SetRegisteredCommands(int count) {
-		RegisteredCommandCount = count;
+	public static void SetRegisteredCommands(int slashCount, int contextCount) {
+		SlashCommandCount = slashCount;
+		ContextCommandCount = contextCount;
 	}
 
 	// Private helper methods.

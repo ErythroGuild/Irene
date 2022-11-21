@@ -27,9 +27,9 @@ class IreneStatus : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention($"{Command_Status} {Command_Set}")} `<{Arg_Type}> <{Arg_Status}>` sets and saves a new status,
-		{Command.Mention($"{Command_Status} {Command_Random}")} randomly picks a saved status.
 		{Command.Mention($"{Command_Status} {Command_List}")} lists all saved statuses.
+		:lock: {Command.Mention($"{Command_Status} {Command_Set}")} `<{Arg_Type}> <{Arg_Status}>` sets and saves a new status,
+		:lock: {Command.Mention($"{Command_Status} {Command_Random}")} randomly picks a saved status.
 		""";
 
 	public override CommandTree CreateTree() => new (
@@ -40,6 +40,14 @@ class IreneStatus : CommandHandler {
 		),
 		new List<CommandTree.GroupNode>(),
 		new List<CommandTree.LeafNode> {
+			new (
+				new (
+					Command_List,
+					"List all saved statuses.",
+					ApplicationCommandOptionType.SubCommand
+				),
+				new (ListAsync)
+			),
 			new (
 				new (
 					Command_Set,
@@ -76,16 +84,47 @@ class IreneStatus : CommandHandler {
 				),
 				new (RandomizeAsync)
 			),
-			new (
-				new (
-					Command_List,
-					"List all saved statuses.",
-					ApplicationCommandOptionType.SubCommand
-				),
-				new (ListAsync)
-			),
 		}
 	);
+
+	public async Task ListAsync(Interaction interaction, IDictionary<string, object> args) {
+		IList<Module.Status> statuses = await Module.GetAll();
+
+		// Special case if no saved statuses are available.
+		if (statuses.Count == 0) {
+			string responseEmpty = $"""
+				No statuses saved. :duck:
+				(add some with {Command.Mention($"{Command_Status} {Command_Set}")}?)
+				""";
+			interaction.RegisterFinalResponse();
+			await interaction.RespondCommandAsync(responseEmpty);
+			interaction.SetResponseSummary(responseEmpty);
+			return;
+		}
+
+		// Convert all statuses to strings for display.
+		List<string> lines = new ();
+		foreach (Module.Status status in statuses)
+			lines.Add(status.AsStatusText());
+		// Should already be sorted.
+
+		// Respond with Pages interactable.
+		MessagePromise messagePromise = new ();
+		DiscordMessageBuilder response = Pages.Create(
+			interaction,
+			messagePromise.Task,
+			lines,
+			pageSize: 12
+		);
+
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary($"<List of {lines.Count} available statuses sent.>");
+
+		DiscordMessage message = await interaction.GetResponseAsync();
+		messagePromise.SetResult(message);
+		return;
+	}
 
 	public async Task SetAsync(Interaction interaction, IDictionary<string, object> args) {
 		ActivityType type = (string)args[Arg_Type] switch {
@@ -116,44 +155,5 @@ class IreneStatus : CommandHandler {
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(response, true);
 		interaction.SetResponseSummary(response);
-	}
-
-	public async Task ListAsync(Interaction interaction, IDictionary<string, object> args) {
-		IList<Module.Status> statuses = await Module.GetAll();
-
-		// Special case if no saved statuses are available.
-		if (statuses.Count == 0) {
-			string responseEmpty = $"""
-				No statuses saved. :duck:
-				(add some with {Command.Mention($"{Command_Status} {Command_Set}")}?)
-				""";
-			interaction.RegisterFinalResponse();
-			await interaction.RespondCommandAsync(responseEmpty);
-			interaction.SetResponseSummary(responseEmpty);
-			return;
-		}
-
-		// Convert all statuses to strings for display.
-		List<string> lines = new ();
-		foreach (Module.Status status in statuses)
-			lines.Add(status.AsStatusText());
-		// Should already be sorted.
-
-		// Create Pages interactable for response.
-		DiscordMessage message;
-		MessagePromise messagePromise = new ();
-		//DiscordMessageBuilder response = Pages.Create(
-		//	interaction.Object,
-		//	messagePromise.Task,
-		//	lines,
-		//	pageSize: 12
-		//);
-
-		// Send List of statuses, and complete promise.
-		interaction.RegisterFinalResponse();
-		//message = await interaction.RespondCommandAsync(response);
-		//messagePromise.SetResult(message);
-		interaction.SetResponseSummary($"<List of {lines.Count} available statuses sent.>");
-		return;
 	}
 }

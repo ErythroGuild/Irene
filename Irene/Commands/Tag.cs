@@ -309,21 +309,21 @@ class Tag : AbstractCommand, IInit {
 			return;
 		}
 
-		// Else, send general help.
-		MessagePromise message_promise = new ();
-		DiscordWebhookBuilder response = Pages.Create(
-			handler.Interaction.Interaction,
-			message_promise.Task,
-			tags
-		);
-		DiscordMessage message = await Command.SubmitResponseAsync(
-			handler.Interaction,
-			response,
-			"Sending list of all tags.",
-			LogLevel.Debug,
-			"List sent.".AsLazy()
-		);
-		message_promise.SetResult(message);
+		//// Else, send general help.
+		//MessagePromise message_promise = new ();
+		//DiscordMessageBuilder response = Pages.Create(
+		//	handler.Interaction.Interaction.User,
+		//	message_promise.Task,
+		//	tags
+		//);
+		//DiscordMessage message = await Command.SubmitResponseAsync(
+		//	handler.Interaction,
+		//	response,
+		//	"Sending list of all tags.",
+		//	LogLevel.Debug,
+		//	"List sent.".AsLazy()
+		//);
+		//message_promise.SetResult(message);
 	}
 
 	private static async Task SetAsync(DeferrerHandler handler) {

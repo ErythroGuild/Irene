@@ -17,8 +17,8 @@ class Invite : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_Invite)} `<{Arg_Server}>` links an invite to the selected discord server.
-		    These invite links can also be found in {Erythro.Channel(id_ch.resources).Mention}.
+		{Command.Mention(Command_Invite)} `[{Arg_Server}]` links an invite to the selected discord server.
+		    These links can also be found in {Erythro.Channel(id_ch.resources).Mention}.
 		""";
 
 	public override CommandTree CreateTree() => new (
@@ -37,6 +37,7 @@ class Invite : CommandHandler {
 			) },
 			Permissions.None
 		),
+		ApplicationCommandType.SlashCommand,
 		RespondAsync
 	);
 
