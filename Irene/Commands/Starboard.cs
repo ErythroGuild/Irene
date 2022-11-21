@@ -45,8 +45,8 @@ class Starboard : CommandHandler {
 		:lock: {Command.Mention($"{Command_BestOf} {Command_Unblock}")} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be pinned.
 		:lock: {Command.Mention($"{Command_BestOf} {Command_Pin}")} `<{Arg_Id}> <{Arg_Channel}>` immediately pins a message,
 		:lock: {Command.Mention($"{Command_BestOf} {Command_Unpin}")} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be unpinned.
-		    The list of blocked and force-pinned messages are mutually exclusive.
-		    Adding to one list will also remove from the other.
+		    The list of blocked and pinned messages are mutually exclusive.
+		    Adding to one list will remove from the other.
 		""";
 
 	public override CommandTree CreateTree() => new (

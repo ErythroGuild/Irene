@@ -27,9 +27,9 @@ class IreneStatus : CommandHandler {
 
 	public override string HelpText =>
 		$"""
+		{Command.Mention($"{Command_Status} {Command_List}")} lists all saved statuses.
 		:lock: {Command.Mention($"{Command_Status} {Command_Set}")} `<{Arg_Type}> <{Arg_Status}>` sets and saves a new status,
 		:lock: {Command.Mention($"{Command_Status} {Command_Random}")} randomly picks a saved status.
-		{Command.Mention($"{Command_Status} {Command_List}")} lists all saved statuses.
 		""";
 
 	public override CommandTree CreateTree() => new (
@@ -40,6 +40,14 @@ class IreneStatus : CommandHandler {
 		),
 		new List<CommandTree.GroupNode>(),
 		new List<CommandTree.LeafNode> {
+			new (
+				new (
+					Command_List,
+					"List all saved statuses.",
+					ApplicationCommandOptionType.SubCommand
+				),
+				new (ListAsync)
+			),
 			new (
 				new (
 					Command_Set,
@@ -76,47 +84,8 @@ class IreneStatus : CommandHandler {
 				),
 				new (RandomizeAsync)
 			),
-			new (
-				new (
-					Command_List,
-					"List all saved statuses.",
-					ApplicationCommandOptionType.SubCommand
-				),
-				new (ListAsync)
-			),
 		}
 	);
-
-	public async Task SetAsync(Interaction interaction, IDictionary<string, object> args) {
-		ActivityType type = (string)args[Arg_Type] switch {
-			Option_Playing   => ActivityType.Playing    ,
-			Option_Listening => ActivityType.ListeningTo,
-			Option_Watching  => ActivityType.Watching   ,
-			Option_Competing => ActivityType.Competing  ,
-			_ => throw new ArgumentException("Unknown status type.", nameof(args)),
-		};
-		string status = (string)args[Arg_Status];
-		DateTimeOffset endTime = DateTimeOffset.UtcNow + TimeSpan.FromDays(1);
-		await Module.SetAndAdd(new (type, status), endTime);
-
-		string response = ":astronaut: Status updated! (and added to pool)";
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response, true);
-		interaction.SetResponseSummary(response);
-	}
-
-	public async Task RandomizeAsync(Interaction interaction, IDictionary<string, object> args) {
-		bool didSet = await Module.SetRandom();
-		string response = !didSet
-			? $"""
-				No saved statuses available to choose from. :duck:
-				(add some with {Command.Mention($"{Command_Status} {Command_Set}")}?)
-				"""
-			: "Random status set! :astronaut:";
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response, true);
-		interaction.SetResponseSummary(response);
-	}
 
 	public async Task ListAsync(Interaction interaction, IDictionary<string, object> args) {
 		IList<Module.Status> statuses = await Module.GetAll();
@@ -155,5 +124,36 @@ class IreneStatus : CommandHandler {
 		//messagePromise.SetResult(message);
 		interaction.SetResponseSummary($"<List of {lines.Count} available statuses sent.>");
 		return;
+	}
+
+	public async Task SetAsync(Interaction interaction, IDictionary<string, object> args) {
+		ActivityType type = (string)args[Arg_Type] switch {
+			Option_Playing   => ActivityType.Playing    ,
+			Option_Listening => ActivityType.ListeningTo,
+			Option_Watching  => ActivityType.Watching   ,
+			Option_Competing => ActivityType.Competing  ,
+			_ => throw new ArgumentException("Unknown status type.", nameof(args)),
+		};
+		string status = (string)args[Arg_Status];
+		DateTimeOffset endTime = DateTimeOffset.UtcNow + TimeSpan.FromDays(1);
+		await Module.SetAndAdd(new (type, status), endTime);
+
+		string response = ":astronaut: Status updated! (and added to pool)";
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
+	}
+
+	public async Task RandomizeAsync(Interaction interaction, IDictionary<string, object> args) {
+		bool didSet = await Module.SetRandom();
+		string response = !didSet
+			? $"""
+				No saved statuses available to choose from. :duck:
+				(add some with {Command.Mention($"{Command_Status} {Command_Set}")}?)
+				"""
+			: "Random status set! :astronaut:";
+		interaction.RegisterFinalResponse();
+		await interaction.RespondCommandAsync(response, true);
+		interaction.SetResponseSummary(response);
 	}
 }
