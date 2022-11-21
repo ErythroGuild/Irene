@@ -108,21 +108,21 @@ class IreneStatus : CommandHandler {
 			lines.Add(status.AsStatusText());
 		// Should already be sorted.
 
-		// Create Pages interactable for response.
-		DiscordMessage message;
+		// Respond with Pages interactable.
 		MessagePromise messagePromise = new ();
-		//DiscordMessageBuilder response = Pages.Create(
-		//	interaction.Object,
-		//	messagePromise.Task,
-		//	lines,
-		//	pageSize: 12
-		//);
+		DiscordMessageBuilder response = Pages.Create(
+			interaction,
+			messagePromise.Task,
+			lines,
+			pageSize: 12
+		);
 
-		// Send List of statuses, and complete promise.
 		interaction.RegisterFinalResponse();
-		//message = await interaction.RespondCommandAsync(response);
-		//messagePromise.SetResult(message);
+		await interaction.RespondCommandAsync(response, true);
 		interaction.SetResponseSummary($"<List of {lines.Count} available statuses sent.>");
+
+		DiscordMessage message = await interaction.GetResponseAsync();
+		messagePromise.SetResult(message);
 		return;
 	}
 
