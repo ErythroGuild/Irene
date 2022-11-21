@@ -78,7 +78,7 @@ class About {
 
 		string bodyText =
 			$"""
-			**<Erythro>**'s community management bot.
+			{Erythro.Emoji(id_e.erythro)} **<Erythro>**'s community admin bot.
 
 			{statusAvailableCommands} **Available commands:** {SlashCommandCount} [+{ContextCommandCount}], {helpLink}
 			{statusMemoryUsage} **Memory usage:** {GetMemoryUsageMB():F0} MB
