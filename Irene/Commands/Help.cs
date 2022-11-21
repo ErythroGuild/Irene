@@ -67,7 +67,7 @@ class Help : CommandHandler {
 
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(response, true);
-		interaction.SetResponseSummary(response.Content);
+		interaction.SetResponseSummary($"General help pages sent.");
 
 		DiscordMessage message = await interaction.GetResponseAsync();
 		message_promise.SetResult(message);
