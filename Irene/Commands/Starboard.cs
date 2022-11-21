@@ -10,7 +10,7 @@ class Starboard : CommandHandler {
 		Command_Pin     = "pin",
 		Command_Unpin   = "unpin";
 	public const string
-		Arg_Id      = "message-id",
+		Arg_Id      = "id",
 		Arg_Channel = "channel";
 
 	private static readonly IReadOnlyList<ChannelType> _channelsText =
@@ -41,10 +41,10 @@ class Starboard : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		:lock: {Command.Mention(Command_Block)} `<{Arg_Id}> <{Arg_Channel}>` blocks a message from being pinned,
-		:lock: {Command.Mention(Command_Unblock)} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be pinned.
-		:lock: {Command.Mention(Command_Pin)} `<{Arg_Id}> <{Arg_Channel}>` immediately pins a message,
-		:lock: {Command.Mention(Command_Unpin)} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be unpinned.
+		:lock: {Command.Mention($"{Command_BestOf} {Command_Block}")} `<{Arg_Id}> <{Arg_Channel}>` blocks a message from being pinned,
+		:lock: {Command.Mention($"{Command_BestOf} {Command_Unblock}")} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be pinned.
+		:lock: {Command.Mention($"{Command_BestOf} {Command_Pin}")} `<{Arg_Id}> <{Arg_Channel}>` immediately pins a message,
+		:lock: {Command.Mention($"{Command_BestOf} {Command_Unpin}")} `<{Arg_Id}> <{Arg_Channel}>` allows a message to be unpinned.
 		    The list of blocked and force-pinned messages are mutually exclusive.
 		    Adding to one list will also remove from the other.
 		""";
