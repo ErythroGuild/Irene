@@ -85,6 +85,7 @@ abstract class CommandHandler {
 		public DCommand Command { get; private set; }
 
 		// Construct a tree that only has a single command.
+		// Context menu commands should always use this constructor.
 		public CommandTree(
 			LeafArgs args,
 			ApplicationCommandType type,
