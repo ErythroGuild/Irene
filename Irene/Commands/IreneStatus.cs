@@ -27,8 +27,8 @@ class IreneStatus : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention($"{Command_Status} {Command_Set}")} `<{Arg_Type}> <{Arg_Status}>` sets and saves a new status,
-		{Command.Mention($"{Command_Status} {Command_Random}")} randomly picks a saved status.
+		:lock: {Command.Mention($"{Command_Status} {Command_Set}")} `<{Arg_Type}> <{Arg_Status}>` sets and saves a new status,
+		:lock: {Command.Mention($"{Command_Status} {Command_Random}")} randomly picks a saved status.
 		{Command.Mention($"{Command_Status} {Command_List}")} lists all saved statuses.
 		""";
 
