@@ -143,11 +143,34 @@ class Roles {
 		_optionGuildAngels  = "option_angels" ,
 		_optionGuildAsgard  = "option_asgard" ;
 
+	// Public utility methods for checking the roles on a member object.
+	public static IReadOnlySet<PingRole> GetPingRoles(DiscordMember user) {
+		HashSet<PingRole> roles = new ();
+		foreach (DiscordRole role in user.Roles) {
+			ulong id = role.Id;
+			if (_pingRoles.Contains(id))
+				roles.Add(_pingRoles[id]);
+		}
+		return roles;
+	}
+	public static IReadOnlySet<GuildRole> GetGuildRoles(DiscordMember user) {
+		HashSet<GuildRole> roles = new ();
+		foreach (DiscordRole role in user.Roles) {
+			ulong id = role.Id;
+			if (_guildRoles.Contains(id))
+				roles.Add(_guildRoles[id]);
+		}
+		return roles;
+	}
+
+	// Respond to a slash command interaction.
 	public static async Task RespondAsync(
 		Interaction interaction,
 		DiscordMember user
 	) {
 		// Initialize current roles of user.
+		// Writing this out instead of using the utility methods saves
+		// a foreach loop.
 		HashSet<PingRole> pingRoles = new ();
 		HashSet<GuildRole> guildRoles = new ();
 		foreach (DiscordRole role in user.Roles) {
