@@ -505,11 +505,11 @@ class Rank : AbstractCommand, IInit {
 		await member.ReplaceRolesAsync(roles_new);
 		Log.Information("  Updated rank successfully.");
 
-		// Update select component.
-		HashSet<Entry> options_updated = new ();
-		options_updated.Add(_optionsRank[rank_new]);
-		await _selectsRank[member_id].Selection.Update(options_updated);
-		Log.Debug("  Updated select component successfully.");
+		//// Update select component.
+		//HashSet<Entry> options_updated = new ();
+		//options_updated.Add(_optionsRank[rank_new]);
+		//await _selectsRank[member_id].Selection.Update(options_updated);
+		//Log.Debug("  Updated select component successfully.");
 
 		// Send congrats message if promoted (from Guest or above).
 		if (rank_new > rank_old && rank_new >= Level.Member) {
@@ -649,15 +649,15 @@ class Rank : AbstractCommand, IInit {
 		await member.ReplaceRolesAsync(roles_new);
 		Log.Information("  Updated roles successfully.");
 
-		// Update select component.
-		HashSet<Entry> options_updated = new ();
-		foreach (Guild key in _optionsGuild.Keys) {
-			DiscordRole role = Program.Guild.GetRole(ToDiscordId(key));
-			if (roles_new.Contains(role))
-				options_updated.Add(_optionsGuild[key]);
-		}
-		await _selectsGuild[member_id].Selection.Update(options_updated);
-		Log.Debug("  Updated select component successfully.");
+		//// Update select component.
+		//HashSet<Entry> options_updated = new ();
+		//foreach (Guild key in _optionsGuild.Keys) {
+		//	DiscordRole role = Program.Guild.GetRole(ToDiscordId(key));
+		//	if (roles_new.Contains(role))
+		//		options_updated.Add(_optionsGuild[key]);
+		//}
+		//await _selectsGuild[member_id].Selection.Update(options_updated);
+		//Log.Debug("  Updated select component successfully.");
 	}
 
 	private static async Task SetOfficerAsync(DeferrerHandler handler) {
@@ -764,15 +764,15 @@ class Rank : AbstractCommand, IInit {
 		await member.ReplaceRolesAsync(roles_new);
 		Log.Information("  Updated roles successfully.");
 
-		// Update select component.
-		HashSet<Entry> options_updated = new ();
-		foreach (Officer key in _optionsGuild.Keys) {
-			DiscordRole role = Program.Guild.GetRole(ToDiscordId(key));
-			if (roles_new.Contains(role))
-				options_updated.Add(_optionsOfficer[key]);
-		}
-		await _selectsOfficer[member_id].Selection.Update(options_updated);
-		Log.Debug("  Updated select component successfully.");
+		//// Update select component.
+		//HashSet<Entry> options_updated = new ();
+		//foreach (Officer key in _optionsGuild.Keys) {
+		//	DiscordRole role = Program.Guild.GetRole(ToDiscordId(key));
+		//	if (roles_new.Contains(role))
+		//		options_updated.Add(_optionsOfficer[key]);
+		//}
+		//await _selectsOfficer[member_id].Selection.Update(options_updated);
+		//Log.Debug("  Updated select component successfully.");
 	}
 
 	private static async Task ListTrialsAsync(DeferrerHandler handler) {
