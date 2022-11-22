@@ -1,44 +1,66 @@
 ﻿namespace Irene.Modules;
 
-static class Welcome {
-	private const string
-		_pathMessage = @"data/welcome.txt",
-		_urlRuleOne  = @"https://imgur.com/jxWTK8r",
-		_urlMascot   = @"https://imgur.com/5pKJdPh";
+class Welcome {
+	// A list of all pending welcome notifications / promises, indexed
+	// by the ID of the user being greeted.
+	private static readonly ConcurrentDictionary<ulong, TaskCompletionSource> _welcomePromises = new ();
+	private static readonly ConcurrentDictionary<ulong, Task> _welcomeTasks = new ();
 
-	public static void Init() { }
+	private const string _pathMessage = @"data/welcome.txt";
+	private static readonly TimeSpan _welcomeDelay = TimeSpan.FromSeconds(20);
+
 	static Welcome() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
-		Client.GuildMemberAdded += (irene, e) => {
+		Client.GuildMemberAdded += (client, e) => {
 			_ = Task.Run(async () => {
-				await AwaitGuildInitAsync();
+				if (Erythro is null)
+					throw new InvalidOperationException("Guild not initialized.");
 
 				DiscordMember member = e.Member;
-
-				// Initialize welcome message.
-				StreamReader data = File.OpenText(_pathMessage);
-				string welcome = data.ReadToEnd();
-				data.Close();
-
-				// Send welcome message to new member.
-				Log.Information("Sending welcome message to new member.");
-				Log.Debug($"  {member.Tag()}");
-				await member.SendMessageAsync(_urlRuleOne);
-				await member.SendMessageAsync(welcome);
-				await member.SendMessageAsync(_urlMascot);
+				ulong id = member.Id;
 
 				// Notify recruitment officer.
 				Log.Debug("  Notifying recruitment officer.");
-				string text = $"{Erythro.Role(id_r.recruiter).Mention} - " +
-					$"New member {e.Member.Mention} joined the server. :tada:";
-				await Channels[id_ch.officerBots].SendMessageAsync(text);
+				string notify =
+					$"""
+					{Erythro.Role(id_r.recruiter).Mention} -
+					:star: New member {member.Mention} joined the server.
+					""";
+				DiscordChannel channel =
+					Erythro.Channel(id_ch.officerBots);
+				await channel.SendMessageAsync(notify);
+
+				// Initialize welcome message.
+				string welcome = await File.ReadAllTextAsync(_pathMessage);
+				welcome = welcome.Unescape();
+
+				// Send welcome message to new member.
+				TaskCompletionSource welcomePromise = new ();
+				_welcomePromises.TryAdd(id, welcomePromise);
+				Task task = welcomePromise.Task.ContinueWith(
+					async (t) => {
+						_welcomePromises.TryRemove(id, out _);
+						Log.Information("Sending welcome message to new member.");
+						Log.Debug($"  {member.Tag()}");
+						await member.SendMessageAsync(welcome);
+						_welcomeTasks.TryRemove(id, out _);
+					}
+				);
+				_welcomeTasks.TryAdd(id, task);
+
+				// Delay the message slightly to feel more natural.
+				_ = Task.Run(async () => {
+					await Task.Delay(_welcomeDelay);
+					welcomePromise.TrySetResult();
+				});
 			});
 			return Task.CompletedTask;
 		};
+	}
 
-		Log.Information("  Initialized module: Welcome");
-		Log.Debug("    Registered welcome message handler.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
+	// Manually (immediately) trigger all remaining welcome tasks.
+	public static async Task WelcomeRemainingAsync() {
+		foreach (TaskCompletionSource promise in _welcomePromises.Values)
+			promise.TrySetResult();
+		await Task.WhenAll(_welcomeTasks.Values);
 	}
 }

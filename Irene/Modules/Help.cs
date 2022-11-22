@@ -43,39 +43,39 @@ class Help {
 
 			$"""
 			{flower} **Rank** {flower}
-			{/*HelpText("rank")*/ "WIP"}
+			{/*HelpText("rank")*/ "[WIP]"}
 			
 			{flower} **Roles** {flower}
 			{HelpText(Commands.Roles.Command_Roles)}
 			
 			{flower} **Birthday** {flower}
-			{/*HelpText("birthday")*/ "WIP"}
+			{/*HelpText("birthday")*/ "[WIP]"}
 			""",
 
-			//$"""
-			//{flower} **Keys** {flower}
-			//{HelpText("keys")}
-			//
-			//{flower} **Raid** {flower}
-			//{HelpText("raid")}
-			//""",
+			$"""
+			{flower} **Keys** {flower}
+			{/*HelpText("keys")*/ "[WIP]"}
+			
+			{flower} **Raid** {flower}
+			{/*HelpText("raid")*/ "[WIP]"}
+			""",
 
-			//$"""
-			//{flower} **Roster** {flower}
-			//{HelpText("roster")}
-			//{HelpText("craft")}
-			//""",
+			$"""
+			{flower} **Roster** {flower}
+			{/*HelpText("roster")*/ "[WIP]"}
+			{/*HelpText("craft")*/ "[WIP]"}
+			""",
 
-			//$"""
-			//{flower} **Tags** {flower}
-			//{HelpText("tags")}
-			//
-			//{flower} **Boss Guides** {flower}
-			//{HelpText("boss-guide")}
-			//
-			//{flower} **Farming Guides** {flower}
-			//{HelpText("farm-guide")}
-			//""",
+			$"""
+			{flower} **Tags** {flower}
+			{/*HelpText("tags")*/ "[WIP]"}
+			
+			{flower} **Boss Guides** {flower}
+			{/*HelpText("boss-guide")*/ "[WIP]"}
+			
+			{flower} **Farming Guides** {flower}
+			{/*HelpText("farm-guide")*/ "[WIP]"}
+			""",
 
 			$"""
 			{flower} **In-Game Data** {flower}
