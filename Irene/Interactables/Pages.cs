@@ -17,6 +17,8 @@ class Pages {
 		_idButtonPrev = "pages_list_prev",
 		_idButtonNext = "pages_list_next",
 		_idButtonPage = "pages_list_page";
+	private static readonly IReadOnlySet<string> _ids =
+		new HashSet<string> { _idButtonPrev, _idButtonNext, _idButtonPage };
 	private const string
 		_labelPrev = "\u25B2",
 		_labelNext = "\u25BC";
@@ -34,6 +36,9 @@ class Pages {
 				// message, and created by the corresponding component.
 				if (_pages.ContainsKey(id)) {
 					Pages pages = _pages[id];
+					if (!_ids.Contains(e.Id))
+						return;
+					e.Handled = true;
 
 					// Can only update if message was already created.
 					if (pages._message is null)
@@ -59,7 +64,6 @@ class Pages {
 					// Update original message.
 					Interaction interaction = Interaction.FromComponent(e);
 					await interaction.UpdateComponentAsync(pages.BuildMessage());
-					e.Handled = true;
 				}
 			});
 			return Task.CompletedTask;
@@ -157,7 +161,7 @@ class Pages {
 		_pages.TryRemove(_message.Id, out _);
 
 		// Re-fetch message.
-		_message = await RefetchMessage(_message);
+		_message = await Util.RefetchMessage(_message);
 
 		// Rebuild message as disabled.
 		await _interaction.EditResponseAsync(BuildWebhook(false));
@@ -209,11 +213,4 @@ class Pages {
 				disabled: !isEnabled || (page + 1 == total)
 			),
 		};
-
-	// Repopulate a message using only its ID and channel ID.
-	private static async Task<DiscordMessage> RefetchMessage(DiscordMessage message) {
-		DiscordChannel channel = await
-			Client.GetChannelAsync(message.ChannelId);
-		return await channel.GetMessageAsync(message.Id);
-	}
 }

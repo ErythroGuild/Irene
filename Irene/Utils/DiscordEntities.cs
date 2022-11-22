@@ -111,6 +111,13 @@ static partial class Util {
 		}
 	}
 
+	// Repopulate a message using only its ID and channel ID.
+	public static async Task<DiscordMessage> RefetchMessage(DiscordMessage message) {
+		DiscordChannel channel = await
+			Client.GetChannelAsync(message.ChannelId);
+		return await channel.GetMessageAsync(message.Id);
+	}
+
 	// Fetches audit log entries, but wrapping the call in a
 	// try/catch block to handle exceptions.
 	public static async Task<DiscordAuditLogEntry?> LatestAuditLogEntry(

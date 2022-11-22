@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 using Spectre.Console;
 
-using Irene.Interactables;
 using Irene.Modules;
 
 namespace Irene;
@@ -71,7 +71,17 @@ class Program {
 
 	// Construct all static members.
 	static Program() {
+		// Tune memory management for linux. Without this, OpenCvSharp
+		// causes "fake" (un-freed) memory usage in the range of 150+MB.
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+			// By default, this is set for the current process only.
+			Environment.SetEnvironmentVariable("MALLOC_TRIM_THRESHOLD_", "20000");
+		}
+
+		// Ensure the console window can display emoji/colors properly.
 		Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+		// Display logo.
 		const string
 			red  = "[#da4331 on black]",
 			pink = "[#ffcec9 on black]";

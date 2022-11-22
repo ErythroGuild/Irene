@@ -66,8 +66,17 @@ class Starboard {
 		// Queue up any candidate updates to the starboard.
 		static Task HandleReaction(DiscordMessage messagePartial) {
 			_ = Task.Run(async () => {
+				// Reaction events always return a partial object.
+				// According to official API docs:
+				// - user ID
+				// - channel ID
+				// - message ID
+				// - guild ID (nullable)
+				// - member object (nullable)
+				// - emoji (partial object)
 				DiscordMessage message = await
-					PopulatePartialMessage(messagePartial);
+					Util.RefetchMessage(messagePartial);
+
 				await _queueCandidates.Run(new Task<Task>(async () => {
 					await RefreshStarredPost(message);
 				}));
@@ -506,24 +515,6 @@ class Starboard {
 	// --------
 	// Other internal helper/component methods:
 	// --------
-
-	// The DiscordMessage returned from the "reaction added" event is
-	// incomplete; this method fetches the full message object.
-	// According to official API docs, the partial object has:
-	// - user ID
-	// - channel ID
-	// - message ID
-	// - guild ID (nullable)
-	// - member object (nullable)
-	// - emoji (partial object)
-	private static async Task<DiscordMessage> PopulatePartialMessage(DiscordMessage message) {
-		if (Erythro is null)
-			throw new InvalidOperationException("Guild not initialized yet.");
-
-		DiscordChannel channel = await
-			Erythro.Client.GetChannelAsync(message.ChannelId);
-		return await channel.GetMessageAsync(message.Id);
-	}
 
 	// Convenience function holding settings for allowed channels.
 	// Returns null if a channel should be ignored for the starboard.

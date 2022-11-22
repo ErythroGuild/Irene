@@ -57,10 +57,10 @@ class Help : CommandHandler {
 		}
 
 		// Otherwise, respond with general help command.
-		MessagePromise message_promise = new ();
+		MessagePromise messagePromise = new ();
 		DiscordMessageBuilder response = Pages.Create(
 			interaction,
-			message_promise.Task,
+			messagePromise.Task,
 			Module.GeneralHelp(),
 			pageSize: 1
 		);
@@ -70,7 +70,7 @@ class Help : CommandHandler {
 		interaction.SetResponseSummary($"General help pages sent.");
 
 		DiscordMessage message = await interaction.GetResponseAsync();
-		message_promise.SetResult(message);
+		messagePromise.SetResult(message);
 	}
 
 	public async Task AutocompleteAsync(Interaction interaction, object arg, IDictionary<string, object> args) {

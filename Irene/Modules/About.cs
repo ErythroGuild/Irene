@@ -20,7 +20,7 @@ class About {
 		_colorBusy    = new ("#ED4245");
 	private const double
 		_memoryLowerLimit = 90.0,
-		_memoryUpperLimit = 150.0;
+		_memoryUpperLimit = 180.0;
 	private const ulong _idMaintainer = 165557736287764483;
 	private const string
 		_linkSourceCode      = @"https://github.com/ErythroGuild/irene",
@@ -78,9 +78,9 @@ class About {
 
 		string bodyText =
 			$"""
-			**<Erythro>**'s community management bot.
+			{Erythro.Emoji(id_e.erythro)} **<Erythro>**'s community admin bot.
 
-			{statusAvailableCommands} **Available commands:** {SlashCommandCount} [+{ContextCommandCount}] ({helpLink})
+			{statusAvailableCommands} **Available commands:** {SlashCommandCount} [+{ContextCommandCount}], {helpLink}
 			{statusMemoryUsage} **Memory usage:** {GetMemoryUsageMB():F0} MB
 
 			Maintained by {GetMaintainerMention()} with {_charLove}
