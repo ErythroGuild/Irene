@@ -43,13 +43,13 @@ class Help {
 
 			$"""
 			{flower} **Rank** {flower}
-			{HelpText(/*"rank"*/ "WIP")}
+			{/*HelpText("rank")*/ "WIP"}
 			
 			{flower} **Roles** {flower}
 			{HelpText(Commands.Roles.Command_Roles)}
 			
 			{flower} **Birthday** {flower}
-			{HelpText(/*"birthday"*/ "WIP")}
+			{/*HelpText("birthday")*/ "WIP"}
 			""",
 
 			//$"""
