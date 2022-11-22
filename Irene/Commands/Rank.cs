@@ -408,52 +408,52 @@ class Rank : AbstractCommand, IInit {
 			return;
 		}
 
-		// Construct select component by picking only usable options.
-		// Admin has special permission to set others to Admin.
-		List<KeyValuePair<Level, Entry>> options = new ();
-		foreach (KeyValuePair<Level, Entry> option in _optionsRankList) {
-			if (level_caller > option.Key) {
-				options.Add(option);
-			 } else if (option.Key == Level.Admin && level_caller == Level.Admin) {
-				options.Add(option);
-			}
-		}
-		MessagePromise message_promise = new ();
-		Selection select = Selection.Create(
-			handler.Interaction.Interaction,
-			AssignRank,
-			message_promise.Task,
-			options,
-			new HashSet<Level> { level_target },
-			"No rank selected",
-			isMultiple: false
-		);
+		//// Construct select component by picking only usable options.
+		//// Admin has special permission to set others to Admin.
+		//List<KeyValuePair<Level, Entry>> options = new ();
+		//foreach (KeyValuePair<Level, Entry> option in _optionsRankList) {
+		//	if (level_caller > option.Key) {
+		//		options.Add(option);
+		//	 } else if (option.Key == Level.Admin && level_caller == Level.Admin) {
+		//		options.Add(option);
+		//	}
+		//}
+		//MessagePromise message_promise = new ();
+		//Selection select = Selection.Create(
+		//	handler.Interaction.Interaction,
+		//	AssignRank,
+		//	message_promise.Task,
+		//	options,
+		//	new HashSet<Level> { level_target },
+		//	"No rank selected",
+		//	isMultiple: false
+		//);
 
-		// Disable any selections already in-flight.
-		if (_selectsRank.ContainsKey(member_caller.Id)) {
-			await _selectsRank[member_caller.Id].Selection.Discard();
-			_selectsRank.TryRemove(member_caller.Id, out _);
-		}
-		_selectsRank.TryAdd(
-			member_caller.Id,
-			new (select, member_target)
-		);
+		//// Disable any selections already in-flight.
+		//if (_selectsRank.ContainsKey(member_caller.Id)) {
+		//	await _selectsRank[member_caller.Id].Selection.Discard();
+		//	_selectsRank.TryRemove(member_caller.Id, out _);
+		//}
+		//_selectsRank.TryAdd(
+		//	member_caller.Id,
+		//	new (select, member_target)
+		//);
 
-		// Send response with selection menu.
-		string response_str =
-			$"Previous rank: **{_optionsRank[level_target].Label}**";
-		DiscordWebhookBuilder response =
-			new DiscordWebhookBuilder()
-			.WithContent(response_str)
-			.AddComponents(select.Component);
-		DiscordMessage message = await Command.SubmitResponseAsync(
-			handler.Interaction,
-			response,
-			"Sending rank selection menu.",
-			LogLevel.Debug,
-			"Rank selection menu sent.".AsLazy()
-		);
-		message_promise.SetResult(message);
+		//// Send response with selection menu.
+		//string response_str =
+		//	$"Previous rank: **{_optionsRank[level_target].Label}**";
+		//DiscordWebhookBuilder response =
+		//	new DiscordWebhookBuilder()
+		//	.WithContent(response_str)
+		//	.AddComponents(select.Component);
+		//DiscordMessage message = await Command.SubmitResponseAsync(
+		//	handler.Interaction,
+		//	response,
+		//	"Sending rank selection menu.",
+		//	LogLevel.Debug,
+		//	"Rank selection menu sent.".AsLazy()
+		//);
+		//message_promise.SetResult(message);
 	}
 	private static async Task AssignRank(ComponentInteractionCreateEventArgs e) {
 		await AwaitGuildInitAsync();
@@ -582,45 +582,41 @@ class Rank : AbstractCommand, IInit {
 				guilds.Add(ToGuildRole(role_id));
 		}
 		guilds.Sort();
-		string response_str =
-			Selection.PrintSelected(guilds, _optionsGuild, "guild", "guilds");
 
-		// Construct select component.
-		MessagePromise message_promise = new ();
-		Selection select = Selection.Create(
-			handler.Interaction.Interaction,
-			AssignGuild,
-			message_promise.Task,
-			_optionsGuildList,
-			new HashSet<Guild>(guilds),
-			"No guilds selected",
-			isMultiple: true
-		);
+		//// Construct select component.
+		//MessagePromise message_promise = new ();
+		//Selection select = Selection.Create(
+		//	handler.Interaction.Interaction,
+		//	AssignGuild,
+		//	message_promise.Task,
+		//	_optionsGuildList,
+		//	new HashSet<Guild>(guilds),
+		//	"No guilds selected",
+		//	isMultiple: true
+		//);
 
-		// Disable any selections already in-flight.
-		if (_selectsGuild.ContainsKey(member_caller.Id)) {
-			await _selectsGuild[member_caller.Id].Selection.Discard();
-			_selectsGuild.TryRemove(member_caller.Id, out _);
-		}
-		_selectsGuild.TryAdd(
-			member_caller.Id,
-			new (select, member_target)
-		);
+		//// Disable any selections already in-flight.
+		//if (_selectsGuild.ContainsKey(member_caller.Id)) {
+		//	await _selectsGuild[member_caller.Id].Selection.Discard();
+		//	_selectsGuild.TryRemove(member_caller.Id, out _);
+		//}
+		//_selectsGuild.TryAdd(
+		//	member_caller.Id,
+		//	new (select, member_target)
+		//);
 
-		// Send response with selection menu.
-		DiscordWebhookBuilder response =
-			new DiscordWebhookBuilder()
-			.WithContent(response_str)
-			.AddComponents(select.Component);
-		DiscordMessage message = await Command.SubmitResponseAsync(
-			handler.Interaction,
-			response,
-			"Sending guild selection menu.",
-			LogLevel.Debug,
-			"Guild selection menu sent.".AsLazy()
-		);
-		message_promise.SetResult(message);
-
+		//// Send response with selection menu.
+		//DiscordWebhookBuilder response =
+		//	new DiscordWebhookBuilder()
+		//	.AddComponents(select.Component);
+		//DiscordMessage message = await Command.SubmitResponseAsync(
+		//	handler.Interaction,
+		//	response,
+		//	"Sending guild selection menu.",
+		//	LogLevel.Debug,
+		//	"Guild selection menu sent.".AsLazy()
+		//);
+		//message_promise.SetResult(message);
 	}
 	private static async Task AssignGuild(ComponentInteractionCreateEventArgs e) {
 		await AwaitGuildInitAsync();
@@ -701,44 +697,41 @@ class Rank : AbstractCommand, IInit {
 				roles.Add(ToOfficerRole(role_id));
 		}
 		roles.Sort();
-		string response_str =
-			Selection.PrintSelected(roles, _optionsOfficer, "officer role", "officer roles");
 
-		// Construct select component.
-		MessagePromise message_promise = new ();
-		Selection select = Selection.Create(
-			handler.Interaction.Interaction,
-			AssignOfficer,
-			message_promise.Task,
-			_optionsOfficerList,
-			new HashSet<Officer>(roles),
-			"No roles selected",
-			isMultiple: true
-		);
+		//// Construct select component.
+		//MessagePromise message_promise = new ();
+		//Selection select = Selection.Create(
+		//	handler.Interaction.Interaction,
+		//	AssignOfficer,
+		//	message_promise.Task,
+		//	_optionsOfficerList,
+		//	new HashSet<Officer>(roles),
+		//	"No roles selected",
+		//	isMultiple: true
+		//);
 
-		// Disable any selections already in-flight.
-		if (_selectsOfficer.ContainsKey(member_caller.Id)) {
-			await _selectsOfficer[member_caller.Id].Selection.Discard();
-			_selectsOfficer.TryRemove(member_caller.Id, out _);
-		}
-		_selectsOfficer.TryAdd(
-			member_caller.Id,
-			new (select, member_target)
-		);
+		//// Disable any selections already in-flight.
+		//if (_selectsOfficer.ContainsKey(member_caller.Id)) {
+		//	await _selectsOfficer[member_caller.Id].Selection.Discard();
+		//	_selectsOfficer.TryRemove(member_caller.Id, out _);
+		//}
+		//_selectsOfficer.TryAdd(
+		//	member_caller.Id,
+		//	new (select, member_target)
+		//);
 
-		// Send response with selection menu.
-		DiscordWebhookBuilder response =
-			new DiscordWebhookBuilder()
-			.WithContent(response_str)
-			.AddComponents(select.Component);
-		DiscordMessage message = await Command.SubmitResponseAsync(
-			handler.Interaction,
-			response,
-			"Sending officer role selection menu.",
-			LogLevel.Debug,
-			"Role selection menu sent.".AsLazy()
-		);
-		message_promise.SetResult(message);
+		//// Send response with selection menu.
+		//DiscordWebhookBuilder response =
+		//	new DiscordWebhookBuilder()
+		//	.AddComponents(select.Component);
+		//DiscordMessage message = await Command.SubmitResponseAsync(
+		//	handler.Interaction,
+		//	response,
+		//	"Sending officer role selection menu.",
+		//	LogLevel.Debug,
+		//	"Role selection menu sent.".AsLazy()
+		//);
+		//message_promise.SetResult(message);
 	}
 	private static async Task AssignOfficer(ComponentInteractionCreateEventArgs e) {
 		await AwaitGuildInitAsync();

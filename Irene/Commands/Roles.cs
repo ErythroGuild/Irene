@@ -142,40 +142,37 @@ class Roles : AbstractCommand, IInit {
 		}
 		roles.Sort();
 
-		// Create a registered Selection object.
-		MessagePromise message_promise = new ();
-		Selection select = Selection.Create(
-			interaction.Interaction,
-			AssignRoles,
-			message_promise.Task,
-			_optionsList,
-			new HashSet<PingRole>(roles),
-			"No roles selected",
-			isMultiple: true
-		);
+		//// Create a registered Selection object.
+		//MessagePromise message_promise = new ();
+		//Selection select = Selection.Create(
+		//	interaction.Interaction,
+		//	AssignRoles,
+		//	message_promise.Task,
+		//	_optionsList,
+		//	new HashSet<PingRole>(roles),
+		//	"No roles selected",
+		//	isMultiple: true
+		//);
 
-		// Disable any selections already in-flight.
-		if (_selects.ContainsKey(member.Id)) {
-			await _selects[member.Id].Discard();
-			_selects.TryRemove(member.Id, out _);
-		}
-		_selects.TryAdd(member.Id, select);
+		//// Disable any selections already in-flight.
+		//if (_selects.ContainsKey(member.Id)) {
+		//	await _selects[member.Id].Discard();
+		//	_selects.TryRemove(member.Id, out _);
+		//}
+		//_selects.TryAdd(member.Id, select);
 
-		// Send response with selection menu.
-		string roles_str =
-			Selection.PrintSelected(roles, _options, "role", "roles");
-		DiscordWebhookBuilder response =
-			new DiscordWebhookBuilder()
-			.WithContent(roles_str)
-			.AddComponents(select.Component);
-		DiscordMessage message = await Command.SubmitResponseAsync(
-			interaction,
-			response,
-			"Sending role selection menu.",
-			LogLevel.Debug,
-			"Selection menu sent.".AsLazy()
-		);
-		message_promise.SetResult(message);
+		//// Send response with selection menu.
+		//DiscordWebhookBuilder response =
+		//	new DiscordWebhookBuilder()
+		//	.AddComponents(select.Component);
+		//DiscordMessage message = await Command.SubmitResponseAsync(
+		//	interaction,
+		//	response,
+		//	"Sending role selection menu.",
+		//	LogLevel.Debug,
+		//	"Selection menu sent.".AsLazy()
+		//);
+		//message_promise.SetResult(message);
 	}
 
 	private static async Task AssignRoles(ComponentInteractionCreateEventArgs e) {
