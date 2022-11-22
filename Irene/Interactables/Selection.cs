@@ -9,6 +9,10 @@ using SelectOption = DSharpPlus.Entities.DiscordSelectComponentOption;
 namespace Irene.Interactables;
 
 class Selection {
+	public readonly record struct SelectionId (
+		ulong MessageId,
+		string ComponentId
+	);
 	public readonly record struct Option (
 		string Label,
 		string Id,
@@ -19,10 +23,10 @@ class Selection {
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
 	// Master table of all Selections to handle, indexed by the message
-	// ID of the owning message.
+	// ID of the owning message + selection custom ID.
 	// This also serves as a way to "hold" fired timers, preventing them
 	// from prematurely going out of scope and being destroyed.
-	private static readonly ConcurrentDictionary<ulong, Selection> _selections = new ();
+	private static readonly ConcurrentDictionary<SelectionId, Selection> _selections = new ();
 	
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
@@ -31,7 +35,7 @@ class Selection {
 	static Selection() {
 		Client.ComponentInteractionCreated += (client, e) => {
 			_ = Task.Run(async () => {
-				ulong id = e.Message.Id;
+				SelectionId id = new (e.Message.Id, e.Id);
 
 				// Consume all interactions originating from a registered
 				// message, and created by the corresponding component.
@@ -123,7 +127,7 @@ class Selection {
 		messageTask.ContinueWith((messageTask) => {
 			DiscordMessage message = messageTask.Result;
 			selection._message = message;
-			_selections.TryAdd(message.Id, selection);
+			_selections.TryAdd(new (message.Id, id), selection);
 			selection._timer.Start();
 		});
 		timer.Elapsed += async (obj, e) => {
@@ -158,12 +162,12 @@ class Selection {
 	}
 	// Update the selected entries of the select component.
 	// Assumes _message has been set; returns immediately if it hasn't.
-	public async Task Update(IReadOnlySet<Option> selected) {
+	public async Task Update(IReadOnlySet<string> selected) {
 		if (_message is null)
 			return;
 
 		// Cancel operation if interactable has been disabled.
-		if (!_selections.ContainsKey(_message.Id))
+		if (!_selections.ContainsKey(new (_message.Id, Id)))
 			return;
 
 		// Re-fetch message.
@@ -180,7 +184,7 @@ class Selection {
 			return;
 
 		// Remove held references.
-		_selections.TryRemove(_message.Id, out _);
+		_selections.TryRemove(new (_message.Id, Id), out _);
 
 		// Re-fetch message.
 		_message = await Util.RefetchMessage(_message);
@@ -188,7 +192,7 @@ class Selection {
 		// Rebuild message with select component disabled.
 		await _interaction.EditResponseAsync(GetDisabledSelect(_message));
 
-		Log.Debug("Cleaned up Pages interactable.");
+		Log.Debug("Cleaned up Selection interactable.");
 		Log.Debug("  Channel ID: {ChannelId}", _message.ChannelId);
 		Log.Debug("  Message ID: {MessageId}", _message.Id);
 	}
@@ -204,7 +208,7 @@ class Selection {
 	}
 	private DiscordWebhookBuilder GetUpdatedSelect(
 		DiscordMessage original,
-		IReadOnlySet<Option> selected
+		IReadOnlySet<string> selected
 	) {
 		List<ComponentRow> components = ModifyComponent(
 			original,
@@ -256,17 +260,13 @@ class Selection {
 	// Nothing is validated.
 	private static DiscordSelectComponent UpdateSelect(
 		DiscordSelectComponent select,
-		IReadOnlySet<Option> selected
+		IReadOnlySet<string> selected
 	) {
-		List<Option> selected_list = new (selected);
-
 		// Create a list of options with updated "selected" state.
 		List<SelectOption> options = new ();
 		foreach (SelectOption option in select.Options) {
 			// Check that the option is selected.
-			bool isSelected = selected_list.Exists(
-				(option_i) => option_i.Id == option.Value
-			);
+			bool isSelected = selected.Contains(option.Value);
 			// Construct a new option, copied from the original, but
 			// with the appropriate "selected" state.
 			SelectOption option_new = new (
