@@ -602,7 +602,7 @@ class Starboard {
 		await author.SendMessageAsync($"""
 			Congrats! :tada:
 			Your post in {message.Channel.Mention} was extra-popular, and has been included in {GetStarboard().Mention}.
-			{Erythro.Emoji(id_e.eryLove)}
+			{Erythro.Emoji(id_e.cupcake)} {Erythro.Emoji(id_e.eryLove)}
 			""");
 	}
 }
