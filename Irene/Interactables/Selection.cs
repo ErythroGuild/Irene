@@ -1,6 +1,7 @@
 using System.Timers;
 
 using SelectionCallback = System.Func<DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, System.Threading.Tasks.Task>;
+using ComponentCallback = System.Func<DSharpPlus.Entities.DiscordSelectComponent, DSharpPlus.Entities.DiscordSelectComponent>;
 using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
 using Component = DSharpPlus.Entities.DiscordComponent;
 using SelectOption = DSharpPlus.Entities.DiscordSelectComponentOption;
@@ -17,14 +18,12 @@ class Selection {
 
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
-	// Table of all Selections to handle, indexed by the message ID of
-	// the owning message.
+	// Master table of all Selections to handle, indexed by the message
+	// ID of the owning message.
 	// This also serves as a way to "hold" fired timers, preventing them
-	// from going out of scope and being destroyed.
+	// from prematurely going out of scope and being destroyed.
 	private static readonly ConcurrentDictionary<ulong, Selection> _selections = new ();
-	private const string _id = "selection";
 	
-	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
 	// that each event has to filter through until it hits the correct
@@ -36,145 +35,82 @@ class Selection {
 
 				// Consume all interactions originating from a registered
 				// message, and created by the corresponding component.
-				if (_selections.ContainsKey(id) && e.Id == _id) {
-					e.Handled = true;
+				if (_selections.ContainsKey(id)) {
 					Selection selection = _selections[id];
+					if (selection.Id != e.Id)
+						return;
+					e.Handled = true;
+
+					// Can only update if message was already created.
+					if (selection._message is null)
+						return;
+
+					// Only respond to interactions created by the owner
+					// of the interactable.
+					if (e.User != selection._interaction.User)
+						return;
 
 					// Only respond to interactions created by the "owner"
 					// of the component.
-					if (e.User != selection._interaction.User) {
-						await e.Interaction.AcknowledgeComponentAsync();
+					if (e.User != selection._interaction.User)
 						return;
-					}
 
+					// Acknowledge interaction and update the original
+					// message later (inside the callback itself).
+					Interaction interaction = Interaction.FromComponent(e);
+					await interaction.DeferComponentAsync();
+
+					// Execute callback and update original message.
 					await selection._callback(e);
 				}
 			});
 			return Task.CompletedTask;
 		};
-		Log.Debug("  Created handler for component: Selection");
 	}
 
+	// Instance properties.
 	public DiscordSelectComponent Component { get; private set; }
-
-	// Instanced (configuration) properties.
-	private DiscordMessage? _message;
-	private readonly DiscordInteraction _interaction;
+	public string Id => Component.CustomId;
+	private readonly Interaction _interaction;
+	private DiscordMessage? _message = null;
 	private readonly Timer _timer;
 	private readonly SelectionCallback _callback;
 
-	// Private constructor.
-	// Use Selection.Create() to create a new instance.
-	private Selection(
-		DiscordSelectComponent component,
-		DiscordInteraction interaction,
-		Timer timer,
-		SelectionCallback callback
-	) {
-		Component = component;
-		_interaction = interaction;
-		_timer = timer;
-		_callback = callback;
-	}
-
-	// Manually time-out the timer (and fire the elapsed handler).
-	public async Task Discard() {
-		const double delay = 0.1;
-		_timer.Stop();
-		_timer.Interval = delay; // arbitrarily small interval, must be >0
-		_timer.Start();
-		await Task.Delay(TimeSpan.FromMilliseconds(delay));
-	}
-
-	// Update the selected entries of the select component.
-	public async Task Update(IReadOnlySet<Option> selected) {
-		// Can only update if message was already created.
-		if (_message is null)
-			return;
-
-		// Update component by constructing a new DiscordMessage
-		// from the data of the old one.
-		// Interaction responses behave as webhooks and need to be
-		// constructed as such.
-		_message = await _interaction.GetOriginalResponseAsync();
-		DiscordWebhookBuilder message =
-			new DiscordWebhookBuilder()
-			.WithContent(_message.Content);
-		List<ComponentRow> rows = ComponentsSelectUpdated(
-			new List<ComponentRow>(_message.Components),
-			selected
-		);
-		if (rows.Count > 0)
-			message.AddComponents(rows);
-
-		// Edit original message.
-		// This must be done through the original interaction, as
-		// responses to interactions don't actually "exist" as real
-		// messages.
-		await _interaction
-			.EditOriginalResponseAsync(message);
-	}
-
-	// Cleanup task to dispose of all resources.
-	// Does not check for _message being completed yet.
-	private async Task Cleanup() {
-		if (_message is null)
-			return;
-
-		// Remove held references.
-		_selections.TryRemove(_message.Id, out _);
-
-		// Update message to disable component, constructing a new
-		// DiscordMessage from the data of the old one.
-		// Interaction responses behave as webhooks and need to be
-		// constructed as such.
-		_message = await _interaction.GetOriginalResponseAsync();
-		DiscordWebhookBuilder message_new =
-			new DiscordWebhookBuilder()
-			.WithContent(_message.Content);
-		List<ComponentRow> rows = ComponentsSelectDisabled(
-			new List<ComponentRow>(_message.Components)
-		);
-		if (rows.Count > 0)
-			message_new.AddComponents(rows);
-
-		// Edit original message.
-		// This must be done through the original interaction, as
-		// responses to interactions don't actually "exist" as real
-		// messages.
-		await _interaction.EditOriginalResponseAsync(message_new);
-	}
-
+	// Public factory method constructor.
+	// Use this method to instantiate a new interactable.
+	// NOTE: The selection callback should probably call `Update()`.
 	public static Selection Create<T>(
-		DiscordInteraction interaction,
-		SelectionCallback callback,
+		Interaction interaction,
 		Task<DiscordMessage> messageTask,
-		IReadOnlyList<KeyValuePair<T, Option>> options,
+		SelectionCallback callback,
+		string id,
+		IReadOnlyList<(T, Option)> options,
 		IReadOnlySet<T> selected,
-		string placeholder,
 		bool isMultiple,
+		string? placeholder=null,
 		TimeSpan? timeout=null
 	) where T : Enum {
+		placeholder ??= "";
 		timeout ??= DefaultTimeout;
 		Timer timer = Util.CreateTimer(timeout.Value, false);
 
 		// Construct select component options.
 		List<SelectOption> options_obj = new ();
-		foreach (KeyValuePair<T, Option> option in options) {
-			Option option_obj = option.Value;
-			SelectOption option_discord = new (
-				option_obj.Label,
-				option_obj.Id,
-				option_obj.Description,
+		foreach ((T Key, Option Value) option in options) {
+			Option value = option.Value;
+			SelectOption optionObj = new (
+				value.Label,
+				value.Id,
+				value.Description,
 				selected.Contains(option.Key),
-				option_obj.Emoji
+				value.Emoji
 			);
-			options_obj.Add(option_discord);
+			options_obj.Add(optionObj);
 		}
 
 		// Construct select component.
 		DiscordSelectComponent component = new (
-			_id,
+			id,
 			placeholder,
 			options_obj,
 			disabled: false,
@@ -183,8 +119,7 @@ class Selection {
 		);
 
 		// Construct partial Selection object.
-		Selection selection =
-			new (component, interaction, timer, callback);
+		Selection selection = new (interaction, component, timer, callback);
 		messageTask.ContinueWith((messageTask) => {
 			DiscordMessage message = messageTask.Result;
 			selection._message = message;
@@ -201,98 +136,119 @@ class Selection {
 
 		return selection;
 	}
-
-	// Formats the selected roles (from a given list) into a string.
-	// The name to print should be lower case (this is not checked).
-	// Casing will be converted to upper-case if needed, but not the
-	// other way around.
-	public static string PrintSelected<T>(
-		IReadOnlyList<T> selected,
-		IReadOnlyDictionary<T, Option> options,
-		string name_singular,
-		string name_plural
+	private Selection(
+		Interaction interaction,
+		DiscordSelectComponent component,
+		Timer timer,
+		SelectionCallback callback
 	) {
-		// Casing conversions for names.
-		string name_singular_upper =
-			char.ToUpper(name_singular[0]) + name_singular[1..];
-		string name_plural_upper =
-			char.ToUpper(name_plural[0]) + name_plural[1..];
-
-		// Special cases for none/singular.
-		if (selected.Count == 0)
-			return $"No {name_plural} previously set.";
-		if (selected.Count == 1)
-			return $"{name_singular_upper} previously set:\n**{options[selected[0]].Label}**";
-
-		// Construct list of role names.
-		StringWriter text = new ();
-		text.WriteLine($"{name_plural_upper} previously set:");
-		foreach (T option in selected)
-			text.Write($"**{options[option].Label}**  ");
-		return text.ToString()[..^2];
+		Component = component;
+		_interaction = interaction;
+		_timer = timer;
+		_callback = callback;
 	}
 
-	// Return a new list of components, with any DiscordSelectComponents
-	// (with a matching ID) updated as selected.
-	// IList (instead of read-only) allows members to be updated.
-	private static List<ComponentRow> ComponentsSelectUpdated(
-		List<ComponentRow> rows,
+	// Manually time-out the timer (and fire the elapsed handler).
+	public async Task Discard() {
+		_timer.Stop();
+		const double delay = 0.1;
+		_timer.Interval = delay; // arbitrarily small interval, must be >0
+		_timer.Start();
+		await Task.Delay(TimeSpan.FromMilliseconds(delay));
+	}
+	// Update the selected entries of the select component.
+	// Assumes _message has been set; returns immediately if it hasn't.
+	public async Task Update(IReadOnlySet<Option> selected) {
+		if (_message is null)
+			return;
+
+		// Cancel operation if interactable has been disabled.
+		if (!_selections.ContainsKey(_message.Id))
+			return;
+
+		// Re-fetch message.
+		_message = await Util.RefetchMessage(_message);
+
+		// Rebuild message with select component updated.
+		await _interaction.EditResponseAsync(GetUpdatedSelect(_message, selected));
+	}
+
+	// Cleanup task to dispose of all resources.
+	// Assumes _message has been set; returns immediately if it hasn't.
+	private async Task Cleanup() {
+		if (_message is null)
+			return;
+
+		// Remove held references.
+		_selections.TryRemove(_message.Id, out _);
+
+		// Re-fetch message.
+		_message = await Util.RefetchMessage(_message);
+
+		// Rebuild message with select component disabled.
+		await _interaction.EditResponseAsync(GetDisabledSelect(_message));
+
+		Log.Debug("Cleaned up Pages interactable.");
+		Log.Debug("  Channel ID: {ChannelId}", _message.ChannelId);
+		Log.Debug("  Message ID: {MessageId}", _message.Id);
+	}
+
+	// Modify an existing message object to return a webhook builder.
+	// NOTE: Only message content, embeds, and components are preserved.
+	private DiscordWebhookBuilder GetDisabledSelect(DiscordMessage original) {
+		List<ComponentRow> components = ModifyComponent(
+			original,
+			(select) => select.Disable()
+		);
+		DiscordWebhookBuilder output =
+			new DiscordWebhookBuilder()
+			.WithContent(original.Content)
+			.AddEmbeds(original.Embeds)
+			.AddComponents(components);
+		return output;
+	}
+	private DiscordWebhookBuilder GetUpdatedSelect(
+		DiscordMessage original,
 		IReadOnlySet<Option> selected
 	) {
-		List<ComponentRow> rows_new = new ();
-
-		foreach (ComponentRow row in rows) {
-			List<Component> components_new = new ();
-
-			foreach (Component component in row.Components) {
-				if (component is
-					DiscordSelectComponent select &&
-					component.CustomId == _id
-				) {
-					components_new.Add(UpdateSelect(select, selected));
-				} else {
-					components_new.Add(component);
-				}
-			}
-
-			rows_new.Add(new ComponentRow(components_new));
-		}
-
-		return rows_new;
+		List<ComponentRow> components = ModifyComponent(
+			original,
+			(select) => UpdateSelect(select, selected)
+		);
+		DiscordWebhookBuilder output =
+			new DiscordWebhookBuilder()
+			.WithContent(original.Content)
+			.AddEmbeds(original.Embeds)
+			.AddComponents(components);
+		return output;
 	}
 
-	// Return a new list of components, with any DiscordSelectComponents
-	// (with a matching ID) disabled.
-	// IList (instead of read-only) allows members to be disabled.
-	private static List<ComponentRow> ComponentsSelectDisabled(
-		List<ComponentRow> rows
+	// Iterate through all components, and modify the current instance's
+	// corresponding select component according to the callback.
+	private List<ComponentRow> ModifyComponent(
+		DiscordMessage message,
+		ComponentCallback callback
 	) {
-		List<ComponentRow> rows_new = new ();
-
-		foreach (ComponentRow row in rows) {
-			List<Component> components_new = new ();
-
+		List<ComponentRow> rows = new ();
+		foreach (ComponentRow row in message.Components) {
+			List<Component> components = new ();
 			foreach (Component component in row.Components) {
-				if (component is
-					DiscordSelectComponent select &&
-					component.CustomId == _id
+				if ((component is DiscordSelectComponent select) &&
+					(component.CustomId == Id)
 				) {
-					select.Disable();
-					components_new.Add(select);
+					select = callback.Invoke(select);
+					components.Add(select);
 				} else {
-					components_new.Add(component);
+					components.Add(component);
 				}
 			}
-
-			rows_new.Add(new ComponentRow(components_new));
+			rows.Add(new(components));
 		}
-
-		return rows_new;
+		return rows;
 	}
 
-	// Convenience function for updating a DiscordSelectComponent with
-	// a new set of options selected.
-	// No checks are made.
+	// Updating a select component with a new set of options selected.
+	// Nothing is validated.
 	private static DiscordSelectComponent UpdateSelect(
 		DiscordSelectComponent select,
 		IReadOnlySet<Option> selected
