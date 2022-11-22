@@ -2,7 +2,7 @@
 (A human should be along to assist you shortly.)
 
 *In the meantime—*
-• Set up your pings with `/roles`,
+• Set up your pings with </roles:1044475521746079754>,
 • Check out our many <#542093130502111252>,
 • Say hello! :wave:
 
