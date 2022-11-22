@@ -1,44 +1,37 @@
 ﻿namespace Irene.Modules;
 
-static class Welcome {
-	private const string
-		_pathMessage = @"data/welcome.txt",
-		_urlRuleOne  = @"https://imgur.com/jxWTK8r",
-		_urlMascot   = @"https://imgur.com/5pKJdPh";
+class Welcome {
+	private const string _pathMessage = @"data/welcome.txt";
 
-	public static void Init() { }
 	static Welcome() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
-		Client.GuildMemberAdded += (irene, e) => {
+		Client.GuildMemberAdded += (client, e) => {
 			_ = Task.Run(async () => {
-				await AwaitGuildInitAsync();
+				if (Erythro is null)
+					throw new InvalidOperationException("Guild not initialized.");
 
 				DiscordMember member = e.Member;
 
 				// Initialize welcome message.
-				StreamReader data = File.OpenText(_pathMessage);
-				string welcome = data.ReadToEnd();
-				data.Close();
+				string welcome = await File.ReadAllTextAsync(_pathMessage);
+				welcome = welcome.Unescape();
 
 				// Send welcome message to new member.
 				Log.Information("Sending welcome message to new member.");
 				Log.Debug($"  {member.Tag()}");
-				await member.SendMessageAsync(_urlRuleOne);
 				await member.SendMessageAsync(welcome);
-				await member.SendMessageAsync(_urlMascot);
 
 				// Notify recruitment officer.
 				Log.Debug("  Notifying recruitment officer.");
-				string text = $"{Erythro.Role(id_r.recruiter).Mention} - " +
-					$"New member {e.Member.Mention} joined the server. :tada:";
-				await Channels[id_ch.officerBots].SendMessageAsync(text);
+				string notify =
+					$"""
+					{Erythro.Role(id_r.recruiter).Mention} -
+					New member {member.Mention} joined the server. :star:
+					""";
+				DiscordChannel channel =
+					Erythro.Channel(id_ch.officerBots);
+				await channel.SendMessageAsync(notify);
 			});
 			return Task.CompletedTask;
 		};
-
-		Log.Information("  Initialized module: Welcome");
-		Log.Debug("    Registered welcome message handler.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 }
