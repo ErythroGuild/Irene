@@ -200,12 +200,7 @@ class Selection {
 			original,
 			(select) => select.Disable()
 		);
-		DiscordWebhookBuilder output =
-			new DiscordWebhookBuilder()
-			.WithContent(original.Content)
-			.AddEmbeds(original.Embeds)
-			.AddComponents(components);
-		return output;
+		return CloneMessageToWebhook(original, components);
 	}
 	private DiscordWebhookBuilder GetUpdatedSelect(
 		DiscordMessage original,
@@ -215,6 +210,16 @@ class Selection {
 			original,
 			(select) => UpdateSelect(select, selected)
 		);
+		return CloneMessageToWebhook(original, components);
+	}
+
+	// Copy a DiscordMessage to a DiscordWebhookBuilder, but with replaced
+	// components.
+	// NOTE: Only message content, embeds, and components are preserved.
+	private static DiscordWebhookBuilder CloneMessageToWebhook(
+		DiscordMessage original,
+		IReadOnlyList<ComponentRow> components
+	) {
 		DiscordWebhookBuilder output =
 			new DiscordWebhookBuilder()
 			.WithContent(original.Content)
