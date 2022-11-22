@@ -30,4 +30,8 @@ class ConstBiMap<T, U>
 	// are ambiguous (T and U are the same type).
 	public U GetForward(T key) => _tableForward[key];
 	public T GetReverse(U key) => _tableReverse[key];
+
+	// Overloads for checking if a key exists.
+	public bool Contains(T key) => _tableForward.ContainsKey(key);
+	public bool Contains(U key) => _tableReverse.ContainsKey(key);
 }
