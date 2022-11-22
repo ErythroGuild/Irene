@@ -41,16 +41,16 @@ class Help {
 			{HelpText(Commands.ClassDiscord.Command_ClassDiscord)}
 			""",
 
-			//$"""
-			//{flower} **Rank** {flower}
-			//{HelpText("rank")}
-			//
-			//{flower} **Roles** {flower}
-			//{HelpText("roles")}
-			//
-			//{flower} **Birthday** {flower}
-			//{HelpText("birthday")}
-			//""",
+			$"""
+			{flower} **Rank** {flower}
+			{HelpText(/*"rank"*/ "WIP")}
+			
+			{flower} **Roles** {flower}
+			{HelpText(Commands.Roles.Command_Roles)}
+			
+			{flower} **Birthday** {flower}
+			{HelpText(/*"birthday"*/ "WIP")}
+			""",
 
 			//$"""
 			//{flower} **Keys** {flower}
