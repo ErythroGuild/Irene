@@ -277,7 +277,7 @@ class Raid {
 		return lines.ToLines();
 	} }
 	public string AnnouncementText =>
-		$"{Emoji} {Roles![id_r.raid].Mention} - Forming now!";
+		$"{Emoji} {Erythro.Role(id_r.raid).Mention} - Forming now!";
 
 	// Constructor / serialization / deserialization.
 	private Raid(RaidDate date) {

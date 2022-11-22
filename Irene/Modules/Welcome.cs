@@ -30,7 +30,7 @@ static class Welcome {
 
 				// Notify recruitment officer.
 				Log.Debug("  Notifying recruitment officer.");
-				string text = $"{Roles[id_r.recruiter].Mention} - " +
+				string text = $"{Erythro.Role(id_r.recruiter).Mention} - " +
 					$"New member {e.Member.Mention} joined the server. :tada:";
 				await Channels[id_ch.officerBots].SendMessageAsync(text);
 			});

@@ -360,7 +360,7 @@ static partial class RecurringEvents {
 
 		// Compose raid announcement.
 		string announcement =
-			$"{raid.Emoji} {Roles[id_r.raid].Mention} - " +
+			$"{raid.Emoji} {Erythro.Role(id_r.raid).Mention} - " +
 			$"Forming for raid {time_forming_str} " +
 			$"(pulling at {time_raid_str}).";
 		if (raid.Summary is not null)
@@ -431,7 +431,7 @@ static partial class RecurringEvents {
 
 		// Send reminder.
 		string announcement = new List<string>() {
-			$"{Roles[id_r.raidOfficer].Mention} -",
+			$"{Erythro.Role(id_r.raidOfficer).Mention} -",
 			$"{_t}Reminder to set logs for tonight. :ok_hand: :card_box:",
 			$"{_t}`/raid set-logs`",
 		}.ToLines();
@@ -451,7 +451,7 @@ static partial class RecurringEvents {
 
 		// Send reminder.
 		string announcement = new List<string>() {
-			$"{Roles[id_r.raidOfficer].Mention} -",
+			$"{Erythro.Role(id_r.raidOfficer).Mention} -",
 			$"{_t}Raid break soon. :slight_smile: :tropical_drink:",
 		}.ToLines();
 		await Channels[id_ch.officer].SendMessageAsync(announcement);
@@ -469,7 +469,7 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string officer = Roles[id_r.officer].Mention;
+		string officer = Erythro.Role(id_r.officer).Mention;
 		string announcement =
 			$"Weekly {officer} meeting after raid. :slight_smile:";
 		await Channels[id_ch.officer].SendMessageAsync(announcement);
@@ -503,7 +503,7 @@ static partial class RecurringEvents {
 
 		// Send reminder.
 		string announcement = new List<string>() {
-			$"{Roles[id_r.raidOfficer].Mention} -",
+			$"{Erythro.Role(id_r.raidOfficer).Mention} -",
 			$"{_t}Decide on the raid plans for next week (if you haven't already). :ok_hand:",
 			$"{_t}`/raid set-plan`",
 		}.ToLines();
@@ -523,7 +523,7 @@ static partial class RecurringEvents {
 
 		// Send reminder.
 		string announcement = new List<string>() {
-			$"{Roles[id_r.recruiter].Mention} -",
+			$"{Erythro.Role(id_r.recruiter).Mention} -",
 			$"{_t}Go over the 2-week+-trials this week (if there are any). :seedling:",
 			$"{_t}`/rank list-trials`",
 		}.ToLines();
