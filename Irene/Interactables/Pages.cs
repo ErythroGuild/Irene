@@ -157,7 +157,7 @@ class Pages {
 		_pages.TryRemove(_message.Id, out _);
 
 		// Re-fetch message.
-		_message = await RefetchMessage(_message);
+		_message = await Util.RefetchMessage(_message);
 
 		// Rebuild message as disabled.
 		await _interaction.EditResponseAsync(BuildWebhook(false));
@@ -209,11 +209,4 @@ class Pages {
 				disabled: !isEnabled || (page + 1 == total)
 			),
 		};
-
-	// Repopulate a message using only its ID and channel ID.
-	private static async Task<DiscordMessage> RefetchMessage(DiscordMessage message) {
-		DiscordChannel channel = await
-			Client.GetChannelAsync(message.ChannelId);
-		return await channel.GetMessageAsync(message.Id);
-	}
 }
