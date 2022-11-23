@@ -12,7 +12,7 @@ class Farm : CommandHandler {
 	public override string HelpText =>
 		$"""
 		{Command.Mention(Command_Farm)} `<{Arg_Material}>` finds farming routes for the material.
-		    Routes from `wow-professions.com`.
+		    Data adapted from `wow-professions.com`.
 		""";
 
 	public override CommandTree CreateTree() => new (
