@@ -52,7 +52,7 @@ static class ClassSpec {
 			[Class.DH     ] = new List<string> { "demon hunter", "demonhunter", "dh" },
 			[Class.DK     ] = new List<string> { "death knight", "deathknight", "dk" },
 			[Class.Druid  ] = new List<string> { "druid", "drood" },
-			[Class.Evoker ] = new List<string> { "evoker", "evoke" },
+			[Class.Evoker ] = new List<string> { "evoker", "voke" },
 			[Class.Hunter ] = new List<string> { "hunter", "hunt" },
 			[Class.Mage   ] = new List<string> { "mage" },
 			[Class.Monk   ] = new List<string> { "monk" },
@@ -77,8 +77,8 @@ static class ClassSpec {
 			[Spec.Druid_Feral  ] = new List<string> { "feral", "cat" },
 			[Spec.Druid_Balance] = new List<string> { "balance", "moonkin", "boomy", "boomkin" },
 
-			[Spec.Evoker_Pres] = new List<string> { "preservation", "preserve", "pres" },
-			[Spec.Evoker_Dev ] = new List<string> { "devastation", "devastate", "dev" },
+			[Spec.Evoker_Pres] = new List<string> { "preservation", "preserve", "pres", "prez" },
+			[Spec.Evoker_Dev ] = new List<string> { "devastation", "devastate", "dev", "deva" },
 
 			[Spec.Hunter_BM] = new List<string> { "beast mastery", "bm", "beast master", "beastmastery", "beastmaster" },
 			[Spec.Hunter_MM] = new List<string> { "marksman", "marks", "mm", "marksmanship" },
@@ -236,7 +236,7 @@ static class ClassSpec {
 			Class.DH      => id_e.dh     ,
 			Class.DK      => id_e.dk     ,
 			Class.Druid   => id_e.druid  ,
-			//Class.Evoker  => id_e.evoker ,
+			Class.Evoker  => id_e.evoker ,
 			Class.Hunter  => id_e.hunter ,
 			Class.Mage    => id_e.mage   ,
 			Class.Monk    => id_e.monk   ,
