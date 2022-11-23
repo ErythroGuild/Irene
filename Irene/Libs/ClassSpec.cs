@@ -3,13 +3,13 @@
 static class ClassSpec {
 	public enum Role { Tank, Heal, DPS, }
 	public enum Class {
-		DH, DK, Druid , Evoker , Hunter ,
+		DK, DH, Druid , Evoker , Hunter ,
 		Mage  , Monk  , Paladin, Priest ,
 		Rogue , Shaman, Warlock, Warrior,
 	}
 	public enum Spec {
-		DH_Vengeance, DH_Havoc    ,
 		DK_Blood    , DK_Frost    , DK_Unholy     ,
+		DH_Vengeance, DH_Havoc    ,
 		Druid_Bear  , Druid_Resto , Druid_Feral   , Druid_Balance,
 		Evoker_Dev  , Evoker_Pres ,
 		Hunter_BM   , Hunter_MM   , Hunter_SV     ,
@@ -24,11 +24,11 @@ static class ClassSpec {
 	}
 
 	// Conversion tables.
-	// `ConstBiMap` isn't used here because the input isn't one-to-one.
+	// `ConstBiMap` can't used here because the input isn't one-to-one.
 	private static readonly IReadOnlyDictionary<Class, IReadOnlyList<Spec>> _classSpecs =
 		new ConcurrentDictionary<Class, IReadOnlyList<Spec>>() {
-			[Class.DH     ] = new List<Spec> { Spec.DH_Vengeance, Spec.DH_Havoc    },
 			[Class.DK     ] = new List<Spec> { Spec.DK_Blood    , Spec.DK_Frost    , Spec.DK_Unholy      },
+			[Class.DH     ] = new List<Spec> { Spec.DH_Vengeance, Spec.DH_Havoc    },
 			[Class.Druid  ] = new List<Spec> { Spec.Druid_Bear  , Spec.Druid_Resto , Spec.Druid_Feral    , Spec.Druid_Balance },
 			[Class.Evoker ] = new List<Spec> { Spec.Evoker_Pres , Spec.Evoker_Dev  },
 			[Class.Hunter ] = new List<Spec> { Spec.Hunter_BM   , Spec.Hunter_MM   , Spec.Hunter_SV      },
@@ -49,10 +49,10 @@ static class ClassSpec {
 	// Parsing tables.
 	private static readonly IReadOnlyDictionary<Class, IReadOnlyList<string>> _dictClass =
 		new ConcurrentDictionary<Class, IReadOnlyList<string>>() {
-			[Class.DH     ] = new List<string> { "demon hunter", "demonhunter", "dh" },
 			[Class.DK     ] = new List<string> { "death knight", "deathknight", "dk" },
+			[Class.DH     ] = new List<string> { "demon hunter", "demonhunter", "dh" },
 			[Class.Druid  ] = new List<string> { "druid", "drood" },
-			[Class.Evoker ] = new List<string> { "evoker", "evoke" },
+			[Class.Evoker ] = new List<string> { "evoker", "voke" },
 			[Class.Hunter ] = new List<string> { "hunter", "hunt" },
 			[Class.Mage   ] = new List<string> { "mage" },
 			[Class.Monk   ] = new List<string> { "monk" },
@@ -65,20 +65,20 @@ static class ClassSpec {
 		};
 	private static readonly IReadOnlyDictionary<Spec, IReadOnlyList<string>> _dictSpec =
 		new ConcurrentDictionary<Spec, IReadOnlyList<string>>() {
-			[Spec.DH_Vengeance] = new List<string> { "vengeance", "vdh", "veng", "venge" },
-			[Spec.DH_Havoc    ] = new List<string> { "havoc" },
-
 			[Spec.DK_Blood ] = new List<string> { "blood", "bdk" },
 			[Spec.DK_Frost ] = new List<string> { "frost" },
 			[Spec.DK_Unholy] = new List<string> { "unholy", "uh" },
+
+			[Spec.DH_Vengeance] = new List<string> { "vengeance", "vdh", "veng", "venge" },
+			[Spec.DH_Havoc    ] = new List<string> { "havoc" },
 
 			[Spec.Druid_Bear   ] = new List<string> { "bear", "guardian" },
 			[Spec.Druid_Resto  ] = new List<string> { "rdruid", "resto", "restoration" },
 			[Spec.Druid_Feral  ] = new List<string> { "feral", "cat" },
 			[Spec.Druid_Balance] = new List<string> { "balance", "moonkin", "boomy", "boomkin" },
 
-			[Spec.Evoker_Pres] = new List<string> { "preservation", "preserve", "pres" },
-			[Spec.Evoker_Dev ] = new List<string> { "devastation", "devastate", "dev" },
+			[Spec.Evoker_Pres] = new List<string> { "preservation", "preserve", "pres", "prez" },
+			[Spec.Evoker_Dev ] = new List<string> { "devastation", "devastate", "dev", "deva" },
 
 			[Spec.Hunter_BM] = new List<string> { "beast mastery", "bm", "beast master", "beastmastery", "beastmaster" },
 			[Spec.Hunter_MM] = new List<string> { "marksman", "marks", "mm", "marksmanship" },
@@ -131,8 +131,8 @@ static class ClassSpec {
 
 	// Display names of classes/specs.
 	public static string Name(this Class @class) => @class switch {
-		Class.DH      => "Demon Hunter",
 		Class.DK      => "Death Knight",
+		Class.DH      => "Demon Hunter",
 		Class.Druid   => "Druid"  ,
 		Class.Evoker  => "Evoker" ,
 		Class.Hunter  => "Hunter" ,
@@ -147,12 +147,12 @@ static class ClassSpec {
 		_ => throw new ArgumentException("Unknown class.", nameof(@class)),
 	};
 	public static string Name(this Spec spec) => spec switch {
-		Spec.DH_Vengeance => "Vengeance",
-		Spec.DH_Havoc     => "Havoc"    ,
-
 		Spec.DK_Blood  => "Blood" ,
 		Spec.DK_Frost  => "Frost" ,
 		Spec.DK_Unholy => "Unholy",
+
+		Spec.DH_Vengeance => "Vengeance",
+		Spec.DH_Havoc     => "Havoc"    ,
 
 		Spec.Druid_Bear    => "Guardian"   ,
 		Spec.Druid_Resto   => "Restoration",
@@ -205,8 +205,8 @@ static class ClassSpec {
 
 	// Class colors.
 	public static DiscordColor Color(this Class @class) => @class switch {
-		Class.DH      => new ("#A330C9"),
 		Class.DK      => new ("#C41F3B"),
+		Class.DH      => new ("#A330C9"),
 		Class.Druid   => new ("#FF7D0A"),
 		Class.Evoker  => new ("#33937F"),
 		Class.Hunter  => new ("#ABD473"),
@@ -233,10 +233,10 @@ static class ClassSpec {
 	}
 	public static DiscordEmoji Emoji(this Class @class, GuildData erythro) {
 		ulong id = @class switch {
-			Class.DH      => id_e.dh     ,
 			Class.DK      => id_e.dk     ,
+			Class.DH      => id_e.dh     ,
 			Class.Druid   => id_e.druid  ,
-			//Class.Evoker  => id_e.evoker ,
+			Class.Evoker  => id_e.evoker ,
 			Class.Hunter  => id_e.hunter ,
 			Class.Mage    => id_e.mage   ,
 			Class.Monk    => id_e.monk   ,
@@ -255,12 +255,12 @@ static class ClassSpec {
 	public static Class GetClass(this Spec spec) =>
 		_specClasses[spec];
 	public static Role GetRole(this Spec spec) => spec switch {
-		Spec.DH_Vengeance => Role.Tank,
-		Spec.DH_Havoc     => Role.DPS ,
-
 		Spec.DK_Blood  => Role.Tank,
 		Spec.DK_Frost  => Role.DPS ,
 		Spec.DK_Unholy => Role.DPS ,
+
+		Spec.DH_Vengeance => Role.Tank,
+		Spec.DH_Havoc     => Role.DPS ,
 
 		Spec.Druid_Bear    => Role.Tank,
 		Spec.Druid_Resto   => Role.Heal,
