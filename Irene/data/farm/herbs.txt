@@ -1,0 +1,45 @@
+﻿!!! 2022-11-22 !!!
+
+# Shadowlands
+
+Death Blossom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_-misc_herb_deathblossom.jpg
+	guide: https://www.wow-professions.com/farming/death-blossom-farming
+	wh: https://www.wowhead.com/item=169701/death-blossom#comments
+	bastion_r1 >>> Bastion (route 1) >>> "I gathered the most Death Blossom using this route." >>> https://www.wow-professions.com/images/farmingmaps/death-blossom-bastion-route-1.jpg
+	bastion_r2 >>> Bastion (route 2) >>> "Not much worse from the first route, but you have to watch your HP while jumping down from the cliffs at the red lines. If you are not at full HP, you will probably die. I recommend using __Seraph Tenders__ if you don't have any self-heal or any way to prevent fall damage." >>> https://www.wow-professions.com/images/farmingmaps/death-blossom-bastion-route-2.jpg
+Rising Glory
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_risingglory.jpg
+	guide: https://www.wow-professions.com/farming/rising-glory-farming
+	wh: https://www.wowhead.com/item=168586/rising-glory#comments
+	bastion_r1 >>> Bastion (route 1) >>> "I gathered the most Rising Glory using this route." >>> https://www.wow-professions.com/images/farmingmaps/rising-glory-bastion-route-1.jpg
+	bastion_r2 >>> Bastion (route 2) >>> "Not much worse from the first route, but you have to watch your HP while jumping down from the cliffs at the red lines. If you are not at full HP you will probably die. I recommend using __Seraph Tenders__ if you don't have any self-heal, or any way to prevent fall damage." >>> https://www.wow-professions.com/images/farmingmaps/rising-glory-bastion-route-2.jpg
+Marrowroot
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_-misc_herb_marrowroot.jpg
+	guide: https://www.wow-professions.com/farming/marrowroot-farming
+	wh: https://www.wowhead.com/item=168589/marrowroot#comments
+	maldraxxus_r1 >>> Maldraxxus (route 1) >>> "There is not much difference between these two routes, I got around the same number of herbs on each route. Try both and use the one you prefer." >>> https://www.wow-professions.com/images/farmingmaps/marrowroot-maldraxxus-route-1.jpg
+	maldraxxus_r2 >>> Maldraxxus (route 2) >>> "There is not much difference between these two routes, I got around the same number of herbs on each route. Try both and use the one you prefer." >>> https://www.wow-professions.com/images/farmingmaps/marrowroot-maldraxxus-route-2.jpg
+Vigil's Torch
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_-misc_herb_ardenweald.jpg
+	guide: https://www.wow-professions.com/farming/vigils-torch-farming
+	wh: https://www.wowhead.com/item=170554/vigils-torch#comments
+	ardenweald_r1 >>> Ardenweald (route 1) >>> "I gathered the most Vigil's Torch by just simply doing a giant loop in the whole zone. There are a few dangerous parts with a lot of mobs, so *if you don't have the __Sky Golem__ mount, or you are not a druid, I would recommend trying Route 3 instead of this one*." >>> https://www.wow-professions.com/images/farmingmaps/vigils-torch-farming-ardenweald-route-1.jpg
+	ardenweald_r2 >>> Ardenweald (route 2) >>> "This is also a good route, but I got a bit fewer herbs overall. The __Sky Golem__ mount is highly recommended here too." >>> https://www.wow-professions.com/images/farmingmaps/vigils-torch-farming-ardenweald-route-2.jpg
+	ardenweald_r3 >>> Ardenweald (route 3) >>> "This route avoids almost all hostile mobs, I recommended this farming route for players without the __Sky Golem__ mount or players with bad gear." >>> https://www.wow-professions.com/images/farmingmaps/vigils-torch-farming-ardenweald-route-3.jpg
+Widowbloom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_bloodcup.jpg
+	guide: https://www.wow-professions.com/farming/widowbloom-farming
+	wh: https://www.wowhead.com/item=168583/widowbloom#comments
+	revendreth_r1 >>> Revendreth (route 1) >>> "I gathered the most Widowbloom by doing a loop in the lower part of Revendreth. There is a lift at the red line, so you have to wait for it to come up, or you can just jump down if you have any ability that you can use to survive the fall. Also, there are a few elite mobs before the lift, so if you are having trouble there, you can just go around that whole area skipping the lift and the elites." >>> https://www.wow-professions.com/images/farmingmaps/widowbloom-farming-revendreth-route-1.jpg
+	revendreth_r2 >>> Revendreth (route 2) >>> "This is also a good route, but I got a bit fewer herbs overall. The red line is filled with elites, you should only go there if you have a tanking spec *and* also a way to gather herbs while mounted. But even then you might die, so I usually just recommend skipping that part. There are also elites in the lower part that area, but they are much easier to avoid.\n\nThe red X is the location of __Stonehead__. This NPC won't let you pass, if you approach him, he will pick you up and throw you. But, there is a crack in the wall to the north where you can pass." >>> https://www.wow-professions.com/images/farmingmaps/widowbloom-farming-revendreth-route-2.jpg
+Nightshade
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_-misc_herb_nightshade.jpg
+	guide: https://www.wow-professions.com/farming/nightshade-farming
+	wh: https://www.wowhead.com/item=171315/nightshade#comments
+	maw_r1 >>> The Maw (route 1) >>> "This route avoids most areas with a high density of mobs, so most classes can use this route. There is usually only 1 or 2 mobs that you will have to fight at each herb." >>> https://www.wow-professions.com/images/farmingmaps/nightshade-farming-maw-route-1.jpg
+	maw_r2 >>> The Maw (route 2) >>> "This is basically the same route, but it goes through one extra area that has a lot of mobs. It's up to you to decide if it's worth to take the small detour to get those extra herbs." >>> https://www.wow-professions.com/images/farmingmaps/nightshade-farming-maw-route-2.jpg
+	bastion_r3 >>> Bastion (route 3) >>> "If you want to farm Nightshade outside of the Maw, you have to farm other herbs and hope they will respawn as Nightshade.\n\nI gathered the most herbs using this route." >>> https://www.wow-professions.com/images/farmingmaps/rising-glory-bastion-route-1.jpg
+	bastion_r4 >>> Bastion (route 4) >>> "If you want to farm Nightshade outside of the Maw, you have to farm other herbs and hope they will respawn as Nightshade.\n\nNot much worse from the first route, but you have to watch your HP while jumping down from the cliffs at the red lines. If you are not at full HP you will probably die. I recommend using __Seraph Tenders__ if you don't have any self-heal or any way to prevent fall damage." >>> https://www.wow-professions.com/images/farmingmaps/rising-glory-bastion-route-2.jpg
+	maldraxxus_r5 >>> Maldraxxus (route 5) >>> "If you want to farm Nightshade outside of the Maw, you have to farm other herbs and hope they will respawn as Nightshade." >>> https://www.wow-professions.com/images/farmingmaps/marrowroot-maldraxxus-route-1.jpg
+	maldraxxus_r6 >>> Maldraxxus (route 6) >>> "If you want to farm Nightshade outside of the Maw, you have to farm other herbs and hope they will respawn as Nightshade." >>> https://www.wow-professions.com/images/farmingmaps/marrowroot-maldraxxus-route-2.jpg

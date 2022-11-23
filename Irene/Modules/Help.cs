@@ -74,7 +74,7 @@ class Help {
 			{/*HelpText("boss-guide")*/ "[WIP]"}
 			
 			{flower} **Farming Guides** {flower}
-			{/*HelpText("farm-guide")*/ "[WIP]"}
+			{HelpText(Commands.Farm.Command_Farm)}
 			""",
 
 			$"""

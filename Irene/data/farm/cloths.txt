@@ -1,0 +1,16 @@
+﻿!!! 2022-11-22 !!!
+
+# Shadowlands
+
+Shrouded Cloth
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_tailoring_commoncloth.jpg
+	guide: https://www.wow-professions.com/farming/shrouded-cloth-farming
+	wh: https://www.wowhead.com/item=173202/shrouded-cloth#comments
+	revendreth_a1 >>> Revendreth (area 1) >>> "*Don't expect a lot of Shrouded Cloth if you farm without Tailoring.*\n\nYou can farm a lot of Shrouded Cloth from __Beleaguered Excavators__, __Excavation Enforcers__, __Nefarious Thugs__, and __Nefarious Collectors__ at Archivam in Revendreth. They are really close to each other, so you can make big pulls and AoE them down. The respawn rate is fast enough that you should never run out of mobs.\n\nThe only downside is that the Beleaguered Excavators are neutral so you can't pull them with your mount.\n\nYou can sell your stuff to __Nourman__ when your bags are full." >>> https://www.wow-professions.com/images/farmingmaps/shrouded-cloth-farming-revendreth-archivam.jpg
+	ardenweald_a2 >>> Ardenweald (area 2) >>> "*Don't expect a lot of Shrouded Cloth if you farm without Tailoring.*\n\n__Blighted Fadeblades__ and __Masked Soulsplitters__ respawn really fast around the marked area. They hit a bit harder than the previous mobs, but if you have good gear you can easily pull 8-10 together with your mount." >>> https://www.wow-professions.com/images/farmingmaps/shrouded-cloth-farming-ardenwald-tirna.jpg
+Lightless Silk
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_tailoring_uncommoncloth.jpg
+	guide: https://www.wow-professions.com/farming/lightless-silk-farming
+	wh: https://www.wowhead.com/item=173204/lightless-silk#comments
+	revendreth_a1 >>> Revendreth (area 1) >>> "*Don't expect a lot of Lightless Silk if you farm without Tailoring.*\n\nYou can farm a lot of Shrouded Cloth from __Beleaguered Excavators__, __Excavation Enforcers__, __Nefarious Thugs__, and __Nefarious Collectors__ at Archivam in Revendreth. They are really close to each other, so you can make big pulls and AoE them down. The respawn rate is fast enough that you should never run out of mobs.\n\nThe only downside is that the Beleaguered Excavators are neutral so you can't pull them with your mount.\n\nYou can sell your stuff to __Nourman__ when your bags are full." >>> https://www.wow-professions.com/images/farmingmaps/lightless-silk-farming-revendreth-archivam.jpg
+	ardenweald_a2 >>> Ardenweald (area 2) >>> "*Don't expect a lot of Lightless Silk if you farm without Tailoring.*\n\n__Blighted Fadeblades__ and __Masked Soulsplitters__ respawn really fast around the marked area. They hit a bit harder than the previous mobs, but if you have good gear you can easily pull 8-10 together with your mount." >>> https://www.wow-professions.com/images/farmingmaps/lightless-silk-farming-ardenwald-tirna.jpg
