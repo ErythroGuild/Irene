@@ -581,7 +581,8 @@ class Starboard {
 		HashSet<DiscordUser> users = new ();
 		foreach (Task<IReadOnlyList<DiscordUser>> task in tasks)
 			users.UnionWith(await task);
-		users.Remove(message.Author); // no exception if not found
+		// This is needed because member objects may not match users.
+		users.RemoveWhere((user) => user.Id == message.Author.Id);
 
 		// Return result.
 		return users.Count >= settings.Threshold;
