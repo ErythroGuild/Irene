@@ -26,8 +26,8 @@ class ClassDiscord : CommandHandler {
 				ApplicationCommandOptionType.String,
 				required: true,
 				new List<CommandOptionEnum> {
-					OptionFromClass(Class.DH     ),
 					OptionFromClass(Class.DK     ),
+					OptionFromClass(Class.DH     ),
 					OptionFromClass(Class.Druid  ),
 					OptionFromClass(Class.Evoker ),
 					OptionFromClass(Class.Hunter ),

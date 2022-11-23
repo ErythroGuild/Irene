@@ -4,8 +4,8 @@ namespace Irene.Modules;
 
 class ClassDiscord {
 	private const string
-		_urlDH      = @"https://discord.gg/felhammer"     ,
 		_urlDK      = @"https://discord.gg/acherus"       ,
+		_urlDH      = @"https://discord.gg/felhammer"     ,
 		_urlDruid   = @"https://discord.gg/dreamgrove"    ,
 		_urlEvoker  = @"https://discord.gg/evoker"        ,
 		_urlHunter  = @"https://discord.gg/trueshot"      ,
@@ -28,8 +28,8 @@ class ClassDiscord {
 			""";
 
 	public static string GetInvite(Class @class) => @class switch {
-		Class.DH      => _urlDH     ,
 		Class.DK      => _urlDK     ,
+		Class.DH      => _urlDH     ,
 		Class.Druid   => _urlDruid  ,
 		Class.Evoker  => _urlEvoker ,
 		Class.Hunter  => _urlHunter ,
