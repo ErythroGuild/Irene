@@ -1,0 +1,41 @@
+﻿!!! 2022-11-22 !!!
+
+# Shadowlands
+
+Pallid Bone
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_leatherworking_90_bone.jpg
+	guide: https://www.wow-professions.com/farming/pallid-bone-farming
+	wh: https://www.wowhead.com/item=172092/pallid-bone#comments
+	bastion_a1 >>> Bastion (area 1) >>> "Farming __Languishing Etherwyrms__ and __Starved Etherwyrms__ around the marked area is also a great way to get a lot of bones. They are needed in one of the starter quests in Bastion, which can be good if no one is skinning them." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-bastion-1.jpg
+	maldraxxus_a2 >>> Maldraxxus (area 2) >>> "Follow the red route and kill every __Neonate Bonetooth__, __Bloodskin Tauralus__, and __Furious Alphahoof__. These mobs have a bit more HP than other mobs, but you can often pull 6-7 together." >>> https://www.wow-professions.com/images/farmingmaps/pallid-bone-farming-maldraxxus-1.jpg
+Desolate Leather
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_leatherworking_90_leather.jpg
+	guide: https://www.wow-professions.com/farming/desolate-leather-farming
+	wh: https://www.wowhead.com/item=172089/desolate-leather#comments
+	bastion_a1 >>> Bastion (area 1) >>> "__Gilded Cloudstriders'__ respawn rate at the marked area is really fast and you can often pull 7-8 together. They spawn on both sides of the hill, so make sure to go to the other side too. " >>> https://www.wow-professions.com/images/farmingmaps/aethereal-meat-farming-bastion-1.jpg
+	bastion_a2 >>> Bastion (area 2) >>> "Farming __Languishing Etherwyrms__ and __Starved Etherwyrms__ around the marked area is also a great way to get a lot of leathers. They are needed in one of the starter quests in Bastion, which can be good if no one is skinning them." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-bastion-1.jpg
+	maldraxxus_a3 >>> Maldraxxus (area 3) >>> "Follow the red route and kill every __Neonate Bonetooth__, __Bloodskin Tauralus__, and __Furious Alphahoof__. These mobs have a bit more HP than other mobs, but you can often pull 6-7 together." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-maldraxxus-1.jpg
+	maldraxxus_a4 >>> Maldraxxus (area 4) >>> "Kill __Virulent Pests__ around the marked area. They are a bit spread apart, but the respawn rate is fast, you will never run out of mobs to kill." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-maldraxxus-2.jpg
+Heavy Desolate Leather
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_leatherworking_90_heavyleather.jpg
+	guide: https://www.wow-professions.com/farming/heavy-desolate-leather-farming
+	wh: https://www.wowhead.com/item=172096/heavy-desolate-leather#comments
+	bastion_a1 >>> Bastion (area 1) >>> "Farming __Languishing Etherwyrms__ and __Starved Etherwyrms__ around the marked area is also a great way to get a lot of leathers. They are needed in one of the starter quests in Bastion, which can be good if no one is skinning them." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-bastion-1.jpg
+	maldraxxus_a2 >>> Maldraxxus (area 2) >>> "Follow the red route and kill every __Neonate Bonetooth__, __Bloodskin Tauralus__, and __Furious Alphahoof__. These mobs have a bit more HP than other mobs, but you can often pull 6-7 together." >>> https://www.wow-professions.com/images/farmingmaps/heavy-desolate-leather-farming-maldraxxus-1.jpg
+	maldraxxus_a3 >>> Maldraxxus (area 3) >>> "Kill __Virulent Pests__ around the marked area. They are a bit spread apart, but the respawn rate is fast, you will never run out of mobs to kill." >>> https://www.wow-professions.com/images/farmingmaps/heavy-desolate-leather-farming-maldraxxus-2.jpg
+Callous Hide
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_leatherworking_90_leatherhide.jpg
+	guide: https://www.wow-professions.com/farming/callous-hide-farming
+	wh: https://www.wowhead.com/item=172094/callous-hide#comments
+	bastion_a1 >>> Bastion (area 1) >>> "__Gilded Cloudstriders'__ respawn rate at the marked area is really fast and you can often pull 7-8 together. They spawn on both sides of the hill, so make sure to go to the other side too." >>> https://www.wow-professions.com/images/farmingmaps/aethereal-meat-farming-bastion-1.jpg
+	bastion_a2 >>> Bastion (area 2) >>> "Farming __Languishing Etherwyrms__ and __Starved Etherwyrms__ around the marked area is also a great way to get a lot of leathers. They are needed in one of the starter quests in Bastion, which can be good if no one is skinning them." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-bastion-1.jpg
+	maldraxxus_a3 >>> Maldraxxus (area 3) >>> "Follow the red route and kill every __Neonate Bonetooth__, __Bloodskin Tauralus__, and __Furious Alphahoof__. These mobs have a bit more HP than other mobs, but you can often pull 6-7 together." >>> https://www.wow-professions.com/images/farmingmaps/callous-hide-farming-maldraxxus-1.jpg
+	maldraxxus_a4 >>> Maldraxxus (area 4) >>> "Kill __Virulent Pests__ around the marked area. They are a bit spread apart, but the respawn rate is fast, you will never run out of mobs to kill." >>> https://www.wow-professions.com/images/farmingmaps/callous-hide-farming-maldraxxus-2.jpg
+Heavy Callous Hide
+	Rare >>> https://wow.zamimg.com/images/wow/icons/large/inv_leatherworking_90_heavyleatherhide.jpg
+	guide: https://www.wow-professions.com/farming/heavy-callous-hide-farming
+	wh: https://www.wowhead.com/item=172097/heavy-callous-hide#comments
+	bastion_a1 >>> Bastion (area 1) >>> "__Gilded Cloudstriders'__ respawn rate at the marked area is really fast and you can often pull 7-8 together. They spawn on both sides of the hill, so make sure to go to the other side too." >>> https://www.wow-professions.com/images/farmingmaps/aethereal-meat-farming-bastion-1.jpg
+	bastion_a2 >>> Bastion (area 2) >>> "Farming __Languishing Etherwyrms__ and __Starved Etherwyrms__ around the marked area is also a great way to get a lot of leathers. They are needed in one of the starter quests in Bastion, which can be good if no one is skinning them." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-bastion-1.jpg
+	maldraxxus_a3 >>> Maldraxxus (area 3) >>> "Follow the red route and kill every __Neonate Bonetooth__, __Bloodskin Tauralus__, and __Furious Alphahoof__. These mobs have a bit more HP than other mobs, but you can often pull 6-7 together." >>> https://www.wow-professions.com/images/farmingmaps/heavy-callous-hide-farming-maldraxxus-1.jpg
+	maldraxxus_a4 >>> Maldraxxus (area 4) >>> "Kill __Virulent Pests__ around the marked area. They are a bit spread apart, but the respawn rate is fast, you will never run out of mobs to kill." >>> https://www.wow-professions.com/images/farmingmaps/heavy-callous-hide-farming-maldraxxus-2.jpg

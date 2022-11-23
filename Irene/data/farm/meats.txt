@@ -1,0 +1,44 @@
+﻿!!! 2022-11-22 !!!
+
+# Shadowlands
+
+Creeping Crawler Meat
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_cooking_90_creepingcrawlermeat.jpg
+	guide: https://www.wow-professions.com/farming/creeping-crawler-meat-farming
+	wh: https://www.wowhead.com/item=179314/creeping-crawler-meat#comments
+	maldraxxus_a1 >>> Maldraxxus (area 1) >>> "The best way to get a lot of Creeping Crawler Meat is farming __Sloughskin Nymph__ and __Devouring Sloughskin__ in Maldraxxus. The respawn rate of these are pretty fast, you will probably never run out of them, but they often spawn a bit far away from you, so sometimes you have to mount up to move to the other part of this area. The __Sloughskin Larva__ don't drop any meat, but you can't really avoid killing them.\n\nYou will also find a lot of __Ossein Drone__ and __Ossein Worker__ around this area, but you should mostly focus on the other mobs because it seems those have a higher drop rate." >>> https://www.wow-professions.com/images/farmingmaps/creeping-crawler-meat-farming-maldraxxus-1.jpg
+	ardenweald_a2 >>> Ardenweald (area 2) >>> "A good alternative farming place is farming __Gorm Harrier__ and __Mature Stellarwasp__ around this area." >>> https://www.wow-professions.com/images/farmingmaps/creeping-crawler-meat-farming-ardenweald-1.jpg
+	maldraxxus_a3 >>> Maldraxxus (area 3) >>> "This is also a good alternative. Kill __Virulent Pests__ around the marked area, they are a bit spread apart, but the respawn rate is fast, you will never run out of mobs to kill." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-maldraxxus-2.jpg
+Tenebrous Ribs
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_cooking_90_tenebrousribs.jpg
+	guide: https://www.wow-professions.com/farming/tenebrous-ribs-farming
+	wh: https://www.wowhead.com/item=172053/tenebrous-ribs#comments
+	maldraxxus_a1 >>> Maldraxxus (area 1) >>> "The best way to get a lot of Tenebrous Ribs is farming __Bloodtusk Alphas__ and __Predatory Bloodtusks__ at Maldraxxus. The respawn rate is not that fast, so you will have to make a larger loop around the area.\n\nThe __Tufted Bonesnout__ also drop Tenebrous Ribs, so make sure to kill those too when you see them, but there are only a few of them there." >>> https://www.wow-professions.com/images/farmingmaps/tenebrous-ribs-farming-maldraxxus-1.jpg
+	ardenweald_a2 >>> Ardenweald (area 2) >>> "This spot in Ardenweald is also a great place to farm Tenebrous Ribs. __Runestags__, and __Juvenile Runedeer__ both drop Tenebrous Ribs.\n\nIf you are farming meat for __Tenebrous Crown Roast Aspic__, you should also kill the __Greater Ardenmoth__ around this area because they drop __Creeping Crawler Meat__." >>> https://www.wow-professions.com/images/farmingmaps/tenebrous-ribs-farming-ardenweald-1.jpg
+	bastion_a3 >>> Bastion (area 3) >>> "I got a decent number of Tenebrous Ribs from farming any mobs that look like a horse around this area. The mobs are really spread apart and you have to move back and forth a lot, but I just simply haven't found a better farming alternative yet.\n\n:bbul: __Silverplume Grazer__\n:bbul: __Spirited Skymane__\n:bbul: __Swift Cloudracer__\n:bbul: __Burdened Stratosmare__" >>> https://www.wow-professions.com/images/farmingmaps/tenebrous-ribs-farming-bastion-1.jpg
+	bastion_a4 >>> Bastion (area 4) >>> "Same as the previous area, the mobs are really spread apart and you have to move back and forth a lot.\n\n:bbul: __Goldenback Grazer__\n:bbul: __Roaming Cloudracer__\n:bbul: __Wild Skymane__\n\nNote: __Gilded Cloudstriders__ and __Cloudstrider Grazer__ drop Aethereal Meat and not Tenebrous Ribs." >>> https://www.wow-professions.com/images/farmingmaps/tenebrous-ribs-farming-bastion-2.jpg
+Raw Seraphic Wing
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_food_46.jpg
+	guide: https://www.wow-professions.com/farming/raw-seraphic-wing-farming
+	wh: https://www.wowhead.com/item=172054/raw-seraphic-wing#comments
+	bastion_a1 >>> Bastion (area 1) >>> "The best way to get a lot of Raw Seraphic Wing is by farming __Anima-Starved Cloudfeather__ and __Anima-Starved Wyrm__ inside Kala's Den in Bastion. There are always at least 4-5 mobs up inside the cave, and a new one will instantly spawn if their numbers would go below that. Extremely good farming place, it actually might get nerfed.\n\n*Make sure that you also kill the __Anima-Starved Cloudfeather__ that sometimes patrols back and forth towards the cave's entrance. (It will force more mob spawns.)*" >>> https://www.wow-professions.com/images/farmingmaps/raw-seraphic-wing-farming-bastion-1.jpg
+	bastion_a2 >>> Bastion (area 2) >>> "Farming __Languishing Etherwyrms__ and __Starved Etherwyrms__ around the marked area is also a great place to farm Raw Seraphic Wing. The mobs are needed in one of the starter quests in Bastion." >>> https://www.wow-professions.com/images/farmingmaps/raw-seraphic-wing-farming-bastion-2.jpg
+Phantasmal Haunch
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_cooking_90_phantasmalhaunch.jpg
+	guide: https://www.wow-professions.com/farming/phantasmal-haunch-farming
+	wh: https://www.wowhead.com/item=172055/phantasmal-haunch#comments
+	ardenweald_a1 >>> Ardenweald (area 1) >>> "The best way to get a lot of Phantasmal Haunch is farming __Gorm Raveners__ northwest of Glitterfall Basin. They respawn extremely fast, and you can always pull at least 3 of them together. They hardly do any damage and they have low armor." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-ardenweald-1.jpg
+	maldraxxus_a2 >>> Maldraxxus (area 2) >>> "Follow the red route and kill every __Bloodskin Tauralus__ and __Furious Alphahoof__." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-maldraxxus-1.jpg
+Shadowy Shank
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_food_72.jpg
+	guide: https://www.wow-professions.com/farming/shadowy-shank-farming
+	wh: https://www.wowhead.com/item=179315/shadowy-shank#comments
+	ardenweald_a1 >>> Ardenweald (area 1) >>> "The best way to get a lot of Shadowy Shank is by farming __Gorm Raveners__ northwest of Glitterfall Basin. They respawn extremely fast, and you can always pull at least 3 of them together. They hardly do any damage and they have low armor." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-ardenweald-1.jpg
+	maldraxxus_a2 >>> Maldraxxus (area 2) >>> "Farming __Bloodtusk Alphas__ and __Predatory Bloodtusks__ at Maldraxxus is also a great farming place. The respawn rate is not that fast, so you will have to make a larger loop around the area.\n\nThe __Tufted Bonesnout__ also drops Shadowy Shanks, so make sure to kill those too when you see them, but there are only a few of them there." >>> https://www.wow-professions.com/images/farmingmaps/tenebrous-ribs-farming-maldraxxus-1.jpg
+	maldraxxus_a3 >>> Maldraxxus (area 3) >>> "Follow the red route and kill every __Bloodskin Tauralus__ and __Furious Alphahoof__." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-maldraxxus-1.jpg
+Aethereal Meat
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_cooking_90_aetherealmeat.jpg
+	guide: https://www.wow-professions.com/farming/aethereal-meat-farming
+	wh: https://www.wowhead.com/item=172052/aethereal-meat#comments
+	bastion_a1 >>> Bastion (area 1) >>> "The best way to get a lot of Aethereal Meat is farming __Gilded Cloudstriders__ in Bastion. The respawn is really fast, and you can often pull 7-8 together." >>> https://www.wow-professions.com/images/farmingmaps/aethereal-meat-farming-bastion-1.jpg
+	revendreth_a2 >>> Revendreth (area 2) >>> "You can also get Aethereal Meat from __Bonemauler Alphas__ and __Horrific Bonemaulers__ in Revendreth." >>> https://www.wow-professions.com/images/farmingmaps/aethereal-meat-farming-revendreth-1.jpg
