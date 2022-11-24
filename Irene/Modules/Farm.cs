@@ -100,7 +100,7 @@ class Farm {
 
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary($"Farming guide for: {material.Name}");
+		interaction.SetResponseSummary($"{material.Name}\n{embed.Description}");
 	}
 	
 	// Autocomplete valid options for a given query.
