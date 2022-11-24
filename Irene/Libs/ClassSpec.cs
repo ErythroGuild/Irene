@@ -12,7 +12,7 @@ static class ClassSpec {
 		DH_Vengeance, DH_Havoc    ,
 		Druid_Bear  , Druid_Resto , Druid_Feral   , Druid_Balance,
 		Evoker_Dev  , Evoker_Pres ,
-		Hunter_BM   , Hunter_MM   , Hunter_SV     ,
+		Hunter_SV   , Hunter_BM   , Hunter_MM     ,
 		Mage_Arcane , Mage_Fire   , Mage_Frost    ,
 		Monk_BRM    , Monk_MW     , Monk_WW       ,
 		Paladin_Prot, Paladin_Holy, Paladin_Ret   ,
@@ -31,7 +31,7 @@ static class ClassSpec {
 			[Class.DH     ] = new List<Spec> { Spec.DH_Vengeance, Spec.DH_Havoc    },
 			[Class.Druid  ] = new List<Spec> { Spec.Druid_Bear  , Spec.Druid_Resto , Spec.Druid_Feral    , Spec.Druid_Balance },
 			[Class.Evoker ] = new List<Spec> { Spec.Evoker_Pres , Spec.Evoker_Dev  },
-			[Class.Hunter ] = new List<Spec> { Spec.Hunter_BM   , Spec.Hunter_MM   , Spec.Hunter_SV      },
+			[Class.Hunter ] = new List<Spec> { Spec.Hunter_SV   , Spec.Hunter_BM   , Spec.Hunter_MM      },
 			[Class.Mage   ] = new List<Spec> { Spec.Mage_Arcane , Spec.Mage_Fire   , Spec.Mage_Frost     },
 			[Class.Monk   ] = new List<Spec> { Spec.Monk_BRM    , Spec.Monk_MW     , Spec.Monk_WW        },
 			[Class.Paladin] = new List<Spec> { Spec.Paladin_Prot, Spec.Paladin_Holy, Spec.Paladin_Ret    },
@@ -79,10 +79,10 @@ static class ClassSpec {
 
 			[Spec.Evoker_Pres] = new List<string> { "preservation", "preserve", "pres", "prez" },
 			[Spec.Evoker_Dev ] = new List<string> { "devastation", "devastate", "dev", "deva" },
-
+			
+			[Spec.Hunter_SV] = new List<string> { "survival", "sv", "surv" },
 			[Spec.Hunter_BM] = new List<string> { "beast mastery", "bm", "beast master", "beastmastery", "beastmaster" },
 			[Spec.Hunter_MM] = new List<string> { "marksman", "marks", "mm", "marksmanship" },
-			[Spec.Hunter_SV] = new List<string> { "survival", "sv", "surv" },
 
 			[Spec.Mage_Arcane] = new List<string> { "arcane" },
 			[Spec.Mage_Fire  ] = new List<string> { "fire" },
@@ -270,9 +270,9 @@ static class ClassSpec {
 		Spec.Evoker_Pres => Role.Heal,
 		Spec.Evoker_Dev  => Role.DPS ,
 
+		Spec.Hunter_SV => Role.DPS,
 		Spec.Hunter_BM => Role.DPS,
 		Spec.Hunter_MM => Role.DPS,
-		Spec.Hunter_SV => Role.DPS,
 
 		Spec.Mage_Arcane => Role.DPS,
 		Spec.Mage_Fire   => Role.DPS,
