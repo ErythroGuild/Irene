@@ -2,7 +2,7 @@
 
 namespace Irene.Modules;
 
-class Farm {
+partial class Farm {
 	public enum Quality {
 		Poor, Common, Uncommon, Rare, Epic,
 		Legendary, Artifact, Heirloom
@@ -23,6 +23,10 @@ class Farm {
 		string Comments,
 		string Image
 	);
+
+	// Selection menus, indexed by the ID of the message containing them.
+	// It is safe for a single user to have multiple open.
+	private static readonly ConcurrentDictionary<ulong, Selection> _selections = new ();
 
 	// A list of all normalized names to canonical names, for autocomplete.
 	// E.g.: zinanthid -> Zin'anthid
@@ -92,15 +96,32 @@ class Farm {
 	// The response has to occur here, in order to set the message promise
 	// for the select menu component (instead of in `Commands.Farm`).
 	public static async Task RespondAsync(Interaction interaction, Material material) {
-		DiscordEmbed embed = GetEmbed(material, material.Routes[0]);
+		// Create Farm.Selection interactable.
+		MessagePromise messagePromise = new ();
+		Selection selection = Selection.Create(
+			interaction,
+			messagePromise.Task,
+			material,
+			material.Routes[0]
+		);
 
+		// Respond to interaction.
 		DiscordMessageBuilder response =
-			new DiscordMessageBuilder()
-			.WithEmbed(embed);
+			GetMessage(material, material.Routes[0], selection);
+		// There's guaranteed to be at least one route, or the datafile
+		// was malformed and wouldn't have parsed.
 
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary($"{material.Name}\n{embed.Description}");
+		interaction.SetResponseSummary($"{material.Name}\n{response.Embed.Description}");
+
+		// Update message promise.
+		DiscordMessage message = await interaction.GetResponseAsync();
+		messagePromise.SetResult(message);
+
+		// Add interactable to global tracking table.
+		// (Removal happens inside interactable's own cleanup.)
+		_selections.TryAdd(message.Id, selection);
 	}
 	
 	// Autocomplete valid options for a given query.
@@ -139,6 +160,20 @@ class Farm {
 				builder.Append(c);
 		}
 		return builder.ToString();
+	}
+
+	// Get a message builder with an appropriately rendered embed page.
+	private static DiscordMessageBuilder GetMessage(
+		Material material,
+		Route route,
+		Selection selection
+	) {
+		DiscordEmbed embed = GetEmbed(material, route);
+		DiscordMessageBuilder response =
+			new DiscordMessageBuilder()
+			.WithEmbed(embed)
+			.AddComponents(selection.Component);
+		return response;
 	}
 
 	// Render an embed object for the given Material and Route.
