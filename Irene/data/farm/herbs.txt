@@ -153,3 +153,69 @@ Astral Glory
 	wh: https://www.wowhead.com/item=151565/astral-glory#comments
 	r1_krokuun >>> Route 1 - Krokuun >>> "This is the best place to farm, but there are a lot of mobs around the herbs in this zone, so make sure you get the recommended enchants/items!\n\nYou will only find Fel-Encrusted Herbs, but they drop Astral Glory." >>> https://www.wow-professions.com/images/farmingmaps/astral-glory-krokuun.jpg
 	r2_eredath >>> Route 2 - Eredath >>> "Not much worse from Krokuun but I got fewer herbs/hour here." >>> https://www.wow-professions.com/images/farmingmaps/astral-glory-mac-aree.jpg
+
+!!! 2022-11-24 !!!
+
+# Warlords of Draenor
+
+Frostweed
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_frostweed.jpg
+	guide: https://www.wow-professions.com/farming/frostweed-farming
+	wh: https://www.wowhead.com/item=109124/frostweed#comments
+	r1_frostfireridge >>> Route 1 - Frostfire Ridge >>> "" >>> https://www.wow-professions.com/images/farmingmaps/frostweed-frostfire.jpg
+	r2_shadowmoonvalley >>> Route 2 - Shadowmoon Valley >>> "" >>> https://www.wow-professions.com/images/farmingmaps/frostweed-shadowmoon.jpg
+Fireweed
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_fireweed.jpg
+	guide: https://www.wow-professions.com/farming/fireweed-farming
+	wh: https://www.wowhead.com/item=109125/fireweed#comments
+	r1_frostfireridge >>> Route 1 - Frostfire Ridge >>> "Frostfire Ridge is the best place where you can farm this herb. Fireweed grows near lava pools, so basically you have to travel between lava pools in Frostfire Ridge." >>> https://www.wow-professions.com/images/farmingmaps/fireweed-frostfire.jpg
+Starflower
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_starflower.jpg
+	guide: https://www.wow-professions.com/farming/starflower-farming
+	wh: https://www.wowhead.com/item=109127/starflower#comments
+	r1_shadowmoonvalley >>> Route 1 - Shadowmoon Valley >>> "" >>> https://www.wow-professions.com/images/farmingmaps/frostweed-shadowmoon.jpg
+Gorgrond Flytrap
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_flytrap.jpg
+	guide: https://www.wow-professions.com/farming/gorgrond-flytrap-farming
+	wh: https://www.wowhead.com/item=109126/gorgrond-flytrap#comments
+	r1_gorgrond >>> Route 1 - Gorgrond >>> "This herb is really hard to farm, you can only get it from one zone like most Draenor herbs, but there are a lot fewer spawn points for Gorgrond Flytrap than for the other herbs." >>> https://www.wow-professions.com/images/farmingmaps/gorgond-flytrap-gorgrond.jpg
+Talador Orchid
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_taladororchid.jpg
+	guide: https://www.wow-professions.com/farming/talador-orchid-farming
+	wh: https://www.wowhead.com/item=109129/talador-orchid#comments
+	r1_talador >>> Route 1 - Talador >>> "" >>> https://www.wow-professions.com/images/farmingmaps/talador-orchid-talador.jpg
+Nagrand Arrowbloom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_arrowbloom.jpg
+	guide: https://www.wow-professions.com/farming/nagrand-arrowbloom-farming
+	wh: https://www.wowhead.com/item=109128/nagrand-arrowbloom#comments
+	r1_nagrand >>> Route 1 - Nagrand >>> "" >>> https://www.wow-professions.com/images/farmingmaps/nagrand-arrowbloom-nagarand.jpg
+
+# Mists of Pandaria
+
+Green Tea Leaf
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_jadetealeaf.jpg
+	guide: https://www.wow-professions.com/farming/green-tea-leaf-farming
+	wh: https://www.wowhead.com/item=72234/green-tea-leaf#comments
+	r1_jadeforest >>> Route 1 - The Jade Forest >>> "The Jade Forest is the best place to farm Green Tea Leaf. I have two routes that I usually use, depending on how many players are farming in the zone. If you are the only one in the zone, then I recommend using the first route." >>> https://www.wow-professions.com/images/farmingmaps/green-tea-leaf-jade-forest1.jpg
+	r2_jadeforest >>> Route 2 - The Jade Forest >>> "The Jade Forest is the best place to farm Green Tea Leaf. I have two routes that I usually use, depending on how many players are farming in the zone. If you are the only one in the zone, then I recommend using the first route." >>> https://www.wow-professions.com/images/farmingmaps/green-tea-leaf-jade-forest2.jpg
+	r3_valleyofthefourwinds >>> Route 3 - Valley of the Four Winds >>> "Valley of the Four Winds is also a great place to farm this herb. The red route is called Skyrange, but you can only access it if you have flying, it's usually worth it to do a lap there while you farm in this zone." >>> https://www.wow-professions.com/images/farmingmaps/green-tea-leaf-valley-of-the-four-winds.jpg
+Rain Poppy
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_rainpoppy.jpg
+	guide: https://www.wow-professions.com/farming/rain-poppy-farming
+	wh: https://www.wowhead.com/item=72237/rain-poppy#comments
+	r1_jadeforest >>> Route 1 - The Jade Forest >>> "The Jade Forest is pretty much the best and only place to farm this herb. You can find Rain Poppy in Vale of Eternal Blossoms too, but there are so few of them, you will always have to wait for respawns. Rain Poppy can be found near water all over the zone, so you usually only have to look for places where there is water. For some reason it won't spawn on every part of the river, only on the parts I drew the route.\n\nThere is an Alliance town at Pearl Lake, so Horde players might not be able to pick every herb there, or you can just kill the elite guards, they are not hard to kill." >>> https://www.wow-professions.com/images/farmingmaps/rain-poppy-jade-forest.jpg
+Silkweed
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_silkweed.jpg
+	guide: https://www.wow-professions.com/farming/silkweed-farming
+	wh: https://www.wowhead.com/item=72235/silkweed#comments
+	r1_valleyofthefourwinds >>> Route 1 - Valley of the Four Winds >>> "Valley of the Four Winds is pretty much the best and only place to farm this herb. You can find Silkweed in a few other zones too, but there are so few of them, you will always have to wait for respawns." >>> https://www.wow-professions.com/images/farmingmaps/silkweed-valley-of-the-four-winds.jpg
+Snow Lily
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_snowlily.jpg
+	guide: https://www.wow-professions.com/farming/snow-lily-farming
+	wh: https://www.wowhead.com/item=79010/snow-lily#comments
+	r1_kunlaisummit >>> Route 1 - Kun-Lai Summit >>> "This herb grows at snow-covered areas and only Kun-Lai Summit has those, so basically this is the only zone where you can farm Snow Lily. You will find a few caves in the mountains, but I only recommend to go into the caves if you have some kind of sprint/stealth ability, or if someone else is farming in the zone." >>> https://www.wow-professions.com/images/farmingmaps/snow-lily-kun-lai-summit.jpg
+Fool's Cap
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_foolscap.jpg
+	guide: https://www.wow-professions.com/farming/fools-cap-farming
+	wh: https://www.wowhead.com/item=79011/fools-cap#comments
+	r1_dreadwastes >>> Route 1 - Dread Wastes >>> "This herb can be gathered near muddy areas in Dread Wastes and Townlong Steppes. Fool's Cap is pretty rare, so it's best to combine these two zones for farming. But if someone else is farming in the zones, you pretty much won't find a single herb because there are so few places where it spawns.\n\nWhile traveling in Dread Wastes, you should pick _Sha-Touched Herb_ as long as you can pick it without pulling a bunch of mobs. There is a 17% chance that it will contain Fool's Cap." >>> https://www.wow-professions.com/images/farmingmaps/fools-cap-townlong-dread.jpg

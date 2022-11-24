@@ -114,3 +114,32 @@ Empyrium
 	r1_antoranwastes >>> Route 1 - Antoran Wastes >>> "__Felfang Basilisks__ at Antoran Wastes drop 3-6 ore when you mine their corpses. This is currently the best way to farm Empyrium. The basilisks are all in the green lava that does a lot of damage if you walk into it. Fortunately, there are a lot of rocks there so you have to try to jump from rock to rock without touching the lava." >>> https://www.wow-professions.com/images/farmingmaps/empyrium-antoran-wastes-felfang-basilisk.jpg
 	r2_krokuun >>> Route 2 - Krokuun >>> "You will have to fight a lot of mobs in this zone. There is simply no way around killing the mobs, but there are some parts like Nath'raxas Hold at the most north part of the map where there are a lot more mobs than at other places. If you are struggling to mine there, you could just simply skip that part.\n\nIf you have a hunter, that's one of the best classes for farming, because you can use __Feign Death__ at almost every mining node, so you will have to kill a lot fewer mobs. Druids and rogues are also good because of stealth." >>> https://www.wow-professions.com/images/farmingmaps/empyrium-krokuun.jpg
 	r3_eredath >>> Route 3 - Eredath >>> "Not much worse from Krokuun, but I got fewer ores overall. The good thing about this place is that you have to fight a bit fewer mobs than at Krokuun." >>> https://www.wow-professions.com/images/farmingmaps/empyrium-mac-aree.jpg
+
+!!! 2022-11-24 !!!
+
+# Warlords of Draenor
+
+Blackrock Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_blackrock_ore.jpg
+	guide: https://www.wow-professions.com/farming/blackrock-ore-farming
+	wh: https://www.wowhead.com/item=109118/blackrock-ore#comments
+	r1_frostfireridge >>> Route 1 - Frostfire Ridge >>> "Frostfire Ridge is my favorite place to farm Blackrock Ore because it's a low level zone and you can mine most ore without having to kill any mobs." >>> https://www.wow-professions.com/images/farmingmaps/blackrock-ore-frostfire.jpg
+	r2_talador >>> Route 2 - Talador >>> "Talador is also really good, but it's a higher level zone, so lower level palyers should stick to Shadowmoon or Frostfire." >>> https://www.wow-professions.com/images/farmingmaps/blackrock-ore-talador.jpg
+	r3_shadowmoonvalley >>> Route 3 - Shadowmoon Valley >>> "Shadowmoon Valley is also a good place." >>> https://www.wow-professions.com/images/farmingmaps/blackrock-ore-shadowmoon.jpg
+True Iron Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_trueironore.jpg
+	guide: https://www.wow-professions.com/farming/true-iron-ore-farming
+	wh: https://www.wowhead.com/item=109119/true-iron-ore#comments
+	r1_frostfireridge >>> Route 1 - Frostfire Ridge >>> "Frostfire Ridge is my favorite place to farm True Iron Ore because it's a low-level zone and you can mine most ore without having to kill any mobs." >>> https://www.wow-professions.com/images/farmingmaps/true-iron-ore-frostfire.jpg
+	r2_talador >>> Route 2 - Talador >>> "Talador is also really good, but it's a higher level zone, so lower level players should stick to Shadowmoon or Frostfire." >>> https://www.wow-professions.com/images/farmingmaps/true-iron-ore-talador.jpg
+	r3_shadowmoonvalley >>> Route 3 - Shadowmoon Valley >>> "Shadowmoon Valley is also a good place." >>> https://www.wow-professions.com/images/farmingmaps/true-iron-ore-shadowmoon.jpg
+
+# Mists of Pandaria
+
+Ghost Iron Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_ghostiron.jpg
+	guide: https://www.wow-professions.com/farming/ghost-iron-ore-farming
+	wh: https://www.wowhead.com/item=72092/ghost-iron-ore#comments
+	r1_valleyofthefourwinds >>> Route 1 - Valley of the Four Winds >>> "Valley of the Four Winds is the best place to farm Ghost Iron Ore, but sometimes it can get a bit busy because of the Tiller daily quests." >>> https://www.wow-professions.com/images/farmingmaps/ghost-iron-valley-four-wind.jpg
+	r2_jadeforest >>> Route 2 - The Jade Forest >>> "Jade Forest is also a great place to farm." >>> https://www.wow-professions.com/images/farmingmaps/ghost-iron-jade-forest.jpg
+	r3_townlongsteppes >>> Route 3 - Townlong Steppes >>> "Townlong Steppes is another great place, there is usually very few people farming in this zone." >>> https://www.wow-professions.com/images/farmingmaps/ghost-iron-townlong-steppes.jpg
