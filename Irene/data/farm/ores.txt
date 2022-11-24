@@ -89,3 +89,28 @@ Osmenite Ore
 	wh: https://www.wowhead.com/item=168185/osmenite-ore#comments
 	r1_nazjatar >>> Route 1 - Nazjatar >>> "I got the most Osmenite Ore following this route. Don't forget to check the caves marked with red Xs, sometimes the ores are deep inside the cave and you can't see them on your map until you go inside.\n\nA bunch of mobs will be everywhere, so it's pretty bad to farm this ore until you get flying. Use the recommended enchants or you will get dismounted every second." >>> https://www.wow-professions.com/images/farmingmaps/osmenite-ore-nazjatar1.jpg
 	r2_nazjatar >>> Route 2 - Nazjatar >>> "This is basically just a route that loops around the area that's not covered by route 1. This is not as good as the first one, but you can expect a lot of people farming route 1, so you could give this a try." >>> https://www.wow-professions.com/images/farmingmaps/osmenite-ore-nazjatar2.jpg
+
+# Legion
+
+Leystone Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_leystone.jpg
+	guide: https://www.wow-professions.com/farming/leystone-ore-farming
+	wh: https://www.wowhead.com/item=123918/leystone-ore#comments
+	r1_valsharah >>> Route 1 - Val'sharah >>> "This is the route I use the most because you can avoid most mobs, and there is not that much vertical up and down movement in the zone compared to something like Highmountain." >>> https://www.wow-professions.com/images/farmingmaps/leystone-valsharah.jpg
+	r2_suramar >>> Route 2 - Suramar >>> "Suramar is a level 110 zone, so you can't farm here at lower levels." >>> https://www.wow-professions.com/images/farmingmaps/leystone-suramar.jpg
+	r3_azsuna >>> Route 3 - Azsuna >>> "There are a bunch of __Lagoon Basilisks__ at Azsuna that you can kill and then mine Leystone Ores from their corpses. The respawn rate is fast enough for farming here without downtime.\n\nThe downsides are that you won't get any Felslate here, unless you have the shoulder enchant, and the place might not work if more than one player tries to farm there.\n\nYou can't mine the mobs if someone else is tagging them but refuses to loot them!" >>> https://www.wow-professions.com/images/farmingmaps/leystone-azsuna.jpg
+Felslate
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_felslate.jpg
+	guide: https://www.wow-professions.com/farming/felslate-farming
+	wh: https://www.wowhead.com/item=123919/felslate#comments
+	r1_brokenshore >>> Route 1 - Broken Shore >>> "This is the best place to farm Felslate. There are always a few __Stoneblood Basilisks__ up at the marked area, so you should have no downtime. You can mine the basilisks after you kill them and they drop Felslate." >>> https://www.wow-professions.com/images/farmingmaps/felslate-broken-shore.jpg
+	r2_suramar >>> Route 2 - Suramar >>> "Similar to the previous place, but the basilisks are a bit more spread apart. There are always a few __Felfire Basilisks__ up at the marked area, so you should have no downtime." >>> https://www.wow-professions.com/images/farmingmaps/felslate-suramar.jpg
+	r3_valsharah >>> Route 3 - Val'sharah >>> "If for some reason you can't farm at the two previous places, then you can also try mining Felslate. But it's a rare spawn of Leystone, so you will mainly find Leystone." >>> https://www.wow-professions.com/images/farmingmaps/felslate-valsharah.jpg
+	r4_suramar >>> Route 4 - Suramar >>> "Same as above, you will mainly find Leystone. Suramar is a level 110 zone, so you can't farm here at lower levels." >>> https://www.wow-professions.com/images/farmingmaps/felslate-suramar2.jpg
+Empyrium
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_starmetal.jpg
+	guide: https://www.wow-professions.com/farming/empyrium-ore-farming
+	wh: https://www.wowhead.com/item=151564/empyrium#comments
+	r1_antoranwastes >>> Route 1 - Antoran Wastes >>> "__Felfang Basilisks__ at Antoran Wastes drop 3-6 ore when you mine their corpses. This is currently the best way to farm Empyrium. The basilisks are all in the green lava that does a lot of damage if you walk into it. Fortunately, there are a lot of rocks there so you have to try to jump from rock to rock without touching the lava." >>> https://www.wow-professions.com/images/farmingmaps/empyrium-antoran-wastes-felfang-basilisk.jpg
+	r2_krokuun >>> Route 2 - Krokuun >>> "You will have to fight a lot of mobs in this zone. There is simply no way around killing the mobs, but there are some parts like Nath'raxas Hold at the most north part of the map where there are a lot more mobs than at other places. If you are struggling to mine there, you could just simply skip that part.\n\nIf you have a hunter, that's one of the best classes for farming, because you can use __Feign Death__ at almost every mining node, so you will have to kill a lot fewer mobs. Druids and rogues are also good because of stealth." >>> https://www.wow-professions.com/images/farmingmaps/empyrium-krokuun.jpg
+	r3_eredath >>> Route 3 - Eredath >>> "Not much worse from Krokuun, but I got fewer ores overall. The good thing about this place is that you have to fight a bit fewer mobs than at Krokuun." >>> https://www.wow-professions.com/images/farmingmaps/empyrium-mac-aree.jpg

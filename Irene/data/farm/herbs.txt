@@ -112,3 +112,44 @@ Zin'anthid
 	wh: https://www.wowhead.com/item=168487/zinanthid#comments
 	r1_nazjatar >>> Route 1 - Nazjatar >>> "I got the most Zin'anthid following this route. A bunch of mobs will be everywhere, so it's pretty bad to farm this herb until you get flying. Use the recommended enchants or you will get dismounted every second." >>> https://www.wow-professions.com/images/farmingmaps/zin-anthid-nazjatar1.jpg
 	r2_nazjatar >>> Route 2 - Nazjatar >>> "This is basically just a route that loops around the area that's not covered by route 1. This is not as good as the first one, but you can expect a lot of people farming route 1, so you could give this a try." >>> https://www.wow-professions.com/images/farmingmaps/zin-anthid-nazjatar2.jpg
+
+# Legion
+
+Aethril
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_herbalism_70_aethril.jpg
+	guide: https://www.wow-professions.com/farming/aethril-farming
+	wh: https://www.wowhead.com/item=124101/aethril#comments
+	r1_azsuna >>> Route 1 - Azsuna >>> "Aethril can only be found in Azsuna. This route below is pretty easy to follow since it follows one of the main roads in the zone. This herb is probably one of the easiest to farm because you can avoid most mobs while you follow the road. Sometimes a __Withered Hungerer__ will spawn when you pick this herb, they drop 7-11 Aethril.\n\nThis route is for players without flying." >>> https://www.wow-professions.com/images/farmingmaps/aethril-azsuna.jpg
+	r2_azsuna >>> Route 2 - Azsuna >>> "If you have flying and use the recommended enchants, you might farm too fast and you need to take a bigger loop around the zone to allow the herbs to respawn. So use this map below." >>> https://www.wow-professions.com/images/farmingmaps/aethril-azsuna2.jpg
+Dreamleaf
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_herbalism_70_dreamleaf.jpg
+	guide: https://www.wow-professions.com/farming/dreamleaf-farming
+	wh: https://www.wowhead.com/item=124102/dreamleaf#comments
+	r1_valsharah >>> Route 1 - Val'sharah >>> "The best way to farm Dreamleaf is to kill __Vilepetal Rooters__ and gather herbs from their corpses. You can also gather Dreamleaf from the corpses of __Defiled Grovewalkers__ but the drop rate is a lot lower." >>> https://www.wow-professions.com/images/farmingmaps/dreamleaf-valsharah2.jpg
+	r2_valsharah >>> Route 2 - Val'sharah >>> "Sometimes a __Nightmare Creeper__ will spawn when you pick this herb, you should always kill them since they drop 7-11 Dreamleaf.\n\nThis route is for players without flying." >>> https://www.wow-professions.com/images/farmingmaps/dreamleaf-valsharah.jpg
+	r3_valsharah >>> Route 3 - Val'sharah >>> "If you have flying and use the recommended enchants, you might farm too fast and you need to take a bigger loop around the zone to allow the herbs to respawn. So use this map below." >>> https://www.wow-professions.com/images/farmingmaps/dreamleaf-valsharah3.jpg
+Foxflower
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_herbalism_70_foxflower.jpg
+	guide: https://www.wow-professions.com/farming/foxflower-farming
+	wh: https://www.wowhead.com/item=124103/foxflower#comments
+	r1_highmountain >>> Route 1 - Highmountain >>> "The layout of this zone is really bad for farming herbs because there are a lot of mobs you can't avoid, and there are mountains everywhere. It will take a few laps in the zone until you learn this farming route.\n\nDon't forget to use the __Majestic Elderhorn Hoof__ if you have it (30% increased mount speed for 10 minutes, but it doesn't stack with __Leystone Hoofplates__). It's dropped by __Majestic Elderhorn__.\n\n__Important!__ A fox can spawn and start runing away while leaving Foxflowers on the ground. You have to run over them to loot them.\n\nThis route and the next one are for players without flying." >>> https://www.wow-professions.com/images/farmingmaps/foxflower-highmountain2.jpg
+	r2_highmountain >>> Route 2 - Highmountain >>> "The two red Xs are flight paths, so once you reach the end of the path at Felbane Camp, fly to Prepfoot, then there is a path where you can get down to the foot of the mountain. Blind Marshlands is a level 110 area, so lower levels should skip that part and just head to Felbane Camp right away." >>> https://www.wow-professions.com/images/farmingmaps/foxflower-highmountain3.jpg
+	r3_highmountain >>> Route 3 - Highmountain >>> "If you have flying and use the recommended enchants, you might farm too fast and you need to take a bigger loop around the zone to allow the herbs to respawn. So use this map below." >>> https://www.wow-professions.com/images/farmingmaps/foxflower-highmountain4.jpg
+Fjarnskaggl
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_herbalism_70_fjarnskaggl.jpg
+	guide: https://www.wow-professions.com/farming/fjarnskaggl-farming
+	wh: https://www.wowhead.com/item=124104/fjarnskaggl#comments
+	r1_stormheim >>> Route 1 - Stormheim >>> "Every other herb in the Broken Isle has a chance to spawn a creature that gives you more herbs, but it seems Fjarnskaggl doesn't spawn anything.\n\nThis is the best farming route, but if someone is already farming there, then you should try the alternative route below.\n\nYou will pass a small Horde camp while you follow this route, so if you have an Alliance character, just stick to the right side of the hill and you won't get attacked by the guards." >>> https://www.wow-professions.com/images/farmingmaps/fjarnskaggl-stormheim2.jpg
+	r2_stormheim >>> Route 2 - Stormheim >>> "This route is not bad, but it can be really hard to farm here if you don't have the __Sky Golem__ mount or don't use __Demonsteel Stirrups__ because there are a lot of parts where you can't avoid aggroing a bunch of mobs." >>> https://www.wow-professions.com/images/farmingmaps/fjarnskaggl-stormheim3.jpg
+Starlight Rose
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_herbalism_70_starlightrosepetals.jpg
+	guide: https://www.wow-professions.com/farming/starlight-rose-farming
+	wh: https://www.wowhead.com/item=124105/starlight-rose#comments
+	r1_suramar >>> Route 1 - Suramar >>> "*Gathering Starlight Rose may fail and you will only get __Starlight Rosedust__. This depends on your rank, and not your herbalism skill.*\n\nPretty easy to follow route, but it takes a few laps until you learn how to avoid most mobs. __Withered Hungerer__ can spawn while you gather this herb, and you should always kill them since they drop 4-6 Starlight Rose.\n\nYou can turn off __Mana Divining Stone__ by right clicking on the buff. I usually turn it off because it's really annoying while farming.\n\nThis route is for players without flying." >>> https://www.wow-professions.com/images/farmingmaps/starlight-rose-suramar.jpg
+	r2_suramar >>> Route 2 - Suramar >>> "*Gathering Starlight Rose may fail and you will only get __Starlight Rosedust__. This depends on your rank, and not your herbalism skill.*\n\nIf you have flying and use the recommended enchants, you might farm too fast and you need to take a bigger loop around the zone to allow the herbs to respawn. So use this map below." >>> https://www.wow-professions.com/images/farmingmaps/starlight-rose-suramar2.jpg
+Astral Glory
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_astralglory.jpg
+	guide: https://www.wow-professions.com/farming/astral-glory-farming
+	wh: https://www.wowhead.com/item=151565/astral-glory#comments
+	r1_krokuun >>> Route 1 - Krokuun >>> "This is the best place to farm, but there are a lot of mobs around the herbs in this zone, so make sure you get the recommended enchants/items!\n\nYou will only find Fel-Encrusted Herbs, but they drop Astral Glory." >>> https://www.wow-professions.com/images/farmingmaps/astral-glory-krokuun.jpg
+	r2_eredath >>> Route 2 - Eredath >>> "Not much worse from Krokuun but I got fewer herbs/hour here." >>> https://www.wow-professions.com/images/farmingmaps/astral-glory-mac-aree.jpg
