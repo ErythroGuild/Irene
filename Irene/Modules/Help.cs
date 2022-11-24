@@ -33,12 +33,12 @@ class Help {
 			{flower} **About** {flower}
 			{HelpText(Commands.About.Command_About)}
 
-			{flower} **Audit Logs** {flower}
-			{/*HelpText("audit-log")*/ "[WIP]"}
-
 			{flower} **Discord Servers** {flower}
 			{HelpText(Commands.Invite.Command_Invite)}
 			{HelpText(Commands.ClassDiscord.Command_ClassDiscord)}
+
+			{flower} **Suggestions** {flower}
+			{/*HelpText("suggest")*/ "[WIP]"}
 			""",
 
 			$"""
@@ -82,6 +82,7 @@ class Help {
 			{HelpText(Commands.Cap.Command_Cap)}
 			{/*HelpText("emissaries")*/ "[WIP]"}
 			{/*HelpText("assaults")*/ "[WIP]"}
+			{HelpText(Commands.WowToken.Command_WowToken)}
 			
 			{flower} **Solvers** {flower}
 			{/*HelpText("solve")*/ "[WIP]"}
@@ -91,6 +92,11 @@ class Help {
 			{flower} **Awards** {flower}
 			{/*HelpText("commend")*/ "[WIP]"}
 			{HelpText(Commands.Starboard.Command_BestOf)}
+			""",
+
+			$"""
+			{flower} **Audit Logs** {flower}
+			{/*HelpText("audit-log")*/ "[WIP]"}
 			
 			{flower} **Moderation** {flower}
 			{/*HelpText("move-post")*/ "[WIP]"}
