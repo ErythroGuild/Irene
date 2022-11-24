@@ -82,6 +82,7 @@ class Help {
 			{HelpText(Commands.Cap.Command_Cap)}
 			{/*HelpText("emissaries")*/ "[WIP]"}
 			{/*HelpText("assaults")*/ "[WIP]"}
+			{HelpText(Commands.WowToken.Command_WowToken)}
 			
 			{flower} **Solvers** {flower}
 			{/*HelpText("solve")*/ "[WIP]"}

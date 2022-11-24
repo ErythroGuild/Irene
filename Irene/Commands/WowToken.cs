@@ -25,7 +25,6 @@ class WowToken : CommandHandler {
 		$"""
 		{Command.Mention(Command_WowToken)} `[{Arg_Region}]` shows the latest token price.
 		    If no region is specified, defaults to US prices.
-		    Data from `wowtokenprices.com`.
 		""";
 
 	public override CommandTree CreateTree() => new (
