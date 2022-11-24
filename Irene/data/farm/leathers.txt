@@ -39,3 +39,51 @@ Heavy Callous Hide
 	bastion_a2 >>> Bastion (area 2) >>> "Farming __Languishing Etherwyrms__ and __Starved Etherwyrms__ around the marked area is also a great way to get a lot of leathers. They are needed in one of the starter quests in Bastion, which can be good if no one is skinning them." >>> https://www.wow-professions.com/images/farmingmaps/desolate-leather-farming-bastion-1.jpg
 	maldraxxus_a3 >>> Maldraxxus (area 3) >>> "Follow the red route and kill every __Neonate Bonetooth__, __Bloodskin Tauralus__, and __Furious Alphahoof__. These mobs have a bit more HP than other mobs, but you can often pull 6-7 together." >>> https://www.wow-professions.com/images/farmingmaps/heavy-callous-hide-farming-maldraxxus-1.jpg
 	maldraxxus_a4 >>> Maldraxxus (area 4) >>> "Kill __Virulent Pests__ around the marked area. They are a bit spread apart, but the respawn rate is fast, you will never run out of mobs to kill." >>> https://www.wow-professions.com/images/farmingmaps/heavy-callous-hide-farming-maldraxxus-2.jpg
+
+!!! 2022-11-23 !!!
+
+# Battle for Azeroth
+
+Shimmerscale
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_skinning_80_shimmerscale.jpg
+	guide: https://www.wow-professions.com/farming/shimmerscale-farming
+	wh: https://www.wowhead.com/item=153050/shimmerscale#comments
+	voldun_a1 >>> Vol'dun (area 1) >>> "__Saltspine Krolusks__ at the marked area respawn extremely quickly, you will never run out of them.\n\nThis place gets even better when the zone is under assault. These mobs are required to complete one of the world quests, so you can basically just run around and skin all the dead mobs that other players didn't skin." >>> https://www.wow-professions.com/images/farmingmaps/shimmerscale-voldun-2.jpg
+	voldun_a2 >>> Vol'dun (area 2) >>> "Kill __Scaleclaw Saurolisks__ around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/shimmerscale-voldun-s.jpg
+	tiragardesound_a3 >>> Tiragarde Sound (area 3) >>> "Kill __Venomspine Saurolisks__ around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/shimmerscale-tiragarde-s.jpg
+	drustvar_a4 >>> Drustvar (area 4) >>> "Kill __Shallows Saurolisks__ around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/shimmerscale-dustvar-s.jpg
+Mistscale
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_skinning_80_mistscale.jpg
+	guide: https://www.wow-professions.com/farming/mistscale-farming
+	wh: https://www.wowhead.com/item=153051/mistscale#comments
+	voldun_a1 >>> Vol'dun (area 1) >>> "__Saltspine Krolusks__ at the marked area respawn extremely quickly, you will never run out of them.\n\nThis place gets even better when the zone is under assault. These mobs are required to complete one of the world quests, so you can basically just run around and skin all the dead mobs that other players didn't skin." >>> https://www.wow-professions.com/images/farmingmaps/shimmerscale-voldun-2.jpg
+	voldun_a2 >>> Vol'dun (area 2) >>> "Kill __Scaleclaw Saurolisks__ around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/mistscale-voldun-s.jpg
+	tiragardesound_a3 >>> Tiragarde Sound (area 3) >>> "Kill __Venomspine Saurolisks__ around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/mistscale-tiragarde-s.jpg
+	drustvar_a4 >>> Drustvar (area 4) >>> "Kill __Shallows Saurolisks__ around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/mistscale-dustvar-s.jpg
+Coarse Leather
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_skinning_80_coarseleather.jpg
+	guide: https://www.wow-professions.com/farming/coarse-leather-farming
+	wh: https://www.wowhead.com/item=152541/coarse-leather#comments
+	drustvar_a1 >>> Drustvar (area 1) >>> "There are always at least 4-5 __Scavenging Boars__ up at Hocking's Plot." >>> https://www.wow-professions.com/images/farmingmaps/coarse-leather-dustvar-boars-s.jpg
+	zuldazar_a2 >>> Zuldazar (area 2) >>> "Kill __Da'kani Pugilists__ and other gorillas around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/coarse-leather-zuldazar-gorillas-s.jpg
+Tempest Hide
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_skinning_80_tempesthide.jpg
+	guide: https://www.wow-professions.com/farming/tempest-hide-farming
+	wh: https://www.wowhead.com/item=154722/tempest-hide#comments
+	drustvar_a1 >>> Drustvar (area 1) >>> "There are always at least 4-5 __Scavenging Boars__ up at Hocking's Plot." >>> https://www.wow-professions.com/images/farmingmaps/tempest-hide-dustvar-boars-s.jpg
+	zuldazar_a2 >>> Zuldazar (area 2) >>> "Kill __Da'kani Pugilists__ and other gorillas around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/tempest-hide-zuldazar-gorillas-s.jpg
+Cragscale
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_skinning_80_shimmerscale.jpg
+	guide: https://www.wow-professions.com/farming/cragscale-farming
+	wh: https://www.wowhead.com/item=168650/cragscale#comments
+	nazjatar_a1 >>> Nazjatar (area 1) >>> "The best place to farm Cragscale is at the Forgotten Tunnel in Nazjatar. The __Deeptide Frenzy__ in the small lake has a fast respawn rate." >>> https://www.wow-professions.com/images/farmingmaps/cragscale-nazjatar1.jpg
+	nazjatar_a2 >>> Nazjatar (area 2) >>> "Kill __Abyssal Eels__, __Coral Slitherers__, __Deeptide Frenzy__ and __Razorshell Turtles__ around the marked areas.\n\nWhile I was farming there, the respawn rate was fast enough that I could just farm at the area marked with number one, but if you are killing the mobs too fast you have to move between the two areas (kill turtles along the way between the two).\n\nThe small __Abyssal Spawns__ don't drop any leather." >>> https://www.wow-professions.com/images/farmingmaps/cragscale-nazjatar2.jpg
+	nazjatar_a3 >>> Nazjatar (area 3) >>> "Kill all kinds of beasts around the marked area. You can't skin the baby turtles and the crabs, so skip them if possible." >>> https://www.wow-professions.com/images/farmingmaps/cragscale-nazjatar3.jpg
+	nazjatar_a4 >>> Nazjatar (area 4) >>> "I only recommend this to ranged classes.\n\nKill __Coral Skates__, __Fathom Rays__ and __Fathom Ray Broodkeepers__ around the marked area. They are mostly up in the air, so you have to look up to pull them." >>> https://www.wow-professions.com/images/farmingmaps/cragscale-nazjatar4.jpg
+Dredged Leather
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_startannedleather.jpg
+	guide: https://www.wow-professions.com/farming/dredged-leather-farming
+	wh: https://www.wowhead.com/item=168649/dredged-leather
+	nazjatar_a1 >>> Nazjatar (area 1) >>> "There are all kinds of Snapdragons around the marked area, all of them drop Dredged Leather (except the baby snapdragons). A lot of them are elites, but they are pretty easy to kill if you have decent gear.\n\nIf you haven't finished the __Snap Back__ quest, then you should pick it up from __Collector Kojo__. You will get a scroll from the quest that allows you to kill elite Snapdragons much faster. So if you don't turn in the quest, you can drastically increase your skinning rate." >>> https://www.wow-professions.com/images/farmingmaps/dredged-leather-nazjatar1.jpg
+	valeofeternalblossoms_a2 >>> Vale of Eternal Blossoms (area 2) >>> "Kill __Thundermaws__ around the marked area." >>> https://www.wow-professions.com/images/farmingmaps/dredged-leather-vale-eternal-blossoms.jpg
+	nazjatar_a3 >>> Nazjatar (area 3) >>> "When you first go to this area, there will be a lot of Nagas there, but once you kill all of them, they won't respawn as fast as the __Savage Snapdragons__. It seems there is always at least 3-4 __Savage Snapdragons__ at this area, so once you clear the Nagas there will be mostly Snapdragons there. They are a bit spread apart so you have to move a lot." >>> https://www.wow-professions.com/images/farmingmaps/dredged-leather-nazjatar2.jpg

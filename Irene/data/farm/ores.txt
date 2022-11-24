@@ -45,3 +45,47 @@ Elethium Ore
 	bastion_r4 >>> Bastion (route 4) >>> "I think this area is also going to get nerfed, it just seems too good.\n\n*This area will be filled with friendly mobs and no mining nodes until you progress your Bastion Story Campaign quests!*\n\nThe mining nodes respawn really quickly on this route, but there are a lot of hostile mobs guarding the mining nodes, so you will still need somewhat decent gear to kill the mobs. Check the other two routes if you can't handle the mobs (or if this route got nerfed)." >>> https://www.wow-professions.com/images/farmingmaps/laestrite-farming-bastion-route-1.jpg
 	bastion_r5 >>> Bastion (route 5) >>> "Really good route, you can avoid fighting most mobs." >>> https://www.wow-professions.com/images/farmingmaps/laestrite-farming-bastion-route-2.jpg
 	bastion_r6 >>> Bastion (route 6) >>> "This is a good alternative if there are a lot of players farming on the other routes." >>> https://www.wow-professions.com/images/farmingmaps/laestrite-farming-bastion-route-3.jpg
+
+!!! 2022-11-23 !!!
+
+# Battle for Azeroth
+
+Monelite Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_monalite.jpg
+	guide: https://www.wow-professions.com/farming/monelite-ore-farming
+	wh: https://www.wowhead.com/item=152512/monelite-ore#comments
+	nazmir_r1 >>> Nazmir (route 1) >>> "A waterwalking mount, or any waterwalking ability will make you farm in this zone a lot faster. If you notice that you farm too fast, and the nodes are not respawning, you can take a bigger loop in the zone and follow the red route, but the respawn rate should be fast enough on the yellow route." >>> https://www.wow-professions.com/images/farmingmaps/monelite-ore-nazmir-s.jpg
+	drustvar_r2 >>> Drustvar (route 2) >>> "If you notice that you farm too fast, and the nodes are not respawning, you can take a bigger loop in the zone and follow the red route, but the respawn rate should be fast enough on the yellow route." >>> https://www.wow-professions.com/images/farmingmaps/monelite-ore-dustvar-s.jpg
+	stormsongvalley_r3 >>> Stormsong Valley (route 3) >>> "Pretty easy to follow route. There are a couple of ores underground around the middle of the map, but it's not always worth to go down there to get them." >>> https://www.wow-professions.com/images/farmingmaps/monelite-ore-stormsong-s.jpg
+	tiragardesound_r4 >>> Tiragarde Sound (route 4) >>> "Both routes are good, but the first one is better I think." >>> https://www.wow-professions.com/images/farmingmaps/monelite-ore-tiragarde-s.jpg
+	tiragardesound_r5 >>> Tiragarde Sound (route 5) >>> "Both routes are good, but the first one is better I think." >>> https://www.wow-professions.com/images/farmingmaps/monelite-ore-tiragarde2-s.jpg
+	zuldazar_r6 >>> Zuldazar (route 6) >>> "This one goes through the main Horde city, so I don't recommend it for Alliance players." >>> https://www.wow-professions.com/images/farmingmaps/monelite-ore-zuldazar-s.jpg
+	voldun_r7 >>> Vol'dun (route 7) >>> "I disliked this zone for farming because there is a lot of vertical up and down movement to find the ores, but it's a decent farming route once you learn how to get around the hills." >>> https://www.wow-professions.com/images/farmingmaps/monelite-ore-voldun-s.jpg
+Storm Silver Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_stormsilver.jpg
+	guide: https://www.wow-professions.com/farming/storm-silver-ore-farming
+	wh: https://www.wowhead.com/item=152579/storm-silver-ore#comments
+	nazmir_r1 >>> Nazmir (route 1) >>> "A waterwalking mount, or any waterwalking ability will make you farm in this zone a lot faster. If you notice that you farm too fast, and the nodes are not respawning, you can take a bigger loop in the zone and follow the red route, but the respawn rate should be fast enough on the yellow route." >>> https://www.wow-professions.com/images/farmingmaps/storm-silver-ore-nazmir-s.jpg
+	drustvar_r2 >>> Drustvar (route 2) >>> "If you notice that you farm too fast, and the nodes are not respawning, you can take a bigger loop in the zone and follow the red route, but the respawn rate should be fast enough on the yellow route." >>> https://www.wow-professions.com/images/farmingmaps/storm-silver-ore-dustvar-s.jpg
+	stormsongvalley_r3 >>> Stormsong Valley (route 3) >>> "Pretty easy to follow route. There are a couple of ores underground around the middle of the map, but it's not always worth to go down there to get them." >>> https://www.wow-professions.com/images/farmingmaps/storm-silver-ore-stormsong-s.jpg
+	tiragardesound_r4 >>> Tiragarde Sound (route 4) >>> "Both routes are good, but the first one is better I think." >>> https://www.wow-professions.com/images/farmingmaps/storm-silver-ore-tiragarde-s.jpg
+	tiragardesound_r5 >>> Tiragarde Sound (route 5) >>> "Both routes are good, but the first one is better I think." >>> https://www.wow-professions.com/images/farmingmaps/storm-silver-ore-tiragarde2-s.jpg
+	zuldazar_r6 >>> Zuldazar (route 6) >>> "This one goes through the main Horde city, so it's not really recommended for Alliance players." >>> https://www.wow-professions.com/images/farmingmaps/storm-silver-ore-zuldazar-s.jpg
+	voldun_r7 >>> Vol'dun (route 7) >>> "I really disliked this zone for farming, because there is a lot of vertical up and down movement to find the ores, but it's a decent farming route once you learn how to get around the hills." >>> https://www.wow-professions.com/images/farmingmaps/storm-silver-ore-voldun-s.jpg
+Platinum Ore
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_platinum.jpg
+	guide: https://www.wow-professions.com/farming/platinum-ore-farming
+	wh: https://www.wowhead.com/item=152513/platinum-ore#comments
+	nazmir_r1 >>> Nazmir (route 1) >>> "A waterwalking mount, or any waterwalking ability will make you farm in this zone a lot faster. If you notice that you farm too fast, and the nodes are not respawning, you can take a bigger loop in the zone and follow the red route, but the respawn rate should be fast enough on the yellow route." >>> https://www.wow-professions.com/images/farmingmaps/platinum-ore-nazmir-s.jpg
+	drustvar_r2 >>> Drustvar (route 2) >>> "If you notice that you farm too fast, and the nodes are not respawning, you can take a bigger loop in the zone and follow the red route, but the respawn rate should be fast enough on the yellow route." >>> https://www.wow-professions.com/images/farmingmaps/platinum-ore-dustvar-s.jpg
+	stormsongvalley_r3 >>> Stormsong Valley (route 3) >>> "Pretty easy to follow route. There are a couple of ores underground around the middle of the map, but it's not always worth to go down there to get them." >>> https://www.wow-professions.com/images/farmingmaps/platinum-ore-stormsong-s.jpg
+	tiragardesound_r4 >>> Tiragarde Sound (route 4) >>> "Both routes are good, but the first one is better I think." >>> https://www.wow-professions.com/images/farmingmaps/platinum-ore-tiragarde-s.jpg
+	tiragardesound_r5 >>> Tiragarde Sound (route 5) >>> "Both routes are good, but the first one is better I think." >>> https://www.wow-professions.com/images/farmingmaps/platinum-ore-tiragarde2-s.jpg
+	zuldazar_r6 >>> Zuldazar (route 6) >>> "This one goes through the main Horde city, so it's not really recommended for Alliance players." >>> https://www.wow-professions.com/images/farmingmaps/platinum-ore-zuldazar-s.jpg
+	voldun_r7 >>> Vol'dun (route 7) >>> "I really disliked this zone for farming, because there is a lot of vertical up and down movement to find the ores, but it's a decent farming route once you learn how to get around the hills." >>> https://www.wow-professions.com/images/farmingmaps/platinum-ore-voldun-s.jpg
+Osmenite Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_osmenite.jpg
+	guide: https://www.wow-professions.com/farming/osmenite-ore-farming
+	wh: https://www.wowhead.com/item=168185/osmenite-ore#comments
+	nazjatar_r1 >>> Nazjatar (route 1) >>> "I got the most Osmenite Ore following this route. Don't forget to check the caves marked with red Xs, sometimes the ores are deep inside the cave and you can't see them on your map until you go inside.\n\nA bunch of mobs will be everywhere, so it's pretty bad to farm this ore until you get flying. Use the recommended enchants or you will get dismounted every second." >>> https://www.wow-professions.com/images/farmingmaps/osmenite-ore-nazjatar1.jpg
+	nazjatar_r2 >>> Nazjatar (route 2) >>> "This is basically just a route that loops around the area that's not covered by route 1. This is not as good as the first one, but you can expect a lot of people farming route 1, so you could give this a try." >>> https://www.wow-professions.com/images/farmingmaps/osmenite-ore-nazjatar2.jpg
