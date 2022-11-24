@@ -54,11 +54,6 @@ class Selection {
 					if (e.User != selection._interaction.User)
 						return;
 
-					// Only respond to interactions created by the "owner"
-					// of the component.
-					if (e.User != selection._interaction.User)
-						return;
-
 					// Acknowledge interaction and update the original
 					// message later (inside the callback itself).
 					Interaction interaction = Interaction.FromComponent(e);
