@@ -26,14 +26,15 @@ class Farm {
 
 	// A list of all normalized names to canonical names, for autocomplete.
 	// E.g.: zinanthid -> Zin'anthid
-	private static ConcurrentDictionary<string, string> _ids = new ();
+	private static readonly ConcurrentDictionary<string, string> _ids = new ();
 	// A database of all materials, indexed by normalized names (`_ids`).
 	// E.g.: zinanthid -> Zin'anthid
-	private static ConcurrentDictionary<string, Material> _data = new ();
+	private static readonly ConcurrentDictionary<string, Material> _data = new ();
 
 	// Parser & renderer definitions.
 	private const string _formatDate = @"\!\!\!\ yyyy\-MM\-dd\ \!\!\!";
 	private const string
+		_prefixDate = "!!!",
 		_prefixComment = "#",
 		_prefixIndent = "\t",
 		_prefixGuide = "guide: ",
@@ -99,7 +100,7 @@ class Farm {
 
 		interaction.RegisterFinalResponse();
 		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary($"Farming guide for: {material.Name}");
+		interaction.SetResponseSummary($"{material.Name}\n{embed.Description}");
 	}
 	
 	// Autocomplete valid options for a given query.
@@ -152,6 +153,8 @@ class Farm {
 			{description}
 			[Original guide]({material.Guide}) {_bullet} [Wowhead]({material.Wowhead})
 			""";
+		string footer =
+			$"{_footerText} {_bullet} {material.Timestamp.ToString(Format_IsoDate)}";
 
 		// Set all embed fields.
 		DiscordEmbedBuilder embed =
@@ -162,8 +165,7 @@ class Farm {
 			.WithThumbnail(material.Icon)
 			.WithDescription(content)
 			.WithImageUrl(route.Image)
-			.WithFooter(_footerText, _footerIcon)
-			.WithTimestamp(material.Timestamp.ToDateTime(new (0)));
+			.WithFooter(footer, _footerIcon);
 		
 		return embed.Build();
 	}
@@ -184,6 +186,12 @@ class Farm {
 			// Skip comment lines and empty lines.
 			if (line.StartsWith(_prefixComment) || line.Trim() == "")
 				continue;
+
+			// Update "last accessed" date.
+			if (line.StartsWith(_prefixDate)) {
+				date = DateOnly.ParseExact(line, _formatDate);
+				continue;
+			}
 
 			string name = line;
 

@@ -43,3 +43,72 @@ Nightshade
 	bastion_r4 >>> Bastion (route 4) >>> "If you want to farm Nightshade outside of the Maw, you have to farm other herbs and hope they will respawn as Nightshade.\n\nNot much worse from the first route, but you have to watch your HP while jumping down from the cliffs at the red lines. If you are not at full HP you will probably die. I recommend using __Seraph Tenders__ if you don't have any self-heal or any way to prevent fall damage." >>> https://www.wow-professions.com/images/farmingmaps/rising-glory-bastion-route-2.jpg
 	maldraxxus_r5 >>> Maldraxxus (route 5) >>> "If you want to farm Nightshade outside of the Maw, you have to farm other herbs and hope they will respawn as Nightshade." >>> https://www.wow-professions.com/images/farmingmaps/marrowroot-maldraxxus-route-1.jpg
 	maldraxxus_r6 >>> Maldraxxus (route 6) >>> "If you want to farm Nightshade outside of the Maw, you have to farm other herbs and hope they will respawn as Nightshade." >>> https://www.wow-professions.com/images/farmingmaps/marrowroot-maldraxxus-route-2.jpg
+
+!!! 2022-11-23 !!!
+
+# Battle for Azeroth
+
+Winter's Kiss
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_winterskiss.jpg
+	guide: https://www.wow-professions.com/farming/winters-kiss-farming
+	wh: https://www.wowhead.com/item=152508/winters-kiss#comments
+	drustvar_r1 >>> Drustvar (route 1) >>> "This route goes through an Alliance town, so horde players might have some trouble here, but you can just run past the guards with mount, they shouldn't kill you." >>> https://www.wow-professions.com/images/farmingmaps/winters-kiss-dustvar-s.jpg
+	drustvar_r2 >>> Drustvar (route 2) >>> "Use this route if someone is already farming at the first route, or if you are having trouble going through the Alliance town." >>> https://www.wow-professions.com/images/farmingmaps/winters-kiss-dustvar2-s.jpg
+	drustvar_r3 >>> Drustvar (route 3) >>> "You will also get some Star Moss, Anchor Weed, and Siren's Pollen here. This is not that good if you only want to get Winter's Kiss, but a great alternative for farming if the other two routes are already taken by someone." >>> https://www.wow-professions.com/images/farmingmaps/winters-kiss-dustvar4-s.jpg
+	drustvar_r4 >>> Drustvar (route 4) >>> "You will only find Winter's Kiss at Gol Koval, but there are usually 7-8 herbs there, so you can still get a decent amount of Winter's Kiss, but this is nowhere near as good as the first two routes." >>> https://www.wow-professions.com/images/farmingmaps/winters-kiss-dustvar3-s.jpg
+Akunda's Bite
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_akundasbite.jpg
+	guide: https://www.wow-professions.com/farming/akundas-bite-farming
+	wh: https://www.wowhead.com/item=152507/akundas-bite#comments
+	voldun_r1 >>> Vol'dun (route 1) >>> "There are two good farming routes that you can use. The first one is a lot better, but you can expect a lot of competition there, so use the second as an alternative." >>> https://www.wow-professions.com/images/farmingmaps/akundas-bite-voldun-s.jpg
+	voldun_r2 >>> Vol'dun (route 2) >>> "Use this route if someone is already farming on the first route." >>> https://www.wow-professions.com/images/farmingmaps/akundas-bite-voldun2-s.jpg
+Riverbud
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_riverbud.jpg
+	guide: https://www.wow-professions.com/farming/riverbud-farming
+	wh: https://www.wowhead.com/item=152505/riverbud#comments
+	tiragardesound_r1 >>> Tiragarde Sound (route 1) >>> "This is the best place to farm Riverbud. You will also get a lot of Sea Stalk, and some Siren's Pollen." >>> https://www.wow-professions.com/images/farmingmaps/riverbud-tiragarde-s.jpg
+	stormsongvalley_r2 >>> Stormsong Valley (route 2) >>> "You will get a lot of Riverbud and Sea Stalk here. Really good route, since you can avoid fighting most mobs." >>> https://www.wow-professions.com/images/farmingmaps/anchor-weed-stormsong2-s.jpg
+	zuldazar_r3 >>> Zuldazar (route 3) >>> "This route goes through a few horde cities so it's mostly recommended for Horde players." >>> https://www.wow-professions.com/images/farmingmaps/riverbud-zuldazar-s.jpg
+	nazmir_r4 >>> Nazmir (route 4) >>> "You will also get a lot of Anchor Weed following this route." >>> https://www.wow-professions.com/images/farmingmaps/riverbud-nazmir-s.jpg
+	drustvar_r5 >>> Drustvar (route 5) >>> "You will only get a few Riverbud here, but it's a good herb farming route overall. You will get a lot of Winter's Kiss and Siren's Pollen. Following the yellow route is enough to allow the herbs to respawn from where you started, but you can take a bigger loop around the zone (marked with the red line on the map)." >>> https://www.wow-professions.com/images/farmingmaps/riverbud-dustvar-s.jpg
+	tiragardesound_r6 >>> Tiragarde Sound (route 6) >>> "This is a good route if you just want a little bit from everything. You will get mostly Sea Stalk and a few dozen from all other herbs (no Akunda's Bite)." >>> https://www.wow-professions.com/images/farmingmaps/riverbud-tiragarde2-s.jpg
+Sea Stalk
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_seastalk.jpg
+	guide: https://www.wow-professions.com/farming/sea-stalk-farming
+	wh: https://www.wowhead.com/item=152511/sea-stalk#comments
+	stormsongvalley_r1 >>> Stormsong Valley (route 1) >>> "You will have to fight a lot of mobs here if you don't have the recommended enchants, so you might have better luck at other routes." >>> https://www.wow-professions.com/images/farmingmaps/anchor-weed-stormsong-s.jpg
+	zuldazar_r2 >>> Zuldazar (route 2) >>> "Start from the red X and gather herbs until you reach the other red X, then use the flight master to fly back from where you started." >>> https://www.wow-professions.com/images/farmingmaps/sea-stalk-zuldazar-s.jpg
+	nazmir_r3 >>> Nazmir (route 3) >>> "The herbs are a bit spread apart, but you will mostly get Sea Stalk." >>> https://www.wow-professions.com/images/farmingmaps/sea-stalk-nazmir-s.jpg
+	stormsongvalley_r4 >>> Stormsong Valley (route 4) >>> "You will get a lot of Riverbud and Sea Stalk here. Really good route, since you can avoid fighting most mobs." >>> https://www.wow-professions.com/images/farmingmaps/anchor-weed-stormsong2-s.jpg
+	tiragardesound_r5 >>> Tiragarde Sound (route 5) >>> "You will also get a lot of Riverbud, and some Siren's Pollen." >>> https://www.wow-professions.com/images/farmingmaps/sea-stalk-tiragarde-s.jpg
+	tiragardesound_r6 >>> Tiragarde Sound (route 6) >>> "This is a good route if you just want a little bit from everything. You will get mostly Sea Stalk and a few dozen from all other herbs (no Akunda's Bite)." >>> https://www.wow-professions.com/images/farmingmaps/riverbud-tiragarde2-s.jpg
+Siren's Pollen
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_pollen.jpg
+	guide: https://www.wow-professions.com/farming/sirens-pollen-farming
+	wh: https://www.wowhead.com/item=152509/sirens-pollen#comments
+	drustvar_r1 >>> Drustvar (route 1) >>> "You will also get a lot of Winter's Kiss and some Riverbud on this route. Following the yellow route is enough to allow the herbs to respawn from where you started, but you can take a bigger loop around the zone (marked with the red line on the map)." >>> https://www.wow-professions.com/images/farmingmaps/sirens-pollen-dustvar-s.jpg
+	zuldazar_r2 >>> Zuldazar (route 2) >>> "You will get a mix of Star Moss, Riverbud, Siren's Pollen. This route is mostly recommended for Horde players." >>> https://www.wow-professions.com/images/farmingmaps/sirens-pollen-zuldazar2-s.jpg
+	tiragardesound_r3 >>> Tiragarde Sound (route 3) >>> "This is a good route if you just want a little bit from everything. You will get mostly Sea Stalk and a few dozen from all other herbs (no Akunda's Bite)." >>> https://www.wow-professions.com/images/farmingmaps/sirens-pollen-tiragarde2-s.jpg
+	nazmir_r4 >>> Nazmir (route 4) >>> "You will also get a lot of Anchor Weed following this route." >>> https://www.wow-professions.com/images/farmingmaps/sirens-pollen-nazmir-s.jpg
+Star Moss
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_starmoss.jpg
+	guide: https://www.wow-professions.com/farming/star-moss-farming
+	wh: https://www.wowhead.com/item=152506/star-moss#comments
+	voldun_r1 >>> Vol'dun (route 1) >>> "This route will give you the most Star Moss overall." >>> https://www.wow-professions.com/images/farmingmaps/star-moss-voldun-s.jpg
+	drustvar_r2 >>> Drustvar (route 2) >>> "There are a lot of mobs guarding herbs at this route, so you might have trouble here if you don't use the recommended enchants." >>> https://www.wow-professions.com/images/farmingmaps/star-moss-dustvar-s.jpg
+	voldun_r3 >>> Vol'dun (route 3) >>> "You will mostly get Akunda's Bite here, but you will get some Star Moss, so you can use it as an alternative." >>> https://www.wow-professions.com/images/farmingmaps/akundas-bite-voldun2-s.jpg
+Anchor Weed
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_anchorweed.jpg
+	guide: https://www.wow-professions.com/farming/anchor-weed-farming
+	wh: https://www.wowhead.com/item=152510/anchor-weed#comments
+	drustvar_r1 >>> Drustvar (route 1) >>> "Anchor Weed is a rare herb that can sometimes spawn instead of other herbs. This route is the best because it has the most herbs, so you will have more chances of getting Anchor Weed.\n\nThis route goes through an Alliance town, so horde players might have some trouble here, but you can just run past the guards with mount, they shouldn't kill you." >>> https://www.wow-professions.com/images/farmingmaps/winters-kiss-dustvar-s.jpg
+	drustvar_r2 >>> Drustvar (route 2) >>> "Use this route if someone is already farming at the first route, or if you are having trouble going through the Alliance town." >>> https://www.wow-professions.com/images/farmingmaps/winters-kiss-dustvar2-s.jpg
+	tiragardesound_r3 >>> Tiragarde Sound (route 3) >>> "This is also the best place to farm Riverbud." >>> https://www.wow-professions.com/images/farmingmaps/riverbud-tiragarde-s.jpg
+	stormsongvalley_r4 >>> Stormsong Valley (route 4) >>> "You will get a lot of Riverbud and Sea Stalk here. Really good route, since you can avoid fighting most mobs." >>> https://www.wow-professions.com/images/farmingmaps/anchor-weed-stormsong2-s.jpg
+	nazmir_r5 >>> Nazmir (route 5) >>> "You will get mostly Siren's Pollen and Riverbud here." >>> https://www.wow-professions.com/images/farmingmaps/anchor-weed-nazmir-s.jpg
+Zin'anthid
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_zoanthid.jpg
+	guide: https://www.wow-professions.com/farming/zin-anthid-farming
+	wh: https://www.wowhead.com/item=168487/zinanthid#comments
+	nazjatar_r1 >>> Nazjatar (route 1) >>> "I got the most Zin'anthid following this route. A bunch of mobs will be everywhere, so it's pretty bad to farm this herb until you get flying. Use the recommended enchants or you will get dismounted every second." >>> https://www.wow-professions.com/images/farmingmaps/zin-anthid-nazjatar1.jpg
+	nazjatar_r2 >>> Nazjatar (route 2) >>> "This is basically just a route that loops around the area that's not covered by route 1. This is not as good as the first one, but you can expect a lot of people farming route 1, so you could give this a try." >>> https://www.wow-professions.com/images/farmingmaps/zin-anthid-nazjatar2.jpg
