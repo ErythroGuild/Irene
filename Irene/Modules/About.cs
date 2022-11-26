@@ -10,7 +10,6 @@ class About {
 	public static int ContextCommandCount { get; private set; } = 0;
 
 	// Private fields / constants.
-	private static readonly object _lock = new ();
 	private const string
 		_pathVersion = @"config/tag.txt",
 		_pathBuild   = @"config/commit.txt";
@@ -35,20 +34,18 @@ class About {
 	// Version and build strings can be initialized in the static constructor,
 	// since they cannot change without restarting the process.
 	static About() {
+		// No need to lock file because static constructors run sequentially.
 		StreamReader file;
 
-		lock (_lock) {
-			file = File.OpenText(_pathVersion);
-			String_Version = file.ReadLine() ?? "";
-			file.Close();
-		}
-		lock (_lock) {
-			file = File.OpenText(_pathBuild);
-			String_Build = file.ReadLine() ?? "";
-			if (String_Build.Length > 7)
-				String_Build = String_Build[..7];
-			file.Close();
-		}
+		file = File.OpenText(_pathVersion);
+		String_Version = file.ReadLine() ?? "";
+		file.Close();
+
+		file = File.OpenText(_pathBuild);
+		String_Build = file.ReadLine() ?? "";
+		if (String_Build.Length > 7)
+			String_Build = String_Build[..7];
+		file.Close();
 	}
 
 	// This is the main function that collates and returns a formatted
