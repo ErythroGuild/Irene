@@ -15,11 +15,25 @@ class Translate {
 		string LanguageTarget
 	);
 	// Contains all fields needed for displaying a language.
-	public readonly record struct Language(
-		string Code,
-		string Name,
-		string NativeName
-	);
+	public readonly record struct Language {
+		public readonly string Code;
+		public readonly string Name;
+		public readonly string NativeName;
+
+		public Language(string code, string name, string nativeName) {
+			Code = code;
+			Name = name;
+			NativeName = nativeName;
+		}
+
+		// Equality operators need to be separately defined, or sometimes
+		// actual matching languages will have differing `.Name` values
+		// and fail to match.
+		public readonly bool Equals(Language other) =>
+			Code == other.Code;
+		public override readonly int GetHashCode() =>
+			Code.GetHashCode();
+	}
 
 	public const string Language_EnglishUS = LanguageCode.EnglishAmerican;
 	public const string
