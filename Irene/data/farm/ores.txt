@@ -143,3 +143,98 @@ Ghost Iron Ore
 	r1_valleyofthefourwinds >>> Route 1 - Valley of the Four Winds >>> "Valley of the Four Winds is the best place to farm Ghost Iron Ore, but sometimes it can get a bit busy because of the Tiller daily quests." >>> https://www.wow-professions.com/images/farmingmaps/ghost-iron-valley-four-wind.jpg
 	r2_jadeforest >>> Route 2 - The Jade Forest >>> "Jade Forest is also a great place to farm." >>> https://www.wow-professions.com/images/farmingmaps/ghost-iron-jade-forest.jpg
 	r3_townlongsteppes >>> Route 3 - Townlong Steppes >>> "Townlong Steppes is another great place, there is usually very few people farming in this zone." >>> https://www.wow-professions.com/images/farmingmaps/ghost-iron-townlong-steppes.jpg
+
+!!! 2022-11-25 !!!
+
+# Cataclysm
+
+Obsidium Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/item_elementiumore.jpg
+	guide: https://www.wow-professions.com/farming/obsidium-ore-farming
+	wh: https://www.wowhead.com/item=53038/obsidium-ore#comments
+	r1_mounthyjal >>> Route 1 - Mount Hyjal >>> "Mount Hyjal is the best zone for farming Obsidium if you don't like Vashj'ir." >>> https://www.wow-professions.com/images/farmingmaps/obsidium-ore-mount-hyjal.jpg
+	r2_vashjir >>> Route 2 - Vashj'ir >>> "Shimmering Expanse is my favorite place for farming Obsidium. This route is just so easy to follow and the respawn rate is fast enough to farm here without waiting for the ores to respawn." >>> https://www.wow-professions.com/images/farmingmaps/obsidium-ore-vashjir2.jpg
+	r3_vashjir >>> Route 3 - Vashj'ir >>> "If you can't farm at Shimmering Expanse because it's crowded with other players, you can try Abyssal Depths. It's almost as good as Shimmering Expanse." >>> https://www.wow-professions.com/images/farmingmaps/obsidium-ore-vashjir.jpg
+Elementium Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/item_pyriumore.jpg
+	guide: https://www.wow-professions.com/farming/elementium-ore-farming
+	wh: https://www.wowhead.com/item=52185/elementium-ore#comments
+	r1_twilighthighlands >>> Route 1 - Twilight Highlands >>> "*Pyrite Deposits are rare spawns of Elementium Deposits in Uldum and Twilight Highlands.*\n\nTwilight Highlands the best zone for farming Elementium Ore." >>> https://www.wow-professions.com/images/farmingmaps/elementium-ore-twilight-highlands.jpg
+	r2_uldum >>> Route 2 - Uldum >>> "*Pyrite Deposits are rare spawns of Elementium Deposits in Uldum and Twilight Highlands.*\n\nUldum is a great alternative if someone is already farming at Twilight Highlands.\n\n__IMPORTANT!__ If you are level 50+, you will see the patch 8.3 version of Uldum. You can talk to __Zidormi__ to switch between phases." >>> https://www.wow-professions.com/images/farmingmaps/elementium-ore-uldum.jpg
+
+# Wrath of the Lich King
+
+Cobalt Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_cobalt.jpg
+	guide: https://www.wow-professions.com/farming/cobalt-ore-farming
+	wh: https://www.wowhead.com/item=36909/cobalt-ore#comments
+	r1_howlingfjord >>> Route 1 - Howling Fjord >>> "*Without Northrend Mining, you will get MUCH fewer ore!*\n\nHowling Fjord is the best place for mining Cobalt Ore. But, this zone is usually heavily farmed on higher population realms, so you might want to try out the other alternatives below." >>> https://www.wow-professions.com/images/farmingmaps/cobalt-ore-howling-fjord.jpg
+	r2_boreantundra >>> Route 2 - Borean Tundra >>> "*Without Northrend Mining, you will get MUCH fewer ore!*\n\nBorean Tundra is also an excellent place if you don't like Howling Fjord for some reason, or if someone else is farming there." >>> https://www.wow-professions.com/images/farmingmaps/cobalt-ore-borean-tundra.jpg
+	r3_grizzlyhills >>> Route 3 - Grizzly Hills >>> "*Without Northrend Mining, you will get MUCH fewer ore!*\n\nGreat farming place, usually very few players are farming there." >>> https://www.wow-professions.com/images/farmingmaps/cobalt-ore-grizzly.jpg
+	r4_zuldrak >>> Route 4 - Zul'Drak >>> "*Without Northrend Mining, you will get MUCH fewer ore!*\n\nYou will find a few Saronite Deposits in this zone but it's mostly just Cobalt Ore if you stick the lower part of the map." >>> https://www.wow-professions.com/images/farmingmaps/cobalt-ore-zuldrak.jpg
+Saronite Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_saronite_01.jpg
+	guide: https://www.wow-professions.com/farming/saronite-ore-farming
+	wh: https://www.wowhead.com/item=36912/saronite-ore#comments
+	r1_icecrown >>> Route 1 - Icecrown >>> "*Without Northrend Mining, you will get MUCH fewer ore!*\n\nA pretty good place to farm and easy to follow route." >>> https://www.wow-professions.com/images/farmingmaps/saronite-icecrown.jpg
+	r2_sholazarbasin >>> Route 2 - Sholazar Basin >>> "*Without Northrend Mining, you will get MUCH fewer ore!*\n\nSholazar Basin is also an excellent zone. You can just try to check if the battle for Wintergasp is on or not because these two zones are really close to each other. If it's not on, you should farm at Wintergrasp for 1 hour." >>> https://www.wow-professions.com/images/farmingmaps/saronite-ore-sholazar.jpg
+	r3_wintergrasp >>> Route 3 - Wintergrasp >>> "*Without Northrend Mining, you will get MUCH fewer ore!*\n\nYou can't use flying mounts when the Battle for Wintergasp is in progress. Unfortunately, this battle happens every 1 hour. But in that 1 hour time period, Wintergrasp is the best zone for farming Saronite.\n\n__Warning!__ Sometimes there is a bug, and you can't see any mining nodes or NPCs in the zone. Logging out and logging back in fixed this bug for me, but you might even have to close the game." >>> https://www.wow-professions.com/images/farmingmaps/saronite-ore-wintergrasp.jpg
+
+# The Burning Crusade
+
+Fel Iron Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_feliron.jpg
+	guide: https://www.wow-professions.com/farming/fel-iron-ore-farming
+	wh: https://www.wowhead.com/item=23424/fel-iron-ore#comments
+	r1_hellfirepeninsula >>> Route 1 - Hellfire Peninsula >>> "*Without having Outland Mining, you will get MUCH fewer ores!*\n\nHellfire Peninsula is the best place to farm Fel Iron Ore because there are no other types of ores in the zone. Every other zone has some Adamantite. You will get fewer Fel Iron Ore in every other zone.\n\nThe respawn time is fast enough that you don't have to go around the whole Hellfire Peninsula to farm effectively. I farmed the most ores using these two routes below." >>> https://www.wow-professions.com/images/tbc/mining-leveling-tbc-classic-hellfire.jpg
+	r2_hellfirepeninsula >>> Route 2 - Hellfire Peninsula >>> "*Without having Outland Mining, you will get MUCH fewer ores!*\n\nHellfire Peninsula is the best place to farm Fel Iron Ore because there are no other types of ores in the zone. Every other zone has some Adamantite. You will get fewer Fel Iron Ore in every other zone.\n\nThe respawn time is fast enough that you don't have to go around the whole Hellfire Peninsula to farm effectively. I farmed the most ores using these two routes below." >>> https://www.wow-professions.com/images/tbc/mining-leveling-tbc-classic-hellfire-2.jpg
+	r3_terokkarforest >>> Route 3 - Terokkar Forest >>> "*Without having Outland Mining, you will get MUCH fewer ores!*\n\nTerokkar forest is a good alternative to Hellfire if you also want some Adamantite Ore." >>> https://www.wow-professions.com/images/tbc/mining-leveling-tbc-classic-terrokar.jpg
+	r4_zangarmarsh >>> Route 4 - Zangarmarsh >>> "*Without having Outland Mining, you will get MUCH fewer ores!*\n\nZangarmarsh is a decent alternative to Terokkar, but I got fewer ores overall. The only good thing about this farming route is that it's pretty easy to follow the route. You can watch Netflix or Twitch while farming here. You don't really have to pay that much attention to where you go.\n\nThere are two caves marked with red circles on the map. You should go inside both of them and make sure that you go all the way to the end because sometimes you won't see the mining nodes from the entrance." >>> https://www.wow-professions.com/images/farmingmaps/fel-iron-ore-farming-zangarmarsh.jpg
+Adamantite Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_adamantium.jpg
+	guide: https://www.wow-professions.com/farming/adamantite-ore-farming
+	wh: https://www.wowhead.com/item=23425/adamantite-ore#comments
+	r1_nagrand >>> Route 1 - Nagrand >>> "Khorium Veins are a rare spawn of Adamantite Deposits.\n\n*Without having Outland Mining, you will get MUCH fewer ores!*\n\nNagrand is one of the best places to farm Adamantite Ore because of all the caves (marked with red circles). The mobs in the caves are easy to kill and the caves are not that big, so it's usually worth going inside." >>> https://www.wow-professions.com/images/tbc/adamantite-ore-farming-tbc-classic-nagrand.jpg
+	r2_netherstorm >>> Route 2 - Netherstorm >>> "Khorium Veins are a rare spawn of Adamantite Deposits.\n\n*Without having Outland Mining, you will get MUCH fewer ores!*\n\nNetherstorm is also an excellent place to farm Adamantite Ore. Just like in Nagrand, I marked the caves with red circles on the map. But, you should only go inside if you have stealth or if there are a lot of other people farming in the zone. These are much bigger than the Nagrand caves, and the mobs are a lot higher level. (Maybe with good gear it's worth clearing them.)" >>> https://www.wow-professions.com/images/tbc/adamantite-ore-farming-tbc-classic-netherstorm.jpg
+	r3_shadowmoonvalley >>> Route 3 - Shadowmoon Valley >>> "Khorium Veins are a rare spawn of Adamantite Deposits.\n\n*Without having Outland Mining, you will get MUCH fewer ores!*\n\nShadowmoon Valley is also a great place to farm. __There are two caves in the zone, but it's not worth going inside them.__ It takes too long to get to the nodes, and you can farm more ores just doing laps in the zone instead." >>> https://www.wow-professions.com/images/tbc/adamantite-ore-farming-tbc-classic-shadowmoon.jpg
+
+# Vanilla
+
+Copper Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_copper_01.jpg
+	guide: https://www.wow-professions.com/farming/copper-ore-farming
+	wh: https://www.wowhead.com/item=2770/copper-ore#comments
+	r1_durotar >>> Route 1 - Durotar >>> "There is not much difference between the zones where you can farm Copper Ore. If you are below level 20, you should stay at the zone where you are questing currently, there will be plenty of Copper Ore.\n\nDurotar is an excellent place to farm Copper Ore, there are a few caves in this zone and usually there are 3-4 Copper Veins inside those caves." >>> https://www.wow-professions.com/images/farmingmaps/copper-ore-durotar.jpg
+	r2_darkshore >>> Route 2 - Darkshore >>> "There is not much difference between the zones where you can farm Copper Ore. If you are below level 20, you should stay at the zone where you are questing currently, there will be plenty of Copper Ore.\n\nDarkshore is the best place for Alliance players. Even Horde players can go there with flying. I was able to get 200 Copper Ore with just one lap in this zone.\n\n__IMPORTANT!__ If you are level 110, you will see an updated map of Darkshore. But, if you talk to __Zidormi__, she will allow you to switch between the new and old phases of Darkshore." >>> https://www.wow-professions.com/images/farmingmaps/copper-ore-darkshore.jpg
+Tin Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_tin_01.jpg
+	guide: https://www.wow-professions.com/farming/tin-ore-farming
+	wh: https://www.wowhead.com/item=2771/tin-ore#comments
+	r1_hillsbradfoothills >>> Route 1 - Hillsbrad Foothills >>> "It's recommended to have Mining 50 before you start farming.\n\nAlterac Mountains in Hillsbrad Foothills is simply the best place to mine Tin Ore. The place is marked with red on the map. If you run out of Veins, just do a lap around the mountains until they respawn. This place can be a bit harder to reach for lower level Alliance players because it's a Horde zone." >>> https://www.wow-professions.com/images/farmingmaps/tin-ore-hillsbard.jpg
+	r2_northernstranglethorn >>> Route 2 - Northern Stranglethorn >>> "It's recommended to have Mining 50 before you start farming.\n\nNorthern Stranglethorn is a great alternative if you can't go to Hillsbrad for some reason, but I prefer Hillsbrad." >>> https://www.wow-professions.com/images/farmingmaps/tin-ore-stranglethorn.jpg
+Iron Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_iron_01.jpg
+	guide: https://www.wow-professions.com/farming/iron-ore-farming
+	wh: https://www.wowhead.com/item=2772/iron-ore#comments
+	r1_feralas >>> Route 1 - Feralas >>> "It's recommended to have Mining skill 100 before you start farming Iron Ore.\n\nYou will find Iron anywhere you go in Feralas, it's the best place to mine Iron. You could actually just do laps at the northern area without going to the southern area." >>> https://www.wow-professions.com/images/farmingmaps/iron-ore-feralas.jpg
+	r2_westernplaguelands >>> Route 2 - Western Plaguelands >>> "It's recommended to have Mining skill 100 before you start farming Iron Ore.\n\nWestern Plaguelands is also an excellent place to farm Iron, just don't go to Hearthglen because there is no ore there. Stick to the route I recommend." >>> https://www.wow-professions.com/images/farmingmaps/iron-ore-wpl.jpg
+Mithril Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_mithril_02.jpg
+	guide: https://www.wow-professions.com/farming/mithril-ore-farming
+	wh: https://www.wowhead.com/item=3858/mithril-ore#comments
+	r1_burningsteppes >>> Route 1 - Burning Steppes >>> "It's recommended to have Mining skill 150 before you start farming.\n\nBurning Steppes is a great place to mine Mithril. You will find a mountain called Deadmaul Rock, there are loads of Mithril Deposits inside the caves there, but you have to fight mobs and you will get dismounted if you go inside. I think it's better to skip the caves, because there is plenty of Mithril at the corner of the map if you just follow the route I recommend." >>> https://www.wow-professions.com/images/farmingmaps/mithril-ore-burning-steppes.jpg
+	r2_badlands >>> Route 2 - Badlands >>> "It's recommended to have Mining skill 150 before you start farming.\n\nBadlands is pretty close to Burning Steppes, so if there is someone already farming there you can go to Badlands or if you level is not high enough to go to Burning Steppes. This zone has an easy and simple loop to follow.\n\nI marked a cave with a red X on the map, only go there if your level is a lot higher than the mobs' level in the cave. It's full of Mithril but there is a bunch of mobs there, so you will actually get less Mithril if you can't kill the mobs fast enough." >>> https://www.wow-professions.com/images/farmingmaps/mithril-ore-badlands.jpg
+	r3_felwood >>> Route 3 - Felwood >>> "It's recommended to have Mining skill 150 before you start farming.\n\nThe route in Felwood is really simple and easy to follow which makes this an excellent place for farming Mithril Ore, just run a big loop around the zone." >>> https://www.wow-professions.com/images/farmingmaps/mithril-ore-felwood.jpg
+Thorium Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_thorium_02.jpg
+	guide: https://www.wow-professions.com/farming/thorium-ore-farming
+	wh: https://www.wowhead.com/item=10620/thorium-ore#comments
+	r1_winterspring >>> Route 1 - Winterspring >>> "It's recommended to have Mining skill 200 before you start farming.\n\nI believe Winterspring is the best place for mining Thorium, there are so many Rich Thorium veins in this zone. You could actually just go off the route that I recommend and you will still find Thorium everywhere." >>> https://www.wow-professions.com/images/farmingmaps/thorium-ore-winterspring.jpg
+	r2_ungorocrater >>> Route 2 - Un'Goro Crater >>> "It's recommended to have Mining skill 200 before you start farming.\n\nThe reason I like Un'Goro is because of the layout of the zone, one big loop around the zone and that's it. It's so easy to farm there." >>> https://www.wow-professions.com/images/farmingmaps/thorium-ore-ungoro.jpg
+	r3_silithus >>> Route 3 - Silithus >>> "It's recommended to have Mining skill 200 before you start farming.\n\nSilithus is also an excellent place to farm Thorium. There are a bunch of caves filled with bugs, but don't go inside them. You will have to fight mobs and you will get dismounted if you go inside. (You might also get lost in those caves because it's hard to find your way out.)\n\n__IMPORTANT!__ If you are level 50 and have done the Argus questline, Silithus will be phased. But, if you talk to __Zidormi__, she will allow you to switch between phases." >>> https://www.wow-professions.com/images/farmingmaps/thorium-ore-silithus.jpg
+Dark Iron Ore
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_ore_mithril_01.jpg
+	guide: https://www.wow-professions.com/farming/dark-iron-ore-farming
+	wh: https://www.wowhead.com/item=11370/dark-iron-ore#comments
+	r1_moltencore >>> Route 1 - The Molten Core >>> "Smelting Dark Iron Ore requires Mining 230, and you also have to complete a quest.\n\nMolten Core is the best place to farm Dark Iron Ore. One full clear gives you around 50-60 ores. It's a 40-man raid. You should be around level 40 to easily pass every mob.\n\nYou can find Molten Core inside Blackrock Mountain. Fly __down__ to the [location marked with X on the map](https://www.wow-professions.com/images/farmingmaps/mc-entrance.jpg). To enter the instance, you have to talk to __Lothos Riftwaker__, and he will teleport you to Molten Core.\n\nFollow the route on the map below, mine every Dark Iron Deposit, and try to avoid pulling the bosses. It's crucial that you __DON'T KILL ANY OF THE BOSSES__, or this farming method won't work! If you accidentally pull a boss, try to run away as far as you can. Most bosses will reset if you pull them too far.\n\nYou can only do 10 instances in an hour, but mining every Dark Iron Deposit takes around 10 minutes, so you won't hit that cap. __If you kill any of the bosses, this method won't work, you can't reset Molten Core once you kill a boss there.__" >>> https://www.wow-professions.com/images/farmingmaps/dark-iron-ore-mc.jpg
+	r2_blackrockdepths >>> Route 2 - Blackrock Depths >>> "Smelting Dark Iron Ore requires Mining 230, and you also have to complete a quest.\n\nA great (and only) alternative to Molten Core is Blackrock Depths. One clear takes around 6 minutes, and you will get around 15-20 Dark Iron Ore.\n\nTo get to Blackrock Depths, enter Blackrock Mountain, open your map and head to the [location I marked with a red X](https://www.wow-professions.com/images/brd-entrance.jpg).\n\nOnce inside, follow the route below, but make sure to kill the __Warbringer Constructs__ in Hall of Crafting because they can drop Dark Iron Ore.\n\nAfter killing the __Warbringer Constructs__ follow the route until you reach the little drilling machine. Click on it and choose the option "Hit the button labeled as 'Entrance'".\n\nGo outside, and you can reset the instance by right-clicking over your portrait then clicking "Reset all instances". You can only do 10 instances in an hour." >>> https://www.wow-professions.com/images/farmingmaps/dark-iron-ore-brd.jpg

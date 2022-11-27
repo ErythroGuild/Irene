@@ -219,3 +219,282 @@ Fool's Cap
 	guide: https://www.wow-professions.com/farming/fools-cap-farming
 	wh: https://www.wowhead.com/item=79011/fools-cap#comments
 	r1_dreadwastes >>> Route 1 - Dread Wastes >>> "This herb can be gathered near muddy areas in Dread Wastes and Townlong Steppes. Fool's Cap is pretty rare, so it's best to combine these two zones for farming. But if someone else is farming in the zones, you pretty much won't find a single herb because there are so few places where it spawns.\n\nWhile traveling in Dread Wastes, you should pick _Sha-Touched Herb_ as long as you can pick it without pulling a bunch of mobs. There is a 17% chance that it will contain Fool's Cap." >>> https://www.wow-professions.com/images/farmingmaps/fools-cap-townlong-dread.jpg
+
+!!! 2022-11-25 !!!
+
+# Cataclysm
+
+Cinderbloom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_cinderbloom.jpg
+	guide: https://www.wow-professions.com/farming/cinderbloom-farming
+	wh: https://www.wowhead.com/item=52983/cinderbloom#comments
+	r1_mounthyjal >>> Route 1 - Mount Hyjal >>> "Mount Hyjal is the best place to farm Cinderbloom. You will mostly find Cinderbloom in this zone, but there is also some Stormvine here and there." >>> https://www.wow-professions.com/images/farmingmaps/cinderbloom-hyjal.jpg
+	r2_deepholm >>> Route 2 - Deepholm >>> "Deepholm is also a great place for farming this herb, but you can only go to Deepholm if you are level 82. This zone is filled with Cinderbloom and Heartblossom." >>> https://www.wow-professions.com/images/farmingmaps/cinderbloom-deepholm.jpg
+Stormvine
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_stormvine.jpg
+	guide: https://www.wow-professions.com/farming/stormvine-farming
+	wh: https://www.wowhead.com/item=52984/stormvine#comments
+	r1_vashjir >>> Route 1 - Vashj'ir >>> "This is the best place to farm Stormvine. Respawn rate is fast and you can also get a lot of Azshara's Veil." >>> https://www.wow-professions.com/images/farmingmaps/stormvine-shimmering.jpg
+	r2_vashjir >>> Route 2 - Vashj'ir >>> "If someone is already farming at Shimmering Expanse you can go to Abyssal Depths because it is also a great place for farming." >>> https://www.wow-professions.com/images/farmingmaps/stormvine-abyssal.jpg
+	r3_mounthyjal >>> Route 3 - Mount Hyjal >>> "If you don't like the underwater zones, you can go to Mount Hyjal and gather Stormvine there." >>> https://www.wow-professions.com/images/farmingmaps/stormvine-hyjal.jpg
+Azshara's Veil
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_azsharasveil.jpg
+	guide: https://www.wow-professions.com/farming/azsharas-veil-farming
+	wh: https://www.wowhead.com/item=52985/azsharas-veil#comments
+	r1_vashjir >>> Route 1 - Vashj'ir >>> "Shimmering Expanse is the best place to farm Azshara's Veil. The reason why I like this place is because Abyssal Depths is really close, so if you run into competition you can just switch to the other zone." >>> https://www.wow-professions.com/images/farmingmaps/azsharas-veil-shimmering.jpg
+	r2_vashjir >>> Route 2 - Vashj'ir >>> "This is place is almost just as good as Shimmering Expanse, there is no major difference between these two zones." >>> https://www.wow-professions.com/images/farmingmaps/azsharas-veil-abyssal.jpg
+	r3_tolbaradpeninsula >>> Route 3 - Tol Barad Peninsula >>> "Tol Barad Peninsula is also a great place to farm Azshara's Veil, but I would recommend it only for those who have some kind of waterwalking ability like Death Knights and Shamans, or Druids with aquatic form." >>> https://www.wow-professions.com/images/farmingmaps/azsharas-veil-tol-barad.jpg
+Heartblossom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_heartblossom.jpg
+	guide: https://www.wow-professions.com/farming/heartblossom-farming
+	wh: https://www.wowhead.com/item=52986/heartblossom#comments
+	r1_deepholm >>> Route 1 - Deepholm >>> "The only place where you can get Heartblossom is Deepholm, there is no other place where this herb grows. You can only enter Deepholm after completing the quest called __The Maelstrom__. This quest requires level 82, so you won't be able to farm Heartblossom if your character level is lower." >>> https://www.wow-professions.com/images/farmingmaps/heartblossom-deepholm.jpg
+Twilight Jasmine
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_twilightjasmine.jpg
+	guide: https://www.wow-professions.com/farming/twilight-jasmine-farming
+	wh: https://www.wowhead.com/item=52987/twilight-jasmine#comments
+	r1_twilighthighlands >>> Route 1 - Twilight Highlands >>> "Twilight Jasmine can only be found in Twilight Highlands. This herb is one of the rarest Cataclysm herbs, so if you are having trouble farming this, try the alternative extended route below." >>> https://www.wow-professions.com/images/farmingmaps/twilight-jasmine-highlands.jpg
+	r2_twilighthighlands >>> Route 2 - Twilight Highlands >>> "I recommend this route if someone else is already farming in the zone." >>> https://www.wow-professions.com/images/farmingmaps/twilight-jasmine-highlands2.jpg
+Whiptail
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_whiptail.jpg
+	guide: https://www.wow-professions.com/farming/whiptail-farming
+	wh: https://www.wowhead.com/item=52988/whiptail#comments
+	r1_uldum >>> Route 1 - Uldum >>> "Uldum is almost the only place where you can get Whiptail. I say almost because there are also a few Whiptail at Tol Barad, but it's not that effective to farm there as farming in Uldum. Whiptail can be found near the river in Uldum, there are a lot of crockolisks guarding these herbs so sometimes you might have to fight them off if they attack you.\n\n__IMPORTANT!__ High level players will see the patch 8.3 version of Uldum that has different herbs. You can talk to __Zidormi__ to switch between the phases." >>> https://www.wow-professions.com/images/farmingmaps/whiptail-uldum.jpg
+	r2_tolbarad >>> Route 2 - Tol Barad >>> "I don't recommend to farm Whiptail at Tol Barad, but if you have Herbalism it's good to know that you can get Whiptail while doing your daily quests there." >>> https://www.wow-professions.com/images/farmingmaps/whiptail-tol-barad.jpg
+
+!!! 2022-11-26 !!!
+
+# Wrath of the Lich King
+
+Goldclover
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_goldclover.jpg
+	guide: https://www.wow-professions.com/farming/goldclover-farming
+	wh: https://www.wowhead.com/item=36901/goldclover#comments
+	r1_grizzlyhills >>> Route 1 - Grizzly Hills >>> "Grizzly Hills is the best place to farm Goldclover. The route is easy to follow and the herbs will start respawning by the time you do a full lap." >>> https://www.wow-professions.com/images/farmingmaps/goldclover-grizzly.jpg
+	r2_howlingfjord >>> Route 2 - Howling Fjord >>> "Howling Fjord is also a great place to farm, I just usually follow the yellow route because it's large enough to allow the herbs to start respawning at the start, but I included an alternative route marked with red for those who would prefer to farm the whole zone." >>> https://www.wow-professions.com/images/farmingmaps/goldclover-howling.jpg
+	r3_boreantundra >>> Route 3 - Borean Tundra >>> "Borean Tundra is not much worse from the other zones, I just prefer the layout of Howling Fjord and Grizzly Hills." >>> https://www.wow-professions.com/images/farmingmaps/goldclover-borean.jpg
+Tiger Lily
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_tigerlily.jpg
+	guide: https://www.wow-professions.com/farming/tiger-lily-farming
+	wh: https://www.wowhead.com/item=36904/tiger-lily#comments
+	r1_grizzlyhills >>> Route 1 - Grizzly Hills >>> "Grizzly Hills is the best place to farm Tiger Lily. The route is easy to follow and the herbs will start respawning by the time you do a full lap." >>> https://www.wow-professions.com/images/farmingmaps/tiger-lily-grizzly.jpg
+	r2_sholazarbasin >>> Route 2 - Sholazar Basin >>> "Sholazar Basin is also a great place to farm. You might want to choose this zone if you need some Adder's Tongue because you can pick a few while you travel between the rivers and lakes." >>> https://www.wow-professions.com/images/farmingmaps/tiger-lily-sholazar.jpg
+	r3_howlingfjord >>> Route 3 - Howling Fjord >>> "Howling Fjord is not much worse from the previous zones, you have to travel a tiny bit more between the lakes." >>> https://www.wow-professions.com/images/farmingmaps/tiger-lily-howling.jpg
+Deadnettle
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_constrictorgrass.jpg
+	guide: https://www.wow-professions.com/farming/deadnettle-farming
+	wh: https://www.wowhead.com/item=37921/deadnettle#comments
+	r1_grizzlyhills >>> Route 1 - Grizzly Hills >>> "Deadnettle does not spawn in its own nodes, but instead is a random drop from picking other Northrend herbs.\n\nGrizzly Hills is the best place to farm Deadnettle because the zone is filled with Tiger Lily and Goldclover." >>> https://www.wow-professions.com/images/farmingmaps/goldclover-grizzly.jpg
+	r2_howlingfjord >>> Route 2 - Howling Fjord >>> "Deadnettle does not spawn in its own nodes, but instead is a random drop from picking other Northrend herbs.\n\nHowling Fjord is not much worse from Grizzly Hills, you get a tiny bit fewer herbs. Follow the yellow lines, only go to the red line if someone else is farming in the zone." >>> https://www.wow-professions.com/images/farmingmaps/goldclover-howling.jpg
+Talandra's Rose
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_talandrasrose.jpg
+	guide: https://www.wow-professions.com/farming/talandras-rose-farming
+	wh: https://www.wowhead.com/item=36907/talandras-rose#comments
+	r1_zuldrak >>> Route 1 - Zul'Drak >>> "Zul'Drak is basically the only place where you can farm this herb. You can also get them by farming Frozen Herbs in Dragonblight, and in Wintergrasp, but it's a lot less effective." >>> https://www.wow-professions.com/images/farmingmaps/talandras-rose-zuldrak.jpg
+Adder's Tongue
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_evergreenmoss.jpg
+	guide: https://www.wow-professions.com/farming/adders-tongue-farming
+	wh: https://www.wowhead.com/item=36903/adders-tongue#comments
+	r1_sholazarbasin >>> Route 1 - Sholazar Basin >>> "This is the only zone where you can farm Adder's Tongue. The respawn rate is around 2-3 minutes, so you don't have to circle around the whole zone. I included two farming routes just in case someone else is farming in the zone. The first route is a lot better than the second one." >>> https://www.wow-professions.com/images/farmingmaps/adders-tongue-sholazar.jpg
+	r2_sholazarbasin >>> Route 2 - Sholazar Basin >>> "This is the only zone where you can farm Adder's Tongue. The respawn rate is around 2-3 minutes, so you don't have to circle around the whole zone. I included two farming routes just in case someone else is farming in the zone. The first route is a lot better than the second one." >>> https://www.wow-professions.com/images/farmingmaps/adders-tongue-sholazar2.jpg
+Lichbloom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_whispervine.jpg
+	guide: https://www.wow-professions.com/farming/lichbloom-icethorn-farming
+	wh: https://www.wowhead.com/item=36905/lichbloom#comments
+	r1_stormpeaks >>> Route 1 - Storm Peaks >>> "The best zone for farming Lichbloom and Icethorn is Storm Peaks. Due to the nature of the zone, effective farming is practically impossible without flying.\n\nI included two farming routes, I prefer the first one, but if someone else is farming in the zone, you might want to follow the larger farming route. (It would be better to just go to Icecrown.)" >>> https://www.wow-professions.com/images/farmingmaps/icethorn-lichbloom-stormpeaks.jpg
+	r2_stormpeaks >>> Route 2 - Storm Peaks >>> "The best zone for farming Lichbloom and Icethorn is Storm Peaks. Due to the nature of the zone, effective farming is practically impossible without flying.\n\nI included two farming routes, I prefer the first one, but if someone else is farming in the zone, you might want to follow the larger farming route. (It would be better to just go to Icecrown.)" >>> https://www.wow-professions.com/images/farmingmaps/icethorn-lichbloom-stormpeaks2.jpg
+	r3_icecrown >>> Route 3 - Icecrown >>> "Icecrown is a great alternative if someone else is farming in Storm Peaks." >>> https://www.wow-professions.com/images/farmingmaps/icethorn-lichbloom-icecrown.jpg
+Icethorn
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_icethorn.jpg
+	guide: https://www.wow-professions.com/farming/lichbloom-icethorn-farming
+	wh: https://www.wowhead.com/item=36906/icethorn#comments
+	r1_stormpeaks >>> Route 1 - Storm Peaks >>> "The best zone for farming Lichbloom and Icethorn is Storm Peaks. Due to the nature of the zone, effective farming is practically impossible without flying.\n\nI included two farming routes, I prefer the first one, but if someone else is farming in the zone, you might want to follow the larger farming route. (It would be better to just go to Icecrown.)" >>> https://www.wow-professions.com/images/farmingmaps/icethorn-lichbloom-stormpeaks.jpg
+	r2_stormpeaks >>> Route 2 - Storm Peaks >>> "The best zone for farming Lichbloom and Icethorn is Storm Peaks. Due to the nature of the zone, effective farming is practically impossible without flying.\n\nI included two farming routes, I prefer the first one, but if someone else is farming in the zone, you might want to follow the larger farming route. (It would be better to just go to Icecrown.)" >>> https://www.wow-professions.com/images/farmingmaps/icethorn-lichbloom-stormpeaks2.jpg
+	r3_icecrown >>> Route 3 - Icecrown >>> "Icecrown is a great alternative if someone else is farming in Storm Peaks." >>> https://www.wow-professions.com/images/farmingmaps/icethorn-lichbloom-icecrown.jpg
+
+# The Burning Crusade
+
+Felweed
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_felweed.jpg
+	guide: https://www.wow-professions.com/farming/felweed-farming
+	wh: https://www.wowhead.com/item=22785/felweed#comments
+	r1_bladesedgemountains >>> Route 1 - Blade's Edge Mountains >>> "The best zone to farm Felweed is Blade's Edge Mountains. In this zone, you will mostly find Felweed, Dreaming Glory, and a few Nightmare Vine." >>> https://www.wow-professions.com/images/tbc/herbalism-leveling-tbc-classic-blades-edge.jpg
+	r2_nagrand >>> Route 2 - Nagrand >>> "Nagrand is also a great place to farm. Just like in Blade's Edge, you will mostly find Felweed and Dreaming Glory and nothing else. This is why these two zones are the best because there are no other kind of herbs here." >>> https://www.wow-professions.com/images/tbc/felweed-farming-nagrand.jpg
+Dreaming Glory
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_dreamingglory.jpg
+	guide: https://www.wow-professions.com/farming/dreaming-glory-farming
+	wh: https://www.wowhead.com/item=22786/dreaming-glory#comments
+	r1_bladesedgemountains >>> Route 1 - Blade's Edge Mountains >>> "There is not much difference between Blade's Edge and Nagrand, I just prefer Blade's Edge because the route is a lot easier to follow." >>> https://www.wow-professions.com/images/tbc/dreaming-glory-farming-blades-edge.jpg
+	r2_nagrand >>> Route 2 - Nagrand >>> "Almost as good as Blade's Edge, but the route is a bit harder to follow." >>> https://www.wow-professions.com/images/tbc/dreaming-glory-farming-nagrand2.jpg
+Terocone
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_terrocone.jpg
+	guide: https://www.wow-professions.com/farming/terocone-farming
+	wh: https://www.wowhead.com/item=22789/terocone#comments
+	r1_terokkarforest >>> Route 1 - Terokkar Forest >>> "Terokkar Forest is the best place to farm Terocone. It grows in Shadowmoon Valley too, but there are so few there that it's just not worth going there for farming. You should pick up every other herb too, else you could finish one lap too fast and you will have to wait until the Terocones respawn.\n\nThis route requires flying, use the other route if you don't have it yet.\n\nIf you only want to get Terocone and nothing else, then you can just skip all the "flying-only" areas above Shattrath and Skettis. There is only Dreaming Glory and Mana Thistle in those areas." >>> https://www.wow-professions.com/images/tbc/terocone-farming-terokkar.jpg
+	r2_terokkarforest >>> Route 2 - Terokkar Forest >>> "Alternative route if you don't have flying." >>> https://www.wow-professions.com/images/tbc/terocone-farming-terokkar2.jpg
+Ragveil
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_ragveil.jpg
+	guide: https://www.wow-professions.com/farming/ragveil-farming
+	wh: https://www.wowhead.com/item=22787/ragveil#comments
+	r1_zangarmarsh >>> Route 1 - Zangarmarsh >>> "Because there are so many herbs in Zangarmarsh, you don't actually have to farm the whole zone. I farmed the most Ragveil using this route on the east side of Zangarmarsh." >>> https://www.wow-professions.com/images/tbc/ragveil-farming-zangarmarsh.jpg
+	r2_zangarmarsh >>> Route 2 - Zangarmarsh >>> "You can also use this route as an alternative, but it's really annoying because of all the Glowcap that will show up on your minimap." >>> https://www.wow-professions.com/images/tbc/ragveil-farming-zangarmarsh2.jpg
+	r3_zangarmarsh >>> Route 3 - Zangarmarsh >>> "This "no-brainer" route is not as good as the previous two because I actually got fewer herbs, but since the route is basically just going around the edges of the map, you can use it while watching Netflix or doing something else." >>> https://www.wow-professions.com/images/tbc/ragveil-farming-zangarmarsh3.jpg
+Nightmare Vine
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_nightmarevine.jpg
+	guide: https://www.wow-professions.com/farming/nightmare-vine-farming
+	wh: https://www.wowhead.com/item=22792/nightmare-vine#comments
+	r1_shadowmoonvalley >>> Route 1 - Shadowmoon Valley >>> "Shadowmoon Valley is basically the only place where you can farm this herb effectively. You can also find some Nightmare Vine in Blade's Edge Mountains, but only 2-3 nodes." >>> https://www.wow-professions.com/images/tbc/nightmare-vine-farming-shadowmoon.jpg
+	r2_bladesedgemountains >>> Route 2 - Blade's Edge Mountains >>> "You will only get a few Nightmare Vine here, but overall a great farming route. You will get a lot of Dreaming Glory, Felweed, and some Mana Thistle." >>> https://www.wow-professions.com/images/tbc/nightmare-vine-farming-blades-edge.jpg
+Netherbloom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_netherbloom.jpg
+	guide: https://www.wow-professions.com/farming/netherbloom-farming
+	wh: https://www.wowhead.com/item=22791/netherbloom#comments
+	r1_netherstorm >>> Route 1 - Netherstorm >>> "Netherstorm is the only place where you can farm Netherbloom, it doesn't grow at any other zones.\n\nThe respawn rate is fast enough that you don't have to loop around the whole zone. I mainly used this farming route because it's very easy to follow and you get a lot of Netherbloom." >>> https://www.wow-professions.com/images/tbc/herbalism-leveling-tbc-classic-netherstorm.jpg
+	r2_netherstorm >>> Route 2 - Netherstorm >>> "This route loops around the whole zone, checking every possible herb spawn. You should use this if there is a lot of other people farming in the zone." >>> https://www.wow-professions.com/images/tbc/netherbloom-farming-netherstorm.jpg
+
+# Vanilla
+
+Silverleaf
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_10.jpg
+	guide: https://www.wow-professions.com/farming/peacebloom-silverleaf-farming
+	wh: https://www.wowhead.com/item=765/silverleaf#comments
+	r1_tirisfalglades >>> Route 1 - Tirisfal Glades >>> "Tirisfal Glades is the best zones for Horde players to farm. There is a Herbalism trainer in Brill which makes this place even better." >>> https://www.wow-professions.com/images/farmingmaps/peacebloom-silverleaf-tirisfal-glades.jpg
+	r2_elwynnforest >>> Route 2 - Elwynn Forest >>> "Alliance players should go to Elwynn Forest. One big circle in the zone and all herbs will respawn by the time you get to the point where you started." >>> https://www.wow-professions.com/images/farmingmaps/peacebloom-silverleaf-elwyn-forest.jpg
+Peacebloom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_flower_02.jpg
+	guide: https://www.wow-professions.com/farming/peacebloom-silverleaf-farming
+	wh: https://www.wowhead.com/item=2447/peacebloom#comments
+	r1_tirisfalglades >>> Route 1 - Tirisfal Glades >>> "Tirisfal Glades is the best zones for Horde players to farm. There is a Herbalism trainer in Brill which makes this place even better." >>> https://www.wow-professions.com/images/farmingmaps/peacebloom-silverleaf-tirisfal-glades.jpg
+	r2_elwynnforest >>> Route 2 - Elwynn Forest >>> "Alliance players should go to Elwynn Forest. One big circle in the zone and all herbs will respawn by the time you get to the point where you started." >>> https://www.wow-professions.com/images/farmingmaps/peacebloom-silverleaf-elwyn-forest.jpg
+Briarthorn
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_root_01.jpg
+	guide: https://www.wow-professions.com/farming/briarthorn-mageroyal-farming
+	wh: https://www.wowhead.com/item=2450/briarthorn#comments
+	r1_hillsbradfoothills >>> Route 1 - Hillsbrad Foothills >>> "Hillsbrad Foothills is the best place to farm these two herbs. There is just so much herb in this zone. You can also find Frozen Herbs at the top of Alterac Mountains, they can contain Mageroyal, Briarthorn or Bruiseweed." >>> https://www.wow-professions.com/images/farmingmaps/briarthorn-mageroyal-hillsbrad.jpg
+	r2_darkshore >>> Route 2 - Darkshore >>> "Darkshore is also a really good place to farm Briarthorn and Mageroyal. Not as good as Hillsbrad but if you are an Alliance player and you can't go to Hillbrad, Darkshore is the best zone." >>> https://www.wow-professions.com/images/farmingmaps/briarthorn-mageroyal-darkshore.jpg
+Mageroyal
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_jewelry_talisman_03.jpg
+	guide: https://www.wow-professions.com/farming/briarthorn-mageroyal-farming
+	wh: https://www.wowhead.com/item=785/mageroyal#comments
+	r1_hillsbradfoothills >>> Route 1 - Hillsbrad Foothills >>> "Hillsbrad Foothills is the best place to farm these two herbs. There is just so much herb in this zone. You can also find Frozen Herbs at the top of Alterac Mountains, they can contain Mageroyal, Briarthorn or Bruiseweed." >>> https://www.wow-professions.com/images/farmingmaps/briarthorn-mageroyal-hillsbrad.jpg
+	r2_darkshore >>> Route 2 - Darkshore >>> "Darkshore is also a really good place to farm Briarthorn and Mageroyal. Not as good as Hillsbrad but if you are an Alliance player and you can't go to Hillbrad, Darkshore is the best zone." >>> https://www.wow-professions.com/images/farmingmaps/briarthorn-mageroyal-darkshore.jpg
+Stranglekelp
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_11.jpg
+	guide: https://www.wow-professions.com/farming/stranglekelp-farming
+	wh: https://www.wowhead.com/item=3820/stranglekelp#comments
+	r1_thousandneedles >>> Route 1 - Thousand Needles >>> "It's recommended to have around Herbalism 85 so you won't get any herb fragments.\n\nThe single best place to farm Stranglekelp is Thousand Needles, they are literally all over the place underwater and the only aggressive mob you will find are the __Remora Scroungers__.\n\n80% of this zone is underwater, but you don't have to worry because after you complete a few quests (__Down in the Deeps__), you will get the buff __Speedbarge Diving Helm__ which lets you breathe underwater and you will swim/run faster. You should go to the bottom of the water because at the bottom you will run on land like if you had a ground mount, so it's a lot faster than swimming. You don't have to use your mount, you will run just as fast.\n\nYou will find Stranglekelp everywhere, but below you can find the route I usually use." >>> https://www.wow-professions.com/images/farmingmaps/stranglekelp-thousand-needles.jpg
+	r2_wetlands >>> Route 2 - Wetlands >>> "It's recommended to have around Herbalism 85 so you won't get any herb fragments.\n\nThis zone is mainly for lower level Alliance players who can't complete the quest in Thousand Needles for the underwater speed buff." >>> https://www.wow-professions.com/images/farmingmaps/stranglekelp-wetlands.jpg
+Bruiseweed
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_01.jpg
+	guide: https://www.wow-professions.com/farming/bruiseweed-farming
+	wh: https://www.wowhead.com/item=2453/bruiseweed#comments
+	r1_northernstranglethorn >>> Route 1 - Northern Stranglethorn >>> "Best place to farm is at Stranglethorn Vale because you will find the most herbs in this zone." >>> https://www.wow-professions.com/images/farmingmaps/bruiseweed-stv.jpg
+	r2_ashenvale >>> Route 2 - Ashenvale >>> "Ashenvale is a great alternative to Stranglethorn Vale if someone else is already farming there." >>> https://www.wow-professions.com/images/farmingmaps/bruiseweed-ashenvale.jpg
+	r3_wetlands >>> Route 3 - Wetlands >>> "Wetlands is also a decent place but it's an Alliance zone, so low level Horde players can't farm there." >>> https://www.wow-professions.com/images/farmingmaps/bruiseweed-wetlands.jpg
+Grave Moss
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_dust_02.jpg
+	guide: https://www.wow-professions.com/farming/grave-moss-farming
+	wh: https://www.wowhead.com/item=3369/grave-moss#comments
+	r1_razorfendowns >>> Route 1 - Razorfen Downs >>> "It's recommended to have around Herbalism 105, so you won't get herb fragments.\n\nThis instance scales to level 30. You can find [the entrance to Razorfen Downs](https://www.wow-professions.com/images/farmingmaps/rfd-entrance.jpg) at Thousand Needles.\n\nYou have to kill most bosses in the instance because there are blocks at each boss preventing you from going further unless you kill the bosses. You can summon the spider boss if you hit that bell thing in her room.\n\nThere are usually 4 Grave Moss in the instance. 1 before the second boss, 2 at the second boss, and one at the last boss.\n\nAfter you clear the instance, go outside and reset it by right-clicking over your own portrait then clicking "Reset all instances". However, you can only do 10 instance runs in an hour, this means if you are clearing this place under 6 minutes, you will have to wait a bit." >>> https://www.wow-professions.com/images/farmingmaps/grave-moss-rfd.jpg
+	r2_hillsbradarathiwetlands >>> Route 2 - Hillsbrad / Arathi / Wetlands >>> "It's recommended to have around Herbalism 105, so you won't get herb fragments.\n\nIf your level is not high enough to solo Razorfen Downs, you can try farming between these 3 graveyards in these 3 zones. If you have fast flying, you will have to wait for respawns because it takes around 3 minutes to do a full lap in these 3 zones, but Grave Moss's respawn time is around 5-8 minutes.\n\nStart from Hillsbrad, go to Arathi, then go to Wetlands and back to Hillsbrad. Or the other way around if you start from Wetlands." >>> https://i.imgur.com/4SJ8ft9.png
+	r3_duskwood >>> Route 3 - Duskwood >>> "It's recommended to have around Herbalism 105, so you won't get herb fragments.\n\nDuskwood is also a good place, but you have to wait for respawns here too (5-8 minutes).\n\nMove between these small graveyards." >>> https://www.wow-professions.com/images/farmingmaps/grave-moss-duskwood.jpg
+Wild Steelbloom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_flower_01.jpg
+	guide: https://www.wow-professions.com/farming/wild-steelbloom-farming
+	wh: https://www.wowhead.com/item=3355/wild-steelbloom#comments
+	r1_northernstranglethorn >>> Route 1 - Northern Stranglethorn >>> "It's recomended to have Herbalism 115 so you won't get any herb fragments.\n\nBest place to farm is at Stranglethorn Vale because you will find the most herbs in this zone, and the herbs are not that spread apart." >>> https://www.wow-professions.com/images/farmingmaps/wild-steelbloom-stv.jpg
+	r2_ashenvale >>> Route 2 - Ashenvale >>> "It's recomended to have Herbalism 115 so you won't get any herb fragments.\n\nAshenvale is a great alternative to Stranglethorn Vale. The herbs are a bit more spread apart, but if you have flying it shouldn't be a problem." >>> https://www.wow-professions.com/images/farmingmaps/wild-steelbloom-ashenvale.jpg
+Kingsblood
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_03.jpg
+	guide: https://www.wow-professions.com/farming/kingsblood-farming
+	wh: https://www.wowhead.com/item=3356/kingsblood#comments
+	r1_northernstranglethorn >>> Route 1 - Northern Stranglethorn >>> "It's recommended to have Herbalism 125 so you won't get any herb fragments.\n\nBest place to farm is at Stranglethorn Vale because you will find the most herbs in this zone." >>> https://www.wow-professions.com/images/farmingmaps/kingsblood-stv.jpg
+	r2_westernplaguelands >>> Route 2 - Western Plaguelands >>> "It's recommended to have Herbalism 125 so you won't get any herb fragments.\n\nWestern Plaguelands is also a decent place to farm if you have someone else farming at Stranglethorn." >>> https://www.wow-professions.com/images/farmingmaps/kingsblood-wpl.jpg
+Liferoot
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_root_02.jpg
+	guide: https://www.wow-professions.com/farming/liferoot-farming
+	wh: https://www.wowhead.com/item=3357/liferoot#comments
+	r1_westernplaguelands >>> Route 1 - Western Plaguelands >>> "It's recommmended to have Herbalism 150 if you don't want to get herb fragments.\n\nDarrowmere Lake at Western Plaguelands is simply the best place for this herb. Just go around the outside of the lake and pick every herb you see. You will also find a lot of Stranglekelp inside the lake, pick them if you need it for leveling Alchemy." >>> https://www.wow-professions.com/images/farmingmaps/liferoot-wpl.jpg
+	r2_easternplaguelands >>> Route 2 - Eastern Plaguelands >>> "It's recommmended to have Herbalism 150 if you don't want to get herb fragments.\n\nSecond best place is Eastern Plaguelands, so if there is someone already farming at Western Plaguelends, just go to Eastern." >>> https://www.wow-professions.com/images/farmingmaps/liferoot-epl.jpg
+	r3_northernstranglethorn >>> Route 3 - Northern Stranglethorn >>> "It's recommmended to have Herbalism 150 if you don't want to get herb fragments.\n\nNorthern Stranglethorn is also a great place for farming Liferoot." >>> https://www.wow-professions.com/images/farmingmaps/liferoot-northern-stranglethorn.jpg
+Fadeleaf
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_12.jpg
+	guide: https://www.wow-professions.com/farming/fadeleaf-farming
+	wh: https://www.wowhead.com/item=3818/fadeleaf#comments
+	r1_feralas >>> Route 1 - Feralas >>> "It's recommended to have Herbalism 150 so you won't get any herb fragments.\n\nFeralas is a great place to farm, herbs are really close to each other and the farming route is easy to follow." >>> https://www.wow-professions.com/images/farmingmaps/fadeleaf-feralas.jpg
+	r2_capeofstranglethorn >>> Route 2 - The Cape of Stranglethorn >>> "It's recommended to have Herbalism 150 so you won't get any herb fragments.\n\nStranglethorn is also a decent place, but the layout of the zone makes a bit harder to collect herbs if you don't have flying." >>> https://www.wow-professions.com/images/farmingmaps/fadeleaf-stv.jpg
+Goldthorn
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_15.jpg
+	guide: https://www.wow-professions.com/farming/goldthorn-farming
+	wh: https://www.wowhead.com/item=3821/goldthorn#comments
+	r1_hinterlandsarathihighlands >>> Route 1 - The Hinterlands / Arathi Highlands >>> "It's recommended to have Herbalism 150, so you won't get any herb fragments.\n\nThese two zones are good places to farm Goldthorn. But if you have a fast mount, most of the herbs won't respawn after you do a full lap in one of the zones, and this means you will have to wait a lot.\n\nFortunately, these two zones are next to each other, so you can just move between them, and this way no matter how fast you gather the herbs, they will always respawn in the other zone.\n\nI marked the tunnels where you can go to the other zone with red Xs." >>> https://i.imgur.com/uYu0Lsu.png
+	r2_dustwallowmarsh >>> Route 2 - Dustwallow Marsh >>> "It's recommended to have Herbalism 150, so you won't get any herb fragments.\n\nDustwallow Marsh is also a great place to farm Goldthorn, but if you only pick up Goldthorn and nothing else, you will finish one lap in the zone too fast and you will have to wait for the herbs to respawn. This might not be a problem for those who only have slow mount speeds." >>> https://www.wow-professions.com/images/farmingmaps/goldthorn-dustwallow.jpg
+Khadgar's Whisker
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_08.jpg
+	guide: https://www.wow-professions.com/farming/khadgars-whisker-farming
+	wh: https://www.wowhead.com/item=3358/khadgars-whisker#comments
+	r1_easternplaguelands >>> Route 1 - Eastern Plaguelands >>> "It's recommended to have around Herbalism 160, so you won't get herb fragments.\n\nKhadgar's Whisker is not the only herb that you can pick at Eastern Plaguelands, you will also find a lot of Sungrass and Liferoot in this zone.\n\nThe respawn rate is fast enough that **you don't have to go to the upper part of the map where the red route is**, but I included it in the guide so people are aware that there are herbs there too." >>> https://www.wow-professions.com/images/farmingmaps/khadgars-whisker-eastern-plaguelands.jpg
+	r2_westernplaguelands >>> Route 2 - Western Plaguelands >>> "It's recommended to have around Herbalism 160, so you won't get herb fragments.\n\nAlmost as good as Eastern Plaguelands, the difference between these zones almost comes down to personal preference. There are a lot of Kingsblood and Fadeleaf in this zone, so if you need those herbs too, you should choose Western Plaguelands." >>> https://www.wow-professions.com/images/farmingmaps/khadgars-whisker-western-plaguelands.jpg
+Sungrass
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_18.jpg
+	guide: https://www.wow-professions.com/farming/sungrass-farming
+	wh: https://www.wowhead.com/item=8838/sungrass#comments
+	r1_thousandneedles >>> Route 1 - Thousand Needles >>> "It's recommended to have around Herbalism 230, so you won't get herb fragments.\n\nThousand Needles is the best place to farm Sungrass. It's really easy to follow the farming route since you basically just have to follow the outer edge of the map, and the most common herb here is Sungrass not like in Eastern Plagueland where you will also get a lot of Khadgar's Whisker.\n\nIf you don't have flying mount I would recommend to go to Eastern Plaguelands instead." >>> https://www.wow-professions.com/images/farmingmaps/sungrass-thousand-needles.jpg
+	r2_easternplaguelands >>> Route 2 - Eastern Plaguelands >>> "It's recommended to have around Herbalism 230, so you won't get herb fragments.\n\nNot as good as Thousand Needles, but still a decent place. If you don't have flying, this place is better for you than Thousand Needles." >>> https://www.wow-professions.com/images/farmingmaps/sungrass-eastern-plaguelands.jpg
+Firebloom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_19.jpg
+	guide: https://www.wow-professions.com/farming/firebloom-farming
+	wh: https://www.wowhead.com/item=4625/firebloom#comments
+	r1_burningsteppes >>> Route 1 - Burning Steppes >>> "It's recommended to have around Herbalism 205, so you won't get herb fragments.\n\nThe best place to farm Firebloom is Burning Steppes. It's really easy to follow this farming route, you just have to follow the small patches of lava in the zone.\n\n__NOTE:__ If you only pick Firebloom and skip every other herb in the zone, or you have a mount that lets you gather while mounted, then you will probably have to wait for herbs to respawn. Firebloom randomly respawns between 5-8 minutes, so if you can do one lap under that, you will have to wait, or you can just go to Searing Gorge, since it's really close." >>> https://www.wow-professions.com/images/farmingmaps/firebloom-burning-steppes.jpg
+	r2_searinggorge >>> Route 2 - Searing Gorge >>> "It's recommended to have around Herbalism 205, so you won't get herb fragments.\n\nSame as with Burning Steppes, the zone is so small you will probably have to wait for herbs to respawn if you farm too fast. Or just go to Burning Steppes after one lap, and alternate between these two zones." >>> https://www.wow-professions.com/images/farmingmaps/firebloom-searing-gorge.jpg
+	r3_tanaris >>> Route 3 - Tanaris >>> "It's recommended to have around Herbalism 205, so you won't get herb fragments.\n\nTanaris is bit larger so you should be able to farm here without waiting for respawns. This zone is not that much worse than the previous two mentioned if you compare them one by one, but since you can alternate between Burning Steppes and Searing Gorge, they are the better choices." >>> https://www.wow-professions.com/images/farmingmaps/firebloom-tanaris.jpg
+Purple Lotus
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_17.jpg
+	guide: https://www.wow-professions.com/farming/purple-lotus-farming
+	wh: https://www.wowhead.com/item=8831/purple-lotus#comments
+	r1_felwood >>> Route 1 - Felwood >>> "It's recommended to have around Herbalism 210, so you won't get herb fragments.\n\nThere are 5 ruins in Felwood where Purple Lotus grows. Usually you can only find 1 Purple Lotus at the smaller ruins, but at the larger ones like Ruins of Constellas you can often find 2-3.\n\nSince this is the only zone where Purple Lotus grows, it's often farmed by someone else. If you visit every ruin and you didn't find a single Purple Lotus it means someone is already farming in the zone.\n\nIt's possible that you will finish one lap too fast and the Purple Lotus at the start still haven't respawned yet. To avoid this, when you start your next lap, you should pick up every herb when you move between the ruins, so you finish slower. Or you can just simply wait for respawns every time if you don't want to bother with picking up other herbs." >>> https://www.wow-professions.com/images/farmingmaps/purple-lotus-felwood.jpg
+Blindweed
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_14.jpg
+	guide: https://www.wow-professions.com/farming/blindweed-farming
+	wh: https://www.wowhead.com/item=8839/blindweed#comments
+	r1_feralas >>> Route 1 - Feralas >>> "It's recommended to have around Herbalism 235, so you won't get herb fragments.\n\nFeralas is by far the best place to farm Blindweed. This is the only zone where you can continuously farm without waiting for respawns.\n\nJademir Lake is located in the Northwest portion of Feralas, and that's where you should start. You can get 30-40 Blindweed from just going around the lake, and you might not even have to go to the rest of Feralas if you don't need more Blindweed. If you need more Blindweed you have to visit the other lakes, rivers, and ponds at Feralas because the respawn rate is not fast enough around the Jademir Lake." >>> https://www.wow-professions.com/images/farmingmaps/blindweed-feralas.jpg
+	r2_westernplagueland >>> Route 2 - Western Plagueland >>> "It's recommended to have around Herbalism 235, so you won't get herb fragments.\n\nI included this place because sometimes you only need 10-20 Blindweed, and you can get that much from Western Plaguelands if that's closer to you than Feralas. You will get all the Blindweed in like 1 minute, but the respawn rate is 5-8 minutes, so you can't farm here continuously." >>> https://www.wow-professions.com/images/farmingmaps/blindweed-western-plageulands.jpg
+Ghost Mushroom
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_mushroom_08.jpg
+	guide: https://www.wow-professions.com/farming/ghost-mushroom-farming
+	wh: https://www.wowhead.com/item=8845/ghost-mushroom#comments
+	r1_ungorocrater >>> Route 1 - Un'Goro Crater >>> "It's recommended to have around Herbalism 245, so you won't get herb fragments.\n\nThe Fungal Rock cave in Un'Goro is the best place to farm, it's filled with Ghost Mushroom. You can usually get around 20 after one full run through in the cave.\n\nThe mushrooms will keep spawning until you picked every node in the cave, so go around in the cave until you can't see any new mushroom. Then you have to wait around 5-6 minutes until new mushrooms spawn." >>> https://www.wow-professions.com/images/farmingmaps/ghost-mushroom-ungoro.jpg
+	r2_zangarmarsh >>> Route 2 - Zangarmarsh >>> "It's recommended to have around Herbalism 245, so you won't get herb fragments.\n\nIf for some reason you can't farm at Un'Goro, you can go to the Funggor Cavern in Zangarmarsh. There can be only 3 Ghost Mushrooms up at one time in this cave, but the respawn rate seems to be pretty fast, around 2-3 minutes. So basically just pick 3 mushrooms, then wait for 2-3 minutes." >>> https://www.wow-professions.com/images/farmingmaps/ghost-mushroom-zangarmarsh.jpg
+Gromsblood
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_16.jpg
+	guide: https://www.wow-professions.com/farming/gromsblood-farming
+	wh: https://www.wowhead.com/item=8846/gromsblood#comments
+	r1_felwood >>> Route 1 - Felwood >>> "It's recommended to have around Herbalism 250, so you won't get herb fragments.\n\nFelwood is the best place to farm Gromsblood, but this zone has a variety of other herbs in large quantities. You will also get Golden Sansam, Dreamfoil, and a few Purple lotus, which makes this a really good zone to farm for lower levels who want to level Alchemy because you need all 3 of those herbs.\n\nYou can also find some Gromsblood at Blasted Lands and Desolace, but there are so few I don't think it's worth to go there." >>> https://www.wow-professions.com/images/farmingmaps/gromsblood-felwood.jpg
+Golden Sansam
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_sansamroot.jpg
+	guide: https://www.wow-professions.com/farming/golden-sansam-farming
+	wh: https://www.wowhead.com/item=13464/golden-sansam#comments
+	r1_swampofsorrows >>> Route 1 - Swamp of Sorrows >>> "It's recommended to have around Herbalism 260, so you won't get herb fragments.\n\nThe herbs are a bit spread apart, so you have to sometimes move in a zigzag. There is probably more Sorrowmoss than Golden Sansam in this zone, but Swamp of Sorrows still has more Golden Sansam than other zones." >>> https://www.wow-professions.com/images/farmingmaps/golden-sansam-swamp.jpg
+	r2_felwood >>> Route 2 - Felwood >>> "It's recommended to have around Herbalism 260, so you won't get herb fragments.\n\nFelwood is a good alternative to Swamp of Sorrows. You will also get Dreamfoil, Gromsblood and Purple Lotus in this zone." >>> https://www.wow-professions.com/images/farmingmaps/golden-sansam-felwood.jpg
+Dreamfoil
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_dreamfoil.jpg
+	guide: https://www.wow-professions.com/farming/dreamfoil-farming
+	wh: https://www.wowhead.com/item=13463/dreamfoil#comments
+	r1_blastedlands >>> Route 1 - Blasted Lands >>> "It's recommended to have around Herbalism 270, so you won't get herb fragments.\n\nThere is an NPC called __Zidormi__ who lets you phase to the old version of the Blasted Lands if you talk to her. This is really handy because if someone is farming in the zone, or you farm here with a druid or a mount that lets you gather while mounted, you might pick every herb too fast and you have to wait for respawns, but this way you can just swap between the two versions of Blasted Lands." >>> https://www.wow-professions.com/images/farmingmaps/dreamfoil-blasted-lands.jpg
+	r2_silithus >>> Route 2 - Silithus >>> "It's recommended to have around Herbalism 270, so you won't get herb fragments.\n\nSilithus can be a good alternative, but Blasted Lands is lot better." >>> https://www.wow-professions.com/images/farmingmaps/dreamfoil-silithus.jpg
+Mountain Silversage
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_mountainsilversage.jpg
+	guide: https://www.wow-professions.com/farming/mountain-silversage-farming
+	wh: https://www.wowhead.com/item=13465/mountain-silversage#comments
+	r1_winterspring >>> Route 1 - Winterspring >>> "It's recommended to have around Herbalism 280, so you won't get herb fragments.\n\nWinterspring is by far the best place to farm Mountain Silversage, it's not worth to go to other zones because there are so many of them at Winterspring.\n\nThere are two farming routes you can use, there is not much difference between them, you will usually get around the same number of Mountain Silversage. The respawn rate is fast enough that you can follow the smaller farming route if you prefer not to go around the whole zone." >>> https://www.wow-professions.com/images/farmingmaps/mountain-silversage-winterspring.jpg
+	r2_winterspring >>> Route 2 - Winterspring >>> "It's recommended to have around Herbalism 280, so you won't get herb fragments.\n\nWinterspring is by far the best place to farm Mountain Silversage, it's not worth to go to other zones because there are so many of them at Winterspring.\n\nThere are two farming routes you can use, there is not much difference between them, you will usually get around the same number of Mountain Silversage. The respawn rate is fast enough that you can follow the smaller farming route if you prefer not to go around the whole zone." >>> https://www.wow-professions.com/images/farmingmaps/mountain-silversage-winterspring2.jpg
+Icecap
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_icecap.jpg
+	guide: https://www.wow-professions.com/farming/icecap-farming
+	wh: https://www.wowhead.com/item=13467/icecap#comments
+	r1_winterspring >>> Route 1 - Winterspring >>> "It's recommended to have around Herbalism 290, so you won't get herb fragments.\n\nIcecap can only be found in Winterspring, you can't farm it anywhere else, but the zone is filled with Icecap so you can get a lot of Icecap in a short amount of time.\n\nYou can also find a lot of Mountain Silversage here, so if you need that herb too, try to move closer to the mountains while you farm icecap, because Mountain Silversage mostly grows on the mountains (duh)." >>> https://www.wow-professions.com/images/farmingmaps/icecap-winterspring.jpg
+Sorrowmoss
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_misc_herb_plaguebloom.jpg
+	guide: https://www.wow-professions.com/farming/sorrowmoss-farming
+	wh: https://www.wowhead.com/item=13466/sorrowmoss#comments
+	r1_swampofsorrows >>> Route 1 - Swamp of Sorrows >>> "It's recommended to have around Herbalism 285, so you won't get herb fragments.\n\nSorrowmoss can only be found in Swamp of Sorrows, you can't farm it anywhere else. Fortunately, the zone is filled with Sorrowmoss. The herbs in the zones are really spread apart, so the farming route usually goes in a zig zag.\n\nYou can also get a lot of Golden Sansam in this zone if you need it for something. But even if you don't need them, it's a good idea to pick them up so you can sell them." >>> https://www.wow-professions.com/images/farmingmaps/sorrowmoss-swamp-of-sorrows.jpg

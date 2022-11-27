@@ -125,7 +125,7 @@ partial class Farm {
 	}
 	
 	// Autocomplete valid options for a given query.
-	public static List<(string, string)> AutocompleteOptions(string query) {
+	public static IList<(string, string)> AutocompleteOptions(string query) {
 		string id = NormalizeName(query);
 
 		// Search for matching options.

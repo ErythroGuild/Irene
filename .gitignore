@@ -6,6 +6,7 @@ remote-start.ps1
 */config/token.txt
 */config/commit.txt
 */config/tag.txt
+*/config/deepl.txt
 */config/dir-data.txt
 */config/dir-logs.txt
 */config/path-ak.txt
