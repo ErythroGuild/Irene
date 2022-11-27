@@ -92,6 +92,9 @@ class Help {
 			{flower} **Awards** {flower}
 			{/*HelpText("commend")*/ "[WIP]"}
 			{HelpText(Commands.Starboard.Command_BestOf)}
+
+			{flower} **Translation** {flower}
+			{HelpText(Commands.Translate.Command_Translate)}
 			""",
 
 			$"""
