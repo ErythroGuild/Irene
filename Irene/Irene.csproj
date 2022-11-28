@@ -95,6 +95,9 @@
     <None Update="data\memes.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="data\mimic-wordlist.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="data\raids.txt">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
