@@ -1,4 +1,7 @@
 # Last imported: build 10.0.2.46801
+# Language IDs: dbfilesclient/languages.db2
+# Wordlists: dbfilesclient/languagewords.db2
+# Exported with wow.export
 
 # 1
 Orcish >>> Orcs

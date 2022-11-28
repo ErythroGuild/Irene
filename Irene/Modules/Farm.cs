@@ -186,7 +186,7 @@ partial class Farm {
 			$"""
 			**{route.Name}**
 			{description}
-			[Original guide]({material.Guide}) {_bullet} [Wowhead]({material.Wowhead})
+			[Full guide]({material.Guide}) {_bullet} [Wowhead]({material.Wowhead})
 			""";
 		string footer =
 			$"{_footerText} {_bullet} {material.Timestamp.ToString(Format_IsoDate)}";
