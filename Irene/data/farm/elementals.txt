@@ -1,4 +1,46 @@
-﻿!!! 2022-11-22 !!!
+﻿!!! 2022-11-29 !!!
+
+# Dragonflight
+
+Rousing Fire
+	Rare >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_elementalshardfoozles_fire.jpg
+	guide: https://www.wow-professions.com/farming/rousing-fire-farming
+	wh: https://www.wowhead.com/item=190320/rousing-fire#comments
+	a1_wakingshore >>> Area 1 - The Waking Shore >>> "Awakened Fire comes from combining 10 Rousing Fire.\n\nRun around the small lava pit at this location and keep killing __Ashen Sparks__ and __Destructive Flames__. The small mobs can drop Rousing Earth too." >>> https://www.wow-professions.com/images/dragonflight/rousing-fire-waking-2.jpg
+	a2_wakingshore >>> Area 2 - The Waking Shore >>> "Awakened Fire comes from combining 10 Rousing Fire.\n\nThe __Provoking Flame__ mobs are hyperspawning at the marked location. You can never run out of them. There are also __Tormented Steam__ mobs at the same location, they are all fighting each other, so you pretty much have to kill those too (they drop Rousing Frost)." >>> https://www.wow-professions.com/images/dragonflight/rousing-fire-waking.jpg
+Rousing Frost
+	Rare >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_elementalshardfoozles_frost.jpg
+	guide: https://www.wow-professions.com/farming/rousing-frost-farming
+	wh: https://www.wowhead.com/item=190328/rousing-frost#comments
+	a1_azurespan >>> Area 1 - The Azure Span >>> "Awakened Frost comes from combining 10 Rousing Frost.\n\nThe __Calving Elementals__ just near Camp Antonidas are hyperspawning mobs, so you can farm here without downtime, you can find them around that small icy lake. There is also a large quest mob at the exact location with more HP than the rest of the mobs. It can also drop Rousing Frost, so you can just AoE it down with the rest of them." >>> https://www.wow-professions.com/images/dragonflight/rousing-frost-azure.jpg
+	a2_wakingshore >>> Area 2 - The Waking Shore >>> "Awakened Frost comes from combining 10 Rousing Frost.\n\nThe __Tormented Steam__ mobs are hyperspawning at the marked location. You can never run out of them.\n\nThere are also __Provoking Flame__ mobs at the same location, they are all fighting each other, so you pretty much have to kill those too. They drop Rousing Fire." >>> https://www.wow-professions.com/images/dragonflight/rousing-frost-waking.jpg
+Rousing Earth
+	Rare >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_elementalshardfoozles_earth.jpg
+	guide: https://www.wow-professions.com/farming/rousing-earth-farming
+	wh: https://www.wowhead.com/item=190315/rousing-earth#comments
+	a1_wakingshore >>> Area 1 - The Waking Shore >>> "Awakened Earth comes from combining 10 Rousing Earth.\n\nAll three of these places in the Waking Shore are good sources of Rousing Earth.\n\nEvery single mob inside this cave can drop Rousing Earth. A few __Cindershard Hulk__ elites are patrolling inside the cave, you can avoid pulling most of them, but I would recommend killing the two patrolling in the middle and leaving the rest of them alone." >>> https://www.wow-professions.com/images/dragonflight/rousing-earth-waking.jpg
+	a2_wakingshore >>> Area 2 - The Waking Shore >>> "Awakened Earth comes from combining 10 Rousing Earth.\n\nThe __Crushing Elementals__ in this area are a bit far from each other, so it's harder to pull them together, but they respawn fast. There are also a bunch of elite mobs there. Try not to pull them." >>> https://www.wow-professions.com/images/dragonflight/rousing-earth-waking-2.jpg
+	a3_wakingshore >>> Area 3 - The Waking Shore >>> "Awakened Earth comes from combining 10 Rousing Earth.\n\nThere is a lot of __Unsettled Rubble__ and __Displaced Earth__ mobs around this camp. The respawn rate seems to be fast enough that you don't have to wait, but they respawn a bit far from each other, so you have to move a lot." >>> https://www.wow-professions.com/images/dragonflight/rousing-earth-waking-3.jpg
+Rousing Air
+	Rare >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_elementalshardfoozles_air.jpg
+	guide: https://www.wow-professions.com/farming/rousing-air-farming
+	wh: https://www.wowhead.com/item=190326/rousing-air#comments
+	a1_ohnahranplains >>> Area 1 - Ohn'ahran Plains >>> "Awakened Air comes from combining 10 Rousing Air.\n\nFarming __Unbound Windscourges__, __Unleashed Storms__, and __Windfiends__ in Ohn'ahran Plains is the best source of Rousing Air. The respawn rate is really fast, you can never run out of mobs to kill, and they are all really close to each other, so you can pull a lot of them together." >>> https://www.wow-professions.com/images/dragonflight/rousing-air-plains.jpg
+	a2_azurespan >>> Area 2 - The Azure Span >>> "Awakened Air comes from combining 10 Rousing Air.\n\n__Restless Winds__ and __Restless Gales__ in The Azure Span is also a great source of Rousing Air." >>> https://www.wow-professions.com/images/dragonflight/rousing-air-azure.jpg
+Rousing Decay
+	Rare >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_elementalshardfoozles_decay.jpg
+	guide: https://www.wow-professions.com/farming/rousing-decay-farming
+	wh: https://www.wowhead.com/item=190330/rousing-decay#comments
+	a1_azurespan >>> Area 1 - The Azure Span >>> "Awakened Decay comes from combining 10 Rousing Decay.\n\nOutside of Brackenhide Hollow, the only mobs that can drop Rousing Decay are the __Rotting Treants__ and __Oozing Decays__ at Blackenhide Outskirts.\n\nThere are four packs of 3 __Oozing Decays__ at the spot marked on the map below (18, 35). It seems there are always at least a few of the groups up, so you can stay in [this one spot](https://www.wow-professions.com/images/dragonflight/rousing-decay-location.jpg) and farm without moving much." >>> https://www.wow-professions.com/images/dragonflight/rousing-decay-azure.jpg
+	a2_azurespan >>> Area 2 - The Azure Span >>> "Awakened Decay comes from combining 10 Rousing Decay.\n\nIf the spot above gets nerfed, then your only option is to go around the same camp and try to kill the __Rotting Treants__ and __Oozing Decays__." >>> https://www.wow-professions.com/images/dragonflight/rousing-decay-azure-2.jpg
+
+!!! 2022-11-22 !!!
+
+# Battle for Azeroth
+
+# Expulsom is found under "other.txt".
+
+# Mists of Pandaria
 
 # Spirit of Harmony is found under "other.txt".
 

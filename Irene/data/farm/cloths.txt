@@ -1,4 +1,21 @@
-﻿!!! 2022-11-22 !!!
+﻿!!! 2022-11-28 !!!
+
+# Dragonflight
+
+Tattered Wildercloth
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_tailoring_clothcommon_color2.jpg
+	guide: https://www.wow-professions.com/farming/tattered-wildercloth-farming
+	wh: https://www.wowhead.com/item=193050/tattered-wildercloth#comments
+	a1_azurespan >>> Area 1 - The Azure Span >>> "The best mobs to farm Tattered Wildercloth are the Brinetooth mobs in the Azure Span. They are all hyperspawning and they are really close to each other, so you can often pull 7-8 together." >>> https://www.wow-professions.com/images/dragonflight/tattered-wildercloth-farming-azure-2.jpg
+	a2_azurespan >>> Area 2 - The Azure Span >>> "This spot is right next to the Brinetooth farming place. The Dragonkin mobs around the Tower of Ishkdormi are all hyperspawning. Sometimes they spawn a bit far away from each other, but you can usually pull 5-6 together." >>> https://www.wow-professions.com/images/dragonflight/tattered-wildercloth-farming-azure.jpg
+Wildercloth
+	Uncommon >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_tailoring_clothrare_color3.jpg
+	guide: https://www.wow-professions.com/farming/wildercloth-farming
+	wh: https://www.wowhead.com/item=193922/wildercloth#comments
+	a1_azurespan >>> Area 1 - The Azure Span >>> "Wildercloth is dropped by every mob that can drop Tattered Wildercloth, but it has a lot lower drop rate.\n\nThe best mobs to farm Wildercloth are the Brinetooth mobs in the Azure Span. They are all hyperspawning and they are really close to each other, so you can often pull 7-8 together." >>> https://www.wow-professions.com/images/dragonflight/tattered-wildercloth-farming-azure-2.jpg
+	a2_azurespan >>> Area 2 - The Azure Span >>> "Wildercloth is dropped by every mob that can drop Tattered Wildercloth, but it has a lot lower drop rate.\n\nThis spot is right next to the Brinetooth farming place. The Dragonkin mobs around the Tower of Ishkdormi are all hyperspawning. Sometimes they spawn a bit far away from each other, but you can usually pull 5-6 together." >>> https://www.wow-professions.com/images/dragonflight/tattered-wildercloth-farming-azure.jpg
+
+!!! 2022-11-22 !!!
 
 # Shadowlands
 
