@@ -1,4 +1,35 @@
-﻿!!! 2022-11-22 !!!
+﻿!!! 2022-11-28 !!!
+
+# Dragonflight
+
+Adamant Scales
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_skinning_scales_black.jpg
+	guide: https://www.wow-professions.com/farming/adamant-scales-farming
+	wh: https://www.wowhead.com/item=193213/adamant-scales#comments
+	a1_wakingshores >>> Area 1 - The Waking Shores >>> "The __Primal Proto-Drakes__ at The Waking Shores have really fast respawn rate. Also, a lot of people are questing there, so you often can skin the mobs without killing anything." >>> https://www.wow-professions.com/images/dragonflight/adamant-scales-farming-waking.jpg
+	a2_thaldraszus >>> Area 2 - Thaldraszus >>> "There are all kinds of beasts in Thaldraszus at the Shifting Sands. The majority of them drop scales, but you will also get a few Resilient Leather." >>> https://www.wow-professions.com/images/dragonflight/adamant-scales-farming-thaldraszus.jpg
+Resilient Leather
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_skinning_leather_basicleather_color1.jpg
+	guide: https://www.wow-professions.com/farming/resilient-leather-farming
+	wh: https://www.wowhead.com/item=193208/resilient-leather#comments
+	a1_ohnahranplains >>> Area 1 - Ohn'ahran Plains >>> "There are always at least 3 __Ravenous Rockfangs__ up at the marked area. There are hyperspawning mobs, so there is no downtime. There is also a quest mob there that has higher than usual HP. If you have enough damage to kill it fast, you should pull the quest mob too." >>> https://www.wow-professions.com/images/dragonflight/resilient-leather-farming-plains.jpg
+	a2_ohnahranplains >>> Area 2 - Ohn'ahran Plains >>> "you can also kill __Grazing Bruffalons__, __Bruffalon Calfs__, __Bruffalon Bulls__, and __Suntuft Bakars__ around the marked area." >>> https://www.wow-professions.com/images/dragonflight/resilient-leather-farming-plains-3.jpg
+	a3_azurespan >>> Area 3 - The Azure Span >>> "Look for __Wildwater Ottuks__ and __Wild Crystalspines__ around the marked area. They are all over the place and really easy to kill.\n\nYou can also find a bunch of Bears, Goats, and Mammoths around this same area. They all drop Resilient Leather, so kill everything. The small "Calf" mobs only drop grey items, but they will die to AoE easily, so they won't slow you down.\n\n__The Azure Herdmares__ drop Adamant Scales, but you might as well pull them too and AoE them down with the rest." >>> https://www.wow-professions.com/images/dragonflight/resilient-leather-farming-azure-span.jpg
+Lustrous Scaled Hide
+	Common >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_skinning_dragonscales_bronze-.jpg
+	guide: https://www.wow-professions.com/farming/lustrous-scaled-hide-farming
+	wh: https://www.wowhead.com/item=193222/lustrous-scaled-hide#comments
+	a1_wakingshores >>> Area 1 - The Waking Shores >>> "Lustrous Scaled Hide is dropped by every mob that can drop Adamant Scales, but it has a lot lower drop rate.\n\nThe __Primal Proto-Drakes__ at The Waking Shores have really fast respawn rate. Also, a lot of people are questing there, so you often can skin the mobs without killing anything." >>> https://www.wow-professions.com/images/dragonflight/adamant-scales-farming-waking.jpg
+	a2_thaldraszus >>> Area 2 - Thaldraszus >>> "Lustrous Scaled Hide is dropped by every mob that can drop Adamant Scales, but it has a lot lower drop rate.\n\nThere are all kinds of beasts in Thaldraszus at the Shifting Sands. The majority of them drop scales, but you will also get a few Resilient Leather." >>> https://www.wow-professions.com/images/dragonflight/adamant-scales-farming-thaldraszus.jpg
+Dense Hide
+	Rare >>> https://wow.zamimg.com/images/wow/icons/large/inv_10_skinning_leather_rarehide_color1.jpg
+	guide: https://www.wow-professions.com/farming/dense-hide-farming
+	wh: https://www.wowhead.com/item=193216/dense-hide#comments
+	a1_ohnahranplains >>> Area 1 - Ohn'ahran Plains >>> "There are always at least 3 __Ravenous Rockfangs__ up at the marked area. There are hyperspawning mobs, so there is no downtime. There is also a quest mob there that has higher than usual HP. If you have enough damage to kill it fast, you should pull the quest mob too." >>> https://www.wow-professions.com/images/dragonflight/resilient-leather-farming-plains.jpg
+	a2_ohnahranplains >>> Area 2 - Ohn'ahran Plains >>> "you can also kill __Grazing Bruffalons__, __Bruffalon Calfs__, __Bruffalon Bulls__, and __Suntuft Bakars__ around the marked area." >>> https://www.wow-professions.com/images/dragonflight/resilient-leather-farming-plains-3.jpg
+	a3_azurespan >>> Area 3 - The Azure Span >>> "Look for __Wildwater Ottuks__ and __Wild Crystalspines__ around the marked area. They are all over the place and really easy to kill.\n\nYou can also find a bunch of Bears, Goats, and Mammoths around this same area. They all drop Resilient Leather, so kill everything. The small "Calf" mobs only drop grey items, but they will die to AoE easily, so they won't slow you down.\n\n__The Azure Herdmares__ drop Adamant Scales, but you might as well pull them too and AoE them down with the rest." >>> https://www.wow-professions.com/images/dragonflight/resilient-leather-farming-azure-span.jpg
+
+!!! 2022-11-22 !!!
 
 # Shadowlands
 
