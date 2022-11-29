@@ -136,7 +136,33 @@ static class Const {
 			rogue   =  676750902895312901,
 			shaman  =  676750915843260436,
 			warlock =  676750927889170437,
-			warrior =  676750939910045707;
+			warrior =  676750939910045707,
+
+			// Dungeons
+			algethar        = 1047046693499191308,
+			azureVault      = 1047046695323709520,
+			brackenhide     = 1047046697169195038,
+			hallsOfInfusion = 1047046698863689738,
+			neltharus       = 1047046700302336050,
+			nokhudOffensive = 1047046702378516480,
+			rubyLifePools   = 1047046704114958407,
+			uldaman         = 1047046705956257812,
+
+			// Seasonal dungeons
+			jadeSerpent  = 1047046971149529249,
+			shadowmoon   = 1047046969463422996,
+			hallsOfValor = 1047046967311740949,
+			courtOfStars = 1047046965692727356,
+
+			// Raid
+			eranog        = 1047021853815873627,
+			terros        = 1047021887596806155,
+			primalCouncil = 1047021903480631316,
+			sennarth      = 1047021918362030091,
+			dathea        = 1047021936212967424,
+			kurog         = 1047021950758813786,
+			diurna        = 1047021965619232788,
+			raszageth     = 1047021981343690782;
 	}
 	public static class RoleIDs {
 		public const ulong
