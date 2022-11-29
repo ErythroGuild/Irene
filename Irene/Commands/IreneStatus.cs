@@ -7,9 +7,9 @@ namespace Irene.Commands;
 class IreneStatus : CommandHandler {
 	public const string
 		Command_Status = "irene-status",
+		Command_List   = "list",
 		Command_Set    = "set",
 		Command_Random = "random",
-		Command_List   = "list",
 		Arg_Type   = "type",
 		Arg_Status = "status";
 	public const string
