@@ -24,7 +24,7 @@ class Starboard : CommandHandler {
 	private static readonly List<CommandOption> _optionsMessage = new () {
 		new (
 			Arg_Id,
-			"The message ID to block.",
+			"The message's ID.",
 			ApplicationCommandOptionType.String,
 			required: true
 		),
