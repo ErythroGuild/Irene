@@ -89,23 +89,36 @@ class Help {
 			""",
 
 			$"""
-			{flower} **Awards** {flower}
-			{/*HelpText("commend")*/ "[WIP]"}
-			{HelpText(Commands.Starboard.Command_BestOf)}
+			{flower} **Macros** {flower}
+			{/*HelpText("macro")*/ "[WIP]"}
 
-			{flower} **Translation** {flower}
+			{flower} **Tools** {flower}
+			{/*HelpText("remind-me")*/ "[WIP]"}
+			{/*HelpText("checklist")*/ "[WIP]"}
 			{HelpText(Commands.Translate.Command_Translate)}
 			""",
 
 			$"""
+			{flower} **Awards** {flower}
+			{/*HelpText("commend")*/ "[WIP]"}
+			{HelpText(Commands.Starboard.Command_BestOf)}
+			{/*HelpText("cupcake")*/ "[WIP]"}
+
 			{flower} **Audit Logs** {flower}
 			{/*HelpText("audit-log")*/ "[WIP]"}
-			
+			""",
+
+			$"""
 			{flower} **Moderation** {flower}
 			{/*HelpText("move-post")*/ "[WIP]"}
 			{/*HelpText("slowmode")*/ "[WIP]"}
 			{/*HelpText("change-subject")*/ "[WIP]"}
 			{/*HelpText("ban")*/ "[WIP]"}
+
+			{flower} **Community** {flower}
+			{/*HelpText("poll")*/ "[WIP]"}
+			{/*HelpText("event")*/ "[WIP]"}
+			{/*HelpText("movie-night")*/ "[WIP]"}
 			""",
 
 			$"""
