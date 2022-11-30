@@ -1,7 +1,6 @@
 # Irene
 
-<a href="https://discord.gg/ADzEwNS" alt="<Erythro> Discord server">
-	<img src="https://img.shields.io/discord/317723973968461824?label=%3CErythro%3E&logo=discord&logoColor=fff&style=flat-square" /></a>
+![<Erythro> Discord server">](https://img.shields.io/discord/317723973968461824?label=%3CErythro%3E&logo=discord&logoColor=fff&style=flat-square)
 <a href="https://github.com/ErythroGuild/irene/releases/latest" alt="Latest release">
 	<img src="https://img.shields.io/github/v/release/ErythroGuild/irene?style=flat-square" /></a>
 <a href="https://github.com/ErythroGuild/irene/commits" alt="Commit activity">
@@ -15,10 +14,10 @@
 of features, and is in constant development.
 
 *Related Discord bots:*
-**[Polybius][8]**,
-**[Puck][9]**,
-**[Wowhead Digest][10]**,
-**[Blizz CS][11]**
+**[Polybius](https://github.com/ErythroGuild/polybius)**,
+**[Puck](https://github.com/ErythroGuild/puck)**,
+**[Wowhead Digest](https://github.com/ErythroGuild/wowhead-digest)**,
+**[Blizz CS](https://github.com/ErythroGuild/BlizzCS)**
 
 ----
 
@@ -98,8 +97,3 @@ of the files in here contain save data for various modules, and is periodically
 copied back from the running bot and updated as part of the repo. Some
 of the files are read and cached on program start, and require a restart
 of the bot before any changes are reflected.
-
-[8]: https://github.com/ErythroGuild/polybius
-[9]: https://github.com/ErythroGuild/puck
-[10]: https://github.com/ErythroGuild/wowhead-digest
-[11]: https://github.com/ErythroGuild/BlizzCS
