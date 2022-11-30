@@ -1,6 +1,15 @@
 # Irene
 
-![Discord][1] ![Latest release][2] ![Commit activity][3] ![License][4]
+<a href="https://discord.gg/ADzEwNS" alt="<Erythro> Discord server">
+	<img src="https://img.shields.io/discord/317723973968461824?label=%3CErythro%3E&logo=discord&logoColor=fff&style=flat-square" /></a>
+<a href="https://github.com/ErythroGuild/irene/releases/latest" alt="Latest release">
+	<img src="https://img.shields.io/github/v/release/ErythroGuild/irene?style=flat-square" /></a>
+<a href="https://github.com/ErythroGuild/irene/commits" alt="Commit activity">
+	<img src="https://img.shields.io/github/commit-activity/m/ErythroGuild/irene?style=flat-square" /></a>
+<a href="https://github.com/ErythroGuild/irene/blob/master/License.md" alt="License">
+	<img src="https://img.shields.io/github/license/ErythroGuild/irene?style=flat-square" /></a>
+
+----
 
 **Irene** is the server admin bot for **\<Erythro\>**. It has a wide variety
 of features, and is in constant development.
@@ -10,6 +19,8 @@ of features, and is in constant development.
 **[Puck][9]**,
 **[Wowhead Digest][10]**,
 **[Blizz CS][11]**
+
+----
 
 ## Bot Commands
 
@@ -88,10 +99,6 @@ copied back from the running bot and updated as part of the repo. Some
 of the files are read and cached on program start, and require a restart
 of the bot before any changes are reflected.
 
-[1]: https://img.shields.io/discord/317723973968461824?label=%3CErythro%3E&logo=discord&logoColor=fff&style=flat-square
-[2]: https://img.shields.io/github/v/release/ErythroGuild/irene?style=flat-square
-[3]: https://img.shields.io/github/commit-activity/m/ErythroGuild/irene?style=flat-square
-[4]: https://img.shields.io/github/license/ErythroGuild/irene?style=flat-square
 [8]: https://github.com/ErythroGuild/polybius
 [9]: https://github.com/ErythroGuild/puck
 [10]: https://github.com/ErythroGuild/wowhead-digest
