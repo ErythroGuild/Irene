@@ -1,41 +1,56 @@
-﻿// System.
+﻿// This warning (obviously) needs to be disabled for global usings,
+// since it is illegal to place them inside a namespace.
+#pragma warning disable IDE0065 // Misplaced using directive
+
+// System.
 global using System;
 global using System.Collections.Concurrent;
 global using System.Collections.Generic;
 global using System.Collections.ObjectModel;
-global using System.Diagnostics;
 global using System.IO;
+global using System.Text;
 global using System.Threading.Tasks;
 
-// D#+.
+// Libraries.
 global using DSharpPlus;
 global using DSharpPlus.Entities;
-global using DSharpPlus.EventArgs;
-global using DSharpPlus.Exceptions;
-
-// Microsoft.
 global using Microsoft.Extensions.Logging;
-
-// Serilog.
 global using Serilog;
 
 // Project namespaces.
+global using Irene.Exceptions;
 global using Irene.Utils;
 
 // Project static variables.
 global using static Irene.Const;
 global using static Irene.Program;
 
-// Type aliases.
-global using id_ch = Irene.Const.ChannelIDs;
-global using id_vc = Irene.Const.VoiceChatIDs;
-global using id_e  = Irene.Const.EmojiIDs;
-global using id_r  = Irene.Const.RoleIDs;
-
-global using AccessLevel = Irene.Commands.Rank.Level;
+// Type aliases - system types.
+global using Promise = System.Threading.Tasks.TaskCompletionSource;
 global using MessagePromise = System.Threading.Tasks.TaskCompletionSource<DSharpPlus.Entities.DiscordMessage>;
-global using CommandOption = DSharpPlus.Entities.DiscordApplicationCommandOption;
-global using CommandOptionEnum = DSharpPlus.Entities.DiscordApplicationCommandOptionChoice;
-global using HelpPageGetter = System.Func<System.Collections.Generic.List<string>>;
-global using InteractionHandler = System.Func<Irene.TimedInteraction, System.Threading.Tasks.Task>;
-global using DeferrerHandlerFunc = System.Func<Irene.Commands.DeferrerHandler, System.Threading.Tasks.Task>;
+
+// Type aliases - D#+ types.
+global using CommandType = DSharpPlus.ApplicationCommandType;
+global using ArgType = DSharpPlus.ApplicationCommandOptionType;
+global using DiscordCommand = DSharpPlus.Entities.DiscordApplicationCommand;
+global using DiscordCommandOption = DSharpPlus.Entities.DiscordApplicationCommandOption;
+global using DiscordCommandOptionEnum = DSharpPlus.Entities.DiscordApplicationCommandOptionChoice;
+global using DiscordComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
+global using DiscordButton = DSharpPlus.Entities.DiscordButtonComponent;
+global using DiscordSelect = DSharpPlus.Entities.DiscordSelectComponent;
+global using DiscordSelectOption = DSharpPlus.Entities.DiscordSelectComponentOption;
+
+// Type aliases - object IDs.
+global using id_ch = Irene.Const.Id.Channel;
+global using id_e  = Irene.Const.Id.Emoji;
+global using id_g  = Irene.Const.Id.Guild;
+global using id_r  = Irene.Const.Id.Role;
+global using id_u  = Irene.Const.Id.User;
+
+// Type aliases - project types.
+global using AccessLevel = Irene.Modules.Rank.Level;
+global using ParsedArgs = System.Collections.Generic.IDictionary<string, object>;
+global using InteractionHandler = System.Func<Irene.Interaction, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
+global using Autocompleter = System.Func<Irene.Interaction, object, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
+
+#pragma warning restore IDE0065 // Misplaced using directive
