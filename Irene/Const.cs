@@ -3,9 +3,6 @@
 namespace Irene;
 
 static class Const {
-	// Guild ID.
-	public const ulong Id_Erythro = 317723973968461824;
-
 	// Standard formatting strings.
 	public const string
 		Format_IsoDate = @"yyyy-MM-dd";
@@ -17,7 +14,7 @@ static class Const {
 		TimeZone_ET = TimeZoneInfo.FindSystemTimeZoneById(@"America/New_York");
 	public static readonly TimeZoneInfo TimeZone_Server = TimeZone_CT;
 
-	// Patch release days
+	// Patch release days.
 	// 7:00 PST = 8:00 PDT = 15:00 UTC
 	// Server reset time does not change with DST.
 	public static readonly RecurTime
@@ -37,9 +34,11 @@ static class Const {
 	public static DateTime UtcResetTime(this DateOnly date) =>
 		date.ToDateTime(Time_ServerReset.TimeOnly, DateTimeKind.Utc);
 
-	// Discord entity IDs
-	public static class ChannelIDs {
-		public const ulong
+	// Discord entity IDs.
+	// (User objects shouldn't be cached.)
+	public static class Id {
+		public static class Channel {
+			public const ulong
 			// Broadcast
 			rules     = 443002035604815872,
 			announce  = 443001903123791873,
@@ -54,41 +53,34 @@ static class Const {
 			kirasath = 1027463743635980378,
 			spoilers =  454338639933997068,
 			memes    =  543476538125844511,
-			tts      =  444792161158823936,
-			lfg      =  542093438238326804,
+			lf       = 1047701283815034942,
 			bots     =  613034262823698452,
 			news     =  612307690613637125,
 
 			// Officer
-			officer     = 542023200549371906,
-			officerBots = 779385198533804062,
-			officerInfo = 650603757113049088,
+			officerInfo  = 650603757113049088,
+			officer      = 542023200549371906,
+			officerBots  = 779385198533804062,
+			officerVoice = 542093594618757140,
 
-			// Testing
-			test   = 489274692255875091,
-			ingest = 777935219193020426;
-	}
-	public static class VoiceChatIDs {
-		public const ulong
-			// Social
+			// Voice - Social
 			hangout = 442986379392319490,
 			afk     = 545060010967957534,
 
-			// Gaming
+			// Voice - Gaming
 			dungeon1 = 442986315865128960,
 			dungeon2 = 542094075784986654,
 			dungeon3 = 783838007454597121,
 			raid1    = 443001346678063104,
 			raid2    = 670853551869919232,
 
-			// Officer
-			officer = 542093594618757140,
-
 			// Testing
+			test      = 489274692255875091,
+			ingest    = 777935219193020426,
 			heartwood = 498636532530282512;
-	}
-	public static class EmojiIDs {
-		public const ulong
+		}
+		public static class Emoji {
+			public const ulong
 			erythro = 651475835387248660,
 
 			wooloo   = 588112288628604928,
@@ -162,10 +154,26 @@ static class Const {
 			dathea        = 1047021936212967424,
 			kurog         = 1047021950758813786,
 			diurna        = 1047021965619232788,
-			raszageth     = 1047021981343690782;
-	}
-	public static class RoleIDs {
-		public const ulong
+			raszageth     = 1047021981343690782,
+
+			// Ranks
+			rankNone      = 1047313293087359037,
+			rankGuest     = 1047313291443175424,
+			rankMember    = 1047313289895493834,
+			rankOfficer   = 1047313288200978503,
+			rankAdmin     = 1047313286544248933,
+			rankBot       = 1047313285369839616,
+			rankStylist   = 1047313283796971551,
+			rankAmbassador= 1047313282442199050;
+		}
+		public static class Guild {
+			public const ulong
+			erythro     =  317723973968461824,
+			erythroDev  =  834820466635046932,
+			ireneEmojis = 1047306759083130912;
+		}
+		public static class Role {
+			public const ulong
 			// Colors
 			ambassador = 724762507612520530,
 			stylist    = 777570683159838760,
@@ -182,10 +190,10 @@ static class Const {
 			chosen     = 903853996714913834,
 
 			// Officers
-			raidOfficer   = 723061867127373874,
-			eventPlanner  = 723061585156898836,
-			recruiter     = 723060994859073607,
-			banker        = 723061777213947974,
+			raidOfficer  = 723061867127373874,
+			eventPlanner = 723061585156898836,
+			recruiter    = 723060994859073607,
+			banker       = 723061777213947974,
 
 			// Guilds
 			erythro = 542021676884557824,
@@ -204,5 +212,9 @@ static class Const {
 
 			// Other
 			karkun = 1027464062814146570;
+		}
+		public static class User {
+			public const ulong admin = 165557736287764483;
+		}
 	}
 }
