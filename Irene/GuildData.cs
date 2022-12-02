@@ -1,6 +1,6 @@
-﻿using System.Reflection;
+﻿namespace Irene;
 
-namespace Irene;
+using System.Reflection;
 
 class GuildData {
 	// Public properties.
@@ -11,13 +11,13 @@ class GuildData {
 	// and accessed through the publically accessible methods.
 	// `Channels` includes voice channels.
 	private ConcurrentDictionary<ulong, DiscordChannel> _channels = new ();
-	private ConcurrentDictionary<ulong, DiscordEmoji  > _emojis   = new ();
-	private ConcurrentDictionary<ulong, DiscordRole   > _roles    = new ();
+	private ConcurrentDictionary<ulong, DiscordEmoji> _emojis = new ();
+	private ConcurrentDictionary<ulong, DiscordRole> _roles = new ();
 
 	// Constructors cannot be async, so `GuildData` object isn't returned
 	// until static factory method also has a chance to initialize everything.
 	public static async Task<GuildData> InitializeData(DiscordClient client) {
-		DiscordGuild guild = await client.GetGuildAsync(Id_Erythro);
+		DiscordGuild guild = await client.GetGuildAsync(id_g.erythro);
 		GuildData data = new (client, guild);
 		await data.PopulateData();
 		return data;
@@ -32,9 +32,10 @@ class GuildData {
 	}
 	// This can be called to re-initialize data.
 	public async Task PopulateData() {
-		Log.Information("(Re-)populating guild data...");
+		Log.Information("  (Re-)populating guild data...");
 
-		Guild = await Client.GetGuildAsync(Id_Erythro);
+		Guild = await Client.GetGuildAsync(id_g.erythro);
+		DiscordGuild guildEmojis = await Client.GetGuildAsync(id_g.ireneEmojis);
 
 		List<FieldInfo> fields;
 		// Helper function for listing fields.
@@ -49,27 +50,22 @@ class GuildData {
 				: id.Value;
 		}
 
-		// Initialize `DiscordChannel` table.
+		// Initialize channel table.
 		_channels = new ();
-		fields = ListFields(typeof(ChannelIDs));
-		foreach (FieldInfo field in fields) {
-			ulong id = FieldToId(field);
-			DiscordChannel channel = Guild.GetChannel(id);
-			_channels.TryAdd(id, channel);
-		}
-		fields = ListFields(typeof(VoiceChatIDs));
+		fields = ListFields(typeof(id_ch));
 		foreach (FieldInfo field in fields) {
 			ulong id = FieldToId(field);
 			DiscordChannel channel = Guild.GetChannel(id);
 			_channels.TryAdd(id, channel);
 		}
 
-		// Initialize `DiscordEmoji` table.
+		// Initialize emoji table.
 		_emojis = new ();
-		fields = ListFields(typeof(EmojiIDs));
+		fields = ListFields(typeof(id_e));
 		// Fetching entire list of emojis in bulk first, instead of
 		// awaiting each emoji individually.
 		List<DiscordEmoji> emojis = new (await Guild.GetEmojisAsync());
+		emojis.AddRange(await guildEmojis.GetEmojisAsync());
 		foreach (FieldInfo field in fields) {
 			ulong id = FieldToId(field);
 			foreach (DiscordEmoji emoji in emojis) {
@@ -83,14 +79,14 @@ class GuildData {
 
 		// Initialize `DiscordRole` table.
 		_roles = new ();
-		fields = ListFields(typeof(RoleIDs));
+		fields = ListFields(typeof(id_r));
 		foreach (FieldInfo field in fields) {
 			ulong id = FieldToId(field);
 			DiscordRole role = Guild.GetRole(id);
 			_roles.TryAdd(id, role);
 		}
 
-		Log.Debug("  Guild data populated.");
+		Log.Debug("    Guild data populated.");
 	}
 
 	// Public access methods for data tables.
