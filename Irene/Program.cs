@@ -9,12 +9,6 @@ using Irene.Modules;
 namespace Irene;
 
 class Program {
-	// Debug flag.
-	public static bool IsDebug { get {
-		bool isDebug = false;
-		CheckDebug(ref isDebug);
-		return isDebug;
-	} }
 
 	// Discord client objects.
 	public static DiscordClient Client { get; private set; }
@@ -538,8 +532,4 @@ class Program {
 		await Client.ConnectAsync();
 		await Task.Delay(-1);
 	}
-
-	// Private method used to define the public "IsDebug" property.
-	[Conditional("DEBUG")]
-	private static void CheckDebug(ref bool isDebug) { isDebug = true; }
 }
