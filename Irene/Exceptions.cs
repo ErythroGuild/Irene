@@ -23,3 +23,12 @@ class UnclosedEnumException : Exception {
 		EnumValue = value.ToString();
 	}
 }
+
+// Thrown when attempting to handle a command which isn't in the handler
+// table.
+class UnknownCommandException : Exception {
+	public string Command { get; }
+	public UnknownCommandException(string command) {
+		Command = command;
+	}
+}

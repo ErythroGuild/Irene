@@ -47,5 +47,5 @@ static class Dispatcher {
 	public static Task HandleAsync(string commandName, Interaction interaction) =>
 		Table.ContainsKey(commandName)
 			? Table[commandName].HandleAsync(interaction)
-			: throw new ArgumentException("Unregistered command.", nameof(commandName));
+			: throw new UnknownCommandException(commandName);
 }
