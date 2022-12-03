@@ -164,7 +164,49 @@ static class Const {
 				rankAdmin     = 1047313286544248933,
 				rankBot       = 1047313285369839616,
 				rankStylist   = 1047313283796971551,
-				rankAmbassador= 1047313282442199050;
+				rankAmbassador= 1047313282442199050,
+
+				// Progress bars
+				barEmptyL     = 1047326995886915614,
+				barEmptyM     = 1047326997895991316,
+				barEmptyR     = 1047326999137488987,
+				barFilledL    = 1047327000219627630,
+				barFilledM    = 1047327001473732719,
+				barFilledR    = 1047326999137488987,
+				barFillingL   = 1047327004724318228,
+				barFillingLtR = 1047327521592574042,
+				barFillingRtL = 1047327540857028610,
+				barFillingR   = 1047327007102480404,
+
+				// Progress spinners
+				spinnerLine   = 1048081457521897523,
+				spinnerDots   = 1047801017049305130,
+				spinnerOrbit  = 1048073321964646522,
+				spinnerCircle = 1047757059589943356,
+
+				// Profession quality
+				quality1   = 1046997123494838282,
+				quality2   = 1046997182240280628,
+				quality3   = 1046997219305328701,
+				quality4   = 1046997260942196796,
+				quality5   = 1046997302486769695,
+				qualityAny = 1046997344731799563,
+
+				// Noto (animated)
+				noto100       = 1047648870160666625,
+				notoClover    = 1047621349016875128,
+				notoSprout    = 1047621342574420088,
+				notoConfetti  = 1047621474103607336,
+				notoParty     = 1047621479711383622,
+				notoFireworks = 1047648858529861834,
+				notoButterfly = 1047621240703168513,
+				notoOctopus   = 1047621235930038352,
+				notoInnocent  = 1047648956705931385,
+				notoMelting   = 1047648977153183783,
+				notoMindblown = 1047648943946858566,
+				notoEyebrow   = 1047649025886781501,
+				notoSmile     = 1047656340182544384,
+				notoSob       = 1047656345467371664;
 		}
 		public static class Guild {
 			public const ulong
