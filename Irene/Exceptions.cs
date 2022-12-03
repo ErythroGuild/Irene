@@ -13,11 +13,13 @@ class UninitializedException : Exception { }
 // have been handled but the compiler still warns about unhandled values.
 // This happens because C# does not have closed enums, so it is possible
 // for non-supported values to be cast to enums.
-class UnclosedEnumException<T> : Exception
-	where T : notnull, Enum
-{
-	public Type Enum { get; } = typeof(T);
-	public T Value { get; }
+class UnclosedEnumException : Exception {
+	public string EnumName { get; }
+	public string EnumValue { get; }
 
-	public UnclosedEnumException(T value) => Value = value;
+	// `type` should be `typeof(EnumType)`.
+	public UnclosedEnumException(Type type, Enum value) {
+		EnumName = type.Name;
+		EnumValue = value.ToString();
+	}
 }

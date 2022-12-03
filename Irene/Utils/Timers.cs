@@ -47,7 +47,7 @@ static partial class Util {
 			LogLevel.Critical    => Log.Fatal,
 
 			LogLevel.None => (_, _) => {},
-			_ => throw new UnclosedEnumException<LogLevel>(logLevel),
+			_ => throw new UnclosedEnumException(typeof(LogLevel), logLevel),
 		};
 
 		// Log.
