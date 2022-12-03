@@ -144,7 +144,7 @@ static class ClassSpec {
 		Class.Shaman  => "Shaman" ,
 		Class.Warlock => "Warlock",
 		Class.Warrior => "Warrior",
-		_ => throw new ArgumentException("Unknown class.", nameof(@class)),
+		_ => throw new UnclosedEnumException(typeof(Class), @class),
 	};
 	public static string Name(this Spec spec) => spec switch {
 		Spec.DK_Blood  => "Blood" ,
@@ -198,7 +198,7 @@ static class ClassSpec {
 		Spec.Warrior_Arms => "Arms"      ,
 		Spec.Warrior_Fury => "Fury"      ,
 
-		_ => throw new ArgumentException("Unknown spec.", nameof(spec)),
+		_ => throw new UnclosedEnumException(typeof(Spec), spec),
 	};
 	public static string FullName(this Spec spec) =>
 		$"{spec.Name()} {spec.GetClass().Name()}";
@@ -218,7 +218,7 @@ static class ClassSpec {
 		Class.Shaman  => new ("#0070DE"),
 		Class.Warlock => new ("#8788EE"),
 		Class.Warrior => new ("#C79C6E"),
-		_ => throw new ArgumentOutOfRangeException(nameof(@class), "Unrecognized class name."),
+		_ => throw new UnclosedEnumException(typeof(Class), @class),
 	};
 
 	// Emojis associated with roles/classes.
@@ -227,7 +227,7 @@ static class ClassSpec {
 			Role.Tank => id_e.tank,
 			Role.Heal => id_e.heal,
 			Role.DPS  => id_e.dps ,
-			_ => throw new ArgumentException("Unknown role.", nameof(role)),
+			_ => throw new UnclosedEnumException(typeof(Role), role),
 		};
 		return erythro.Emoji(id);
 	}
@@ -246,7 +246,7 @@ static class ClassSpec {
 			Class.Shaman  => id_e.shaman ,
 			Class.Warlock => id_e.warlock,
 			Class.Warrior => id_e.warrior,
-			_ => throw new ArgumentException("Unknown class.", nameof(@class)),
+			_ => throw new UnclosedEnumException(typeof(Class), @class),
 		};
 		return erythro.Emoji(id);
 	}
@@ -306,6 +306,6 @@ static class ClassSpec {
 		Spec.Warrior_Arms => Role.DPS ,
 		Spec.Warrior_Fury => Role.DPS ,
 
-		_ => throw new ArgumentException("Unknown spec.", nameof(spec)),
+		_ => throw new UnclosedEnumException(typeof(Spec), spec),
 	};
 }
