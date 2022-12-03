@@ -91,16 +91,16 @@ class GuildData {
 
 	// Public access methods for data tables.
 	// `Channels` includes voice channels.
-	public DiscordChannel? Channel(ulong id) =>
+	public DiscordChannel Channel(ulong id) =>
 		_channels.ContainsKey(id)
 			? _channels[id]
-			: null;
-	public DiscordEmoji? Emoji(ulong id) =>
+			: throw new ArgumentException("Unrecognized channel.", nameof(id));
+	public DiscordEmoji Emoji(ulong id) =>
 		_emojis.ContainsKey(id)
 			? _emojis[id]
-			: null;
-	public DiscordRole? Role(ulong id) =>
+			: throw new ArgumentException("Unrecognized emoji.", nameof(id));
+	public DiscordRole Role(ulong id) =>
 		_roles.ContainsKey(id)
 			? _roles[id]
-			: null;
+			: throw new ArgumentException("Unrecognized role.", nameof(id));
 }
