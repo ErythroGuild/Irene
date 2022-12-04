@@ -73,18 +73,20 @@ static partial class Util {
 	// Stringify a DiscordActivity (accounting for custom statuses).
 	public static string AsStatusText(this DiscordActivity status) {
 		if (status.ActivityType == ActivityType.Custom) {
-			DiscordCustomStatus custom_status = status.CustomStatus;
-			return $"{custom_status.Emoji} {custom_status.Name}";
+			DiscordCustomStatus customStatus = status.CustomStatus;
+			return $"{customStatus.Emoji} {customStatus.Name}";
 		}
 
-		Dictionary<ActivityType, string> _types = new () {
-			[ActivityType.Playing]     = "Playing ",
-			[ActivityType.Streaming]   = "Streaming ",
-			[ActivityType.ListeningTo] = "Listening to ",
-			[ActivityType.Watching]    = "Watching ",
-			[ActivityType.Competing]   = "Competing in ",
+		string prefix = status.ActivityType switch {
+			ActivityType.Playing     => "Playing"     ,
+			ActivityType.Streaming   => "Streaming"   ,
+			ActivityType.ListeningTo => "Listening to",
+			ActivityType.Watching    => "Watching"    ,
+			ActivityType.Competing   => "Competing in",
+			ActivityType.Custom => throw new ImpossibleException(),
+			_ => throw new UnclosedEnumException(typeof(ActivityType), status.ActivityType),
 		};
-		return _types[status.ActivityType] + status.Name;
+		return $"{prefix} {status.Name}";
 	}
 
 	// Returns the DiscordMember equivalent of the DiscordUser.
@@ -106,15 +108,15 @@ static partial class Util {
 			// no other way to determine if the data is outdated.
 			member = await Erythro.Guild.GetMemberAsync(user.Id, true);
 			return member;
-		} catch (ServerErrorException) {
+		} catch (DSharpPlus.Exceptions.ServerErrorException) {
 			return null;
 		}
 	}
 
 	// Repopulate a message using only its ID and channel ID.
-	public static async Task<DiscordMessage> RefetchMessage(DiscordMessage message) {
+	public static async Task<DiscordMessage> RefetchMessage(DiscordClient client, DiscordMessage message) {
 		DiscordChannel channel = await
-			Client.GetChannelAsync(message.ChannelId);
+			client.GetChannelAsync(message.ChannelId);
 		return await channel.GetMessageAsync(message.Id);
 	}
 
