@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 class Starboard {
 	private record class ChannelSettings(
@@ -38,7 +38,7 @@ class Starboard {
 	// The cache of recently pinned posts is indexed by the channel/message
 	// IDs of the original posts, and the values are the corresponding
 	// messages in the starboard channel.
-	private static readonly HotQueueMap<ChannelMessage, DiscordMessage> _cache;
+	private static readonly LruQueueMap<ChannelMessage, DiscordMessage> _cache;
 	private const int _cacheSize = 16;
 	private const string
 		_pathBlocked = @"data/starboard-blocked.txt",
