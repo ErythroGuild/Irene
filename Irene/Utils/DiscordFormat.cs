@@ -18,7 +18,7 @@ static partial class Util {
 		$"```{language}\n{input}\n```";
 
 	// Slash command mention formatting.
-	public static string Mention(this DiscordApplicationCommand command, string display) =>
+	public static string Mention(this DiscordCommand command, string display) =>
 		$"</{display}:{command.Id}>";
 
 	// Mention formatting.
@@ -41,17 +41,18 @@ static partial class Util {
 	// Returns a formatted timestamp from a given DateTimeOffset.
 	// Valid format strings are currently undocumented.
 	public static string Timestamp(this DateTimeOffset time, TimestampStyle style=TimestampStyle.DateTimeShort) =>
-		$"<t:{time.ToUnixTimeSeconds()}:{_timestampTable[style]}>";
+		$"<t:{time.ToUnixTimeSeconds()}:{GetTimestampFormat(style)}>";
 	public static string Timestamp(this DateTimeOffset time, string format="f") =>
 		$"<t:{time.ToUnixTimeSeconds()}:{format}>";
-	private static readonly Dictionary<TimestampStyle, string> _timestampTable = new () {
-		{ TimestampStyle.Relative,  "R" },
-		{ TimestampStyle.TimeShort, "t" },
-		{ TimestampStyle.TimeLong,  "T" },
-		{ TimestampStyle.DateShort, "d" },
-		{ TimestampStyle.DateLong,  "D" },
-		{ TimestampStyle.DateTimeShort, "f" },
-		{ TimestampStyle.DateTimeLong,  "F" },
+	private static string GetTimestampFormat(TimestampStyle style) => style switch {
+		TimestampStyle.Relative      => "R",
+		TimestampStyle.TimeShort     => "t",
+		TimestampStyle.TimeLong      => "T",
+		TimestampStyle.DateShort     => "d",
+		TimestampStyle.DateLong      => "D",
+		TimestampStyle.DateTimeShort => "f",
+		TimestampStyle.DateTimeLong  => "F",
+		_ => throw new UnclosedEnumException(typeof(TimestampStyle), style),
 	};
 
 	// Prints the "user#tag" of a user.
