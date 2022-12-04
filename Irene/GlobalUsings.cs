@@ -39,6 +39,7 @@ global using DiscordComponentRow = DSharpPlus.Entities.DiscordActionRowComponent
 global using DiscordButton = DSharpPlus.Entities.DiscordButtonComponent;
 global using DiscordSelect = DSharpPlus.Entities.DiscordSelectComponent;
 global using DiscordSelectOption = DSharpPlus.Entities.DiscordSelectComponentOption;
+global using DiscordTextInput = DSharpPlus.Entities.TextInputComponent;
 
 // Type aliases - object IDs.
 global using id_ch = Irene.Const.Id.Channel;
