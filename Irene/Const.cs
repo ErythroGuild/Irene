@@ -1,12 +1,41 @@
-﻿using RecurTime = Irene.RecurringEvent.RecurTime;
+﻿namespace Irene;
 
-namespace Irene;
+using RecurTime = RecurringEvent.RecurTime;
 
 static class Const {
+	// Escape sequences.
+	// Note 1: the unescaped code should be a single codepoint.
+	// Note 2: These MUST begin with '\' or be enclosed in ':'. Codes
+	// which begin with '\' can only be one character long.
+	// This format allows for huge optimizations when parsing a string
+	// to unescape it.
+	public static readonly ConstBiMap<string, string> EscapeCodes =
+		new (new Dictionary<string, string> {
+			[@"\n"    ] = "\n"    ,
+			[@"\t"    ] = "\t"    ,
+
+			[@":esc:" ] = "\x1B"  ,
+			[@":nbsp:"] = "\u00A0",
+
+			[@":bbul:"] = "\u2022",
+			[@":wbul:"] = "\u25E6",
+			[@":emsp:"] = "\u2003",
+			[@":ensp:"] = "\u2022",
+			[@":thsp:"] = "\u2009",
+			[@":hrsp:"] = "\u200A",
+			[@":n-:"  ] = "\u2013",
+			[@":m-:"  ] = "\u2014",
+			[@":...:" ] = "\u2026",
+			[@":!=:"  ] = "\u2260",
+			[@":+-:"  ] = "\u00B1",
+			[@":deg:" ] = "\u00B0",
+		});
+
 	// Standard formatting strings.
 	public const string
 		Format_IsoDate = @"yyyy-MM-dd";
 
+	// US time zones.
 	public static readonly TimeZoneInfo
 		TimeZone_PT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Los_Angeles"),
 		TimeZone_MT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Denver"),
