@@ -24,6 +24,19 @@ class UnclosedEnumException : Exception {
 	}
 }
 
+// Thrown if the logic of the provided args doesn't match the documented
+// constraints that Discord provides. E.g., an enumerated string option
+// somehow returned a value not in the list.
+class ImpossibleArgException : Exception {
+	public string ArgName { get; }
+	public string ArgValue { get; }
+
+	public ImpossibleArgException(string argName, string argValue) {
+		ArgName = argName;
+		ArgValue = argValue;
+	}
+}
+
 // Thrown when attempting to handle a command which isn't in the handler
 // table.
 class UnknownCommandException : Exception {
