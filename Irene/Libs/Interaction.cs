@@ -142,13 +142,19 @@ class Interaction {
 
 	// Convenience methods for responding to a command, and registering
 	// a final response at the same time.
-	public async Task RegisterAndRespondAsync(
+	public Task RegisterAndRespondAsync(
 		string message,
 		bool isEphemeral=false
+	) =>
+		RegisterAndRespondAsync(message, message, isEphemeral);
+	public async Task RegisterAndRespondAsync(
+		string message,
+		string summary,
+		bool isEphemeral = false
 	) {
 		RegisterFinalResponse();
 		await RespondCommandAsync(message, isEphemeral);
-		SetResponseSummary(message);
+		SetResponseSummary(summary);
 	}
 	public async Task RegisterAndRespondAsync(
 		DiscordMessageBuilder message,
