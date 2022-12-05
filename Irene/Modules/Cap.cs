@@ -12,7 +12,7 @@ class Cap {
 	// --------
 
 	public static HideableString DisplayValor(DateTimeOffset dateTime) {
-		string resource = "Valor";
+		string resource = Commands.Cap.LabelValor;
 		const int weeklyValor = 750;
 
 		// Pre-9.0.5.
@@ -52,7 +52,7 @@ class Cap {
 	}
 
 	public static HideableString DisplayConquest(DateTimeOffset dateTime) {
-		string resource = "Conquest";
+		string resource = Commands.Cap.LabelConquest;
 		const int
 			weeklyConquestOld = 550,
 			weeklyConquestNew = 500;
@@ -98,7 +98,7 @@ class Cap {
 	}
 
 	public static HideableString DisplayRenown(DateTimeOffset dateTime) {
-		string resource = "Renown";
+		string resource = Commands.Cap.LabelRenown;
 
 		// Pre-Shadowlands launch.
 		if (dateTime < Date_Patch902.UtcResetTime())
@@ -142,7 +142,7 @@ class Cap {
 	}
 
 	public static HideableString DisplayTorghast(DateTimeOffset dateTime) {
-		string resource = "Tower Knowledge";
+		string resource = Commands.Cap.LabelTorghast;
 
 		// Pre-Shadowlands launch.
 		if (dateTime < Date_Patch910.UtcResetTime())

@@ -9,7 +9,7 @@ class Cap : CommandHandler {
 	public const string
 		LabelValor    = "Valor",
 		LabelConquest = "Conquest",
-		LabelRenown   = "Renown",
+		LabelRenown   = "Covenant Renown",
 		LabelTorghast = "Tower Knowledge";
 	public const string
 		OptionValor    = "valor",
