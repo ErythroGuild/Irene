@@ -1,58 +1,53 @@
-﻿using Irene.Interactables;
+﻿namespace Irene.Commands;
 
-using Module = Irene.Modules.Help;
+using Irene.Interactables;
 
-namespace Irene.Commands;
+using Module = Modules.Help;
 
 class Help : CommandHandler {
 	public const string
-		Command_Help = "help",
-		Arg_Command = "command";
+		CommandHelp = "help",
+		ArgCommand = "command";
 	private const int _maxOptions = 20;
-
-	public Help(GuildData erythro) : base (erythro) { }
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_Help)} lists help for *all* commands,
-		{Command.Mention(Command_Help)} `<{Arg_Command}>` displays the help for that command.
-		    :lock: indicates a command is only available to officers.
+		{RankEmoji(AccessLevel.None)}{Command.Mention(CommandHelp)} lists help for *all* commands,
+		{RankEmoji(AccessLevel.None)}{Command.Mention(CommandHelp)} `<{ArgCommand}>` displays the help for that command.
+		    {RankEmoji(AccessLevel.None)}{RankEmoji(AccessLevel.Guest)}{RankEmoji(AccessLevel.Member)} indicate the permissions required.
 		    Arguments: `<required> [optional] [option A | option B]`
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Help,
+			CommandHelp,
 			"Display help for any command(s).",
-			new List<CommandOption> { new (
-				Arg_Command,
+			AccessLevel.None,
+			new List<DiscordCommandOption> { new (
+				ArgCommand,
 				"The command to display help for.",
-				ApplicationCommandOptionType.String,
+				ArgType.String,
 				required: false,
 				autocomplete: true
-			) },
-			Permissions.None
+			) }
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, Func<Interaction, object, IDictionary<string, object>, Task>> {
-			[Arg_Command] = AutocompleteAsync,
+		new Dictionary<string, Autocompleter> {
+			[ArgCommand] = AutocompleteAsync,
 		}
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
 		// Respond with help for specific command, if one was specified.
 		if (args.Count > 0) {
-			string command = NormalizeCommand(args[Arg_Command]);
+			string command = NormalizeCommand(args[ArgCommand]);
 			string help = Module.CommandHelp(command) ??
 				$"""
 				:thought_balloon: Unknown command: `/{command}`
-				You can check {Command.Mention(Command_Help)} for a list of valid commands.
+				You can check {Command.Mention(CommandHelp)} for a list of valid commands.
 				""";
-
-			interaction.RegisterFinalResponse();
-			await interaction.RespondCommandAsync(help, true);
-			interaction.SetResponseSummary(help);
+			await interaction.RegisterAndRespondAsync(help, true);
 			return;
 		}
 
@@ -64,25 +59,22 @@ class Help : CommandHandler {
 			Module.GeneralHelp(),
 			pageSize: 1
 		);
-
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response, true);
-		interaction.SetResponseSummary($"General help pages sent.");
+		string summary = "General help pages sent.";
+		await interaction.RegisterAndRespondAsync(response, summary, true);
 
 		DiscordMessage message = await interaction.GetResponseAsync();
 		messagePromise.SetResult(message);
 	}
 
-	public async Task AutocompleteAsync(Interaction interaction, object arg, IDictionary<string, object> args) {
+	public async Task AutocompleteAsync(Interaction interaction, object arg, ParsedArgs args) {
 		string input = NormalizeCommand(arg);
 		List<(string, string)> options = new ();
 
 		// Search through registered commands for matching slash commands.
-		IReadOnlyDictionary<string, CommandHandler> commands =
-			CommandDispatcher.HandlerTable;
+		IReadOnlyDictionary<string, CommandHandler> commands = Dispatcher.Table;
 		foreach (string command in commands.Keys) {
 			if (command.Contains(input) &&
-				commands[command].Command.Type == ApplicationCommandType.SlashCommand
+				commands[command].Command.Type == CommandType.SlashCommand
 			) {
 				options.Add((command, command));
 			}

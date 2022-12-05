@@ -6,7 +6,7 @@ class Help {
 	// This function does not perform normalization on its input.
 	public static string? CommandHelp(string command) {
 		IReadOnlyDictionary<string, CommandHandler> commands =
-			CommandDispatcher.HandlerTable;
+			Dispatcher.Table;
 
 		return (!commands.ContainsKey(command))
 			? null
@@ -21,21 +21,21 @@ class Help {
 	public static List<string> GeneralHelp() {
 		const string flower = "\u273F";
 		IReadOnlyDictionary<string, CommandHandler> commands =
-			CommandDispatcher.HandlerTable;
+			Dispatcher.Table;
 
 		string HelpText(string command) => commands[command].HelpText;
 
 		return new () {
 			$"""
-			{HelpText(Commands.Help.Command_Help)}
+			{HelpText(Commands.Help.CommandHelp)}
 			    *If you need any help, ask, or DM Ernie! :+1:*
 
 			{flower} **About** {flower}
 			{HelpText(Commands.About.Command_About)}
 
 			{flower} **Discord Servers** {flower}
-			{HelpText(Commands.Invite.Command_Invite)}
-			{HelpText(Commands.ClassDiscord.Command_ClassDiscord)}
+			{HelpText(Commands.Invite.CommandInvite)}
+			{HelpText(Commands.ClassDiscord.CommandClassDiscord)}
 
 			{flower} **Suggestions** {flower}
 			{/*HelpText("suggest")*/ "[WIP]"}
@@ -63,6 +63,8 @@ class Help {
 			$"""
 			{flower} **Roster** {flower}
 			{/*HelpText("roster")*/ "[WIP]"}
+
+			{flower} **Crafters** {flower}
 			{/*HelpText("craft")*/ "[WIP]"}
 			""",
 
@@ -70,11 +72,19 @@ class Help {
 			{flower} **Tags** {flower}
 			{/*HelpText("tags")*/ "[WIP]"}
 			
-			{flower} **Boss Guides** {flower}
-			{/*HelpText("boss-guide")*/ "[WIP]"}
-			
 			{flower} **Farming Guides** {flower}
 			{HelpText(Commands.Farm.Command_Farm)}
+
+			{flower} **M+ Routes** {flower}
+			{/*HelpText("mdt")*/ "[WIP]"}
+			""",
+
+			$"""
+			{flower} **Raid Boss Guides** {flower}
+			{/*HelpText("boss-guide")*/ "[WIP]"}
+			
+			{flower} **Dungeon Guides** {flower}
+			{/*HelpText("dungeon-guide")*/ "[WIP]"}
 			""",
 
 			$"""
@@ -82,7 +92,7 @@ class Help {
 			{HelpText(Commands.Cap.Command_Cap)}
 			{/*HelpText("emissaries")*/ "[WIP]"}
 			{/*HelpText("assaults")*/ "[WIP]"}
-			{HelpText(Commands.WowToken.Command_WowToken)}
+			{HelpText(Commands.WowToken.CommandWowToken)}
 			
 			{flower} **Solvers** {flower}
 			{/*HelpText("solve")*/ "[WIP]"}
@@ -123,9 +133,10 @@ class Help {
 
 			$"""
 			{flower} **Utilities** {flower}
-			{HelpText(Commands.Mimic.Command_Mimic)}
 			{HelpText(Commands.Roll.Command_Roll)}
 			{HelpText(Commands.Random.Command_Random)}
+			{/*HelpText("aww")*/ "[WIP]"}
+			{HelpText(Commands.Mimic.CommandMimic)}
 
 			{flower} **Bot Status** {flower}
 			{HelpText(Commands.IreneStatus.Command_Status)}
