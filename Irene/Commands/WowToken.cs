@@ -1,67 +1,65 @@
-﻿using Module = Irene.Modules.WowToken;
+﻿namespace Irene.Commands;
 
-namespace Irene.Commands;
+using Module = Modules.WowToken;
 
 class WowToken : CommandHandler {
 	public const string
-		Command_WowToken = "wow-token",
-		Arg_Region = "region";
+		CommandWowToken = "wow-token",
+		ArgRegion = "region";
 	public const string
-		Label_US = "US",
-		Label_EU = "EU",
-		Label_KR = "Korea",
-		Label_TW = "Taiwan",
-		Label_CN = "China";
+		LabelUS = "US",
+		LabelEU = "EU",
+		LabelKR = "Korea",
+		LabelTW = "Taiwan",
+		LabelCN = "China";
 	public const string
-		Option_US = "us",
-		Option_EU = "eu",
-		Option_KR = "kr",
-		Option_TW = "tw",
-		Option_CN = "cn";
-
-	public WowToken(GuildData erythro) : base (erythro) { }
+		OptionUS = "us",
+		OptionEU = "eu",
+		OptionKR = "kr",
+		OptionTW = "tw",
+		OptionCN = "cn";
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_WowToken)} `[{Arg_Region}]` shows the latest token price.
+		{RankEmoji(AccessLevel.Guest)}{Command.Mention(CommandWowToken)} `[{ArgRegion}]` shows the latest token price.
 		    If no region is specified, defaults to US prices.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_WowToken,
+			CommandWowToken,
 			"Show the latest token price.",
-			new List<CommandOption> { new (
-				Arg_Region,
+			AccessLevel.Guest,
+			new List<DiscordCommandOption> { new (
+				ArgRegion,
 				"The region to show prices for.",
-				ApplicationCommandOptionType.String,
+				ArgType.String,
 				required: false,
-				new List<CommandOptionEnum> {
-					new (Label_US, Option_US),
-					new (Label_EU, Option_EU),
-					new (Label_KR, Option_KR),
-					new (Label_TW, Option_TW),
-					new (Label_CN, Option_CN),
+				new List<DiscordCommandOptionEnum> {
+					new (LabelUS, OptionUS),
+					new (LabelEU, OptionEU),
+					new (LabelKR, OptionKR),
+					new (LabelTW, OptionTW),
+					new (LabelCN, OptionCN),
 				}
-			) },
-			Permissions.None
+			) }
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
 		// Parse region argument, defaulting to the US if unspecified.
-		string arg = args.ContainsKey(Arg_Region)
-			? (string)args[Arg_Region]
-			: Option_US;
+		string arg = args.ContainsKey(ArgRegion)
+			? (string)args[ArgRegion]
+			: OptionUS;
 		Module.Region region = arg switch {
-			Option_US => Module.Region.US,
-			Option_EU => Module.Region.EU,
-			Option_KR => Module.Region.KR,
-			Option_TW => Module.Region.TW,
-			Option_CN => Module.Region.CN,
-			_ => throw new ArgumentException("Unknown region selected.", nameof(args)),
+			OptionUS => Module.Region.US,
+			OptionEU => Module.Region.EU,
+			OptionKR => Module.Region.KR,
+			OptionTW => Module.Region.TW,
+			OptionCN => Module.Region.CN,
+			_ => throw new ImpossibleArgException(ArgRegion, arg),
 		};
 
 		// Fetch price display.
@@ -74,9 +72,7 @@ class WowToken : CommandHandler {
 				:satellite: Could not fetch token prices.
 				Wait a moment and try again?
 				""";
-			interaction.RegisterFinalResponse();
-			await interaction.RespondCommandAsync(error);
-			interaction.SetResponseSummary(error);
+			await interaction.RegisterAndRespondAsync(error, true);
 			return;
 		}
 
@@ -84,8 +80,6 @@ class WowToken : CommandHandler {
 		DiscordMessageBuilder response =
 			new DiscordMessageBuilder()
 			.WithEmbed(embed);
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary(embed.Title);
+		await interaction.RegisterAndRespondAsync(response, embed.Title);
 	}
 }
