@@ -73,7 +73,7 @@ class Help {
 			{/*HelpText("tags")*/ "[WIP]"}
 			
 			{flower} **Farming Guides** {flower}
-			{HelpText(Commands.Farm.Command_Farm)}
+			{HelpText(Commands.Farm.CommandFarm)}
 
 			{flower} **M+ Routes** {flower}
 			{/*HelpText("mdt")*/ "[WIP]"}

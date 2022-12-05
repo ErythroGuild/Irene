@@ -1,8 +1,6 @@
-﻿using System.Timers;
+﻿namespace Irene.Modules;
 
-using SelectOption = DSharpPlus.Entities.DiscordSelectComponentOption;
-
-namespace Irene.Modules;
+using System.Timers;
 
 partial class Farm {
 	private class Selection {
@@ -25,7 +23,9 @@ partial class Farm {
 		// that each event has to filter through until it hits the correct
 		// handler.
 		static Selection() {
-			Client.ComponentInteractionCreated += (client, e) => {
+			CheckErythroInit();
+
+			Erythro.Client.ComponentInteractionCreated += (client, e) => {
 				_ = Task.Run(async () => {
 					ulong id = e.Message.Id;
 
@@ -67,7 +67,7 @@ partial class Farm {
 		}
 
 		// Instance properties.
-		public DiscordSelectComponent Component { get; private set; }
+		public DiscordSelect Component { get; private set; }
 		private readonly Interaction _interaction;
 		private DiscordMessage? _message = null;
 		private readonly Timer _timer;
@@ -85,9 +85,9 @@ partial class Farm {
 			Timer timer = Util.CreateTimer(_timeout, false);
 
 			// Construct select component options.
-			List<SelectOption> options = new ();
+			List<DiscordSelectOption> options = new ();
 			foreach (Route route in data.Routes) {
-				SelectOption option = new (
+				DiscordSelectOption option = new (
 					route.Name,
 					route.Id,
 					isDefault: route.Id == selected.Id
@@ -96,7 +96,7 @@ partial class Farm {
 			}
 
 			// Construct select component.
-			DiscordSelectComponent component = new (
+			DiscordSelect component = new (
 				_idSelect,
 				"Select a page",
 				options
@@ -119,7 +119,7 @@ partial class Farm {
 			timer.Elapsed += async (obj, e) => {
 				// Run (or schedule to run) cleanup task.
 				if (!messageTask.IsCompleted)
-					await messageTask.ContinueWith((e) => selection.Cleanup());
+					await messageTask.ContinueWith(e => selection.Cleanup());
 				else
 					await selection.Cleanup();
 			};
@@ -128,7 +128,7 @@ partial class Farm {
 		}
 		private Selection(
 			Interaction interaction,
-			DiscordSelectComponent component,
+			DiscordSelect component,
 			Timer timer,
 			Material data,
 			Route selected
@@ -151,6 +151,7 @@ partial class Farm {
 		// Update the selected entries of the select component.
 		// Assumes _message has been set; returns immediately if it hasn't.
 		public async Task Update(Route selected) {
+			CheckErythroInit();
 			if (_message is null)
 				return;
 
@@ -159,7 +160,7 @@ partial class Farm {
 				return;
 
 			// Re-fetch message.
-			_message = await Util.RefetchMessage(_message);
+			_message = await Util.RefetchMessage(Erythro.Client, _message);
 
 			// Update message display.
 			await UpdateMessageDisplayAsync(selected);
@@ -169,6 +170,7 @@ partial class Farm {
 		// from the `Farm` global `Farm.Selection` table.
 		// Assumes _message has been set; returns immediately if it hasn't.
 		private async Task Cleanup() {
+			CheckErythroInit();
 			if (_message is null)
 				return;
 
@@ -179,7 +181,7 @@ partial class Farm {
 			Farm._selections.TryRemove(_message.Id, out _);
 
 			// Re-fetch message.
-			_message = await Util.RefetchMessage(_message);
+			_message = await Util.RefetchMessage(Erythro.Client, _message);
 
 			// Rebuild message with select component disabled.
 			await UpdateMessageDisplayAsync(_selected, false);
@@ -199,11 +201,11 @@ partial class Farm {
 			_selected = selected;
 
 			// Create a list of options with updated "selected" state.
-			List<SelectOption> options = new ();
-			foreach (SelectOption option in Component.Options) {
+			List<DiscordSelectOption> options = new ();
+			foreach (DiscordSelectOption option in Component.Options) {
 				// Construct a new option, copied from the original, but
 				// with the appropriate "selected" state.
-				SelectOption optionUpdated = new (
+				DiscordSelectOption optionUpdated = new (
 					option.Label,
 					option.Value,
 					isDefault: option.Value == selected.Id

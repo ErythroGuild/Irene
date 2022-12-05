@@ -1,50 +1,46 @@
-﻿using Module = Irene.Modules.Farm;
+﻿namespace Irene.Commands;
 
-namespace Irene.Commands;
+using Module = Modules.Farm;
 
 class Farm : CommandHandler {
 	public const string
-		Command_Farm = "farm",
-		Arg_Material = "material";
-
-	public Farm(GuildData erythro) : base (erythro) { }
+		CommandFarm = "farm",
+		ArgMaterial = "material";
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_Farm)} `<{Arg_Material}>` finds farming routes for the material.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandFarm)} `<{ArgMaterial}>` finds farming routes for the material.
 		    Data adapted from `wow-professions.com`.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Farm,
+			CommandFarm,
 			"Find a farming route.",
-			new List<CommandOption> { new (
-				Arg_Material,
+			AccessLevel.Guest,
+			new List<DiscordCommandOption> { new (
+				ArgMaterial,
 				"The material to find a route for.",
-				ApplicationCommandOptionType.String,
+				ArgType.String,
 				required: true,
 				autocomplete: true
-			) },
-			Permissions.None
+			) }
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, Func<Interaction, object, IDictionary<string, object>, Task>> {
-			[Arg_Material] = AutocompleteAsync,
+		new Dictionary<string, Autocompleter> {
+			[ArgMaterial] = AutocompleteAsync,
 		}
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
-		string query = (string)args[Arg_Material];
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
+		string query = (string)args[ArgMaterial];
 		Module.Material? material = Module.ParseMaterial(query);
 
 		// Send error message if no matching material was found.
 		if (material is null) {
 			string error = $"Sorry, couldn't find any routes to farm `{query}`.";
-			interaction.RegisterFinalResponse();
-			await interaction.RespondCommandAsync(error, true);
-			interaction.SetResponseSummary(error);
+			await interaction.RegisterAndRespondAsync(error, true);
 			return;
 		}
 
@@ -53,7 +49,7 @@ class Farm : CommandHandler {
 		await Module.RespondAsync(interaction, material);
 	}
 
-	public async Task AutocompleteAsync(Interaction interaction, object arg, IDictionary<string, object> args) {
+	public async Task AutocompleteAsync(Interaction interaction, object arg, ParsedArgs args) {
 		await interaction.AutocompleteAsync(Module.AutocompleteOptions((string)arg));
 	}
 }

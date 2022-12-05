@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 partial class Farm {
 	public enum Quality {
@@ -80,14 +78,14 @@ partial class Farm {
 		Quality.Legendary => new ("#FF8000"),
 		Quality.Artifact  => new ("#E6CC80"),
 		Quality.Heirloom  => new ("#00CCFF"),
-		_ => throw new ArgumentException("Unknown quality level.", nameof(quality)),
+		_ => throw new UnclosedEnumException(typeof(Quality), quality),
 	};
 
 	// Returns a Material object if one matches the query string, otherwise
 	// returns null.
 	public static Material? ParseMaterial(string query) {
 		string id = NormalizeName(query);
-		return (_data.ContainsKey(id))
+		return _data.ContainsKey(id)
 			? _data[id]
 			: null;
 	}
@@ -111,9 +109,8 @@ partial class Farm {
 		// There's guaranteed to be at least one route, or the datafile
 		// was malformed and wouldn't have parsed.
 
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary($"{material.Name}\n{response.Embed.Description}");
+		string summary = $"{material.Name}\n{response.Embed.Description}";
+		await interaction.RegisterAndRespondAsync(response, summary);
 
 		// Update message promise.
 		DiscordMessage message = await interaction.GetResponseAsync();
