@@ -89,7 +89,7 @@ class Help {
 
 			$"""
 			{flower} **In-Game Data** {flower}
-			{HelpText(Commands.Cap.Command_Cap)}
+			{HelpText(Commands.Cap.CommandCap)}
 			{/*HelpText("emissaries")*/ "[WIP]"}
 			{/*HelpText("assaults")*/ "[WIP]"}
 			{HelpText(Commands.WowToken.CommandWowToken)}
