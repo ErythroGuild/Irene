@@ -1,37 +1,36 @@
-﻿using System.Linq;
+﻿namespace Irene.Commands;
 
-using Module = Irene.Modules.About;
-
-namespace Irene.Commands;
+using Module = Modules.About;
 
 class About : CommandHandler {
-	public const string Command_About = "about";
-
-	public About(GuildData erythro) : base (erythro) { }
+	public const string CommandAbout = "about";
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_About)} displays the currently running version and status.
+		{RankIcon(AccessLevel.None)}{Mention(CommandAbout)} displays the currently running version and status.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_About,
+			CommandAbout,
 			"Display bot version and status.",
-			new List<CommandOption>(),
-			Permissions.None
+			AccessLevel.None,
+			new List<DiscordCommandOption>()
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> _) {
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
 		DiscordMessageBuilder response =
 			new DiscordMessageBuilder()
 			.WithEmbed(Module.CollateStatusEmbed())
 			.WithAllowedMentions(Mentions.None);
+
+		AccessLevel accessLevel = await Modules.Rank.GetRank(interaction.User);
+		bool isPrivate = accessLevel == AccessLevel.None;
 		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response);
+		await interaction.RespondCommandAsync(response, isPrivate);
 
 		// Extract status data from the submitted response.
 		string[] bodyText = response.Embed.Description.Split('\n');
@@ -41,7 +40,7 @@ class About : CommandHandler {
 
 		interaction.SetResponseSummary(
 			$"""
-			Irene {Module.String_Version} build {Module.String_Build}
+			Irene {Module.StringVersion} build {Module.StringBuild}
 			{string.Join("\n", statusText)}
 			{response.Embed.Footer.Text}
 			"""

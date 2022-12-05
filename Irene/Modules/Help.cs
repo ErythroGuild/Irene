@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 class Help {
 	// Returns the help text for a command, and returns null if no handler
@@ -31,7 +31,7 @@ class Help {
 			    *If you need any help, ask, or DM Ernie! :+1:*
 
 			{flower} **About** {flower}
-			{HelpText(Commands.About.Command_About)}
+			{HelpText(Commands.About.CommandAbout)}
 
 			{flower} **Discord Servers** {flower}
 			{HelpText(Commands.Invite.CommandInvite)}
