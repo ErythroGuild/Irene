@@ -10,6 +10,6 @@ class Invite {
 	public static string GetInvite(Server server) => server switch {
 		Server.Erythro => _urlErythro,
 		Server.Leuko   => _urlLeuko  ,
-		_ => throw new ArgumentException("Unknown invite selection.", nameof(server)),
+		_ => throw new UnclosedEnumException(typeof(Server), server),
 	};
 }

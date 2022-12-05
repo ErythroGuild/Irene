@@ -1,31 +1,30 @@
-﻿using static Irene.ClassSpec;
+﻿namespace Irene.Commands;
 
-using Module = Irene.Modules.ClassDiscord;
+using static Irene.ClassSpec;
 
-namespace Irene.Commands;
+using Module = Modules.ClassDiscord;
 
 class ClassDiscord : CommandHandler {
 	public const string
-		Command_ClassDiscord = "class-discord",
-		Arg_Class = "class";
-
-	public ClassDiscord(GuildData erythro) : base(erythro) { }
+		CommandClassDiscord = "class-discord",
+		ArgClass = "class";
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_ClassDiscord)} `<{Arg_Class}>` links an invite to the class discord server.
+		{RankEmoji(AccessLevel.None)}{Command.Mention(CommandClassDiscord)} `<{ArgClass}>` links an invite to the class discord server.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_ClassDiscord,
+			CommandClassDiscord,
 			"Get the invite link to a class discord.",
-			new List<CommandOption> { new (
-				Arg_Class,
+			AccessLevel.None,
+			new List<DiscordCommandOption> { new (
+				ArgClass,
 				"The class discord to get an invite to.",
-				ApplicationCommandOptionType.String,
+				ArgType.String,
 				required: true,
-				new List<CommandOptionEnum> {
+				new List<DiscordCommandOptionEnum> {
 					OptionFromClass(Class.DK     ),
 					OptionFromClass(Class.DH     ),
 					OptionFromClass(Class.Druid  ),
@@ -40,22 +39,22 @@ class ClassDiscord : CommandHandler {
 					OptionFromClass(Class.Warlock),
 					OptionFromClass(Class.Warrior),
 				}
-			) },
-			Permissions.None
+			) }
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync
 	);
 
-	private static CommandOptionEnum OptionFromClass(Class @class) =>
+	private static DiscordCommandOptionEnum OptionFromClass(Class @class) =>
 		new (@class.Name(), @class.ToString());
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
-		Class @class = Enum.Parse<Class>((string)args[Arg_Class]);
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
+		Class @class = Enum.Parse<Class>((string)args[ArgClass]);
 		string response = Module.GetInvite(@class);
 
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary(response);
+		AccessLevel accessLevel = await Modules.Rank.GetRank(interaction.User);
+		bool isPrivate = accessLevel == AccessLevel.None;
+
+		await interaction.RegisterAndRespondAsync(response, isPrivate);
 	}
 }

@@ -1,6 +1,6 @@
-﻿using static Irene.ClassSpec;
+﻿namespace Irene.Modules;
 
-namespace Irene.Modules;
+using static ClassSpec;
 
 class ClassDiscord {
 	private const string
@@ -41,6 +41,6 @@ class ClassDiscord {
 		Class.Shaman  => _urlShaman ,
 		Class.Warlock => _urlWarlock,
 		Class.Warrior => _urlWarrior,
-		_ => throw new ArgumentException("Unknown class.", nameof(@class)),
+		_ => throw new UnclosedEnumException(typeof(Class), @class),
 	};
 }
