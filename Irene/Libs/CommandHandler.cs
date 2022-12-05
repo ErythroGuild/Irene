@@ -17,6 +17,10 @@ abstract class CommandHandler {
 		NoPermissions, Exception,
 	}
 
+	// Syntax sugar for accessing rank emojis.
+	public static DiscordEmoji RankEmoji(AccessLevel level) =>
+		Modules.Rank.Emoji(level);
+
 	public abstract string HelpText { get; }
 	// `CreateTree()` should define the `CommandTree` of this command.
 	public abstract CommandTree CreateTree();
