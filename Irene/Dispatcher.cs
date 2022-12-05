@@ -2,6 +2,8 @@
 
 using System.Reflection;
 
+using static CommandHandler;
+
 static class Dispatcher {
 	public static IReadOnlyDictionary<string, CommandHandler> Table { get; private set; }
 	public static IReadOnlyList<string> CommandNames =>
@@ -11,6 +13,13 @@ static class Dispatcher {
 
 	static Dispatcher() =>
 		Table = new ConcurrentDictionary<string, CommandHandler>();
+
+	public static bool CanHandle(string commandName) =>
+		Table.ContainsKey(commandName);
+	public static Task<ResultType> HandleAsync(string commandName, Interaction interaction) =>
+		Table.ContainsKey(commandName)
+			? Table[commandName].HandleAsync(interaction)
+			: throw new UnknownCommandException(commandName);
 
 	// This replaces the entire internal handler table with a snapshot
 	// of the handlers evaluated at call time. This is called by the static
@@ -41,11 +50,4 @@ static class Dispatcher {
 		Log.Debug("  Added {HandlerCount} commands to Dispatcher.", handlerTable.Count);
 		Table = handlerTable;
 	}
-
-	public static bool CanHandle(string commandName) =>
-		Table.ContainsKey(commandName);
-	public static Task HandleAsync(string commandName, Interaction interaction) =>
-		Table.ContainsKey(commandName)
-			? Table[commandName].HandleAsync(interaction)
-			: throw new UnknownCommandException(commandName);
 }
