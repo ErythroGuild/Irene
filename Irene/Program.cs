@@ -1,57 +1,44 @@
+namespace Irene;
+
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
+using DSharpPlus.EventArgs;
 using Spectre.Console;
 
 using Irene.Modules;
 
-namespace Irene;
-
 class Program {
-
-	// Discord client objects.
-	public static DiscordClient Client { get; private set; }
-	public static DiscordGuild? Guild { get; private set; } = null;
+	// The GuildData object contains the program's `DiscordClient` and
+	// `DiscordGuild`, as well as other objects populated from those.
 	public static GuildData? Erythro { get; private set; } = null;
-	public static ConcurrentDictionary<ulong, DiscordChannel>? Channels { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordEmoji>? Emojis { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordRole>? Roles { get; private set; }
-	public static ConcurrentDictionary<ulong, DiscordChannel>? VoiceChats { get; private set; }
+	// Although `Erythro` is nullable, initialization order should ensure
+	// it's initialized before any dependents are. Use `CheckErythroInit()`
+	// to remove any nullable warnings.
+	[MemberNotNull(nameof(Erythro))]
+	public static void CheckErythroInit() {
+		if (Erythro is null)
+			throw new UninitializedException();
+	}
 
-	// DiscordGuild promise/future objects.
-	// GuildFuture is only set when Guild and all associated variables
-	// are set. This will always be complete when called, since it
-	// should only be called *after* init functions are called.
-	// `await AwaitGuildInit();` can be used to remove null warnings.
-	private static Task<DiscordGuild> GuildFuture => _guildPromise.Task;
-	private static readonly TaskCompletionSource<DiscordGuild> _guildPromise = new ();
-	// Member must have a non-null value when exiting.
-	#pragma warning disable CS8774
-	[MemberNotNull(nameof(Guild), nameof(Channels), nameof(Emojis), nameof(Roles), nameof(VoiceChats))]
-	public static async Task AwaitGuildInitAsync() => await GuildFuture;
-	#pragma warning restore CS8774
+
+	// --------
+	// Properties, fields, and constants:
+	// --------
 
 	// Separate logger pipeline for D#+.
 	private static Serilog.ILogger _loggerDsp;
-
+	// Discord client objects.
+	private static readonly DiscordClient _client;
 	// Diagnostic timers.
 	private static readonly Stopwatch
-		_stopwatchConfig   = new (),
 		_stopwatchConnect  = new (),
-		_stopwatchDownload = new (),
-		_stopwatchInitData = new (),
-		_stopwatchRegister = new ();
-
-	// File paths for config files.
-	private const string
-		_pathToken = @"config/token.txt",
-		_pathLogs = @"logs/";
+		_stopwatchDownload = new ();
 
 	// Date / time format strings.
 	private const string
 		_formatLogs = @"yyyy-MM\/lo\g\s-MM-dd";
-
 	// Serilog message templates.
 	private const string
 		_templateConsoleDebug   = @"[grey]{Timestamp:H:mm:ss} [{Level:w4}] {Message:lj}[/]{NewLine}{Exception}",
@@ -60,17 +47,25 @@ class Program {
 		_templateConsoleError   = @"[red]{Timestamp:H:mm:ss}[/] [invert red][{Level}][/] {Message:lj}{NewLine}{Exception}",
 		_templateFile           = @"{Timestamp:yyyy-MM-dd HH:mm:ss.fff} > [{Level:u3}] {Message:j}{NewLine}{Exception}";
 
-	public static async Task UpdateGuild() =>
-		Guild = await Client.GetGuildAsync(Id_Erythro);
+	// File paths for config files.
+	private const string
+		_pathToken = @"config/token.txt",
+		_pathLogs = @"logs/";
 
-	// Construct all static members.
+
+	// --------
+	// Initialization:
+	// --------
+
+	// Set up logger and D#+ client.
 	static Program() {
-		// Tune memory management for linux. Without this, OpenCvSharp
-		// causes "fake" (un-freed) memory usage in the range of 150+MB.
-		if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-			// By default, this is set for the current process only.
-			Environment.SetEnvironmentVariable("MALLOC_TRIM_THRESHOLD_", "20000");
-		}
+		// The below fix for linux memory usage doesn't seem to work.
+		//// Tune memory management for linux. Without this, OpenCvSharp
+		//// causes "fake" (un-freed) memory usage in the range of 150+MB.
+		//if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+		//	// By default, this is set for the current process only.
+		//	Environment.SetEnvironmentVariable("MALLOC_TRIM_THRESHOLD_", "20000");
+		//}
 
 		// Ensure the console window can display emoji/colors properly.
 		Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -93,13 +88,6 @@ class Program {
 		// Set up Serilog.
 		InitSerilog();
 		Log.Information("Logging initialized (Serilog).");
-
-		// Initialize static members.
-		Guild = null;
-		Channels = new ();
-		Emojis = new ();
-		Roles = new ();
-		VoiceChats = new ();
 
 		// Parse authentication token from file.
 		// Throw if token is not found.
@@ -124,7 +112,7 @@ class Program {
 		}
 
 		// Initialize Discord client.
-		Client = new DiscordClient(new DiscordConfiguration {
+		_client = new DiscordClient(new DiscordConfiguration {
 			Intents = DiscordIntents.All,
 			LoggerFactory = new LoggerFactory().AddSerilog(_loggerDsp),
 			Token = bot_token,
@@ -201,6 +189,11 @@ class Program {
 			.CreateLogger();
 	}
 
+
+	// --------
+	// Main program:
+	// --------
+
 	public static void Main() {
 		// Initialize static members.
 		InitStatic();
@@ -212,324 +205,237 @@ class Program {
 			.GetResult();
 	}
 	private static async Task MainAsync() {
-		// Start configuration timer.
-		_stopwatchConfig.Start();
-
-		// Connected to discord servers (but not necessarily guilds yet!).
-		Client.Ready += (irene, e) => {
-			_ = Task.Run(() => {
-				Log.Information("  Logged in to Discord servers.");
-				_stopwatchConnect.LogMsecDebug("    Took {ConnectionTime} msec.");
-			});
+		// Connected to discord servers, but not necessarily guilds yet!
+		_client.Ready += (_, _) => {
+			Log.Information("  Logged in to Discord servers.");
+			_stopwatchConnect.LogMsec(2);
 			return Task.CompletedTask;
 		};
 
-		// Guild data has finished downloading.
-		Client.GuildDownloadCompleted += (irene, e) => {
+		// All guild data has finished downloading.
+		_client.GuildDownloadCompleted += (_, _) => {
 			_ = Task.Run(async () => {
 				// Stop download timer.
-				Log.Information("  Downloaded guild data from Discord.");
-				_stopwatchDownload.LogMsecDebug("    Took {DownloadTime} msec.");
+				Log.Information("  Discord guild data downloaded.");
+				_stopwatchDownload.LogMsec(2);
 
-				// Initialize guild.
-				Guild = await irene.GetGuildAsync(Id_Erythro);
-				Log.Information("  Guild initialized.");
+				// Initialize GuildData.
+				Erythro = await GuildData.InitializeData(_client);
+				Log.Debug("  GuildData object initialized.");
 
-				// Initialize data.
-				Erythro = await GuildData.InitializeData(Client);
+				// --------
+				// IMPORTANT!
+				// After this point, `Erythro` initialization is complete,
+				// and everything else can safely be initialized.
+				// --------
 
 				// Initialize commands.
-				CommandDispatcher.Register(Erythro);
+				Dispatcher.ReplaceAllHandlers();
 
 				// Collate all command objects.
-				IReadOnlyList<CommandHandler> handlers =
-					CommandDispatcher.Handlers;
-				List<DiscordApplicationCommand> commands = new ();
-				foreach (CommandHandler handler in handlers)
+				List<DiscordCommand> commands = new ();
+				foreach (CommandHandler handler in Dispatcher.Handlers)
 					commands.Add(handler.Command);
 				// Register (and fetch updated) commands.
-				commands = new (await Client.BulkOverwriteGlobalApplicationCommandsAsync(commands));
-				// Update command objects.
-				int countSlash = 0;
-				int countContext = 0;
-				foreach (DiscordApplicationCommand command in commands) {
-					CommandDispatcher.HandlerTable[command.Name]
-						.UpdateRegisteredCommand(command);
-					switch (command.Type) {
-					case ApplicationCommandType.SlashCommand:
-						countSlash++;
-						break;
-					case ApplicationCommandType.MessageContextMenu:
-					case ApplicationCommandType.UserContextMenu:
-						countContext++;
-						break;
-					}
-				}
+				Stopwatch stopwatchRegister = Stopwatch.StartNew();
+				commands = new (await _client.BulkOverwriteGlobalApplicationCommandsAsync(commands));
+				Log.Information("  Registered all commands.");
+				stopwatchRegister.LogMsec(2);
 
+				// Update command objects and keep a tally of types.
+				// The tally is used for updating `Module.About`.
+				int countSlash = 0, countContext = 0;
+				foreach (DiscordCommand command in commands) {
+					Dispatcher.Table[command.Name]
+						.UpdateRegisteredCommand(command);
+					IncrementCommandType(command, ref countSlash, ref countContext);
+				}
 				// Update status module with registered command count.
 				About.SetRegisteredCommands(countSlash, countContext);
 
-				// Start data initialization timer.
-				_stopwatchInitData.Start();
+				// --------
+				// After this point, commands have their proper IDs.
+				// --------
 
-				// Initialize channels.
-				Channels = new ();
-				FieldInfo[] channel_ids =
-					typeof(ChannelIDs).GetFields();
-				foreach (var channel_id in channel_ids) {
-					ulong id = (ulong)channel_id.GetValue(null)!;
-					DiscordChannel channel = Guild.GetChannel(id);
-					Channels.TryAdd(id, channel);
-				}
-				Log.Debug("    Channels populated.");
-
-				// Initialize emojis.
-				// Fetching entire list of emojis first instead of fetching
-				// each emoji individually to minimize awaiting.
-				Emojis = new ();
-				FieldInfo[] emoji_ids =
-					typeof(EmojiIDs).GetFields();
-				List<DiscordGuildEmoji> emojis =
-					new (await Guild.GetEmojisAsync());
-				foreach (var emoji_id in emoji_ids) {
-					ulong id = (ulong)emoji_id.GetValue(null)!;
-					foreach (DiscordGuildEmoji emoji in emojis) {
-						if (emoji.Id == id) {
-							Emojis.TryAdd(id, emoji);
-							emojis.Remove(emoji);
-							break;
-						}
-					}
-				}
-				Log.Debug("    Emojis populated.");
-
-				// Initialize roles.
-				Roles = new ();
-				FieldInfo[] role_ids =
-					typeof(RoleIDs).GetFields();
-				foreach (var role_id in role_ids) {
-					ulong id = (ulong)role_id.GetValue(null)!;
-					DiscordRole role = Guild.GetRole(id);
-					Roles.TryAdd(id, role);
-				}
-				Log.Debug("    Roles populated.");
-
-				// Initialize voice chats.
-				VoiceChats = new ();
-				FieldInfo[] voiceChat_ids =
-					typeof(VoiceChatIDs).GetFields();
-				foreach (var voiceChat_id in voiceChat_ids) {
-					ulong id = (ulong)voiceChat_id.GetValue(null)!;
-					DiscordChannel channel = Guild.GetChannel(id);
-					VoiceChats.TryAdd(id, channel);
-				}
-				Log.Debug("    Voice chats populated.");
-
-				// Stop data initialization timer.
-				Log.Debug("    Discord data initialized and populated.");
-				_stopwatchInitData.LogMsecDebug("      Took {DataInitTime} msec.");
-
-				// Set GuildFuture.
-				_guildPromise.SetResult(Guild);
-
-				// Initialize modules.
+				// Initialize remaining uninitialized modules.
+				// `Dispatcher` should've initialized all commands.
 				EnsureStaticConstruction();
 
-				// Register (update-by-overwriting) application commands.
-				_stopwatchRegister.Start();
-				try {
-					await Client.BulkOverwriteGuildApplicationCommandsAsync(Id_Erythro, Command.Commands);
-					Log.Information("  Application commands registered.");
-					_stopwatchRegister.LogMsecDebug("    Took {RegisterTime} msec.");
-					Log.Debug("    Registered {CommandCount} commands.", Command.Commands.Count);
-				} catch (BadRequestException e) {
-					Log.Error("Failed to register commands.");
-					Log.Error("{@Exception}", e.JsonMessage);
-				}
+				// Only register command & message handlers after guild
+				// initialization completes; this ensures they cannot
+				// be called before everything is ready.
+				RegisterInteractionHandlers();
+				RegisterMessageHandler();
 			});
 			return Task.CompletedTask;
 		};
-		// Search through all (Irene's) types to find ones which have
-		// static constructors, and ensure that they're called, without
-		// needing to manually call an empty `Init()` method.
-		static void EnsureStaticConstruction() {
-			List<Type> typesAll = new (Assembly.GetExecutingAssembly().GetTypes());
-			List<Type> typesIrene = new ();
 
-			// Filter all types to only select the ones inside the same
-			// namespace as `Program` (or further nested ones). Since
-			// namespaces have strict naming rules, we can safely split
-			// the namespace string on '.'.
-			string? namespaceIrene = typeof(Program).Namespace;
-			foreach (Type type in typesAll) {
-				string @namespace = type.Namespace ?? "";
-				string[] namespaces = @namespace.Split('.', 2);
-				if (namespaces[0] == namespaceIrene) {
-					typesIrene.Add(type);
-				}
-			}
+		// Start connection timer and connect.
+		_stopwatchConnect.Start();
+		_stopwatchDownload.Start();
+		await _client.ConnectAsync();
+		await Task.Delay(-1);
+	}
 
-			// Ensure relevant static constructors have been called.
-			foreach (Type type in typesIrene) {
-				// See Microsoft's documentation for `GetConstructors()`.
-				// These flags are the exact ones needed to fetch static
-				// constructors.
-				List<ConstructorInfo> constructors = new (
-					type.GetConstructors(
-						BindingFlags.Public |
-						BindingFlags.Static |
-						BindingFlags.NonPublic |
-						BindingFlags.Instance
-					)
-				);
 
-				// Note: calling the constructor directly risks calling
-				// the static constructor more than once. Instead, check
-				// for the presence of a static constructor, and if one
-				// exists, we use the following method to call it (if
-				// it hasn't been called yet), and register the runtime
-				// that it _has_ been called.
-				foreach (ConstructorInfo constructor in constructors) {
-					if (constructor.IsStatic) {
-						System.Runtime.CompilerServices
-							.RuntimeHelpers
-							.RunClassConstructor(type.TypeHandle);
-						break;
-					}
-				}
-			}
-		}
+	// --------
+	// Decomposed helper methods for Main():
+	// --------
 
-		// Log standard interaction data.
-		static void LogInteractionData(Interaction interaction) {
-			Log.Information(
-				"Command processed:{FlagDM} /{CommandName}",
-				interaction.Object.Channel.IsPrivate ? " [DM]" : "",
-				interaction.Name
-			);
-
-			Log.Debug(
-				"  Received: {TimestampReceived:HH:mm:ss.fff}",
-				interaction.TimeReceived.ToLocalTime()
-			);
-
-			double? initialResponse = interaction
-				.GetEventDuration(Interaction.Events.InitialResponse)
-				?.TotalMilliseconds
-				?? null;
-			if (initialResponse is not null) {
-				Log.Debug(
-					"  Initial response - {DurationInitial,6:F2} msec",
-					initialResponse
-				);
-			}
-
-			double? finalResponse = interaction
-				.GetEventDuration(Interaction.Events.FinalResponse)
-				?.TotalMilliseconds
-				?? null;
-			if (finalResponse is not null) {
-				Log.Debug(
-					"  Final response   - {DurationFinal,6:F2} msec",
-					finalResponse
-				);
-			}
-
-			string? responseSummary = interaction.ResponseSummary;
-			if (responseSummary is not null) {
-				Log.Debug("  Response summary:");
-				string[] lines = responseSummary.Split("\n");
-				foreach (string line in lines)
-					Log.Debug("    {ResponseLine}", line);
-			}
-		}
-		// Even though this is used for context menu commands, the event
-		// args always use `InteractionCreateEventArgs`. This means the
-		// actual `Interaction` object must be created outside with an
-		// appropriately specialized factory method, and passed in.
-		static async Task HandleInteraction(Interaction interaction, InteractionCreateEventArgs e) {
-			string commandName = interaction.Name;
-
-			if (!CommandDispatcher.CanHandle(commandName)) {
-				Log.Error("Unrecognized command: /{CommandName}", commandName);
-				return;
-			}
-			e.Handled = true;
-			await CommandDispatcher.HandleAsync(commandName, interaction);
-
-			// Filter for autocomplete interactions (to avoid filling
-			// logs with noise).
-			// Autocomplete info needs to be logged by the handler itself.
-			if (e.Interaction.Type == InteractionType.AutoComplete)
-				return;
-			LogInteractionData(interaction);
-		}
-		// Interaction received.
-		Client.InteractionCreated += (irene, e) => {
+	// Register event handlers for received interactions.
+	private static void RegisterInteractionHandlers() {
+		// C# only infers an unambiguous discard if there are multiple
+		// parameters named `_`, so this `c` needs to be named.
+		_client.InteractionCreated += (c, e) => {
 			_ = Task.Run(async () => {
 				Interaction interaction = Interaction.FromCommand(e);
 				await HandleInteraction(interaction, e);
 			});
 			return Task.CompletedTask;
 		};
-		Client.ContextMenuInteractionCreated += (irene, e) => {
+		_client.ContextMenuInteractionCreated += (c, e) => {
 			_ = Task.Run(async () => {
 				Interaction interaction = Interaction.FromContextMenu(e);
 				await HandleInteraction(interaction, e);
 			});
 			return Task.CompletedTask;
 		};
+	}
 
-		// (Any) message has been received.
-		Client.MessageCreated += (irene, e) => {
+	// Register event handler for received messages.
+	private static void RegisterMessageHandler() {
+		// C# only infers an unambiguous discard if there are multiple
+		// parameters named `_`, so this `c` needs to be named.
+		_client.MessageCreated += (c, e) => {
 			_ = Task.Run(async () => {
-				DiscordMessage msg = e.Message;
+				// Only handle messages from Erythro.
+				if (e.Guild.Id != id_g.erythro)
+					return;
+
+				CheckErythroInit();
+				DiscordMessage message = e.Message;
 
 				// Never respond to self!
-				if (msg.Author == irene.CurrentUser)
+				if (message.Author == _client.CurrentUser)
 					return;
+
+				// Special handler for the `Keys` command, to emulate
+				// the way the command behaves in-game.
+				string messageText = message.Content.Trim().ToLower();
+				if (messageText.StartsWith("!keys")) {
+					return;
+				}
 
 				// React to boost messages.
-				if (msg.MessageType == MessageType.UserPremiumGuildSubscription) {
-					DiscordEmoji emoji_gem =
-						DiscordEmoji.FromUnicode("\U0001F48E");
-					DiscordEmoji emoji_party =
-						DiscordEmoji.FromUnicode("\U0001F973");
-					await msg.CreateReactionAsync(emoji_gem);
-					await msg.CreateReactionAsync(emoji_party);
+				if (message.MessageType == MessageType.UserPremiumGuildSubscription) {
+					await ReactToBoostAsync(Erythro, message);
+					return;
 				}
 
-				// Trim leading whitespace.
-				string msg_text = msg.Content.TrimStart();
-
-				// Handle special commands.
-				if (msg_text.ToLower().StartsWith("!keys")) {
-					return;
-				}
-				if (msg_text.ToLower().StartsWith($"{irene.CurrentUser.Mention} :wave:")) {
-					await msg.Channel.TriggerTypingAsync();
-					await Task.Delay(1500);
-					_ = msg.RespondAsync(":wave:");
-					return;
-				}
-				if (msg_text.ToLower().StartsWith($"{irene.CurrentUser.Mention} 👋")) {
-					await msg.Channel.TriggerTypingAsync();
-					await Task.Delay(1500);
-					_ = msg.RespondAsync(":wave:");
-					return;
-				}
+				// Any other message is parsed and responded to by the
+				// chat module.
+				await Chatbot.RespondAsync(message);
 			});
 			return Task.CompletedTask;
 		};
+	}
 
-		// Stop configuration timer.
-		Log.Debug("  Configured Discord client.");
-		_stopwatchConfig.LogMsecDebug("    Took {ConfigTime} msec.");
+	// Increment command counter separately for different types of
+	// commands (slash commands vs. context menu commands).
+	private static void IncrementCommandType(
+		DiscordCommand command,
+		ref int countSlash,
+		ref int countContext
+	) {
+		switch (command.Type) {
+		case CommandType.SlashCommand:
+			countSlash++;
+			break;
+		case CommandType.MessageContextMenu:
+		case CommandType.UserContextMenu:
+			countContext++;
+			break;
+		}
+	}
 
-		// Start connection timer and connect.
-		_stopwatchConnect.Start();
-		_stopwatchDownload.Start();
-		await Client.ConnectAsync();
-		await Task.Delay(-1);
+	// Search through all Irene's types to find ones which have static
+	// constructors, and ensure that they're called (without the need
+	// to manually call an empty `Init()` method).
+	private static void EnsureStaticConstruction() {
+		List<Type> typesAll = new (Assembly.GetExecutingAssembly().GetTypes());
+		HashSet<Type> typesIrene = new ();
+
+		// Filter all types to only select the ones inside the same
+		// namespace as `Program` (or deeper-nested ones). Since
+		// namespaces have strict naming rules, the namespace string
+		// can safely be split on '.'.
+		string? namespaceIrene = typeof(Program).Namespace;
+		foreach (Type type in typesAll) {
+			string @namespace = type.Namespace ?? "";
+			string[] namespaces = @namespace.Split('.', 2);
+			if (namespaces[0] == namespaceIrene) {
+				typesIrene.Add(type);
+			}
+		}
+
+		Util.RunAllStaticConstructors(typesIrene);
+	}
+
+	// Even though context menu commands and autocomplete interactions
+	// share handling logic, they pass different event args. This means
+	// an `Interaction` object needs to be created appropriately outside
+	// the method, then passed in.
+	private static async Task HandleInteraction(
+		Interaction interaction,
+		InteractionCreateEventArgs e
+	) {
+		string commandName = interaction.Name;
+
+		// Only attempt to handle registered commands.
+		if (!Dispatcher.CanHandle(commandName)) {
+			Log.Error("Unrecognized command: /{CommandName}", commandName);
+			return;
+		}
+		e.Handled = true;
+
+		// `UnknownCommandException` is the only type of exception that
+		// can't be caught by the `CommandHandler`, since it will throw
+		// before the `CommandHandler` is even called.
+		CommandHandler.ResultType commandResult;
+		try {
+			commandResult = await
+				Dispatcher.HandleAsync(commandName, interaction);
+		} catch (UnknownCommandException ex) {
+			commandResult = CommandHandler.ResultType.Exception;
+			await interaction.RegisterAndRespondAsync(ex.ResponseMessage, true);
+			ex.Log();
+		}
+
+		// Filter for autocomplete interactions (to avoid filling
+		// logs with noise).
+		// Autocomplete info needs to be logged by the handler itself.
+		if (e.Interaction.Type == InteractionType.AutoComplete)
+			return;
+
+		interaction.LogResponseData();
+	}
+
+	// React to a message with some celebratory emojis.
+	private static async Task ReactToBoostAsync(
+		GuildData erythro,
+		DiscordMessage message
+	) {
+		List<DiscordEmoji> emojisBoost = new () {
+			erythro.Emoji(id_e.eryLove),
+			erythro.Emoji(id_e.notoParty),
+			erythro.Emoji(id_e.notoFireworks),
+			DiscordEmoji.FromUnicode("\U0001F48E") // :gem:
+		};
+		// Having a slight delay makes it feel more "human".
+		await Task.Delay(TimeSpan.FromSeconds(6));
+		foreach (DiscordEmoji emoji in emojisBoost) {
+			await Task.Delay(TimeSpan.FromSeconds(1.5));
+			await message.CreateReactionAsync(emoji);
+		}
 	}
 }
