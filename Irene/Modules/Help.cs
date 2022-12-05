@@ -133,8 +133,8 @@ class Help {
 
 			$"""
 			{flower} **Utilities** {flower}
-			{HelpText(Commands.Roll.Command_Roll)}
-			{HelpText(Commands.Random.Command_Random)}
+			{HelpText(Commands.Roll.CommandRoll)}
+			{HelpText(Commands.Random.CommandRandom)}
 			{/*HelpText("aww")*/ "[WIP]"}
 			{HelpText(Commands.Mimic.CommandMimic)}
 

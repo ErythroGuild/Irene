@@ -1,156 +1,154 @@
-﻿using Module = Irene.Modules.Random;
+﻿namespace Irene.Commands;
 
-namespace Irene.Commands;
+using Module = Modules.Random;
 
 class Roll : CommandHandler {
 	public const string
-		Command_Roll = "roll",
-		Arg_Min = "min",
-		Arg_Max = "max";
+		CommandRoll = "roll",
+		ArgMin = "min",
+		ArgMax = "max";
 	// Valid argument ranges for min/max args.
 	public const int
-		Value_Min = 0,
-		Value_Max = 1000000000; // 10^9 < 2^31, API uses signed int32
-
-	public Roll(GuildData erythro) : base (erythro) { }
+		ValueMin = 0,
+		ValueMax = 1000000000; // 10^9 < 2^31, API uses signed int32
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_Roll)} generates a number between `1` and `100`,
-		{Command.Mention(Command_Roll)} `<{Arg_Max}>` generates a number between `1` and `{Arg_Max}`,
-		{Command.Mention(Command_Roll)} `<{Arg_Min}> <{Arg_Max}>` generates a number between `{Arg_Min}` and `{Arg_Max}`.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRoll)} generates a number between `1` and `100`,
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRoll)} `<{ArgMax}>` generates a number between `1` and `{ArgMax}`,
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRoll)} `<{ArgMin}> <{ArgMax}>` generates a number between `{ArgMin}` and `{ArgMax}`.
 		    All ranges are inclusive, e.g. `[7, 23]`.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Roll,
+			CommandRoll,
 			"Generate a random number.",
-			new List<CommandOption> {
+			AccessLevel.Guest,
+			new List<DiscordCommandOption> {
 				new (
-					Arg_Min,
+					ArgMin,
 					"The lower bound (inclusive).",
-					ApplicationCommandOptionType.Integer,
+					ArgType.Integer,
 					required: false,
-					minValue: Value_Min,
-					maxValue: Value_Max
+					minValue: ValueMin,
+					maxValue: ValueMax
 				),
 				new (
-					Arg_Max,
+					ArgMax,
 					"The upper bound (inclusive).",
-					ApplicationCommandOptionType.Integer,
+					ArgType.Integer,
 					required: false,
-					minValue: Value_Min,
-					maxValue: Value_Max
+					minValue: ValueMin,
+					maxValue: ValueMax
 				),
-			},
-			Permissions.None
+			}
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
 		List<int> argList = new ();
 		// `object` -> `long` -> `int` prevents an `InvalidCastException`.
 		// This is because D#+ returns a `long`, even though the value
 		// will always fit into an `int`.
 		foreach (object arg in args.Values)
 			argList.Add((int)(long)arg);
+
 		string response = Module.SlashRoll(argList);
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary(response);
+		await interaction.RegisterAndRespondAsync(response);
 	}
 }
 
 class Random : CommandHandler {
 	public const string
-		Command_Random = "random",
-		Command_Number = "number",
-		Command_Coin   = "coin-flip",
-		Command_Card   = "card",
-		Command_8Ball  = "8-ball",
-		Arg_Question   = "question",
-		Arg_Share      = "share";
-
-	public Random(GuildData erythro) : base (erythro) { }
+		CommandRandom = "random",
+		CommandNumber = "number",
+		CommandCoin   = "coin-flip",
+		CommandCard   = "card",
+		Command8Ball  = "8-ball",
+		ArgQuestion   = "question",
+		ArgShare      = "share";
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention($"{Command_Random} {Command_Number}")} functions the same as `/roll`.
-		{Command.Mention($"{Command_Random} {Command_Coin}")} displays the result of a coin flip.
-		{Command.Mention($"{Command_Random} {Command_Card}")} draws a card from a standard deck.
-		{Command.Mention($"{Command_Random} {Command_8Ball}")} `<{Arg_Question}> [{Arg_Share}]` forecasts the answer to a yes/no question.
-		    If `[{Arg_Share}]` isn't specified, the response will be private.
+		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandNumber}")} functions the same as `/roll`.
+		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandCoin}")} displays the result of a coin flip.
+		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandCard}")} draws a card from a standard deck.
+		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {Command8Ball}")} `<{ArgQuestion}> [{ArgShare}]` forecasts the answer to a yes/no question.
+		    If `[{ArgShare}]` isn't specified, the response will be private.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Random,
-			"Generate a randomized outcome.",
-			Permissions.None
+			CommandRandom,
+			"Generate a randomized outcome."
 		),
 		new List<CommandTree.GroupNode>(),
 		new List<CommandTree.LeafNode> {
 			new (
+				AccessLevel.Guest,
 				new (
-					Command_Number,
+					CommandNumber,
 					"Generate a random number.",
-					ApplicationCommandOptionType.SubCommand,
-					options: new List<CommandOption> {
+					ArgType.SubCommand,
+					options: new List<DiscordCommandOption> {
 						new (
-							Roll.Arg_Min,
+							Roll.ArgMin,
 							"The lower bound (inclusive).",
-							ApplicationCommandOptionType.Integer,
+							ArgType.Integer,
 							required: false,
-							minValue: Roll.Value_Min,
-							maxValue: Roll.Value_Max
+							minValue: Roll.ValueMin,
+							maxValue: Roll.ValueMax
 						),
 						new (
-							Roll.Arg_Max,
+							Roll.ArgMax,
 							"The upper bound (inclusive).",
-							ApplicationCommandOptionType.Integer,
+							ArgType.Integer,
 							required: false,
-							minValue: Roll.Value_Min,
-							maxValue: Roll.Value_Max
+							minValue: Roll.ValueMin,
+							maxValue: Roll.ValueMax
 						),
 					}
 				),
-				new (new Roll(Erythro).RespondAsync)
+				new (new Roll().RespondAsync)
 			),
 			new (
+				AccessLevel.Guest,
 				new (
-					Command_Coin,
+					CommandCoin,
 					"Flip a coin.",
-					ApplicationCommandOptionType.SubCommand
+					ArgType.SubCommand
 				),
 				new (FlipCoinAsync)
 			),
 			new (
+				AccessLevel.Guest,
 				new (
-					Command_Card,
+					CommandCard,
 					"Draw a card.",
-					ApplicationCommandOptionType.SubCommand
+					ArgType.SubCommand
 				),
 				new (DrawCardAsync)
 			),
 			new (
+				AccessLevel.Guest,
 				new (
-					Command_8Ball,
+					Command8Ball,
 					@"Forecast the answer to a yes/no question.",
-					ApplicationCommandOptionType.SubCommand,
-					options: new List<CommandOption> {
+					ArgType.SubCommand,
+					options: new List<DiscordCommandOption> {
 						new (
-							Arg_Question,
+							ArgQuestion,
 							@"The yes/no question to answer.",
-							ApplicationCommandOptionType.String,
+							ArgType.String,
 							required: true
 						),
 						new (
-							Arg_Share,
+							ArgShare,
 							"Whether the prediction is public.",
-							ApplicationCommandOptionType.Boolean,
+							ArgType.Boolean,
 							required: false
 						),
 					}
@@ -160,49 +158,49 @@ class Random : CommandHandler {
 		}
 	);
 
-	public async Task FlipCoinAsync(Interaction interaction, IDictionary<string, object> _) {
+	public async Task FlipCoinAsync(Interaction interaction, ParsedArgs args) {
+		CheckErythroInit();
+
 		bool result = Module.FlipCoin();
+
 		string response = (result switch {
 			true  => Erythro.Emoji(id_e.heads),
 			false => Erythro.Emoji(id_e.tails),
 		}).ToString();
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary(result ? "Heads" : "Tails");
+		string summary = result ? "Heads" : "Tails";
+		await interaction.RegisterAndRespondAsync(response, summary);
 	}
 
-	public async Task DrawCardAsync(Interaction interaction, IDictionary<string, object> _) {
+	public async Task DrawCardAsync(Interaction interaction, ParsedArgs args) {
 		Module.PlayingCard card = Module.DrawCard();
+
 		string suit = card.Suit switch {
 			Module.Suit.Spades   => "\u2664", // white spade suit
 			Module.Suit.Hearts   => "\u2661", // white heart suit
 			Module.Suit.Diamonds => "\u2662", // white diamond suit
 			Module.Suit.Clubs    => "\u2667", // white club suit
 			Module.Suit.Joker    => "\U0001F0CF", // :black_joker:
-			_ => throw new InvalidOperationException("Invalid card drawn."),
+			_ => throw new UnclosedEnumException(typeof(Module.Suit), card.Suit),
 		};
 		string value = card.Value ?? "";
 		string response = (card.Suit != Module.Suit.Joker)
 			? $"{suit} **{value}**"
 			: suit;
 
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary(response);
+		await interaction.RegisterAndRespondAsync(response);
 	}
 
-	public async Task Predict8BallAsync(Interaction interaction, IDictionary<string, object> args) {
-		string question = (string)args[Arg_Question];
-		bool doShare = args.ContainsKey(Arg_Share)
-			? (bool)args[Arg_Share]
+	public async Task Predict8BallAsync(Interaction interaction, ParsedArgs args) {
+		string question = (string)args[ArgQuestion];
+		bool doShare = args.ContainsKey(ArgShare)
+			? (bool)args[ArgShare]
 			: false;
 		DateOnly today = DateOnly.FromDateTime(DateTime.Today);
 		// Date doesn't need to be server time--the crystal ball works
 		// in mysterious ways, after all.
 
 		string response = Module.Magic8Ball(question, today);
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response, !doShare);
-		interaction.SetResponseSummary(response);
+
+		await interaction.RegisterAndRespondAsync(response, !doShare);
 	}
 }
