@@ -1,81 +1,80 @@
-﻿using Module = Irene.Modules.Translate;
-using Language = Irene.Modules.Translate.Language;
-using Result = Irene.Modules.Translate.Result;
+﻿namespace Irene.Commands;
 
-namespace Irene.Commands;
+using Module = Modules.Translate;
+using Language = Modules.Translate.Language;
+using Result = Modules.Translate.Result;
 
 class Translate : CommandHandler {
 	public const string
-		Command_Translate = "translate",
-		Arg_Text = "text", // required options must come first
-		Arg_Source = "from",
-		Arg_Target = "to",
-		Arg_Share = "share";
+		CommandTranslate = "translate",
+		ArgText = "text", // required options must come first
+		ArgSource = "from",
+		ArgTarget = "to",
+		ArgShare = "share";
+	// Leave some room for e.g. formatting.
 	public const int MaxLength = 800;
-
-	public Translate(GuildData erythro) : base (erythro) { }
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_Translate)} `<{Arg_Text}> [{Arg_Source}] [{Arg_Target}] [{Arg_Share}]` translates the input text.
+		{RankEmoji(AccessLevel.Guest)}{Command.Mention(CommandTranslate)} `<{ArgText}> [{ArgSource}] [{ArgTarget}] [{ArgShare}]` translates the input text.
 		    Defaults to "Auto-Detect" + "English" + `false`.
 		    Translation powered by DeepL.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Translate,
+			CommandTranslate,
 			"Translates the input text.",
-			new List<CommandOption> {
+			AccessLevel.Guest,
+			new List<DiscordCommandOption> {
 				new (
-					Arg_Text,
+					ArgText,
 					"The text to translate.",
-					ApplicationCommandOptionType.String,
+					ArgType.String,
 					required: true,
 					maxLength: MaxLength
 				),
 				new (
-					Arg_Source,
+					ArgSource,
 					"The language of the input text.",
-					ApplicationCommandOptionType.String,
+					ArgType.String,
 					required: false,
 					autocomplete: true
 				),
 				new (
-					Arg_Target,
+					ArgTarget,
 					"The language to translate to.",
-					ApplicationCommandOptionType.String,
+					ArgType.String,
 					required: false,
 					autocomplete: true
 				),
 				new (
-					Arg_Share,
+					ArgShare,
 					"Whether the translation is shown to everyone.",
-					ApplicationCommandOptionType.Boolean,
+					ArgType.Boolean,
 					required: false
 				)
-			},
-			Permissions.SendMessages
+			}
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, Func<Interaction, object, IDictionary<string, object>, Task>> {
-			[Arg_Source] = AutocompleteSourceAsync,
-			[Arg_Target] = AutocompleteTargetAsync,
+		new Dictionary<string, Autocompleter> {
+			[ArgSource] = AutocompleteSourceAsync,
+			[ArgTarget] = AutocompleteTargetAsync,
 		}
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
-		string text = (string)args[Arg_Text];
-		string? argSource = args.ContainsKey(Arg_Source)
-			? (string)args[Arg_Source]
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
+		string text = (string)args[ArgText];
+		string? argSource = args.ContainsKey(ArgSource)
+			? (string)args[ArgSource]
 			: null;
-		string argTarget = args.ContainsKey(Arg_Target)
-			? (string)args[Arg_Target]
-			: Module.Language_EnglishUS;
+		string argTarget = args.ContainsKey(ArgTarget)
+			? (string)args[ArgTarget]
+			: Module.LanguageEnglishUS;
 		Language? languageSource = Module.ParseLanguageCode(argSource);
 		Language languageTarget = Module.ParseLanguageCode(argTarget)
-			?? throw new ArgumentException("Unsupported target language.", nameof(args));
+			?? throw new ImpossibleArgException(ArgTarget, argTarget);
 
 		Result result = await Module.TranslateText(text, languageSource, languageTarget);
 		DiscordEmbed embed = Module.RenderResult(text, result);
@@ -83,21 +82,20 @@ class Translate : CommandHandler {
 			new DiscordMessageBuilder()
 			.WithEmbed(embed);
 
-		bool doShare = args.ContainsKey(Arg_Share)
-			? (bool)args[Arg_Share]
+		bool doShare = args.ContainsKey(ArgShare)
+			? (bool)args[ArgShare]
 			: false;
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response, !doShare);
-		interaction.SetResponseSummary($"{embed.Title}\n{embed.Description}");
+		string summary = $"{embed.Title}\n{embed.Description}";
+		await interaction.RegisterAndRespondAsync(response, summary, !doShare);
 	}
 
-	public async Task AutocompleteSourceAsync(Interaction interaction, object arg, IDictionary<string, object> args) {
+	public async Task AutocompleteSourceAsync(Interaction interaction, object arg, ParsedArgs args) {
 		string text = (string)arg;
 		IList<(string, string)> options = Module.Autocomplete(true, text);
 		await interaction.AutocompleteAsync(options);
 	}
 
-	public async Task AutocompleteTargetAsync(Interaction interaction, object arg, IDictionary<string, object> args) {
+	public async Task AutocompleteTargetAsync(Interaction interaction, object arg, ParsedArgs args) {
 		string text = (string)arg;
 		IList<(string, string)> options = Module.Autocomplete(false, text);
 		await interaction.AutocompleteAsync(options);
@@ -105,33 +103,30 @@ class Translate : CommandHandler {
 }
 
 class TranslateContext : CommandHandler {
-	public const string
-		Command_Translate = "Translate";
-
-	public TranslateContext(GuildData erythro) : base (erythro) { }
+	public const string CommandTranslate = "Translate";
 
 	public override string HelpText =>
 		$"""
-		:lock: `> {Command_Translate}` translates the message to English.
+		{RankEmoji(AccessLevel.Guest)}`> {CommandTranslate}` translates the message to English.
 		    Embeds are not translated, only message content.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Translate,
+			CommandTranslate,
 			"",
-			new List<CommandOption>(),
-			Permissions.None
+			AccessLevel.Guest,
+			new List<DiscordCommandOption>()
 		),
-		ApplicationCommandType.MessageContextMenu,
+		CommandType.MessageContextMenu,
 		TranslateAsync
 	);
 
-	public async Task TranslateAsync(Interaction interaction, IDictionary<string, object> args) {
+	public async Task TranslateAsync(Interaction interaction, ParsedArgs args) {
 		DiscordMessage? message = interaction.TargetMessage;
 		if (message is null) {
 			Log.Error("No target message found for context menu command.");
-			return;
+			throw new ImpossibleArgException("Target message", "N/A");
 		}
 
 		// Infer translate command arguments.
@@ -142,16 +137,15 @@ class TranslateContext : CommandHandler {
 				The message content must not be blank.
 				(Embeds cannot be translated.)
 				""";
-			interaction.RegisterFinalResponse();
-			await interaction.RespondCommandAsync(error, true);
-			interaction.SetResponseSummary(error);
+			await interaction.RegisterAndRespondAsync(error, true);
 			return;
 		}
 
 		Language? languageTarget =
-			Module.ParseLanguageCode(Module.Language_EnglishUS);
+			Module.ParseLanguageCode(Module.LanguageEnglishUS);
 		if (languageTarget is null)
-			throw new ArgumentException("Invalid target language.");
+			throw new ImpossibleException();
+		// This throws if initialization failed somehow.
 
 		// Fetch and display results.
 		Result result = await Module.TranslateText(
@@ -164,8 +158,7 @@ class TranslateContext : CommandHandler {
 			new DiscordMessageBuilder()
 			.WithEmbed(embed);
 
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response);
-		interaction.SetResponseSummary($"{embed.Title}\n{embed.Description}");
+		string summary = $"{embed.Title}\n{embed.Description}";
+		await interaction.RegisterAndRespondAsync(response, summary);
 	}
 }

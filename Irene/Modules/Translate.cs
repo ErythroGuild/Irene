@@ -1,9 +1,9 @@
-﻿using DeepL;
+﻿namespace Irene.Modules;
+
+using DeepL;
 using DeepL.Model;
 
 using DeepLLanguage = DeepL.Model.Language;
-
-namespace Irene.Modules;
 
 class Translate {
 	public enum LanguageType { Source, Target }
@@ -35,10 +35,12 @@ class Translate {
 			Code.GetHashCode();
 	}
 
-	public const string Language_EnglishUS = LanguageCode.EnglishAmerican;
+	// The default language has to be en-us; attempting to translate
+	// *to* "English" will fail.
+	public const string LanguageEnglishUS = LanguageCode.EnglishAmerican;
 	public const string
-		Label_Detect = "Auto-Detect",
-		Id_Detect = "autodetect";
+		LabelDetect = "Auto-Detect",
+		IdDetect = "autodetect";
 
 	// DeepL client that wraps all API calls.
 	private static readonly Translator _translator;
@@ -120,10 +122,10 @@ class Translate {
 		if (languageSource is not null &&
 			!_languagesSource.Contains(languageSource.Value)
 		) {
-			throw new ArgumentException("Unsupported source language.", nameof(languageSource));
+			throw new ImpossibleArgException(Commands.Translate.ArgSource, languageSource.Value.Name);
 		}
 		if (!_languagesTarget.Contains(languageTarget))
-			throw new ArgumentException("Unsupported target language.", nameof(languageTarget));
+			throw new ImpossibleArgException(Commands.Translate.ArgTarget, languageTarget.Name);
 
 		// Fetch results from API.
 		TextResult result = await _translator.TranslateTextAsync(
@@ -131,10 +133,10 @@ class Translate {
 			languageSource?.Code ?? null,
 			languageTarget.Code
 		);
-		Language? sourceLanguage =
-			ParseLanguageCode(result.DetectedSourceLanguageCode);
+		string detectedLanguageCode = result.DetectedSourceLanguageCode;
+		Language? sourceLanguage = ParseLanguageCode(detectedLanguageCode);
 		if (sourceLanguage is null)
-			throw new ArgumentException("Invalid source language.");
+			throw new ImpossibleArgException(Commands.Translate.ArgSource, detectedLanguageCode);
 
 		return new (
 			result.Text,
@@ -181,7 +183,7 @@ class Translate {
 
 		List<(string, string)> results = new ();
 		if (isSource)
-			results.Add((Label_Detect, Id_Detect));
+			results.Add((LabelDetect, IdDetect));
 
 		// Compile all valid options.
 		IReadOnlyList<(string, string)> optionsTotal = isSource switch {
@@ -197,7 +199,7 @@ class Translate {
 			// Null case isn't an actual "Language" record, just using
 			// it to conveniently hold the data to filter on.
 			Language language = ParseLanguageCode(option.id)
-				?? new (Id_Detect, Label_Detect, Label_Detect);
+				?? new (IdDetect, LabelDetect, LabelDetect);
 			if (language.Code.ToLower().Contains(arg) ||
 				language.Name.ToLower().Contains(arg) ||
 				language.NativeName.ToLower().Contains(arg)
