@@ -139,7 +139,7 @@ class Help {
 			{HelpText(Commands.Mimic.CommandMimic)}
 
 			{flower} **Bot Status** {flower}
-			{HelpText(Commands.IreneStatus.Command_Status)}
+			{HelpText(Commands.IreneStatus.CommandStatus)}
 			""",
 		};
 	}
