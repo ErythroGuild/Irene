@@ -6,7 +6,6 @@ class Cap {
 	private static readonly DateOnly
 		_dateS3CapLifted = new (2022,  5, 10);
 
-
 	// --------
 	// Cap calculation methods.
 	// --------

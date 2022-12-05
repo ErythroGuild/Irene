@@ -22,7 +22,6 @@ class Program {
 			throw new UninitializedException();
 	}
 
-
 	// --------
 	// Properties, fields, and constants:
 	// --------

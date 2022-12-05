@@ -16,7 +16,6 @@ class Interaction {
 		FinalResponse,
 	}
 
-
 	// --------
 	// Properties, constructors, and basic access methods:
 	// --------
