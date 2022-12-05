@@ -18,7 +18,7 @@ abstract class CommandHandler {
 	}
 
 	// Syntax sugar for accessing rank emojis.
-	public static DiscordEmoji RankEmoji(AccessLevel level) =>
+	public static DiscordEmoji RankIcon(AccessLevel level) =>
 		Modules.Rank.Emoji(level);
 
 	public abstract string HelpText { get; }
@@ -27,6 +27,7 @@ abstract class CommandHandler {
 
 	public CommandTree Tree { get; }
 	public DiscordCommand Command => Tree.Command;
+	public string Mention(string display) => Command.Mention(display);
 
 	public CommandHandler() {
 		Tree = CreateTree();
@@ -275,8 +276,8 @@ abstract class CommandHandler {
 			private static async Task RespondNoAccessAsync(Interaction interaction, AccessLevel levelNeeded) {
 				string emojiFace = ":face_with_open_eyes_and_hand_over_mouth:";
 				string emojiRank = Modules.Rank.Emoji(levelNeeded);
-				string commandHelp = Dispatcher.Table[Commands.Help.Command_Help]
-					.Command.Mention(Commands.Help.Command_Help);
+				string commandHelp = Dispatcher.Table[Commands.Help.CommandHelp]
+					.Mention(Commands.Help.CommandHelp);
 				string response =
 					$"""
 					{emojiFace} Sorry, that command requires {emojiRank}{levelNeeded} permissions to use.

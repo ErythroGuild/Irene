@@ -15,7 +15,7 @@ class Invite : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankEmoji(AccessLevel.None)}{Command.Mention(CommandInvite)} `[{ArgServer}]` links an invite to the selected discord server.
+		{RankIcon(AccessLevel.None)}{Mention(CommandInvite)} `[{ArgServer}]` links an invite to the selected discord server.
 		    These links can also be found in {Erythro?.Channel(id_ch.resources).Mention ?? "#resources"}.
 		""";
 

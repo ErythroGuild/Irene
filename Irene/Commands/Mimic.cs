@@ -11,7 +11,7 @@ class Mimic : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankEmoji(AccessLevel.Guest)}{Command.Mention(CommandMimic)} `<{ArgLanguage}> <{ArgText}>` obfuscates the input text.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandMimic)} `<{ArgLanguage}> <{ArgText}>` obfuscates the input text.
 		    This isn't a translator; it just uses the same words as in-game.
 		""";
 

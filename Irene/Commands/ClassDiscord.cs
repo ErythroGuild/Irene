@@ -11,7 +11,7 @@ class ClassDiscord : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankEmoji(AccessLevel.None)}{Command.Mention(CommandClassDiscord)} `<{ArgClass}>` links an invite to the class discord server.
+		{RankIcon(AccessLevel.None)}{Mention(CommandClassDiscord)} `<{ArgClass}>` links an invite to the class discord server.
 		""";
 
 	public override CommandTree CreateTree() => new (

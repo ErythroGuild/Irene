@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 class Help {
 	// Returns the help text for a command, and returns null if no handler
@@ -105,7 +105,7 @@ class Help {
 			{flower} **Tools** {flower}
 			{/*HelpText("remind-me")*/ "[WIP]"}
 			{/*HelpText("checklist")*/ "[WIP]"}
-			{HelpText(Commands.Translate.Command_Translate)}
+			{HelpText(Commands.Translate.CommandTranslate)}
 			""",
 
 			$"""

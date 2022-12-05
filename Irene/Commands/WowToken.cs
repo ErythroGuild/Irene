@@ -21,7 +21,7 @@ class WowToken : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankEmoji(AccessLevel.Guest)}{Command.Mention(CommandWowToken)} `[{ArgRegion}]` shows the latest token price.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandWowToken)} `[{ArgRegion}]` shows the latest token price.
 		    If no region is specified, defaults to US prices.
 		""";
 

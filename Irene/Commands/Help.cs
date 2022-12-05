@@ -12,9 +12,9 @@ class Help : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankEmoji(AccessLevel.None)}{Command.Mention(CommandHelp)} lists help for *all* commands,
-		{RankEmoji(AccessLevel.None)}{Command.Mention(CommandHelp)} `<{ArgCommand}>` displays the help for that command.
-		    {RankEmoji(AccessLevel.None)}{RankEmoji(AccessLevel.Guest)}{RankEmoji(AccessLevel.Member)} indicate the permissions required.
+		{RankIcon(AccessLevel.None)}{Mention(CommandHelp)} lists help for *all* commands,
+		{RankIcon(AccessLevel.None)}{Mention(CommandHelp)} `<{ArgCommand}>` displays the help for that command.
+		    {RankIcon(AccessLevel.None)}{RankIcon(AccessLevel.Guest)}{RankIcon(AccessLevel.Member)} indicate the permissions required.
 		    Arguments: `<required> [optional] [option A | option B]`
 		""";
 
@@ -45,7 +45,7 @@ class Help : CommandHandler {
 			string help = Module.CommandHelp(command) ??
 				$"""
 				:thought_balloon: Unknown command: `/{command}`
-				You can check {Command.Mention(CommandHelp)} for a list of valid commands.
+				You can check {Mention(CommandHelp)} for a list of valid commands.
 				""";
 			await interaction.RegisterAndRespondAsync(help, true);
 			return;

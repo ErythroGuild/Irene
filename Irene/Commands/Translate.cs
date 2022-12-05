@@ -16,7 +16,7 @@ class Translate : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankEmoji(AccessLevel.Guest)}{Command.Mention(CommandTranslate)} `<{ArgText}> [{ArgSource}] [{ArgTarget}] [{ArgShare}]` translates the input text.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandTranslate)} `<{ArgText}> [{ArgSource}] [{ArgTarget}] [{ArgShare}]` translates the input text.
 		    Defaults to "Auto-Detect" + "English" + `false`.
 		    Translation powered by DeepL.
 		""";
@@ -107,7 +107,7 @@ class TranslateContext : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankEmoji(AccessLevel.Guest)}`> {CommandTranslate}` translates the message to English.
+		{RankIcon(AccessLevel.Guest)}`> {CommandTranslate}` translates the message to English.
 		    Embeds are not translated, only message content.
 		""";
 
