@@ -173,15 +173,17 @@ static partial class AuditLog {
 		return data;
 	}
 	private static List<string> AddChanges(List<string> data_in, DiscordAuditLogOverwriteEntry? entry) {
+		CheckErythroInit();
+
 		List<string> data = data_in;
 		if (entry is null)
 			return data;
 
-		// N.B.: The "After" fields in the OverwriteEntry are always copied
+		// N.B.: The "After" fields in the OverwriteEntry are always copies
 		// of the "Before" fields; we must use the `entry.Target` fields in
 		// place of the "After" fields.
 		DiscordOverwrite overwrite = entry.Target;
-		UpdateGuild().RunSynchronously();
+		Erythro.PopulateData().RunSynchronously();
 
 		// Display which entity is having their permissions changed.
 		string entity_str = overwrite.Type switch {
@@ -191,8 +193,8 @@ static partial class AuditLog {
 		};
 		ulong entity_id = overwrite.Id;
 		entity_str += overwrite.Type switch {
-			OverwriteType.Member => $"`{Client.GetUserAsync(overwrite.Id).Result.Tag()}`",
-			OverwriteType.Role   => $"`@{Guild!.GetRole(entity_id).Name}`",
+			OverwriteType.Member => $"`{Erythro.Client.GetUserAsync(overwrite.Id).Result.Tag()}`",
+			OverwriteType.Role   => $"`@{Erythro.Guild.GetRole(entity_id).Name}`",
 			_ => "",
 		};
 		data.Add($"Permissions updated for {entity_str}.");
@@ -313,7 +315,7 @@ static partial class AuditLog {
 		DiscordColor? color_before = (color.Before is null)
 			? null
 			: new ((int)color.Before);
-		DiscordColor? color_after = (color.After  is null)
+		DiscordColor? color_after  = (color.After  is null)
 			? null
 			: new ((int)color.After);
 		return AddChange(
@@ -340,7 +342,7 @@ static partial class AuditLog {
 		AddChange(
 			data, label,
 			channel.Before?.Mention ?? _n,
-			channel.After?.Mention ?? _n
+			channel.After ?.Mention ?? _n
 		);
 	private static List<string> AddIfChanged(
 		List<string> data,
