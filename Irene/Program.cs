@@ -9,6 +9,8 @@ using Spectre.Console;
 
 using Irene.Modules;
 
+using CommandResult = CommandHandler.ResultType;
+
 class Program {
 	// The GuildData object contains the program's `DiscordClient` and
 	// `DiscordGuild`, as well as other objects populated from those.
@@ -400,14 +402,33 @@ class Program {
 		// `UnknownCommandException` is the only type of exception that
 		// can't be caught by the `CommandHandler`, since it will throw
 		// before the `CommandHandler` is even called.
-		CommandHandler.ResultType commandResult;
+		CommandResult commandResult;
 		try {
 			commandResult = await
 				Dispatcher.HandleAsync(commandName, interaction);
-		} catch (UnknownCommandException ex) {
-			commandResult = CommandHandler.ResultType.Exception;
+		} catch (IreneException ex) {
+			commandResult = CommandResult.Exception;
 			await interaction.RegisterAndRespondAsync(ex.ResponseMessage, true);
 			ex.Log();
+		}
+
+		// Notify Ernie in DMs if an exception occured.
+		if (commandResult == CommandResult.Exception) {
+			DiscordUser adminUser =
+				await _client.GetUserAsync(id_u.admin);
+			DiscordMember? admin = await adminUser.ToMember();
+
+			if (admin is not null) {
+				string timestamp = DateTimeOffset.UtcNow
+					.Timestamp(Util.TimestampStyle.TimeLong);
+				string errorDM =
+					$"""
+					An exception occured!
+					Check logs for errors occuring just before: {timestamp}
+					""";
+				await admin.SendMessageAsync(errorDM);
+				Log.Information("  Notified Ernie with a DM.");
+			}
 		}
 
 		// Filter for autocomplete interactions (to avoid filling
