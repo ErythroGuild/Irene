@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 class Starboard {
 	private record class ChannelSettings(
@@ -57,6 +57,8 @@ class Starboard {
 		_ellip = "\u2026";
 
 	static Starboard() {
+		CheckErythroInit();
+
 		Util.CreateIfMissing(_pathBlocked);
 		Util.CreateIfMissing(_pathForced);
 
@@ -66,6 +68,8 @@ class Starboard {
 		// Queue up any candidate updates to the starboard.
 		static Task HandleReaction(DiscordMessage messagePartial) {
 			_ = Task.Run(async () => {
+				CheckErythroInit();
+
 				// Reaction events always return a partial object.
 				// According to official API docs:
 				// - user ID
@@ -75,7 +79,7 @@ class Starboard {
 				// - member object (nullable)
 				// - emoji (partial object)
 				DiscordMessage message = await
-					Util.RefetchMessage(messagePartial);
+					Util.RefetchMessage(Erythro.Client, messagePartial);
 
 				await _queueCandidates.Run(new Task<Task>(async () => {
 					await RefreshStarredPost(message);
@@ -83,10 +87,10 @@ class Starboard {
 			});
 			return Task.CompletedTask;
 		}
-		Client.MessageReactionAdded +=
-			(irene, e) => HandleReaction(e.Message);
-		Client.MessageReactionRemoved +=
-			(irene, e) => HandleReaction(e.Message);
+		Erythro.Client.MessageReactionAdded += (c, e) =>
+			HandleReaction(e.Message);
+		Erythro.Client.MessageReactionRemoved += (c, e) =>
+			HandleReaction(e.Message);
 	}
 
 
@@ -220,7 +224,7 @@ class Starboard {
 	private static async Task<DiscordMessage> OverwriteStarredPost(DiscordMessage message) {
 		ChannelSettings? settings = GetSettings(message.ChannelId);
 		if (settings is null)
-			throw new InvalidOperationException("Attempted to create starred post in an unsupported channel.");
+			throw new ImpossibleException();
 
 		DiscordMessage? post = await FindStarredPost(message);
 		DiscordEmbed embed = await CreateEmbed(message, settings);
@@ -530,8 +534,7 @@ class Starboard {
 		};
 	// Convenience function for fetching an instantiated starboard channel.
 	private static DiscordChannel GetStarboard() {
-		if (Erythro is null)
-			throw new InvalidOperationException("Guild not initialized yet.");
+		CheckErythroInit();
 		return Erythro.Channel(id_ch.starboard);
 	}
 	
@@ -590,14 +593,13 @@ class Starboard {
 
 	// Send a message to the author of a starred post.
 	private static async Task NotifyAuthor(DiscordMessage message) {
+		CheckErythroInit();
+
 		DiscordMember? author = await message.Author.ToMember();
 		if (author is null) {
 			Log.Warning("Could not convert {Author} to member object.", message.Author.Tag());
 			return;
 		}
-
-		if (Erythro is null)
-			throw new InvalidOperationException("Guild not initialized yet.");
 
 		Log.Information("  Notifying message author: {Author}", author.Tag());
 		await author.SendMessageAsync($"""

@@ -111,7 +111,7 @@ class Help {
 			$"""
 			{flower} **Awards** {flower}
 			{/*HelpText("commend")*/ "[WIP]"}
-			{HelpText(Commands.Starboard.Command_BestOf)}
+			{HelpText(Commands.Starboard.CommandBestOf)}
 			{/*HelpText("cupcake")*/ "[WIP]"}
 
 			{flower} **Audit Logs** {flower}
