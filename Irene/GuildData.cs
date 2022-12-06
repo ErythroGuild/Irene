@@ -103,4 +103,9 @@ class GuildData {
 		_roles.ContainsKey(id)
 			? _roles[id]
 			: throw new ArgumentException("Unrecognized role.", nameof(id));
+
+	// Syntax sugar - overload of `Emoji(ulong id)` to convert the string
+	// name of any emoji.
+	public DiscordEmoji Emoji(string name) =>
+		DiscordEmoji.FromName(Client, name);
 }
