@@ -1,12 +1,9 @@
+namespace Irene.Interactables;
+
 using System.Timers;
 
-using SelectionCallback = System.Func<DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, System.Threading.Tasks.Task>;
-using ComponentCallback = System.Func<DSharpPlus.Entities.DiscordSelectComponent, DSharpPlus.Entities.DiscordSelectComponent>;
-using ComponentRow = DSharpPlus.Entities.DiscordActionRowComponent;
-using Component = DSharpPlus.Entities.DiscordComponent;
-using SelectOption = DSharpPlus.Entities.DiscordSelectComponentOption;
-
-namespace Irene.Interactables;
+using SelectionCallback = Func<DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, Task>;
+using ComponentCallback = Func<DiscordSelect, DiscordSelect>;
 
 class Selection {
 	public readonly record struct SelectionId (
@@ -33,7 +30,9 @@ class Selection {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Selection() {
-		Client.ComponentInteractionCreated += (client, e) => {
+		CheckErythroInit();
+
+		Erythro.Client.ComponentInteractionCreated += (c, e) => {
 			_ = Task.Run(async () => {
 				SelectionId id = new (e.Message.Id, e.Id);
 
@@ -68,7 +67,7 @@ class Selection {
 	}
 
 	// Instance properties.
-	public DiscordSelectComponent Component { get; private set; }
+	public DiscordSelect Component { get; private set; }
 	public string Id => Component.CustomId;
 	private readonly Interaction _interaction;
 	private DiscordMessage? _message = null;
@@ -94,10 +93,10 @@ class Selection {
 		Timer timer = Util.CreateTimer(timeout.Value, false);
 
 		// Construct select component options.
-		List<SelectOption> options_obj = new ();
+		List<DiscordSelectOption> options_obj = new ();
 		foreach ((T Key, Option Value) option in options) {
 			Option value = option.Value;
-			SelectOption optionObj = new (
+			DiscordSelectOption optionObj = new (
 				value.Label,
 				value.Id,
 				value.Description,
@@ -108,7 +107,7 @@ class Selection {
 		}
 
 		// Construct select component.
-		DiscordSelectComponent component = new (
+		DiscordSelect component = new (
 			id,
 			placeholder,
 			options_obj,
@@ -137,7 +136,7 @@ class Selection {
 	}
 	private Selection(
 		Interaction interaction,
-		DiscordSelectComponent component,
+		DiscordSelect component,
 		Timer timer,
 		SelectionCallback callback
 	) {
@@ -158,6 +157,7 @@ class Selection {
 	// Update the selected entries of the select component.
 	// Assumes _message has been set; returns immediately if it hasn't.
 	public async Task Update(IReadOnlySet<string> selected) {
+		CheckErythroInit();
 		if (_message is null)
 			return;
 
@@ -166,7 +166,7 @@ class Selection {
 			return;
 
 		// Re-fetch message.
-		_message = await Util.RefetchMessage(_message);
+		_message = await Util.RefetchMessage(Erythro.Client, _message);
 
 		// Rebuild message with select component updated.
 		await _interaction.EditResponseAsync(GetUpdatedSelect(_message, selected));
@@ -175,6 +175,7 @@ class Selection {
 	// Cleanup task to dispose of all resources.
 	// Assumes _message has been set; returns immediately if it hasn't.
 	private async Task Cleanup() {
+		CheckErythroInit();
 		if (_message is null)
 			return;
 
@@ -182,7 +183,7 @@ class Selection {
 		_selections.TryRemove(new (_message.Id, Id), out _);
 
 		// Re-fetch message.
-		_message = await Util.RefetchMessage(_message);
+		_message = await Util.RefetchMessage(Erythro.Client, _message);
 
 		// Rebuild message with select component disabled.
 		await _interaction.EditResponseAsync(GetDisabledSelect(_message));
@@ -195,7 +196,7 @@ class Selection {
 	// Modify an existing message object to return a webhook builder.
 	// NOTE: Only message content, embeds, and components are preserved.
 	private DiscordWebhookBuilder GetDisabledSelect(DiscordMessage original) {
-		List<ComponentRow> components = ModifyComponent(
+		List<DiscordComponentRow> components = ModifyComponent(
 			original,
 			(select) => select.Disable()
 		);
@@ -205,7 +206,7 @@ class Selection {
 		DiscordMessage original,
 		IReadOnlySet<string> selected
 	) {
-		List<ComponentRow> components = ModifyComponent(
+		List<DiscordComponentRow> components = ModifyComponent(
 			original,
 			(select) => UpdateSelect(select, selected)
 		);
@@ -217,7 +218,7 @@ class Selection {
 	// NOTE: Only message content, embeds, and components are preserved.
 	private static DiscordWebhookBuilder CloneMessageToWebhook(
 		DiscordMessage original,
-		IReadOnlyList<ComponentRow> components
+		IReadOnlyList<DiscordComponentRow> components
 	) {
 		DiscordWebhookBuilder output =
 			new DiscordWebhookBuilder()
@@ -229,15 +230,15 @@ class Selection {
 
 	// Iterate through all components, and modify the current instance's
 	// corresponding select component according to the callback.
-	private List<ComponentRow> ModifyComponent(
+	private List<DiscordComponentRow> ModifyComponent(
 		DiscordMessage message,
 		ComponentCallback callback
 	) {
-		List<ComponentRow> rows = new ();
-		foreach (ComponentRow row in message.Components) {
-			List<Component> components = new ();
-			foreach (Component component in row.Components) {
-				if ((component is DiscordSelectComponent select) &&
+		List<DiscordComponentRow> rows = new ();
+		foreach (DiscordComponentRow row in message.Components) {
+			List<DiscordComponent> components = new ();
+			foreach (DiscordComponent component in row.Components) {
+				if ((component is DiscordSelect select) &&
 					(component.CustomId == Id)
 				) {
 					select = callback.Invoke(select);
@@ -246,25 +247,25 @@ class Selection {
 					components.Add(component);
 				}
 			}
-			rows.Add(new(components));
+			rows.Add(new (components));
 		}
 		return rows;
 	}
 
 	// Updating a select component with a new set of options selected.
 	// Nothing is validated.
-	private static DiscordSelectComponent UpdateSelect(
-		DiscordSelectComponent select,
+	private static DiscordSelect UpdateSelect(
+		DiscordSelect select,
 		IReadOnlySet<string> selected
 	) {
 		// Create a list of options with updated "selected" state.
-		List<SelectOption> options = new ();
-		foreach (SelectOption option in select.Options) {
+		List<DiscordSelectOption> options = new ();
+		foreach (DiscordSelectOption option in select.Options) {
 			// Check that the option is selected.
 			bool isSelected = selected.Contains(option.Value);
 			// Construct a new option, copied from the original, but
 			// with the appropriate "selected" state.
-			SelectOption option_new = new (
+			DiscordSelectOption option_new = new (
 				option.Label,
 				option.Value,
 				option.Description,
@@ -275,7 +276,7 @@ class Selection {
 		}
 
 		// Construct new select component with the updated options.
-		return new DiscordSelectComponent(
+		return new DiscordSelect(
 			select.CustomId,
 			select.Placeholder,
 			options,
