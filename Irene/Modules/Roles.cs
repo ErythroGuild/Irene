@@ -1,8 +1,10 @@
-﻿using Irene.Interactables;
-
-using Option = Irene.Interactables.Selection.Option;
-
 namespace Irene.Modules;
+
+using DSharpPlus.EventArgs;
+
+using Irene.Interactables;
+
+using Option = Interactables.Selection.Option;
 
 class Roles {
 	public enum PingRole {
@@ -174,6 +176,8 @@ class Roles {
 			}),
 		};
 
+	private static readonly TimeSpan _timeout = TimeSpan.FromMinutes(3);
+
 	private const string
 		_idSelectPingRoles  = "select_pingroles" ,
 		_idSelectGuildRoles = "select_guildroles";
@@ -251,7 +255,8 @@ class Roles {
 			PingRoleOptions,
 			pingRoles,
 			isMultiple: true,
-			placeholder: "Select roles to be pinged for."
+			"Select roles to be pinged for.",
+			_timeout
 		);
 		Selection selectGuilds = Selection.Create(
 			interaction,
@@ -261,7 +266,8 @@ class Roles {
 			GuildRoleOptions,
 			guildRoles,
 			isMultiple: true,
-			placeholder: "Select the guilds you associate with."
+			"Select the guilds you associate with.",
+			_timeout
 		);
 
 		// Update global Selection tracking table, and disable any menus
@@ -291,9 +297,8 @@ class Roles {
 			.WithContent(" ")
 			.AddComponents(selectPings.Component)
 			.AddComponents(selectGuilds.Component);
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response,true);
-		interaction.SetResponseSummary("Role selection menu sent.");
+		string summary = "Role selection menu sent.";
+		await interaction.RegisterAndRespondAsync(response, summary, true);
 
 		// Update message promise.
 		DiscordMessage message = await interaction.GetResponseAsync();
@@ -312,8 +317,7 @@ class Roles {
 		ConstBiMap<T, ulong> tableRoleIds,
 		ConstBiMap<T, string> tableRoleOptions
 	) where T : Enum {
-		if (Erythro is null)
-			throw new InvalidOperationException("Guild not initialized yet.");
+		CheckErythroInit();
 
 		// Fetch member object data.
 		Interaction interaction = Interaction.FromComponent(e);

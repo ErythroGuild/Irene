@@ -1,32 +1,31 @@
-using Module = Irene.Modules.Roles;
-
 namespace Irene.Commands;
 
+using Module = Modules.Roles;
+
 class Roles : CommandHandler {
-
-	public const string Command_Roles = "roles";
-
-	public Roles(GuildData erythro) : base (erythro) { }
+	public const string CommandRoles = "roles";
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_Roles)} shows all self-assignable roles.
+		{RankIcon(AccessLevel.None)}{Mention(CommandRoles)} shows all self-assignable roles.
 		    You can choose what you'd like to get pinged for.
 		    Reassign these at any time!
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Roles,
+			CommandRoles,
 			"Check and reassign roles to receive pings.",
-			new List<CommandOption>(),
-			Permissions.None
+			AccessLevel.None,
+			new List<DiscordCommandOption>()
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
+		CheckErythroInit();
+
 		// Ensure DiscordMember object is usable.
 		// Exit early if the conversion fails.
 		DiscordMember? user = await interaction.User.ToMember();
@@ -36,9 +35,7 @@ class Roles : CommandHandler {
 				Failed to fetch your server data.
 				Try running the command again in {Erythro.Channel(id_ch.bots).Mention}?
 				""";
-			interaction.RegisterFinalResponse();
-			await interaction.RespondCommandAsync(error, true);
-			interaction.SetResponseSummary(error);
+			await interaction.RegisterAndRespondAsync(error, true);
 			return;
 		}
 

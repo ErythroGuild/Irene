@@ -46,7 +46,7 @@ class Help {
 			{/*HelpText("rank")*/ "[WIP]"}
 			
 			{flower} **Roles** {flower}
-			{HelpText(Commands.Roles.Command_Roles)}
+			{HelpText(Commands.Roles.CommandRoles)}
 			
 			{flower} **Birthday** {flower}
 			{/*HelpText("birthday")*/ "[WIP]"}
