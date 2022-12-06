@@ -1,10 +1,11 @@
-﻿using System.Globalization;
+﻿namespace Irene.Modules;
+
+using System.Diagnostics;
+using System.Globalization; // CultureInfo
 
 using static Irene.RecurringEvent;
 
-using EventAction = System.Func<System.DateTimeOffset, System.Threading.Tasks.Task>;
-
-namespace Irene.Modules;
+using EventAction = Func<DateTimeOffset, Task>;
 
 static partial class RecurringEvents {
 	private class Event {
@@ -69,7 +70,8 @@ static partial class RecurringEvents {
 				Stopwatch stopwatch = Stopwatch.StartNew();
 				await action.Invoke(dateTime_now);
 				UpdateLastExecuted(id, data.Previous);
-				stopwatch.LogMsecDebug("  Event finished executing in {Time} msec.");
+				Log.Debug("  Event finished executing.");
+				stopwatch.LogMsec(2);
 
 				// Check for valid next timepoint.
 				if (data.PeekNext() is null) {
@@ -134,11 +136,11 @@ static partial class RecurringEvents {
 	private static async Task InitAsync() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
-		Util.CreateIfMissing(_pathData, _lock);
-		Util.CreateIfMissing(_pathMemes, _lockMemes);
-		Util.CreateIfMissing(_pathMemeHistory, _lockMemes);
-		Util.CreateIfMissing(_pathDirData, _lockDirData);
-		Util.CreateIfMissing(_pathDirLogs, _lockDirLogs);
+		Util.CreateIfMissing(_pathData);
+		Util.CreateIfMissing(_pathMemes);
+		Util.CreateIfMissing(_pathMemeHistory);
+		Util.CreateIfMissing(_pathDirData);
+		Util.CreateIfMissing(_pathDirLogs);
 
 		List<Task<List<Event>>> tasks = new () {
 			//GetEvents_Raid(),
@@ -157,7 +159,7 @@ static partial class RecurringEvents {
 			_ => "events", // includes 0
 		};
 		Log.Debug($"    Registered {{EventCount}} {events_count}.", _events.Count);
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
+		stopwatch.LogMsec(2);
 	}
 
 	private static async Task<List<Event>> InitEventListAsync(List<Task<Event?>> tasks) {

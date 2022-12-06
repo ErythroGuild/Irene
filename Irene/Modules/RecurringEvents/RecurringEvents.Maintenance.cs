@@ -1,6 +1,6 @@
-﻿using static Irene.RecurringEvent;
+﻿namespace Irene.Modules;
 
-namespace Irene.Modules;
+using static Irene.RecurringEvent;
 
 static partial class RecurringEvents {
 	// Used in module initialization.
@@ -42,8 +42,8 @@ static partial class RecurringEvents {
 		return await InitEventListAsync(event_tasks);
 	}
 
-	private static async Task Event_IreneBackupData(DateTimeOffset _) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_IreneBackupData(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		const string t = "\u2003";
 		const string a = "\u21D2";
@@ -89,12 +89,12 @@ static partial class RecurringEvents {
 		// Send message.
 		ulong id_owner = ulong.Parse(id_owner_str);
 		DiscordMember member_owner =
-			await Guild.GetMemberAsync(id_owner);
+			await Erythro.Guild.GetMemberAsync(id_owner);
 		await member_owner.SendMessageAsync(text.ToLines());
 	}
 
-	private static async Task Event_IreneBackupLogs(DateTimeOffset _) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_IreneBackupLogs(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		const string t = "\u2003";
 		const string a = "\u21D2";
@@ -128,7 +128,7 @@ static partial class RecurringEvents {
 		// Send message.
 		ulong id_owner = ulong.Parse(id_owner_str);
 		DiscordMember member_owner =
-			await Guild.GetMemberAsync(id_owner);
+			await Erythro.Guild.GetMemberAsync(id_owner);
 		await member_owner.SendMessageAsync(text.ToLines());
 	}
 }

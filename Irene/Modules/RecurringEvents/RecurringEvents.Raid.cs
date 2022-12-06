@@ -1,10 +1,10 @@
+namespace Irene.Modules;
+
 using static Irene.RecurringEvent;
 using static Irene.Modules.Raid;
 
-using RaidObj = Irene.Modules.Raid;
-using TimestampStyle = Irene.Utils.Util.TimestampStyle;
-
-namespace Irene.Modules;
+using RaidObj = Raid;
+using TimestampStyle = Util.TimestampStyle;
 
 static partial class RecurringEvents {
 	// Used in module initialization.
@@ -206,12 +206,12 @@ static partial class RecurringEvents {
 		return await InitEventListAsync(event_tasks);
 	}
 
-	private static async Task Event_WeeklyRaidPlanAnnouncement(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_WeeklyRaidPlanAnnouncement(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Calculate raid dates and fetch data.
-		DateTimeOffset dateTime_friday = time_trigger.AddDays(3);
-		DateTimeOffset dateTime_saturday = time_trigger.AddDays(4);
+		DateTimeOffset dateTime_friday = timeTriggered.AddDays(3);
+		DateTimeOffset dateTime_saturday = timeTriggered.AddDays(4);
 		RaidDate date_friday =
 			RaidDate.TryCreate(dateTime_friday)!.Value;
 		RaidDate date_saturday =
@@ -219,7 +219,7 @@ static partial class RecurringEvents {
 		RaidObj raid_friday = Fetch(date_friday);
 		RaidObj raid_saturday = Fetch(date_saturday);
 		DiscordEmoji emoji_raid =
-			DiscordEmoji.FromName(Client, raid_friday.Emoji);
+			DiscordEmoji.FromName(Erythro.Client, raid_friday.Emoji);
 
 		// Exit early if nothing to announce:
 		// Neither raid canceled and no plans set.
@@ -237,7 +237,7 @@ static partial class RecurringEvents {
 
 		// Compose announcement.
 		List<string> announcement = new ()
-			{ $"Happy reset day! {Emojis[id_e.eryLove]} {emoji_raid}" };
+			{ $"Happy reset day! {Erythro.Emoji(id_e.eryLove)} {emoji_raid}" };
 		switch (doCancel_friday, doCancel_saturday) {
 		case (true, true):
 			announcement.Add("No raid this week. :slight_smile:");
@@ -265,18 +265,18 @@ static partial class RecurringEvents {
 
 		// Send announcement and react.
 		DiscordMessage message = await
-			Channels[id_ch.announce].SendMessageAsync(announcement.ToLines());
+			Erythro.Channel(id_ch.announce).SendMessageAsync(announcement.ToLines());
 		DiscordEmoji emoji_sunrise =
-			DiscordEmoji.FromName(Client, ":sunrise_over_mountains:");
+			DiscordEmoji.FromName(Erythro.Client, ":sunrise_over_mountains:");
 		await message.CreateReactionAsync(emoji_raid);
 		await message.CreateReactionAsync(emoji_sunrise);
 	}
 
-	private static async Task Event_RaidDayMorningAnnouncement(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_RaidDayMorningAnnouncement(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Fetch saved raid data.
-		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidDate date = RaidDate.TryCreate(timeTriggered)!.Value;
 		RaidObj raid = Fetch(date);
 
 		// Don't fire event if raid was canceled.
@@ -310,17 +310,17 @@ static partial class RecurringEvents {
 			announcement += $"\n**Plans for today:** {raid.Summary}";
 		announcement += $"\nSee you at {time_raid_str}. :wine_glass:";
 		DiscordMessage message = await
-			Channels[id_ch.announce].SendMessageAsync(announcement);
+			Erythro.Channel(id_ch.announce).SendMessageAsync(announcement);
 		DiscordEmoji emoji_raid =
-			DiscordEmoji.FromName(Client, raid.Emoji);
+			DiscordEmoji.FromName(Erythro.Client, raid.Emoji);
 		await message.CreateReactionAsync(emoji_raid);
 	}
 
-	private static async Task Event_RaidFormingSoonReminder(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_RaidFormingSoonReminder(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Fetch saved raid data.
-		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidDate date = RaidDate.TryCreate(timeTriggered)!.Value;
 		RaidObj raid = Fetch(date);
 
 		// Don't fire event if raid was canceled.
@@ -369,17 +369,17 @@ static partial class RecurringEvents {
 
 		// Respond.
 		DiscordMessage message = await
-			Channels[id_ch.announce] .SendMessageAsync(announcement);
+			Erythro.Channel(id_ch.announce).SendMessageAsync(announcement);
 		DiscordEmoji emoji_raid =
-			DiscordEmoji.FromName(Client, raid.Emoji);
+			DiscordEmoji.FromName(Erythro.Client, raid.Emoji);
 		await message.CreateReactionAsync(emoji_raid);
 	}
 
-	private static async Task Event_RaidFormingAnnouncement(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_RaidFormingAnnouncement(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Fetch saved raid data.
-		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidDate date = RaidDate.TryCreate(timeTriggered)!.Value;
 		RaidObj raid = Fetch(date);
 
 		// Don't fire event if raid was canceled.
@@ -391,7 +391,7 @@ static partial class RecurringEvents {
 		// Send a message and then save the message back to the data file.
 		string text = raid.AnnouncementText;
 		DiscordMessage message = await
-			Channels[id_ch.announce].SendMessageAsync(text);
+			Erythro.Channel(id_ch.announce).SendMessageAsync(text);
 		raid.MessageId = message.Id;
 		raid.UpdateData();
 
@@ -400,19 +400,19 @@ static partial class RecurringEvents {
 
 		// Add reactions.
 		DiscordEmoji emoji_raid =
-			DiscordEmoji.FromName(Client, raid.Emoji);
+			DiscordEmoji.FromName(Erythro.Client, raid.Emoji);
 		await message.CreateReactionAsync(emoji_raid);
-		await message.CreateReactionAsync(Emojis[id_e.kyrian]);
-		await message.CreateReactionAsync(Emojis[id_e.necrolord]);
-		await message.CreateReactionAsync(Emojis[id_e.nightfae]);
-		await message.CreateReactionAsync(Emojis[id_e.venthyr]);
+		await message.CreateReactionAsync(Erythro.Emoji(id_e.kyrian));
+		await message.CreateReactionAsync(Erythro.Emoji(id_e.necrolord));
+		await message.CreateReactionAsync(Erythro.Emoji(id_e.nightfae));
+		await message.CreateReactionAsync(Erythro.Emoji(id_e.venthyr));
 	}
 
-	private static async Task Event_RaidSetLogsReminder(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_RaidSetLogsReminder(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Fetch saved raid data.
-		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidDate date = RaidDate.TryCreate(timeTriggered)!.Value;
 		RaidObj raid = Fetch(date);
 
 		// Don't fire event if raid was canceled.
@@ -435,14 +435,14 @@ static partial class RecurringEvents {
 			$"{_t}Reminder to set logs for tonight. :ok_hand: :card_box:",
 			$"{_t}`/raid set-logs`",
 		}.ToLines();
-		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
+		await Erythro.Channel(id_ch.officerBots).SendMessageAsync(announcement);
 	}
 
-	private static async Task Event_RaidBreakReminder(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_RaidBreakReminder(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Don't fire event if raid was canceled.
-		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidDate date = RaidDate.TryCreate(timeTriggered)!.Value;
 		RaidObj raid = Fetch(date);
 		if (raid.DoCancel) {
 			Log.Information("  Skipping event (raid was canceled).");
@@ -454,14 +454,14 @@ static partial class RecurringEvents {
 			$"{Erythro.Role(id_r.raidOfficer).Mention} -",
 			$"{_t}Raid break soon. :slight_smile: :tropical_drink:",
 		}.ToLines();
-		await Channels[id_ch.officer].SendMessageAsync(announcement);
+		await Erythro.Channel(id_ch.officer).SendMessageAsync(announcement);
 	}
 
-	private static async Task Event_OfficerMeetingReminder(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_OfficerMeetingReminder(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Don't fire event if raid was canceled.
-		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidDate date = RaidDate.TryCreate(timeTriggered)!.Value;
 		RaidObj raid = Fetch(date);
 		if (raid.DoCancel) {
 			Log.Information("  Skipping event (raid was canceled).");
@@ -472,14 +472,14 @@ static partial class RecurringEvents {
 		string officer = Erythro.Role(id_r.officer).Mention;
 		string announcement =
 			$"Weekly {officer} meeting after raid. :slight_smile:";
-		await Channels[id_ch.officer].SendMessageAsync(announcement);
+		await Erythro.Channel(id_ch.officer).SendMessageAsync(announcement);
 	}
 
-	private static async Task Event_OfficerRaidPlansReminder(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_OfficerRaidPlansReminder(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Don't fire event if raid was canceled.
-		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidDate date = RaidDate.TryCreate(timeTriggered)!.Value;
 		RaidObj raid = Fetch(date);
 		if (raid.DoCancel) {
 			Log.Information("  Skipping event (raid was canceled).");
@@ -507,14 +507,14 @@ static partial class RecurringEvents {
 			$"{_t}Decide on the raid plans for next week (if you haven't already). :ok_hand:",
 			$"{_t}`/raid set-plan`",
 		}.ToLines();
-		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
+		await Erythro.Channel(id_ch.officerBots).SendMessageAsync(announcement);
 	}
 
-	private static async Task Event_OfficerPromoteTrialsReminder(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+	private static async Task Event_OfficerPromoteTrialsReminder(DateTimeOffset timeTriggered) {
+		CheckErythroInit();
 
 		// Don't fire event if raid was canceled.
-		RaidDate date = RaidDate.TryCreate(time_trigger)!.Value;
+		RaidDate date = RaidDate.TryCreate(timeTriggered)!.Value;
 		RaidObj raid = Fetch(date);
 		if (raid.DoCancel) {
 			Log.Information("  Skipping event (raid was canceled).");
@@ -527,6 +527,6 @@ static partial class RecurringEvents {
 			$"{_t}Go over the 2-week+-trials this week (if there are any). :seedling:",
 			$"{_t}`/rank list-trials`",
 		}.ToLines();
-		await Channels[id_ch.officerBots].SendMessageAsync(announcement);
+		await Erythro.Channel(id_ch.officerBots).SendMessageAsync(announcement);
 	}
 }

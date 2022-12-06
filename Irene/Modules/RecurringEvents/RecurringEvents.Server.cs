@@ -1,6 +1,6 @@
-﻿using static Irene.RecurringEvent;
+﻿namespace Irene.Modules;
 
-namespace Irene.Modules;
+using static Irene.RecurringEvent;
 
 static partial class RecurringEvents {
 	// Used in module initialization.
@@ -29,7 +29,7 @@ static partial class RecurringEvents {
 
 	private const int _memeHistorySize = 20;
 	private static async Task Event_WeeklyMemeChannelNameUpdate(DateTimeOffset time_trigger) {
-		await AwaitGuildInitAsync();
+		CheckErythroInit();
 
 		// Read in all non-empty meme names.
 		List<string> names = new ();
@@ -67,7 +67,7 @@ static partial class RecurringEvents {
 		}
 
 		// Update channel name.
-		await Channels[id_ch.memes].ModifyAsync(ch => ch.Name = name);
+		await Erythro.Channel(id_ch.memes).ModifyAsync(ch => ch.Name = name);
 
 		// Update history file.
 		names_old.Add(name);
