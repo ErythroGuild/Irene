@@ -70,7 +70,7 @@ class Help {
 
 			$"""
 			{flower} **Tags** {flower}
-			{/*HelpText("tags")*/ "[WIP]"}
+			{HelpText(Commands.Tag.CommandTag)}
 			
 			{flower} **Farming Guides** {flower}
 			{HelpText(Commands.Farm.CommandFarm)}
