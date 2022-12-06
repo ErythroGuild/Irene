@@ -69,7 +69,7 @@ class Program {
 		//}
 
 		// Ensure the console window can display emoji/colors properly.
-		Console.OutputEncoding = System.Text.Encoding.UTF8;
+		Console.OutputEncoding = Encoding.UTF8;
 
 		// Display logo.
 		const string
@@ -249,7 +249,11 @@ class Program {
 				foreach (DiscordCommand command in commands) {
 					Dispatcher.Table[command.Name]
 						.UpdateRegisteredCommand(command);
-					IncrementCommandType(command, ref countSlash, ref countContext);
+					IncrementCommandCounters(
+						command,
+						ref countSlash,
+						ref countContext
+					);
 				}
 				// Update status module with registered command count.
 				About.SetRegisteredCommands(countSlash, countContext);
@@ -343,7 +347,7 @@ class Program {
 
 	// Increment command counter separately for different types of
 	// commands (slash commands vs. context menu commands).
-	private static void IncrementCommandType(
+	private static void IncrementCommandCounters(
 		DiscordCommand command,
 		ref int countSlash,
 		ref int countContext
