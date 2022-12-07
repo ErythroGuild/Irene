@@ -1,8 +1,8 @@
-﻿using System.Net.Http;
+﻿namespace Irene.Modules;
+
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-
-namespace Irene.Modules;
 
 class WowToken {
 	public enum Region { US, EU, KR, TW, CN }
@@ -16,7 +16,7 @@ class WowToken {
 		int PriceTrend
 	);
 
-	private static HttpClient _client = new ();
+	private static readonly HttpClient _http = new ();
 
 	// Parsing configuration.
 	private const string _urlFeed = @"https://wowtokenprices.com/current_prices.json";
@@ -43,7 +43,7 @@ class WowToken {
 	// Returns null if prices could not be fetched.
 	public static async Task<DiscordEmbed?> DisplayPrices(Region region) {
 		// Fetch and parse data.
-		string json = await _client.GetStringAsync(_urlFeed);
+		string json = await _http.GetStringAsync(_urlFeed);
 		Data? data = ParseData(json, region);
 
 		// Return null if JSON parsing failed.
@@ -86,10 +86,16 @@ class WowToken {
 	// Returns null if there were any parsing errors.
 	private static Data? ParseData(string json, Region region) {
 		// Parse JSON and extract the data for the selected region.
-		// Return null if any errors occur.
 		JsonDocumentOptions parseOptions =
 			new () { MaxDepth = _maxJsonDepth };
-		JsonNode? root = JsonNode.Parse(json, null, parseOptions);
+		JsonNode? root = null;
+		try {
+			root = JsonNode.Parse(json, null, parseOptions);
+		}
+		catch (ArgumentException) { } // json document was malformed
+		catch (JsonException)     { } // parsing failed
+
+		// Return null if any errors occur.
 		if (root is null)
 			return null;
 		JsonNode? data = root[GetKey(region)];
@@ -134,11 +140,11 @@ class WowToken {
 
 	// Fetch the JSON key used to parse each region's data.
 	private static string GetKey(Region region) => region switch {
-		Region.US => "us",
-		Region.EU => "eu",
-		Region.KR => "korea",
+		Region.US => "us"    ,
+		Region.EU => "eu"    ,
+		Region.KR => "korea" ,
 		Region.TW => "taiwan",
-		Region.CN => "china",
-		_ => throw new ArgumentException("Unknown region.", nameof(region)),
+		Region.CN => "china" ,
+		_ => throw new UnclosedEnumException(typeof(Region), region),
 	};
 }

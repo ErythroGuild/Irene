@@ -1,8 +1,8 @@
-﻿using Irene.Interactables;
-
-using Option = Irene.Interactables.Selection.Option;
-
 namespace Irene.Modules;
+
+using Irene.Interactables;
+
+using Option = Interactables.Selection.Option;
 
 class Roles {
 	public enum PingRole {
@@ -13,11 +13,19 @@ class Roles {
 		Erythro,
 		Glaive, Sanctum, Angels, Asgard,
 	}
+	public enum OfficerRole {
+		Raid,
+		Events, Recruiter, Banker,
+	}
 
-	// Selection menus, indexed by the ID of the member accessing them.
-	// NOTE: New selection menus should be registered here, and every
-	// member should only have one pair active at once.
-	private static readonly ConcurrentDictionary<ulong, (Selection Ping, Selection Guild)> _menus = new ();
+	// An indexer for the master table of selection menus. Each selection
+	// menu should be uniquely identified by member and the type of menu.
+	// This means each user should only have one menu of each type open
+	// at once.
+	private record class UserRoleTypeSelect(ulong UserId, Type RoleTypeEnum);
+	// Master table of selection menus.
+	// NOTE: New selection menus should be registered here.
+	private static readonly ConcurrentDictionary<UserRoleTypeSelect, Selection> _menus = new ();
 	
 	// Role object conversion tables.
 	private static readonly ConstBiMap<PingRole, ulong> _pingRoles = new (
@@ -39,6 +47,14 @@ class Roles {
 			[GuildRole.Asgard ] = id_r.asgard ,
 		}
 	);
+	private static readonly ConstBiMap<OfficerRole, ulong> _officerRoles = new (
+		new Dictionary<OfficerRole, ulong> {
+			[OfficerRole.Raid     ] = id_r.raidOfficer ,
+			[OfficerRole.Events   ] = id_r.eventPlanner,
+			[OfficerRole.Recruiter] = id_r.recruiter   ,
+			[OfficerRole.Banker   ] = id_r.banker      ,
+		}
+	);
 	private static readonly ConstBiMap<PingRole, string> _pingOptions = new (
 		new Dictionary<PingRole, string> {
 			[PingRole.Raid   ] = _optionPingRaid   ,
@@ -56,6 +72,14 @@ class Roles {
 			[GuildRole.Sanctum] = _optionGuildSanctum,
 			[GuildRole.Angels ] = _optionGuildAngels ,
 			[GuildRole.Asgard ] = _optionGuildAsgard ,
+		}
+	);
+	private static readonly ConstBiMap<OfficerRole, string> _officerOptions = new (
+		new Dictionary<OfficerRole, string> {
+			[OfficerRole.Raid     ] = _optionOfficerRaid     ,
+			[OfficerRole.Events   ] = _optionOfficerEvents   ,
+			[OfficerRole.Recruiter] = _optionOfficerRecruiter,
+			[OfficerRole.Banker   ] = _optionOfficerBanker   ,
 		}
 	);
 	// Select menu definitions.
@@ -126,6 +150,31 @@ class Roles {
 				Emoji = new ("\U0001F499"), // :blue_heart:
 			}),
 		};
+	private static IReadOnlyList<(OfficerRole, Option)> OfficerRoleOptions =>
+		new List<(OfficerRole, Option)> {
+			new (OfficerRole.Raid, new Option {
+				Label = "Raid Officer",
+				Id = _optionOfficerRaid,
+				Emoji = new ("\u2694"),     // :crossed_swords:
+			}),
+			new (OfficerRole.Events, new Option {
+				Label = "Event Planner",
+				Id = _optionOfficerEvents,
+				Emoji = new ("\U0001F3B3"), // :bowling:
+			}),
+			new (OfficerRole.Recruiter, new Option {
+				Label = "Recruiter",
+				Id = _optionOfficerRecruiter,
+				Emoji = new ("\U0001F5C3"), // :card_box:
+			}),
+			new (OfficerRole.Banker, new Option {
+				Label = "Banker",
+				Id = _optionOfficerBanker,
+				Emoji = new ("\U0001F4B0"), // :moneybag:
+			}),
+		};
+
+	private static readonly TimeSpan _timeout = TimeSpan.FromMinutes(3);
 
 	private const string
 		_idSelectPingRoles  = "select_pingroles" ,
@@ -141,7 +190,11 @@ class Roles {
 		_optionGuildGlaive  = "option_glaive" ,
 		_optionGuildSanctum = "option_sanctum",
 		_optionGuildAngels  = "option_angels" ,
-		_optionGuildAsgard  = "option_asgard" ;
+		_optionGuildAsgard  = "option_asgard" ,
+		_optionOfficerRaid      = "option_raid"     ,
+		_optionOfficerEvents    = "option_events"   ,
+		_optionOfficerRecruiter = "option_recruiter",
+		_optionOfficerBanker    = "option_banker"   ;
 
 	// Public utility methods for checking the roles on a member object.
 	public static IReadOnlySet<PingRole> GetPingRoles(DiscordMember user) {
@@ -159,6 +212,15 @@ class Roles {
 			ulong id = role.Id;
 			if (_guildRoles.Contains(id))
 				roles.Add(_guildRoles[id]);
+		}
+		return roles;
+	}
+	public static IReadOnlySet<OfficerRole> GetOfficerRoles(DiscordMember user) {
+		HashSet<OfficerRole> roles = new ();
+		foreach (DiscordRole role in user.Roles) {
+			ulong id = role.Id;
+			if (_officerRoles.Contains(id))
+				roles.Add(_officerRoles[id]);
 		}
 		return roles;
 	}
@@ -191,7 +253,8 @@ class Roles {
 			PingRoleOptions,
 			pingRoles,
 			isMultiple: true,
-			placeholder: "Select roles to be pinged for."
+			"Select roles to be pinged for.",
+			_timeout
 		);
 		Selection selectGuilds = Selection.Create(
 			interaction,
@@ -201,20 +264,28 @@ class Roles {
 			GuildRoleOptions,
 			guildRoles,
 			isMultiple: true,
-			placeholder: "Select the guilds you associate with."
+			"Select the guilds you associate with.",
+			_timeout
 		);
 
 		// Update global Selection tracking table, and disable any menus
 		// already in-flight.
-		if (_menus.ContainsKey(user.Id)) {
-			(Selection menu1, Selection menu2) =
-				_menus[user.Id];
+		UserRoleTypeSelect idPingSelect = new (user.Id, typeof(PingRole));
+		UserRoleTypeSelect idGuildSelect = new (user.Id, typeof(GuildRole));
+		if (_menus.ContainsKey(idPingSelect)) {
+			Selection menu = _menus[idPingSelect];
 			// Discarding is just an extra safety, so no need to await.
-			_ = menu1.Discard();
-			_ = menu2.Discard();
-			_menus.TryRemove(user.Id, out _);
+			_ = menu.Discard();
+			_menus.TryRemove(idPingSelect, out _);
 		}
-		_menus.TryAdd(user.Id, (selectPings, selectGuilds));
+		if (_menus.ContainsKey(idGuildSelect)) {
+			Selection menu = _menus[idGuildSelect];
+			// Discarding is just an extra safety, so no need to await.
+			_ = menu.Discard();
+			_menus.TryRemove(idGuildSelect, out _);
+		}
+		_menus.TryAdd(idPingSelect, selectPings);
+		_menus.TryAdd(idGuildSelect, selectGuilds);
 
 		// Respond to interaction.
 		// Note: A response must have either content or an embed to be
@@ -224,18 +295,27 @@ class Roles {
 			.WithContent(" ")
 			.AddComponents(selectPings.Component)
 			.AddComponents(selectGuilds.Component);
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(response,true);
-		interaction.SetResponseSummary("Role selection menu sent.");
+		string summary = "Role selection menu sent.";
+		await interaction.RegisterAndRespondAsync(response, summary, true);
 
 		// Update message promise.
 		DiscordMessage message = await interaction.GetResponseAsync();
 		messagePromise.SetResult(message);
 	}
 
-	private static async Task AssignPingsAsync(ComponentInteractionCreateEventArgs e) {
-		if (Erythro is null)
-			throw new InvalidOperationException("Guild not initialized yet.");
+	private static Task AssignPingsAsync(ComponentInteractionCreateEventArgs e) =>
+		AssignRolesAsync(e, _pingRoles, _pingOptions);
+	private static Task AssignGuildsAsync(ComponentInteractionCreateEventArgs e) =>
+		AssignRolesAsync(e, _guildRoles, _guildOptions);
+	private static Task AssignOfficersAsync(ComponentInteractionCreateEventArgs e) =>
+		AssignRolesAsync(e, _officerRoles, _officerOptions);
+
+	private static async Task AssignRolesAsync<T>(
+		ComponentInteractionCreateEventArgs e,
+		ConstBiMap<T, ulong> tableRoleIds,
+		ConstBiMap<T, string> tableRoleOptions
+	) where T : Enum {
+		CheckErythroInit();
 
 		// Fetch member object data.
 		Interaction interaction = Interaction.FromComponent(e);
@@ -246,19 +326,19 @@ class Roles {
 		}
 
 		// Fetch list of desired roles.
-		// Added PingRoles are saved separately (to update Selection).
+		// Added enum roles are saved separately (to update Selection).
 		HashSet<DiscordRole> rolesAdded = new ();
 		foreach (string option in e.Values) {
 			DiscordRole role =
-				Erythro.Role(_pingRoles[_pingOptions[option]]);
+				Erythro.Role(tableRoleIds[tableRoleOptions[option]]);
 			rolesAdded.Add(role);
 		}
 
-		// Add non-PingRole roles to desired roles.
+		// Add non-enum role roles to desired roles.
 		// These roles must be kept the same as before.
 		HashSet<DiscordRole> roles = new (rolesAdded);
-		foreach(DiscordRole role in user.Roles) {
-			if (!_pingRoles.Contains(role.Id))
+		foreach (DiscordRole role in user.Roles) {
+			if (!tableRoleIds.Contains(role.Id))
 				roles.Add(role);
 		}
 
@@ -267,51 +347,10 @@ class Roles {
 		Log.Information("Updated member roles for {Username}.", user.DisplayName);
 
 		// Update Selection object.
-		(Selection selection, _) = _menus[user.Id];
+		Selection selection = _menus[new (user.Id, typeof(T))];
 		HashSet<string> options = new ();
 		foreach (DiscordRole role in rolesAdded)
-			options.Add(_pingOptions[_pingRoles[role.Id]]);
-		await selection.Update(options);
-	}
-
-	private static async Task AssignGuildsAsync(ComponentInteractionCreateEventArgs e) {
-		if (Erythro is null)
-			throw new InvalidOperationException("Guild not initialized yet.");
-
-		// Fetch member object data.
-		Interaction interaction = Interaction.FromComponent(e);
-		DiscordMember? user = await interaction.User.ToMember();
-		if (user is null) {
-			await RespondNoDataAsync(interaction);
-			return;
-		}
-
-		// Fetch list of desired roles.
-		// Added GuildRoles are saved separately (to update Selection).
-		HashSet<DiscordRole> rolesAdded = new ();
-		foreach (string option in e.Values) {
-			DiscordRole role =
-				Erythro.Role(_guildRoles[_guildOptions[option]]);
-			rolesAdded.Add(role);
-		}
-
-		// Add non-GuildRole roles to desired roles.
-		// These roles must be kept the same as before.
-		HashSet<DiscordRole> roles = new (rolesAdded);
-		foreach(DiscordRole role in user.Roles) {
-			if (!_guildRoles.Contains(role.Id))
-				roles.Add(role);
-		}
-
-		// Update member roles.
-		await user.ReplaceRolesAsync(roles);
-		Log.Information("Updated member roles for {Username}.", user.DisplayName);
-
-		// Update Selection object.
-		(_, Selection selection) = _menus[user.Id];
-		HashSet<string> options = new ();
-		foreach (DiscordRole role in rolesAdded)
-			options.Add(_guildOptions[_guildRoles[role.Id]]);
+			options.Add(tableRoleOptions[tableRoleIds[role.Id]]);
 		await selection.Update(options);
 	}
 

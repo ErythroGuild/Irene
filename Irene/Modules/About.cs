@@ -1,11 +1,13 @@
 ﻿namespace Irene.Modules;
 
+using System.Diagnostics;
+
 class About {
 	public enum Status { Good, Idle, Error }
 
 	public static readonly string
-		String_Version,
-		String_Build;
+		StringVersion,
+		StringBuild;
 	public static int SlashCommandCount   { get; private set; } = 0;
 	public static int ContextCommandCount { get; private set; } = 0;
 
@@ -14,9 +16,9 @@ class About {
 		_pathVersion = @"config/tag.txt",
 		_pathBuild   = @"config/commit.txt";
 	private static readonly DiscordColor
-		_colorOnline  = new ("#57F287"),
-		_colorIdle    = new ("#FEE75C"),
-		_colorBusy    = new ("#ED4245");
+		_colorOnline = new ("#57F287"),
+		_colorIdle   = new ("#FEE75C"),
+		_colorBusy   = new ("#ED4245");
 	private const double
 		_memoryLowerLimit = 90.0,
 		_memoryUpperLimit = 180.0;
@@ -38,23 +40,22 @@ class About {
 		StreamReader file;
 
 		file = File.OpenText(_pathVersion);
-		String_Version = file.ReadLine() ?? "";
+		StringVersion = file.ReadLine() ?? "";
 		file.Close();
 
 		file = File.OpenText(_pathBuild);
-		String_Build = file.ReadLine() ?? "";
-		if (String_Build.Length > 7)
-			String_Build = String_Build[..7];
+		StringBuild = file.ReadLine() ?? "";
+		if (StringBuild.Length > 7)
+			StringBuild = StringBuild[..7];
 		file.Close();
 	}
 
 	// This is the main function that collates and returns a formatted
 	// `DiscordEmbed`.
 	public static DiscordEmbed CollateStatusEmbed() {
-		if (Erythro is null)
-			throw new InvalidOperationException("`About` module not initialized properly.");
+		CheckErythroInit();
 
-		string title = $"__**Irene {String_Version}**__{_charSpaceM}build `{String_Build}`";
+		string title = $"__**Irene {StringVersion}**__{_charSpaceM}build `{StringBuild}`";
 
 		// Change embed color depending on current user status.
 		DiscordColor color = GetBotStatus() switch {
@@ -67,9 +68,9 @@ class About {
 		string statusAvailableCommands =
 			StatusCircle(GetAvailableCommandsStatus());
 		string helpLink =
-			CommandDispatcher.HandlerTable[Commands.Help.Command_Help]
+			Dispatcher.Table[Commands.Help.CommandHelp]
 			.Command
-			.Mention(Commands.Help.Command_Help);
+			.Mention(Commands.Help.CommandHelp);
 		string statusMemoryUsage =
 			StatusCircle(GetMemoryUsageStatus());
 
@@ -98,7 +99,7 @@ class About {
 	// Fetch various kinds of status information.
 	public static UserStatus GetBotStatus() =>
 		Erythro?.Client.CurrentUser.Presence.Status
-			?? throw new InvalidOperationException("`About` module not initialized properly.");
+			?? throw new UninitializedException();
 	// Returns MB (1000 kB).
 	public static double GetMemoryUsageMB() {
 		Process irene = Process.GetCurrentProcess();
@@ -133,7 +134,7 @@ class About {
 		int contextCount = ContextCommandCount;
 		int registeredCount = slashCount + contextCount;
 		// The table is the more direct (efficient) representation.
-		int definedCount = CommandDispatcher.HandlerTable.Count;
+		int definedCount = Dispatcher.Table.Count;
 
 		if (registeredCount == definedCount) {
 			return (definedCount == 0)

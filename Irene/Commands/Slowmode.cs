@@ -1,303 +1,370 @@
-﻿using System.Timers;
+﻿namespace Irene.Commands;
 
-namespace Irene.Commands;
+using System.Timers;
 
-class Slowmode : AbstractCommand, IInit {
-	private record struct Data {
-		public Timer? Timer;
-		public readonly ulong ChannelId;
-		public readonly int? LimitPrevious;
-		public readonly DateTimeOffset TimeEnd;
+class Slowmode : CommandHandler {
+	public const string
+		CommandSlowmode = "slowmode",
+		CommandSet      = "set"     ,
+		CommandClear    = "clear"   ,
+		ArgChannel  = "channel" ,
+		ArgDuration = "duration",
+		ArgInterval = "interval";
 
-		private const string _separator = "|||";
+	public override string HelpText =>
+		$"""
+		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandSlowmode} {CommandSet}")} `<{ArgChannel}> [{ArgDuration}] [{ArgInterval}]` limits messaging speed,
+		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandSlowmode} {CommandClear}")} `<{ArgChannel}>` cancels any restrictions early.
+		""";
 
-		public Data(
-			Timer? timer,
-			ulong channelId,
-			int? limitPrevious,
-			DateTimeOffset timeEnd
-		) {
-			Timer = timer;
-			ChannelId = channelId;
-			LimitPrevious = limitPrevious;
-			TimeEnd = timeEnd;
+	public override CommandTree CreateTree() => new (
+		new (
+			CommandSlowmode,
+			"Configure slowmode on channels."
+		),
+		new List<CommandTree.GroupNode>(),
+		new List<CommandTree.LeafNode> {
+			new (
+				AccessLevel.Officer,
+				new (
+					CommandSet,
+					"Enable slowmode on a channel.",
+					ArgType.SubCommand,
+					options: new List<DiscordCommandOption> {
+						new (
+							ArgChannel,
+							"The channel to limit.",
+							ArgType.Channel,
+							required: true
+						),
+						new (
+							ArgDuration,
+							"The duration to limit messaging for.",
+							ArgType.String,
+							required: false,
+							autocomplete: true
+						),
+						new (
+							ArgInterval,
+							"The length of time between messages.",
+							ArgType.String,
+							required: false,
+							autocomplete: true
+						),
+					}
+				),
+				new (LimitAsync)
+			),
+			new (
+				AccessLevel.Officer,
+				new (
+					CommandClear,
+					"Return a channel to normal.",
+					ArgType.SubCommand,
+					options: new List<DiscordCommandOption> { new (
+						ArgChannel,
+						"The channel to clear.",
+						ArgType.Channel,
+						required: true
+					) }
+				),
+				new (ClearAsync)
+			),
 		}
+	);
 
-		public string Serialize() =>
-			string.Join(_separator, new object[] {
-				ChannelId,
-				LimitPrevious?.ToString() ?? "null",
-				TimeEnd.ToString("u")
-			} );
-		public static Data Deserialize(string data) {
-			string[] split = data.Split(_separator, 3);
-			return new Data(
-				null,
-				ulong.Parse(split[0]),
-				(split[1] != "null")
-					? int.Parse(split[1])
-					: null,
-				DateTimeOffset.ParseExact(split[2], "u", null)
-			);
-		}
-	}
+	public async Task LimitAsync(Interaction interaction, ParsedArgs args) { }
 
-	private static readonly object _lock = new ();
-	private const string _pathSlowmode = @"data/slowmode.txt";
-	private const string
-		_time15sec = "15 sec",
-		_time1min = "1 min",
-		_time2min = "2 min",
-		_time5min = "5 min",
-		_time15min = "15 min",
-		_time30min = "30 min",
-		_time1hrs = "1 hrs",
-		_time2hrs = "2 hrs";
+	public async Task ClearAsync(Interaction interaction, ParsedArgs args) { }
 
-	private static readonly ConcurrentDictionary<ulong, Data> _channelTimers = new ();
 
-	private static readonly ReadOnlyDictionary<string, TimeSpan> _tableTimes =
-		new (new ConcurrentDictionary<string, TimeSpan>() {
-			[_time15sec] = TimeSpan.FromSeconds(15),
-			[_time1min ] = TimeSpan.FromMinutes(1),
-			[_time2min ] = TimeSpan.FromMinutes(2),
-			[_time5min ] = TimeSpan.FromMinutes(5),
-			[_time15min] = TimeSpan.FromMinutes(15),
-			[_time30min] = TimeSpan.FromMinutes(30),
-			[_time1hrs ] = TimeSpan.FromHours(1),
-			[_time2hrs ] = TimeSpan.FromHours(2),
-		} );
+	//private record struct Data {
+	//	public Timer? Timer;
+	//	public readonly ulong ChannelId;
+	//	public readonly int? LimitPrevious;
+	//	public readonly DateTimeOffset TimeEnd;
 
-	private static readonly ReadOnlyCollection<CommandOptionEnum> _optionsDuration =
-		new (new List<CommandOptionEnum> {
-			new ("15 minutes", _time15min),
-			new ("30 minutes", _time30min),
-			new ("1 hour", _time1hrs),
-			new ("2 hours", _time2hrs),
-		} );
-	private static readonly ReadOnlyCollection<CommandOptionEnum> _optionsInterval =
-		new (new List<CommandOptionEnum> {
-			new ("15 seconds", _time15sec),
-			new ("1 minute", _time1min),
-			new ("2 minutes", _time2min),
-			new ("5 minutes", _time5min),
-		} );
+	//	private const string _separator = "|||";
 
-	public static void Init() { }
-	static Slowmode() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
+	//	public Data(
+	//		Timer? timer,
+	//		ulong channelId,
+	//		int? limitPrevious,
+	//		DateTimeOffset timeEnd
+	//	) {
+	//		Timer = timer;
+	//		ChannelId = channelId;
+	//		LimitPrevious = limitPrevious;
+	//		TimeEnd = timeEnd;
+	//	}
 
-		Util.CreateIfMissing(_pathSlowmode, _lock);
+	//	public string Serialize() =>
+	//		string.Join(_separator, new object[] {
+	//			ChannelId,
+	//			LimitPrevious?.ToString() ?? "null",
+	//			TimeEnd.ToString("u")
+	//		} );
+	//	public static Data Deserialize(string data) {
+	//		string[] split = data.Split(_separator, 3);
+	//		return new Data(
+	//			null,
+	//			ulong.Parse(split[0]),
+	//			(split[1] != "null")
+	//				? int.Parse(split[1])
+	//				: null,
+	//			DateTimeOffset.ParseExact(split[2], "u", null)
+	//		);
+	//	}
+	//}
 
-		// Read in previous data.
-		List<Data> data = ReadAllData();
-		foreach (Data data_i in data) {
-			DateTimeOffset now = DateTimeOffset.UtcNow;
-			DiscordChannel channel = 
-				Guild!.GetChannel(data_i.ChannelId);
-			bool is_canceled =
-				(channel.PerUserRateLimit ?? 0) ==
-				(data_i.LimitPrevious ?? 0);
-			if (is_canceled)
-				continue;
+	//private static readonly object _lock = new ();
+	//private const string _pathSlowmode = @"data/slowmode.txt";
+	//private const string
+	//	_time15sec = "15 sec",
+	//	_time1min = "1 min",
+	//	_time2min = "2 min",
+	//	_time5min = "5 min",
+	//	_time15min = "15 min",
+	//	_time30min = "30 min",
+	//	_time1hrs = "1 hrs",
+	//	_time2hrs = "2 hrs";
 
-			if (now < data_i.TimeEnd) {
-				// Start new timer if end time is in the future.
-				TimeSpan duration = data_i.TimeEnd - now;
-				Timer timer = Util.CreateTimer(duration, false);
-				timer.Elapsed += async (obj, e) => {
-					await channel.ModifyAsync((channel) => {
-						channel.PerUserRateLimit = data_i.LimitPrevious;
-					});
-					_channelTimers.TryRemove(channel.Id, out _);
-					UpdateSavedData();
-					Log.Information("Slowmode turned off for #{Channel}.", channel.Name);
-				};
-				_channelTimers.TryAdd(channel.Id, new (
-					timer,
-					channel.Id,
-					data_i.LimitPrevious,
-					data_i.TimeEnd
-				) );
-				timer.Start();
-			} else {
-				// Immediately end slowmode if end time has passed.
-				channel.ModifyAsync((channel) => {
-					channel.PerUserRateLimit = data_i.LimitPrevious;
-				});
-				Log.Information("Slowmode turned off for #{Channel}.", channel.Name);
-			}
-		}
-		UpdateSavedData();
+	//private static readonly ConcurrentDictionary<ulong, Data> _channelTimers = new ();
 
-		Log.Information("  Initialized command: /slowmode");
-		Log.Debug("    Existing slowmode settings processed.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
-	}
+	//private static readonly ReadOnlyDictionary<string, TimeSpan> _tableTimes =
+	//	new (new ConcurrentDictionary<string, TimeSpan> {
+	//		[_time15sec] = TimeSpan.FromSeconds(15),
+	//		[_time1min ] = TimeSpan.FromMinutes(1),
+	//		[_time2min ] = TimeSpan.FromMinutes(2),
+	//		[_time5min ] = TimeSpan.FromMinutes(5),
+	//		[_time15min] = TimeSpan.FromMinutes(15),
+	//		[_time30min] = TimeSpan.FromMinutes(30),
+	//		[_time1hrs ] = TimeSpan.FromHours(1),
+	//		[_time2hrs ] = TimeSpan.FromHours(2),
+	//	} );
 
-	public override List<string> HelpPages =>
-		new () { new List<string> {
-			@"`:lock: /slowmode <channel> <duration> <interval>` turns on slow mode.",
-			"A few common increments are listed as options for convenience.",
-			"If these are insufficient, channels can be directly edited as well.",
-		}.ToLines() };
+	//private static readonly ReadOnlyCollection<CommandOptionEnum> _optionsDuration =
+	//	new (new List<CommandOptionEnum> {
+	//		new ("15 minutes", _time15min),
+	//		new ("30 minutes", _time30min),
+	//		new ("1 hour", _time1hrs),
+	//		new ("2 hours", _time2hrs),
+	//	} );
+	//private static readonly ReadOnlyCollection<CommandOptionEnum> _optionsInterval =
+	//	new (new List<CommandOptionEnum> {
+	//		new ("15 seconds", _time15sec),
+	//		new ("1 minute", _time1min),
+	//		new ("2 minutes", _time2min),
+	//		new ("5 minutes", _time5min),
+	//	} );
 
-	public override List<InteractionCommand> SlashCommands =>
-		new () {
-			new ( new (
-				"slowmode",
-				"Limit the rate of messages sent in a channel.",
-				new List<CommandOption> {
-					new (
-						"channel",
-						"The channel to limit.",
-						ApplicationCommandOptionType.Channel,
-						required: true,
-						channelTypes: new List<ChannelType>
-							{ ChannelType.Text }
-					),
-					new (
-						"duration",
-						"The length of time to limit message for.",
-						ApplicationCommandOptionType.String,
-						required: true,
-						choices: _optionsDuration
-					),
-					new (
-						"interval",
-						"The length of time between messages.",
-						ApplicationCommandOptionType.String,
-						required: true,
-						choices: _optionsInterval
-					),
-				},
-				defaultPermission: true,
-				type: ApplicationCommandType.SlashCommand
-			), DeferAsync, RunAsync )
-		};
+	//static Slowmode() {
+	//	Stopwatch stopwatch = Stopwatch.StartNew();
 
-	public static async Task DeferAsync(TimedInteraction interaction) {
-		DeferrerHandler handler = new (interaction, true);
-		await SetSlowmodeAsync(handler);
-	}
-	public static async Task RunAsync(TimedInteraction interaction) {
-		DeferrerHandler handler = new (interaction, false);
-		await SetSlowmodeAsync(handler);
-	}
+	//	Util.CreateIfMissing(_pathSlowmode, _lock);
 
-	public static async Task SetSlowmodeAsync(DeferrerHandler handler) {
-		// Check for permissions.
-		bool doContinue = await handler.Interaction
-			.CheckAccessAsync(false, AccessLevel.Officer);
-		if (!doContinue)
-			return;
+	//	// Read in previous data.
+	//	List<Data> data = ReadAllData();
+	//	foreach (Data data_i in data) {
+	//		DateTimeOffset now = DateTimeOffset.UtcNow;
+	//		DiscordChannel channel = 
+	//			Guild!.GetChannel(data_i.ChannelId);
+	//		bool is_canceled =
+	//			(channel.PerUserRateLimit ?? 0) ==
+	//			(data_i.LimitPrevious ?? 0);
+	//		if (is_canceled)
+	//			continue;
 
-		List<DiscordInteractionDataOption> args =
-			handler.GetArgs();
+	//		if (now < data_i.TimeEnd) {
+	//			// Start new timer if end time is in the future.
+	//			TimeSpan duration = data_i.TimeEnd - now;
+	//			Timer timer = Util.CreateTimer(duration, false);
+	//			timer.Elapsed += async (obj, e) => {
+	//				await channel.ModifyAsync((channel) => {
+	//					channel.PerUserRateLimit = data_i.LimitPrevious;
+	//				});
+	//				_channelTimers.TryRemove(channel.Id, out _);
+	//				UpdateSavedData();
+	//				Log.Information("Slowmode turned off for #{Channel}.", channel.Name);
+	//			};
+	//			_channelTimers.TryAdd(channel.Id, new (
+	//				timer,
+	//				channel.Id,
+	//				data_i.LimitPrevious,
+	//				data_i.TimeEnd
+	//			) );
+	//			timer.Start();
+	//		} else {
+	//			// Immediately end slowmode if end time has passed.
+	//			channel.ModifyAsync((channel) => {
+	//				channel.PerUserRateLimit = data_i.LimitPrevious;
+	//			});
+	//			Log.Information("Slowmode turned off for #{Channel}.", channel.Name);
+	//		}
+	//	}
+	//	UpdateSavedData();
 
-		// Get resolved channel.
-		DiscordChannel channel =
-			handler.Interaction.Interaction.GetTargetChannel();
-		int? limit_previous = channel.PerUserRateLimit;
+	//	Log.Information("  Initialized command: /slowmode");
+	//	Log.Debug("    Existing slowmode settings processed.");
+	//	stopwatch.LogMsecDebug("    Took {Time} msec.");
+	//}
 
-		// If channel is already in slowmode, error out.
-		if (_channelTimers.ContainsKey(channel.Id)) {
-			if (handler.IsDeferrer) {
-				await Command.DeferAsync(handler, true);
-				return;
-			}
-			await Command.SubmitResponseAsync(
-				handler.Interaction,
-				$":stopwatch: Slowmode was already active for {channel.Mention}. No changes made.",
-				$"#{channel.Name} already in slowmode (no changes made).",
-				LogLevel.Information,
-				"rate: 1 message / {Limit} sec".AsLazy(),
-				channel.PerUserRateLimit ?? 0
-			);
-			return;
-		}
+	//public override List<InteractionCommand> SlashCommands =>
+	//	new () {
+	//		new ( new (
+	//			"slowmode",
+	//			"Limit the rate of messages sent in a channel.",
+	//			new List<CommandOption> {
+	//				new (
+	//					"channel",
+	//					"The channel to limit.",
+	//					ApplicationCommandOptionType.Channel,
+	//					required: true,
+	//					channelTypes: new List<ChannelType>
+	//						{ ChannelType.Text }
+	//				),
+	//				new (
+	//					"duration",
+	//					"The length of time to limit message for.",
+	//					ApplicationCommandOptionType.String,
+	//					required: true,
+	//					choices: _optionsDuration
+	//				),
+	//				new (
+	//					"interval",
+	//					"The length of time between messages.",
+	//					ApplicationCommandOptionType.String,
+	//					required: true,
+	//					choices: _optionsInterval
+	//				),
+	//			},
+	//			defaultPermission: true,
+	//			type: ApplicationCommandType.SlashCommand
+	//		), DeferAsync, RunAsync )
+	//	};
 
-		// Setting a channel to slowmode should always be visible.
-		if (handler.IsDeferrer) {
-			await Command.DeferAsync(handler, false);
-			return;
-		}
+	//public static async Task DeferAsync(TimedInteraction interaction) {
+	//	DeferrerHandler handler = new (interaction, true);
+	//	await SetSlowmodeAsync(handler);
+	//}
+	//public static async Task RunAsync(TimedInteraction interaction) {
+	//	DeferrerHandler handler = new (interaction, false);
+	//	await SetSlowmodeAsync(handler);
+	//}
 
-		// Convert parameters.
-		TimeSpan duration = _tableTimes[(string)args[1].Value];
-		DateTimeOffset time_end = DateTimeOffset.UtcNow + duration;
-		TimeSpan limit_timespan =
-			_tableTimes[(string)args[2].Value];
-		int limit =
-			(int)Math.Round(limit_timespan.TotalSeconds);
+	//public static async Task SetSlowmodeAsync(DeferrerHandler handler) {
+	//	// Check for permissions.
+	//	bool doContinue = await handler.Interaction
+	//		.CheckAccessAsync(false, AccessLevel.Officer);
+	//	if (!doContinue)
+	//		return;
 
-		// Initialize data object.
-		Data data = new (
-			Util.CreateTimer(duration, false),
-			channel.Id,
-			limit_previous,
-			time_end
-		);
-		data.Timer!.Elapsed += async (obj, e) => {
-			await channel.ModifyAsync((channel) => {
-				channel.PerUserRateLimit = data.LimitPrevious;
-			});
-			_channelTimers.TryRemove(channel.Id, out _);
-			UpdateSavedData();
-			Log.Information("Slowmode turned off for #{Channel}.", channel.Name);
-		};
-		_channelTimers.TryAdd(channel.Id, data);
-		UpdateSavedData();
+	//	List<DiscordInteractionDataOption> args =
+	//		handler.GetArgs();
 
-		// Update channel & start timer.
-		await channel.ModifyAsync((channel) => {
-			channel.PerUserRateLimit = limit;
-		});
-		data.Timer!.Start();
+	//	// Get resolved channel.
+	//	DiscordChannel channel =
+	//		handler.Interaction.Interaction.GetTargetChannel();
+	//	int? limit_previous = channel.PerUserRateLimit;
 
-		// Respond.
-		string response =
-			$"Slowmode activated for {channel.Mention}, until " +
-			$"{time_end.Timestamp(Util.TimestampStyle.TimeShort)}." +
-			" :stopwatch:";
-		await Command.SubmitResponseAsync(
-			handler.Interaction,
-			response,
-			$"Slowmode activated for #{channel.Name}.",
-			LogLevel.Debug,
-			"rate: 1 message / {Limit} sec".AsLazy(),
-			limit
-		);
-	}
+	//	// If channel is already in slowmode, error out.
+	//	if (_channelTimers.ContainsKey(channel.Id)) {
+	//		if (handler.IsDeferrer) {
+	//			await Command.DeferAsync(handler, true);
+	//			return;
+	//		}
+	//		await Command.SubmitResponseAsync(
+	//			handler.Interaction,
+	//			$":stopwatch: Slowmode was already active for {channel.Mention}. No changes made.",
+	//			$"#{channel.Name} already in slowmode (no changes made).",
+	//			LogLevel.Information,
+	//			"rate: 1 message / {Limit} sec".AsLazy(),
+	//			channel.PerUserRateLimit ?? 0
+	//		);
+	//		return;
+	//	}
 
-	// Read in any saved data and deserialize to objects.
-	private static List<Data> ReadAllData() {
-		List<string> lines = new ();
-		lock (_lock) {
-			lines.AddRange(File.ReadAllLines(_pathSlowmode));
-		};
+	//	// Setting a channel to slowmode should always be visible.
+	//	if (handler.IsDeferrer) {
+	//		await Command.DeferAsync(handler, false);
+	//		return;
+	//	}
 
-		List<Data> data = new ();
-		foreach (string line in lines)
-			data.Add(Data.Deserialize(line));
+	//	// Convert parameters.
+	//	TimeSpan duration = _tableTimes[(string)args[1].Value];
+	//	DateTimeOffset time_end = DateTimeOffset.UtcNow + duration;
+	//	TimeSpan limit_timespan =
+	//		_tableTimes[(string)args[2].Value];
+	//	int limit =
+	//		(int)Math.Round(limit_timespan.TotalSeconds);
 
-		return data;
-	}
-	// Write out all the saved data in serialized form.
-	private static void WriteAllData(List<Data> data) {
-		List<string> lines = new ();
-		foreach (Data data_i in data)
-			lines.Add(data_i.Serialize());
+	//	// Initialize data object.
+	//	Data data = new (
+	//		Util.CreateTimer(duration, false),
+	//		channel.Id,
+	//		limit_previous,
+	//		time_end
+	//	);
+	//	data.Timer!.Elapsed += async (obj, e) => {
+	//		await channel.ModifyAsync((channel) => {
+	//			channel.PerUserRateLimit = data.LimitPrevious;
+	//		});
+	//		_channelTimers.TryRemove(channel.Id, out _);
+	//		UpdateSavedData();
+	//		Log.Information("Slowmode turned off for #{Channel}.", channel.Name);
+	//	};
+	//	_channelTimers.TryAdd(channel.Id, data);
+	//	UpdateSavedData();
 
-		lock (_lock) {
-			File.WriteAllLines(_pathSlowmode.Temp(), lines);
-			File.Delete(_pathSlowmode);
-			File.Move(_pathSlowmode.Temp(), _pathSlowmode);
-		}
-	}
+	//	// Update channel & start timer.
+	//	await channel.ModifyAsync((channel) => {
+	//		channel.PerUserRateLimit = limit;
+	//	});
+	//	data.Timer!.Start();
 
-	// Write out the data in the current cache.
-	private static void UpdateSavedData() {
-		WriteAllData(new List<Data>(_channelTimers.Values));
-	}
+	//	// Respond.
+	//	string response =
+	//		$"Slowmode activated for {channel.Mention}, until " +
+	//		$"{time_end.Timestamp(Util.TimestampStyle.TimeShort)}." +
+	//		" :stopwatch:";
+	//	await Command.SubmitResponseAsync(
+	//		handler.Interaction,
+	//		response,
+	//		$"Slowmode activated for #{channel.Name}.",
+	//		LogLevel.Debug,
+	//		"rate: 1 message / {Limit} sec".AsLazy(),
+	//		limit
+	//	);
+	//}
+
+	//// Read in any saved data and deserialize to objects.
+	//private static List<Data> ReadAllData() {
+	//	List<string> lines = new ();
+	//	lock (_lock) {
+	//		lines.AddRange(File.ReadAllLines(_pathSlowmode));
+	//	};
+
+	//	List<Data> data = new ();
+	//	foreach (string line in lines)
+	//		data.Add(Data.Deserialize(line));
+
+	//	return data;
+	//}
+	//// Write out all the saved data in serialized form.
+	//private static void WriteAllData(List<Data> data) {
+	//	List<string> lines = new ();
+	//	foreach (Data data_i in data)
+	//		lines.Add(data_i.Serialize());
+
+	//	lock (_lock) {
+	//		File.WriteAllLines(_pathSlowmode.Temp(), lines);
+	//		File.Delete(_pathSlowmode);
+	//		File.Move(_pathSlowmode.Temp(), _pathSlowmode);
+	//	}
+	//}
+
+	//// Write out the data in the current cache.
+	//private static void UpdateSavedData() {
+	//	WriteAllData(new List<Data>(_channelTimers.Values));
+	//}
 }

@@ -1,7 +1,7 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿namespace Irene.Modules;
 
-namespace Irene.Modules;
+using System.Text;
+using System.Text.RegularExpressions;
 
 class Mimic {
 	private record class Wordlist(
@@ -45,10 +45,10 @@ class Mimic {
 	// Monospaced languages will be properly formatted.
 	// Note: `language` must match the datafile definition exactly.
 	// The parameter should be valid, since it comes from a slash
-	// command autocomplete,
+	// command autocomplete.
 	public static string Translate(string language, string text) {
 		if (!_wordlists.ContainsKey(language))
-			throw new ArgumentException("Unsupported language.", nameof(language));
+			throw new ImpossibleArgException(Commands.Mimic.ArgLanguage, language);
 		Wordlist wordlist = _wordlists[language];
 
 		int i = 0;

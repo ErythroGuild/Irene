@@ -26,7 +26,7 @@ static class ClassSpec {
 	// Conversion tables.
 	// `ConstBiMap` can't used here because the input isn't one-to-one.
 	private static readonly IReadOnlyDictionary<Class, IReadOnlyList<Spec>> _classSpecs =
-		new ConcurrentDictionary<Class, IReadOnlyList<Spec>>() {
+		new ConcurrentDictionary<Class, IReadOnlyList<Spec>> {
 			[Class.DK     ] = new List<Spec> { Spec.DK_Blood    , Spec.DK_Frost    , Spec.DK_Unholy      },
 			[Class.DH     ] = new List<Spec> { Spec.DH_Vengeance, Spec.DH_Havoc    },
 			[Class.Druid  ] = new List<Spec> { Spec.Druid_Bear  , Spec.Druid_Resto , Spec.Druid_Feral    , Spec.Druid_Balance },
@@ -48,7 +48,7 @@ static class ClassSpec {
 
 	// Parsing tables.
 	private static readonly IReadOnlyDictionary<Class, IReadOnlyList<string>> _dictClass =
-		new ConcurrentDictionary<Class, IReadOnlyList<string>>() {
+		new ConcurrentDictionary<Class, IReadOnlyList<string>> {
 			[Class.DK     ] = new List<string> { "death knight", "deathknight", "dk" },
 			[Class.DH     ] = new List<string> { "demon hunter", "demonhunter", "dh" },
 			[Class.Druid  ] = new List<string> { "druid", "drood" },
@@ -64,7 +64,7 @@ static class ClassSpec {
 			[Class.Warrior] = new List<string> { "warrior", "warr", "war" },
 		};
 	private static readonly IReadOnlyDictionary<Spec, IReadOnlyList<string>> _dictSpec =
-		new ConcurrentDictionary<Spec, IReadOnlyList<string>>() {
+		new ConcurrentDictionary<Spec, IReadOnlyList<string>> {
 			[Spec.DK_Blood ] = new List<string> { "blood", "bdk" },
 			[Spec.DK_Frost ] = new List<string> { "frost" },
 			[Spec.DK_Unholy] = new List<string> { "unholy", "uh" },
@@ -112,9 +112,9 @@ static class ClassSpec {
 			[Spec.Warlock_Demo  ] = new List<string> { "demo", "demonology", "demolock" },
 			[Spec.Warlock_Destro] = new List<string> { "destro", "destruction", "destrolock" },
 
-			[Spec.Warrior_Prot] = new List<string>() { "protection", "prot" },
-			[Spec.Warrior_Arms] = new List<string>() { "arms" },
-			[Spec.Warrior_Fury] = new List<string>() { "fury" },
+			[Spec.Warrior_Prot] = new List<string> { "protection", "prot" },
+			[Spec.Warrior_Arms] = new List<string> { "arms" },
+			[Spec.Warrior_Fury] = new List<string> { "fury" },
 		};
 
 	// Initialize dictionary caches with redundant indices. (This improves
@@ -144,7 +144,7 @@ static class ClassSpec {
 		Class.Shaman  => "Shaman" ,
 		Class.Warlock => "Warlock",
 		Class.Warrior => "Warrior",
-		_ => throw new ArgumentException("Unknown class.", nameof(@class)),
+		_ => throw new UnclosedEnumException(typeof(Class), @class),
 	};
 	public static string Name(this Spec spec) => spec switch {
 		Spec.DK_Blood  => "Blood" ,
@@ -198,7 +198,7 @@ static class ClassSpec {
 		Spec.Warrior_Arms => "Arms"      ,
 		Spec.Warrior_Fury => "Fury"      ,
 
-		_ => throw new ArgumentException("Unknown spec.", nameof(spec)),
+		_ => throw new UnclosedEnumException(typeof(Spec), spec),
 	};
 	public static string FullName(this Spec spec) =>
 		$"{spec.Name()} {spec.GetClass().Name()}";
@@ -218,7 +218,7 @@ static class ClassSpec {
 		Class.Shaman  => new ("#0070DE"),
 		Class.Warlock => new ("#8788EE"),
 		Class.Warrior => new ("#C79C6E"),
-		_ => throw new ArgumentOutOfRangeException(nameof(@class), "Unrecognized class name."),
+		_ => throw new UnclosedEnumException(typeof(Class), @class),
 	};
 
 	// Emojis associated with roles/classes.
@@ -227,7 +227,7 @@ static class ClassSpec {
 			Role.Tank => id_e.tank,
 			Role.Heal => id_e.heal,
 			Role.DPS  => id_e.dps ,
-			_ => throw new ArgumentException("Unknown role.", nameof(role)),
+			_ => throw new UnclosedEnumException(typeof(Role), role),
 		};
 		return erythro.Emoji(id);
 	}
@@ -246,7 +246,7 @@ static class ClassSpec {
 			Class.Shaman  => id_e.shaman ,
 			Class.Warlock => id_e.warlock,
 			Class.Warrior => id_e.warrior,
-			_ => throw new ArgumentException("Unknown class.", nameof(@class)),
+			_ => throw new UnclosedEnumException(typeof(Class), @class),
 		};
 		return erythro.Emoji(id);
 	}
@@ -306,6 +306,6 @@ static class ClassSpec {
 		Spec.Warrior_Arms => Role.DPS ,
 		Spec.Warrior_Fury => Role.DPS ,
 
-		_ => throw new ArgumentException("Unknown spec.", nameof(spec)),
+		_ => throw new UnclosedEnumException(typeof(Spec), spec),
 	};
 }

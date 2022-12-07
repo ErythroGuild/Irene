@@ -160,6 +160,8 @@ class Secret {
 		_idAdmin = 165557736287764483;
 
 	static Secret() {
+		CheckErythroInit();
+
 		Util.CreateIfMissing(_pathResponses);
 		Util.CreateIfMissing(_pathProgress);
 
@@ -175,15 +177,14 @@ class Secret {
 		_stages = stages;
 
 		// Register handlers for admin "hint" commands.
-		Client.MessageCreated += async (irene, e) => {
+		Erythro.Client.MessageCreated += async (c, e) => {
 			if (e.Author.Id == _idAdmin && e.Channel.IsPrivate) {
 				string command = e.Message.Content;
 				const string prefix = "kirasath: ";
 				if (command.StartsWith(prefix)) {
 					e.Handled = true;
 					string message = command.Replace(prefix, null);
-					DiscordChannel kirasath = await
-						irene.GetChannelAsync(id_ch.kirasath);
+					DiscordChannel kirasath = Erythro.Channel(id_ch.kirasath);
 					await kirasath.SendMessageAsync(message);
 				}
 			}
@@ -193,9 +194,10 @@ class Secret {
 	public static async Task<string> Respond(
 		DateTimeOffset dateTime,
 		string attempt,
-		DiscordMember member,
-		GuildData erythro
+		DiscordMember member
 	) {
+		CheckErythroInit();
+
 		// Check date once we have more than one secret hunt
 		if (dateTime < new DateTimeOffset(2022, 10, 6, 0, 0, 0, new (0)))
 			return _responseNotReady;
@@ -244,7 +246,7 @@ class Secret {
 		}
 
 		if (stage.Id == 7)
-			_ = member.GrantRoleAsync(erythro.Role(id_r.karkun));
+			_ = member.GrantRoleAsync(Erythro.Role(id_r.karkun));
 
 		return response;
 	}

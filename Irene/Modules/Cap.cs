@@ -4,16 +4,15 @@ class Cap {
 	public record struct HideableString(string String, bool IsEphemeral);
 
 	private static readonly DateOnly
-		_date_s3CapLifted = new (2022,  5, 10);
-
+		_dateS3CapLifted = new (2022,  5, 10);
 
 	// --------
 	// Cap calculation methods.
 	// --------
 
 	public static HideableString DisplayValor(DateTimeOffset dateTime) {
-		string resource = "Valor";
-		const int weekly_valor = 750;
+		string resource = Commands.Cap.LabelValor;
+		const int weeklyValor = 750;
 
 		// Pre-9.0.5.
 		if (dateTime < Date_Patch905.UtcResetTime())
@@ -22,14 +21,14 @@ class Cap {
 		// Season 1, post-9.0.5.
 		if (dateTime < Date_Season2.UtcResetTime()) {
 			int week = WholeWeeksSince(dateTime, Date_Patch905);
-			int cap = 5000 + week * weekly_valor;
+			int cap = 5000 + week * weeklyValor;
 			return FormatCapWeekly(resource, cap, week + 1);
 		}
 
 		// Season 2, pre-9.1.5.
 		if (dateTime < Date_Patch915.UtcResetTime()) {
 			int week = WholeWeeksSince(dateTime, Date_Season2);
-			int cap = 750 + week * weekly_valor;
+			int cap = 750 + week * weeklyValor;
 			return FormatCapWeekly(resource, cap, week + 1);
 		}
 
@@ -38,24 +37,24 @@ class Cap {
 			return FormatCapLifted(resource, "season 2");
 
 		// Season 3, pre-cap removal.
-		if (dateTime < _date_s3CapLifted.UtcResetTime()) {
+		if (dateTime < _dateS3CapLifted.UtcResetTime()) {
 			int week = WholeWeeksSince(dateTime, Date_Season3);
-			int cap = 750 + week * weekly_valor;
+			int cap = 750 + week * weeklyValor;
 			return FormatCapWeekly(resource, cap, week + 1);
 		}
 
 		// Season 3, post-cap removal.
-		if (dateTime >= _date_s3CapLifted.UtcResetTime())
+		if (dateTime >= _dateS3CapLifted.UtcResetTime())
 			return FormatCapLifted(resource, "season 3");
 
-		throw new InvalidOperationException($"{resource} cap calculation resulted in illegal internal state.");
+		throw new ImpossibleException();
 	}
 
 	public static HideableString DisplayConquest(DateTimeOffset dateTime) {
-		string resource = "Conquest";
+		string resource = Commands.Cap.LabelConquest;
 		const int
-			weekly_conquest_old = 550,
-			weekly_conquest_new = 500;
+			weeklyConquestOld = 550,
+			weeklyConquestNew = 500;
 
 		// Pre-Shadowlands launch.
 		if (dateTime < Date_Patch902.UtcResetTime())
@@ -68,14 +67,14 @@ class Cap {
 		// Season 1 (9.0.2).
 		if (dateTime < Date_Season2.UtcResetTime()) {
 			int week = WholeWeeksSince(dateTime, Date_Season1);
-			int cap = 550 + week * weekly_conquest_old;
+			int cap = 550 + week * weeklyConquestOld;
 			return FormatCapWeekly(resource, cap, week + 1);
 		}
 
 		// Season 2, pre-9.1.5.
 		if (dateTime < Date_Patch915.UtcResetTime()) {
 			int week = WholeWeeksSince(dateTime, Date_Season2);
-			int cap = 1000 + week * weekly_conquest_old;
+			int cap = 1000 + week * weeklyConquestOld;
 			return FormatCapWeekly(resource, cap, week + 1);
 		}
 
@@ -84,21 +83,21 @@ class Cap {
 			return FormatCapLifted(resource, "season 2");
 
 		// Season 3, pre-cap removal.
-		if (dateTime < _date_s3CapLifted.UtcResetTime()) {
+		if (dateTime < _dateS3CapLifted.UtcResetTime()) {
 			int week = WholeWeeksSince(dateTime, Date_Season3);
-			int cap = 1000 + week * weekly_conquest_new;
+			int cap = 1000 + week * weeklyConquestNew;
 			return FormatCapWeekly(resource, cap, week + 1);
 		}
 
 		// Season 3, post-cap removal.
-		if (dateTime >= _date_s3CapLifted.UtcResetTime())
+		if (dateTime >= _dateS3CapLifted.UtcResetTime())
 			return FormatCapLifted(resource, "season 3");
 
-		throw new InvalidOperationException($"{resource} cap calculation resulted in illegal internal state.");
+		throw new ImpossibleException();
 	}
 
 	public static HideableString DisplayRenown(DateTimeOffset dateTime) {
-		string resource = "Renown";
+		string resource = Commands.Cap.LabelRenown;
 
 		// Pre-Shadowlands launch.
 		if (dateTime < Date_Patch902.UtcResetTime())
@@ -138,11 +137,11 @@ class Cap {
 		if (dateTime >= Date_Patch915.UtcResetTime())
 			return FormatCapMaxed(resource, 80);
 
-		throw new InvalidOperationException($"{resource} cap calculation resulted in illegal internal state.");
+		throw new ImpossibleException();
 	}
 
 	public static HideableString DisplayTorghast(DateTimeOffset dateTime) {
-		string resource = "Tower Knowledge";
+		string resource = Commands.Cap.LabelTorghast;
 
 		// Pre-Shadowlands launch.
 		if (dateTime < Date_Patch910.UtcResetTime())
@@ -169,7 +168,7 @@ class Cap {
 		if (dateTime >= Date_Patch915.UtcResetTime())
 			return FormatCapMaxed(resource, 3510);
 
-		throw new InvalidOperationException($"{resource} cap calculation resulted in illegal internal state.");
+		throw new ImpossibleException();
 	}
 
 

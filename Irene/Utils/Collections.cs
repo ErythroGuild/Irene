@@ -6,10 +6,10 @@ static partial class Util {
 		where T1 : notnull
 		where T2 : notnull
 	{
-		Dictionary<T2, T1> dict_inverse = new ();
+		Dictionary<T2, T1> dictInverse = new ();
 		foreach (T1 key in dict.Keys)
-			dict_inverse.Add(dict[key], key);
-		return dict_inverse;
+			dictInverse.Add(dict[key], key);
+		return dictInverse;
 	}
 
 	// Returns the first member of an ICollection.

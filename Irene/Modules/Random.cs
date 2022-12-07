@@ -1,10 +1,10 @@
-﻿using System.Security.Cryptography;
+﻿namespace Irene.Modules;
+
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
 using CRNG = System.Security.Cryptography.RandomNumberGenerator;
-
-namespace Irene.Modules;
 
 class Random {
 	private static readonly CRNG _crng = CRNG.Create();
@@ -145,7 +145,7 @@ class Random {
 			0 => (1, 100),
 			1 => (1, args[0]),
 			2 => (args[0], args[1]),
-			_ => throw new ArgumentException("Too many arguments provided.", nameof(args)),
+			_ => throw new ImpossibleArgException("/roll range", ">2 args"),
 		};
 
 		// Make sure the higher number is actually higher.
@@ -186,7 +186,7 @@ class Random {
 			1 => Suit.Diamonds,
 			2 => Suit.Clubs,
 			3 => Suit.Hearts,
-			_ => throw new InvalidOperationException("Invalid card drawn."),
+			_ => throw new ImpossibleException(),
 		};
 
 		string value = value_i switch {
@@ -195,7 +195,7 @@ class Random {
 			 10 => "J",
 			 11 => "Q",
 			 12 => "K",
-			_ => throw new InvalidOperationException("Invalid card drawn."),
+			_ => throw new ImpossibleException(),
 		};
 
 		return new (suit, value);
@@ -215,7 +215,7 @@ class Random {
 
 		// Hash input with MD5.
 		byte[] queryRaw = Encoding.ASCII.GetBytes(queryStripped);
-		byte[] hashRaw = MD5.Create().ComputeHash(queryRaw);
+		byte[] hashRaw = MD5.HashData(queryRaw);
 
 		// Convert hash to a list index, falling back to `System.Random`
 		// (cryptographically-INsecure) if the result would be biased.

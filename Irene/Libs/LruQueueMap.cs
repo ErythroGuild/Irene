@@ -1,20 +1,20 @@
 ﻿namespace Irene;
 
 // This data structure is used to model cached, mapped data that is kept/
-// discarded based on recency of access.
+// discarded based on recency of access (LRU = last recently used).
 // It models a queue of mapped pairs where new items are pushed onto the
 // top, stale items are purged from the bottom, and existing items "bubble"
 // to the top if they are pushed when they already exist in the queue.
-class HotQueueMap<TKey, TValue>
+class LruQueueMap<TKey, TValue>
 	where TKey : IEquatable<TKey>
 {
 	// Unpopulated items are stored as null.
-	private (TKey Key, TValue Value)?[] _cache;
+	private readonly (TKey Key, TValue Value)?[] _cache;
 
 	// The queuemap can optionally be initialized with an existing list.
 	// Items at the start of the list represent the most recently accessed
 	// items in the queuemap.
-	public HotQueueMap(int capacity, IReadOnlyList<(TKey, TValue)>? queue=null) {
+	public LruQueueMap(int capacity, IReadOnlyList<(TKey, TValue)>? queue=null) {
 		_cache = new (TKey, TValue)?[capacity];
 
 		List<(TKey, TValue)> cacheInit = queue is null

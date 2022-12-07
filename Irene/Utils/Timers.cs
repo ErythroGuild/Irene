@@ -1,6 +1,9 @@
-﻿using System.Timers;
+﻿namespace Irene.Utils;
 
-namespace Irene.Utils;
+using System.Diagnostics;
+using System.Timers;
+
+using Irene.Exceptions;
 
 static partial class Util {
 	// Convenience method for constructing a timer with AutoReset.
@@ -16,22 +19,38 @@ static partial class Util {
 	}
 
 	// Convenience  methods for stopping a timer and printing the value.
-	public static void LogMsecDebug(this Stopwatch stopwatch, string template, bool doStopTimer=true) {
+	// The log output is always: "{Time} msec elapsed."
+	public static void LogMsec(
+		this Stopwatch stopwatch,
+		int indentLevel,
+		bool doStopTimer=true,
+		LogLevel logLevel=LogLevel.Debug
+	) {
+		// Get time (msec).
+		// This should happen ASAP, for result accuracy.
 		if (doStopTimer)
 			stopwatch.Stop();
 		long msec = stopwatch.ElapsedMilliseconds;
-		Log.Debug(template, msec);
-	}
-	public static void LogMsecInformation(this Stopwatch stopwatch, string template, bool doStopTimer=true) {
-		if (doStopTimer)
-			stopwatch.Stop();
-		long msec = stopwatch.ElapsedMilliseconds;
-		Log.Information(template, msec);
-	}
-	public static void LogMsecWarning(this Stopwatch stopwatch, string template, bool doStopTimer=true) {
-		if (doStopTimer)
-			stopwatch.Stop();
-		long msec = stopwatch.ElapsedMilliseconds;
-		Log.Warning(template, msec);
+
+		// Construct indent string.
+		StringBuilder indent = new ();
+		for (int i=0; i<indentLevel; i++)
+			indent.Append("  ");
+
+		// Get the correct logging function.
+		Action<string, string> logger = logLevel switch {
+			LogLevel.Trace       => Log.Verbose,
+			LogLevel.Debug       => Log.Debug,
+			LogLevel.Information => Log.Information,
+			LogLevel.Warning     => Log.Warning,
+			LogLevel.Error       => Log.Error,
+			LogLevel.Critical    => Log.Fatal,
+
+			LogLevel.None => (_, _) => {},
+			_ => throw new UnclosedEnumException(typeof(LogLevel), logLevel),
+		};
+
+		// Log.
+		logger($"{indent} {{Time}} msec elapsed.", msec.ToString());
 	}
 }

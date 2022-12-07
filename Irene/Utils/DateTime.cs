@@ -15,46 +15,46 @@ static partial class Util {
 	}
 
 	// Returns the closest date of the two to the reference date.
-	public static DateOnly Closest(this DateOnly date_ref, DateOnly date_A, DateOnly date_B) {
-		TimeSpan days_A = Subtract(date_ref, date_A).Duration();
-		TimeSpan days_B = Subtract(date_ref, date_B).Duration();
-		return (days_A > days_B) ? date_B : date_A;
+	public static DateOnly Closest(this DateOnly dateRef, DateOnly dateA, DateOnly dateB) {
+		TimeSpan deltaA = Subtract(dateRef, dateA).Duration();
+		TimeSpan deltaB = Subtract(dateRef, dateB).Duration();
+		return (deltaA > deltaB) ? dateB : dateA;
 	}
 
 	// Returns the next/previous day of week.
 	// When called without `isInclusive`, does not return the input date;
 	// returns a week out from the input date instead.
-	public static DateOnly NextDayOfWeek(this DateOnly date_in, DayOfWeek day, bool isInclusive=false) {
-		DayOfWeek day_in = date_in.DayOfWeek;
-		int days_delta = (int)day - (int)day_in;
-		days_delta = (days_delta + 7) % 7;	// ensure result falls in [0,6]
-		if (!isInclusive && day_in == day)
-			days_delta += 7;
-		return date_in.AddDays(days_delta);
+	public static DateOnly NextDayOfWeek(this DateOnly dateIn, DayOfWeek day, bool isInclusive=false) {
+		DayOfWeek dayIn = dateIn.DayOfWeek;
+		int daysDelta = (int)day - (int)dayIn;
+		daysDelta = (daysDelta + 7) % 7;	// ensure result falls in [0,6]
+		if (!isInclusive && dayIn == day)
+			daysDelta += 7;
+		return dateIn.AddDays(daysDelta);
 	}
-	public static DateOnly PreviousDayOfWeek(this DateOnly date_in, DayOfWeek day, bool isInclusive=false) {
-		DayOfWeek day_in = date_in.DayOfWeek;
-		int days_delta = (int)day_in - (int)day;
-		days_delta = (days_delta + 7) % 7;	// ensure result falls in [0,6]
-		if (!isInclusive && day_in == day)
-			days_delta += 7;
-		return date_in.AddDays(-days_delta);
+	public static DateOnly PreviousDayOfWeek(this DateOnly dateIn, DayOfWeek day, bool isInclusive=false) {
+		DayOfWeek dayIn = dateIn.DayOfWeek;
+		int daysDelta = (int)dayIn - (int)day;
+		daysDelta = (daysDelta + 7) % 7;	// ensure result falls in [0,6]
+		if (!isInclusive && dayIn == day)
+			daysDelta += 7;
+		return dateIn.AddDays(-daysDelta);
 	}
 
 	// Returns the next/previous date of year.
 	// When called without `isInclusive`, does not return the input date;
 	// returns a year out from the input date instead.
-	public static DateOnly NextDateOfYear(this DateOnly date_in, int month, int day, bool isInclusive = false) {
-		int year = date_in.Year;
+	public static DateOnly NextDateOfYear(this DateOnly dateIn, int month, int day, bool isInclusive = false) {
+		int year = dateIn.Year;
 		DateOnly date = new (year, month, day);
-		if (!isInclusive && date <= date_in)
+		if (!isInclusive && date <= dateIn)
 			date = new DateOnly(year+1, month, day);
 		return date;
 	}
-	public static DateOnly PreviousDateOfYear(this DateOnly date_in, int month, int day, bool isInclusive = false) {
-		int year = date_in.Year;
+	public static DateOnly PreviousDateOfYear(this DateOnly dateIn, int month, int day, bool isInclusive = false) {
+		int year = dateIn.Year;
 		DateOnly date = new (year, month, day);
-		if (!isInclusive && date >= date_in)
+		if (!isInclusive && date >= dateIn)
 			date = new DateOnly(year-1, month, day);
 		return date;
 	}
@@ -62,10 +62,8 @@ static partial class Util {
 	// Returns the next/previous date of year.
 	// When called without `isInclusive`, does not return the input date;
 	// returns a year out from the input date instead.
-	public static DateOnly NextLunarPhase(this DateOnly date_in, RecurringEvent.LunarPhase lunarPhase) {
-		throw new NotImplementedException("Lunar phase calculations uimplemented.");
-	}
-	public static DateOnly PreviousLunarPhase(this DateOnly date_in, RecurringEvent.LunarPhase lunarPhase) {
-		throw new NotImplementedException("Lunar phase calculations uimplemented.");
-	}
+	public static DateOnly NextLunarPhase(this DateOnly date_in, RecurringEvent.LunarPhase lunarPhase) =>
+		throw new NotImplementedException("Lunar phase calculations unimplemented.");
+	public static DateOnly PreviousLunarPhase(this DateOnly date_in, RecurringEvent.LunarPhase lunarPhase) =>
+		throw new NotImplementedException("Lunar phase calculations unimplemented.");
 }

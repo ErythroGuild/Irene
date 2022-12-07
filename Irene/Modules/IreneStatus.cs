@@ -1,7 +1,7 @@
-﻿using System.Globalization; // CultureInfo
-using System.Timers; // ElapsedEventArgs
+﻿namespace Irene.Modules;
 
-namespace Irene.Modules;
+using System.Globalization; // CultureInfo
+using System.Timers; // ElapsedEventArgs
 
 class IreneStatus {
 	public record class Status {
@@ -39,6 +39,7 @@ class IreneStatus {
 			string.Join(_separator, Type, Description);
 	}
 
+
 	// --------
 	// Properties and fields:
 	// --------
@@ -47,7 +48,7 @@ class IreneStatus {
 	public static DateTimeOffset? NextRefresh { get; private set; } = null;
 
 	// Refresh variables determine when the status cycles itself.
-	private static LongTimer _timerRefresh;
+	private static readonly LongTimer _timerRefresh;
 	private static readonly TimeSpan
 		_refreshInterval = new (22,  0,  0),
 		_refreshVariance = new ( 2, 30,  0);
@@ -64,6 +65,8 @@ class IreneStatus {
 		CultureInfo.InvariantCulture;
 
 	static IreneStatus() {
+		CheckErythroInit();
+
 		Util.CreateIfMissing(_pathStatuses);
 		Util.CreateIfMissing(_pathCurrent);
 
@@ -77,12 +80,12 @@ class IreneStatus {
 		_ = InitializeCurrent();
 
 		// Ensure the status gets set again after reconnecting.
-		static Task connectHandler(DiscordClient client, ReadyEventArgs e) {
+		static Task connectHandler(DiscordClient c, ReadyEventArgs e) {
 			_ = Task.Run(InitializeCurrent);
 			return Task.CompletedTask;
 		}
-		Client.Ready += connectHandler;
-		Client.Resumed += connectHandler;
+		Erythro.Client.Ready += connectHandler;
+		Erythro.Client.Resumed += connectHandler;
 	}
 
 
@@ -211,8 +214,7 @@ class IreneStatus {
 		if (refresh is null || refresh < DateTimeOffset.Now)
 			refresh = DateTimeOffset.UtcNow + GetRandomInterval();
 
-		if (status is null)
-			status = await GetRandomStatus();
+		status ??= await GetRandomStatus();
 
 		await Set(status, refresh.Value);
 	}
@@ -227,17 +229,19 @@ class IreneStatus {
 	// Set a current status (including updating `IreneStatus` fields),
 	// and sets up the regular status changing rotation.
 	private static async Task Set(Status status, DateTimeOffset end) {
+		CheckErythroInit();
+
 		// Update saved file with changed current status.
 		CurrentStatus = status;
 		NextRefresh = end;
 		Task taskFile = WriteCurrentToFile();
 
 		// Set the connection status.
-		DiscordActivity activity = status.AsActivity(IsDebug);
-		UserStatus userStatus = IsDebug
+		DiscordActivity activity = status.AsActivity(Util.IsDebug);
+		UserStatus userStatus = Util.IsDebug
 			? UserStatus.DoNotDisturb
 			: UserStatus.Online;
-		Task taskDiscord = Client.UpdateStatusAsync(activity, userStatus);
+		Task taskDiscord = Erythro.Client.UpdateStatusAsync(activity, userStatus);
 
 		await Task.WhenAll(taskFile, taskDiscord);
 

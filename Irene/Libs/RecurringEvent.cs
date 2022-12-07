@@ -1,13 +1,8 @@
-﻿// Type aliases.
-using ArgExcept = System.ArgumentException;
-using ArgOORExcept = System.ArgumentOutOfRangeException;
-using InvalidOpExcept = System.InvalidOperationException;
+﻿namespace Irene;
 
-using BasisType = Irene.RecurringEvent.RecurBasis.BasisType;
-using RuleType = Irene.RecurringEvent.RecurBasis.RuleType;
-using RuleDirection = Irene.RecurringEvent.RecurBasis.RuleDirection;
-
-namespace Irene;
+using BasisType = RecurringEvent.RecurBasis.BasisType;
+using RuleType = RecurringEvent.RecurBasis.RuleType;
+using RuleDirection = RecurringEvent.RecurBasis.RuleDirection;
 
 class RecurringEvent {
 	// Types used as indices to define RecurBases.
@@ -18,15 +13,11 @@ class RecurringEvent {
 		// Construct a new DateOfYear, checking that values are valid.
 		// Feb. 29th is permitted as a value.
 		public DateOfYear(int month, int day) {
-			if (month is <1 or >12) {
-				throw new ArgOORExcept(nameof(month),
-					"Month for DateOfYear was invalid.");
-			}
+			if (month is <1 or >12)
+				throw new ArgumentOutOfRangeException(nameof(month), "Month for DateOfYear was invalid.");
 			int maxDays = _monthLengths[month];
-			if (day < 1 || day > maxDays) {
-				throw new ArgOORExcept(nameof(day),
-					"Day for DateOfYear was invalid.");
-			}
+			if (day < 1 || day > maxDays)
+				throw new ArgumentOutOfRangeException(nameof(day), "Day for DateOfYear was invalid.");
 
 			Month = month;
 			Day = day;
@@ -36,7 +27,7 @@ class RecurringEvent {
 			Day = date.Day;
 		}
 		private static readonly ReadOnlyDictionary<int, int> _monthLengths =
-			new (new ConcurrentDictionary<int, int>() {
+			new (new ConcurrentDictionary<int, int> {
 				[ 1] = 31, [ 2] = 29, [ 3] = 31,
 				[ 4] = 30, [ 5] = 31, [ 6] = 30,
 				[ 7] = 31, [ 8] = 31, [ 9] = 30,
@@ -94,22 +85,17 @@ class RecurringEvent {
 			RuleType.ClosestEnd =>
 				RuleDirection.Closest,
 			_ =>
-				throw new ArgExcept($"Unknown RuleType {Rule}.",
-					nameof(Rule)),
+				throw new UnclosedEnumException(typeof(RuleType), Rule),
 		};
 		public readonly object Index { get; init; }
 
 		public RecurBasis(BasisType basis, RuleType rule, object index) {
-			if (index.GetType() != _typeTable[basis]) {
-				throw new ArgExcept("Index was an invalid type for the BasisType.",
-					nameof(index));
-			}
+			if (index.GetType() != _typeTable[basis])
+				throw new ArgumentException("Index was an invalid type for the BasisType.", nameof(index));
 
 			if (_typeTable[basis] == typeof(int)) {
-				if ((int)index < 1) {
-					throw new ArgOORExcept(nameof(index),
-						"Index must be positive.");
-				}
+				if ((int)index < 1)
+					throw new ArgumentOutOfRangeException(nameof(index), "Index must be positive.");
 			}
 
 			Basis = basis;
@@ -117,7 +103,7 @@ class RecurringEvent {
 			Index = index;
 		}
 		private static readonly ReadOnlyDictionary<BasisType, Type> _typeTable =
-			new (new ConcurrentDictionary<BasisType, Type>() {
+			new (new ConcurrentDictionary<BasisType, Type> {
 				[BasisType.Days  ] = typeof(int),
 				[BasisType.Weeks ] = typeof(int),
 				[BasisType.Months] = typeof(int),
@@ -140,7 +126,7 @@ class RecurringEvent {
 			BasisType.DatesOfYear or
 			BasisType.LunarPhase =>
 				_periodTable[Basis],
-			_ => throw new InvalidOpExcept($"Unknown BasisType {Basis}."),
+			_ => throw new UnclosedEnumException(typeof(BasisType), Basis),
 		};
 		public int PeriodMinDays => Basis switch {
 			BasisType.Days or
@@ -152,10 +138,10 @@ class RecurringEvent {
 			BasisType.DatesOfYear or
 			BasisType.LunarPhase =>
 				0,
-			_ => throw new InvalidOpExcept($"Unknown BasisType {Basis}."),
+			_ => throw new UnclosedEnumException(typeof(BasisType), Basis),
 		};
 		private static readonly ReadOnlyDictionary<BasisType, int> _periodTable =
-			new (new ConcurrentDictionary<BasisType, int>() {
+			new (new ConcurrentDictionary<BasisType, int> {
 				[BasisType.Days  ] =   1,
 				[BasisType.Weeks ] =   7,
 				[BasisType.Months] =  31,
@@ -195,36 +181,32 @@ class RecurringEvent {
 			List<RecurBasis> bases = new (basesCollection);
 
 			// Check that the index is valid.
-			int list_size = bases.Count;
-			if (recurIndex < 0 || recurIndex > list_size) {
-				throw new ArgOORExcept(nameof(recurIndex),
+			int listSize = bases.Count;
+			if (recurIndex < 0 || recurIndex > listSize) {
+				throw new ArgumentOutOfRangeException(nameof(recurIndex),
 					"Basis index points outside the range of the RecurBases list.");
 			}
 
 			// Check that first basis is RuleType.Base.
 			// Previous condition actually guarantees that at least one
 			// basis exists, so there doesn't need to be a separate check.
-			if (bases[0].Rule != RuleType.Base) {
-				throw new ArgExcept("The first basis was not a Base rule.",
-					nameof(basesCollection));
-			}
+			if (bases[0].Rule != RuleType.Base)
+				throw new ArgumentException("The first basis was not a Base rule.", nameof(basesCollection));
 
 			// Check that the only basis with RuleType.Base is at 0.
-			int index_last_base = bases.FindLastIndex(
+			int indexLastBase = bases.FindLastIndex(
 				basis => basis.Rule == RuleType.Base
 			);
-			if (index_last_base != 0) {
-				throw new ArgExcept("There was more than one Base rule given.",
-					nameof(basesCollection));
-			}
+			if (indexLastBase != 0)
+				throw new ArgumentException("There was more than one Base rule given.", nameof(basesCollection));
 
 			// Calculate the longest possible recur cycle, and check that
 			// it is greater than zero (it always advances).
-			int days_cycle = 0;
-			int days_rule_prev = 0;
-			for (int i=0; i<list_size; i++) {
+			int daysCycle = 0;
+			int daysRulePrev = 0;
+			for (int i=0; i<listSize; i++) {
 				RecurBasis basis = bases[i];
-				int days_rule = basis.Rule switch {
+				int daysRule = basis.Rule switch {
 					RuleType.Base or
 					RuleType.AfterStart or
 					RuleType.ClosestStart or
@@ -235,25 +217,26 @@ class RecurringEvent {
 					RuleType.BeforeEnd =>
 						-basis.PeriodMinDays,
 					_ =>
-						throw new ArgExcept("Unrecognized RecurBasis RuleType.",
-							nameof(basesCollection)),
+						throw new UnclosedEnumException(typeof(RecurBasis), basis.Rule),
 				};
-				days_cycle += days_rule;
-				days_cycle -= basis.Rule switch {
+				daysCycle += daysRule;
+				daysCycle -= basis.Rule switch {
 					RuleType.BeforeStart or
 					RuleType.AfterStart or
 					RuleType.ClosestStart =>
-						days_rule_prev,
+						daysRulePrev,
 					_ => 0,
 				};
-				days_rule_prev = days_rule;
+				daysRulePrev = daysRule;
 			}
 
 			// Throw an exception if the given pattern can definitively be
 			// determined as invalid.
-			if (days_cycle <= 0) {
-				throw new ArgExcept("RecurPattern definition will always give earlier dates",
-					nameof(basesCollection));
+			if (daysCycle <= 0) {
+				throw new ArgumentException(
+					"RecurPattern definition will always give earlier dates",
+					nameof(basesCollection)
+				);
 			}
 
 			// Assign fields.
@@ -264,31 +247,31 @@ class RecurringEvent {
 
 		// Syntactic sugar for common RecurPattern definitions.
 		public static RecurPattern FromDaily(RecurTime time, int n=1) =>
-			new (time, 0, new List<RecurBasis>() {
+			new (time, 0, new List<RecurBasis> {
 				new (BasisType.Days, RuleType.Base, n)
 			});
 		public static RecurPattern FromWeekly(RecurTime time, DayOfWeek dayOfWeek, int n=1) =>
-			new (time, 0, new List<RecurBasis>() {
+			new (time, 0, new List<RecurBasis> {
 				new (BasisType.Weeks, RuleType.Base, n),
 				new (BasisType.DaysOfWeek, RuleType.AfterStart, dayOfWeek)
 			});
 		public static RecurPattern FromMonthly(RecurTime time, int day, int n=1) =>
-			new (time, 0, new List<RecurBasis>() {
+			new (time, 0, new List<RecurBasis> {
 				new (BasisType.Months, RuleType.Base, n),
 				new (BasisType.Days, RuleType.AfterStart, day)
 			});
 		public static RecurPattern FromAnnually(RecurTime time, int month, int day, int n=1) =>
-			new (time, 0, new List<RecurBasis>() {
+			new (time, 0, new List<RecurBasis> {
 				new (BasisType.Years, RuleType.Base, n),
 				new (BasisType.DatesOfYear, RuleType.AfterStart, new DateOfYear(month, day))
 			});
 		public static RecurPattern FromAnnually(RecurTime time, DateOnly date, int n=1) =>
-			new (time, 0, new List<RecurBasis>() {
+			new (time, 0, new List<RecurBasis> {
 				new (BasisType.Years, RuleType.Base, n),
 				new (BasisType.DatesOfYear, RuleType.AfterStart, new DateOfYear(date))
 			});
 		public static RecurPattern FromNthDayOfWeek(RecurTime time, int n, DayOfWeek dayOfWeek, int months=1) =>
-			new (time, 0, new List<RecurBasis>() {
+			new (time, 0, new List<RecurBasis> {
 				new (BasisType.Months, RuleType.Base, months),
 				new (BasisType.Weeks, RuleType.AfterStart, n),
 				new (BasisType.DaysOfWeek, RuleType.AfterStart, dayOfWeek)
@@ -315,19 +298,19 @@ class RecurringEvent {
 	public RecurResult Previous { get; private set; }
 	private RecurResult? CalculateNext { get {
 		// Calculate output dates.
-		RecurDateResult result_dates = NextDate(Previous.CycleDate, Pattern);
+		RecurDateResult resultDates = NextDate(Previous.CycleDate, Pattern);
 
 		// Convert to UTC DateTimeOffset.
-		DateTime result_dateTime =
-			result_dates.OutputDate.ToDateTime(Pattern.TimeOnly);
-		DateTimeOffset result_dateTimeOffset =
-			ToUtc(result_dateTime, Pattern.TimeZone);
+		DateTime resultDateTime =
+			resultDates.OutputDate.ToDateTime(Pattern.TimeOnly);
+		DateTimeOffset resultDateTimeOffset =
+			ToUtc(resultDateTime, Pattern.TimeZone);
 		RecurResult result =
-			new (result_dateTimeOffset, result_dates.CycleDate);
+			new (resultDateTimeOffset, resultDates.CycleDate);
 
 		// If the calculated output is not after the .Previous value,
 		// indicate an invalid result by returning null.
-		return (Previous.OutputDateTime >= result_dateTimeOffset)
+		return (Previous.OutputDateTime >= resultDateTimeOffset)
 			? null
 			: result;
 	} }
@@ -345,23 +328,23 @@ class RecurringEvent {
 	// Helper functions.
 	// Convert a DateTime to a regular DateTimeOffset (fixed with an
 	// offset of 0 for UTC).
-	private static DateTimeOffset ToUtc(DateTime dateTime, TimeZoneInfo timeZone) {
-		DateTime time_utc =
-			TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone);
-		return new DateTimeOffset(time_utc);
+	private static DateTimeOffset ToUtc(DateTime dateTime, TimeZoneInfo timezone) {
+		DateTime timeUtc =
+			TimeZoneInfo.ConvertTimeToUtc(dateTime, timezone);
+		return new DateTimeOffset(timeUtc);
 	}
 
 	// Returns the next DateOnly (not including the current date,
 	// even if the current date fits the defined RecurPattern.)
 	// Presumably starting from a prior cycle's end date.
-	private static RecurDateResult NextDate(DateOnly cycle_prev, RecurPattern pattern) {
-		int bases_count = pattern.Bases.Count;
-		DateOnly date_next = cycle_prev;
-		DateOnly date_cycle = cycle_prev;
-		DateOnly date_prev = cycle_prev;
+	private static RecurDateResult NextDate(DateOnly cyclePrev, RecurPattern pattern) {
+		int basesCount = pattern.Bases.Count;
+		DateOnly dateNext = cyclePrev;
+		DateOnly dateCycle = cyclePrev;
+		DateOnly datePrev = cyclePrev;
 
 		// Iterate through each rule in order.
-		for (int i=0; i<bases_count; i++) {
+		for (int i=0; i<basesCount; i++) {
 			RecurBasis basis = pattern.Bases[i];
 
 			// Dial back starting date if rule is based on last
@@ -370,12 +353,12 @@ class RecurringEvent {
 			case RuleType.BeforeStart:
 			case RuleType.AfterStart:
 			case RuleType.ClosestStart:
-				date_next = date_prev;
+				dateNext = datePrev;
 				break;
 			}
 
 			// Save starting position for next iteration.
-			date_prev = date_next;
+			datePrev = dateNext;
 
 			// Process each rule.
 			RuleDirection direction = basis.Direction;
@@ -384,42 +367,42 @@ class RecurringEvent {
 				int days = (int)basis.Index;
 				if (direction is RuleDirection.Before)
 					days *= -1;
-				date_next = date_next.AddDays(days);
+				dateNext = dateNext.AddDays(days);
 				break; }
 			case BasisType.Weeks: {
 				int days = 7 * (int)basis.Index;
 				if (direction is RuleDirection.Before)
 					days *= -1;
-				date_next = date_next.AddDays(days);
+				dateNext = dateNext.AddDays(days);
 				break; }
 			case BasisType.Months: {
 				int months = (int)basis.Index;
 				if (direction is RuleDirection.Before)
 					months *= -1;
-				date_next = date_next.AddMonths(months);
+				dateNext = dateNext.AddMonths(months);
 				break; }
 			case BasisType.Years: {
 				int years = (int)basis.Index;
 				if (direction is RuleDirection.Before)
 					years *= -1;
-				date_next = date_next.AddYears(years);
+				dateNext = dateNext.AddYears(years);
 				break; }
 			case BasisType.DaysOfWeek: {
 				DayOfWeek dayOfWeek = (DayOfWeek)basis.Index;
 				switch (direction) {
 				case RuleDirection.Before:
-					date_next = date_next.PreviousDayOfWeek(dayOfWeek);
+					dateNext = dateNext.PreviousDayOfWeek(dayOfWeek);
 					break;
 				case RuleDirection.After:
-					date_next = date_next.NextDayOfWeek(dayOfWeek);
+					dateNext = dateNext.NextDayOfWeek(dayOfWeek);
 					break;
 				case RuleDirection.Closest: {
-					DateOnly date_before =
-						date_next.PreviousDayOfWeek(dayOfWeek);
-					DateOnly date_after =
-						date_next.NextDayOfWeek(dayOfWeek);
-					date_next =
-						date_next.Closest(date_before, date_after);
+					DateOnly dateBefore =
+						dateNext.PreviousDayOfWeek(dayOfWeek);
+					DateOnly dateAfter =
+						dateNext.NextDayOfWeek(dayOfWeek);
+					dateNext =
+						dateNext.Closest(dateBefore, dateAfter);
 					break; }
 				}
 				break; }
@@ -429,18 +412,18 @@ class RecurringEvent {
 				int day = dateOfYear.Day;
 				switch (direction) {
 				case RuleDirection.Before:
-					date_next = date_next.PreviousDateOfYear(month, day);
+					dateNext = dateNext.PreviousDateOfYear(month, day);
 					break;
 				case RuleDirection.After:
-					date_next = date_next.NextDateOfYear(month, day);
+					dateNext = dateNext.NextDateOfYear(month, day);
 					break;
 				case RuleDirection.Closest: {
-					DateOnly date_before =
-						date_next.PreviousDateOfYear(month, day);
-					DateOnly date_after =
-						date_next.NextDateOfYear(month, day);
-					date_next =
-						date_next.Closest(date_before, date_after);
+					DateOnly dateBefore =
+						dateNext.PreviousDateOfYear(month, day);
+					DateOnly dateAfter =
+						dateNext.NextDateOfYear(month, day);
+					dateNext =
+						dateNext.Closest(dateBefore, dateAfter);
 					break; }
 				}
 				break; }
@@ -448,18 +431,18 @@ class RecurringEvent {
 				LunarPhase lunarPhase = (LunarPhase)basis.Index;
 				switch (direction) {
 				case RuleDirection.Before:
-					date_next = date_next.PreviousLunarPhase(lunarPhase);
+					dateNext = dateNext.PreviousLunarPhase(lunarPhase);
 					break;
 				case RuleDirection.After:
-					date_next = date_next.NextLunarPhase(lunarPhase);
+					dateNext = dateNext.NextLunarPhase(lunarPhase);
 					break;
 				case RuleDirection.Closest:
-					DateOnly date_before =
-						date_next.PreviousLunarPhase(lunarPhase);
-					DateOnly date_after =
-						date_next.NextLunarPhase(lunarPhase);
-					date_next =
-						date_next.Closest(date_before, date_after);
+					DateOnly dateBefore =
+						dateNext.PreviousLunarPhase(lunarPhase);
+					DateOnly dateAfter =
+						dateNext.NextLunarPhase(lunarPhase);
+					dateNext =
+						dateNext.Closest(dateBefore, dateAfter);
 					break;
 				}
 				break; }
@@ -467,9 +450,9 @@ class RecurringEvent {
 
 			// Set cycle date once we reach the designated rule.
 			if (pattern.RecurIndex == i)
-				date_cycle = date_next;
+				dateCycle = dateNext;
 		}
 
-		return new RecurDateResult(date_next, date_cycle);
+		return new RecurDateResult(dateNext, dateCycle);
 	}
 }

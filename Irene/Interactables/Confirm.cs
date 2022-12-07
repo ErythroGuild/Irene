@@ -1,9 +1,8 @@
+namespace Irene.Interactables;
+
 using System.Timers;
 
-using ConfirmCallback = System.Func<bool, DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, System.Threading.Tasks.Task>;
-using Component = DSharpPlus.Entities.DiscordComponent;
-
-namespace Irene.Interactables;
+using ConfirmCallback = Func<bool, ComponentInteractionCreateEventArgs, Task>;
 
 class Confirm {
 	public const string
@@ -23,13 +22,14 @@ class Confirm {
 		_idButtonYes = "confirm_yes",
 		_idButtonNo  = "confirm_no" ;
 
-	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Confirm() {
-		Client.ComponentInteractionCreated += (client, e) => {
+		CheckErythroInit();
+
+		Erythro.Client.ComponentInteractionCreated += (c, e) => {
 			_ = Task.Run(async () => {
 				ulong id = e.Message.Id;
 
@@ -37,7 +37,7 @@ class Confirm {
 				// registered message, and created by the corresponding
 				// component.
 				if (_confirms.ContainsKey(id)) {
-					await e.Interaction.AcknowledgeComponentAsync();
+					await e.Interaction.DeferAsync();
 					e.Handled = true;
 					Confirm confirm = _confirms[id];
 
@@ -64,7 +64,7 @@ class Confirm {
 	private readonly ConfirmCallback _callback;
 	private readonly string _stringYes, _stringNo;
 	private DiscordMessage? _message;
-	private readonly DiscordInteraction _interaction;
+	private readonly Interaction _interaction;
 	private readonly Timer _timer;
 	private bool _isConfirmed;
 
@@ -75,7 +75,7 @@ class Confirm {
 		ConfirmCallback callback,
 		string? string_yes,
 		string? string_no,
-		DiscordInteraction interaction,
+		Interaction interaction,
 		Timer timer
 	) {
 		WebhookBuilder = webhookBuilder;
@@ -108,7 +108,7 @@ class Confirm {
 		// Update message to disable component.
 		// Interaction responses behave as webhooks and need to be
 		// constructed as such.
-		_message = await _interaction.GetOriginalResponseAsync();
+		_message = await _interaction.GetResponseAsync();
 		string string_result = _isConfirmed
 			? _stringYes
 			: _stringNo;
@@ -120,11 +120,11 @@ class Confirm {
 		// This must be done through the original interaction, as
 		// responses to interactions don't actually "exist" as real
 		// messages.
-		await _interaction.EditOriginalResponseAsync(message_new);
+		await _interaction.EditResponseAsync(message_new);
 	}
 
 	public static Confirm Create(
-		DiscordInteraction interaction,
+		Interaction interaction,
 		ConfirmCallback callback,
 		Task<DiscordMessage> messageTask,
 		string? string_prompt=null,
@@ -156,10 +156,10 @@ class Confirm {
 			_confirms.TryAdd(message.Id, confirm);
 			confirm._timer.Start();
 		});
-		timer.Elapsed += async (obj, e) => {
+		timer.Elapsed += async (t, e) => {
 			// Run (or schedule to run) cleanup task.
 			if (!messageTask.IsCompleted)
-				await messageTask.ContinueWith((e) => confirm.Cleanup());
+				await messageTask.ContinueWith(e => confirm.Cleanup());
 			else
 				await confirm.Cleanup();
 		};
@@ -169,14 +169,14 @@ class Confirm {
 	}
 
 	// Returns the buttons used to confirm/cancel the request.
-	private static Component[] GetButtons(string? label_yes, string? label_no) =>
-		new Component[] {
-			new DiscordButtonComponent(
+	private static DiscordComponent[] GetButtons(string? label_yes, string? label_no) =>
+		new DiscordComponent[] {
+			new DiscordButton(
 				ButtonStyle.Secondary,
 				_idButtonNo,
 				label_no ?? DefaultLabelNo
 			),
-			new DiscordButtonComponent(
+			new DiscordButton(
 				ButtonStyle.Danger,
 				_idButtonYes,
 				label_yes ?? DefaultLabelYes

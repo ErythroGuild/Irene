@@ -1,13 +1,12 @@
-﻿using System.Timers;
+﻿namespace Irene;
 
-namespace Irene;
+using System.Timers;
 
 // An extended timer class based on `DateTimeOffset`.
 // An inner `System.Timers.Timer` loops at max interval length, until
 // the remaining interval is small enough to be within the inner timer's
 // capacity.
 class LongTimer : IDisposable {
-
 	// --------
 	// Properties, fields, and constants:
 	// --------
@@ -73,15 +72,12 @@ class LongTimer : IDisposable {
 	public void Enable() => IsEnabled = true;
 	public void Disable() => IsEnabled = false;
 
-	public void SetAndEnable(DateTimeOffset end) {
+	public void SetAndEnable(DateTimeOffset end) =>
 		Initialize(end - DateTimeOffset.UtcNow, end, false);
-	}
-	public void SetAndEnable(TimeSpan interval, bool autoReset=false) {
+	public void SetAndEnable(TimeSpan interval, bool autoReset=false) =>
 		Initialize(interval, DateTimeOffset.UtcNow + interval, autoReset);
-	}
-	public void SetAndEnable(TimeSpan interval, DateTimeOffset end, bool autoReset=false) {
+	public void SetAndEnable(TimeSpan interval, DateTimeOffset end, bool autoReset=false) =>
 		Initialize(interval, end, autoReset);
-	}
 
 
 	// --------

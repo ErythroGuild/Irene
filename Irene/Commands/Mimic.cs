@@ -1,54 +1,52 @@
-﻿using Module = Irene.Modules.Mimic;
+﻿namespace Irene.Commands;
 
-namespace Irene.Commands;
+using Module = Modules.Mimic;
 
 class Mimic : CommandHandler {
 	public const string
-		Command_Mimic = "mimic",
-		Arg_Language = "language",
-		Arg_Text = "text";
-	public const int Length_Max = 800;
-
-	public Mimic(GuildData erythro) : base (erythro) { }
+		CommandMimic = "mimic",
+		ArgLanguage = "language",
+		ArgText = "text";
+	public const int LengthMax = 800;
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_Mimic)} `<{Arg_Language}> <{Arg_Text}>` obfuscates the input text.
-		    This isn't a translator; it just uses the same words as in-game.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandMimic)} `<{ArgLanguage}> <{ArgText}>` obfuscates the input text.
+		{_t}This isn't a translator; it just uses the same words as in-game.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Mimic,
+			CommandMimic,
 			"Obfuscate the given input text.",
-			new List<CommandOption> {
+			AccessLevel.Guest,
+			new List<DiscordCommandOption> {
 				new (
-					Arg_Language,
+					ArgLanguage,
 					"The language to mimic.",
-					ApplicationCommandOptionType.String,
+					ArgType.String,
 					required: true,
 					autocomplete: true
 				),
 				new (
-					Arg_Text,
+					ArgText,
 					"The text to obfuscate.",
-					ApplicationCommandOptionType.String,
+					ArgType.String,
 					required: true,
-					maxLength: Length_Max
+					maxLength: LengthMax
 				),
-			},
-			Permissions.SendMessages
+			}
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, Func<Interaction, object, IDictionary<string, object>, Task>> {
-			[Arg_Language] = AutocompleteAsync,
+		new Dictionary<string, Autocompleter> {
+			[ArgLanguage] = AutocompleteAsync,
 		}
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
-		string language = (string)args[Arg_Language];
-		string text = (string)args[Arg_Text];
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
+		string language = (string)args[ArgLanguage];
+		string text = (string)args[ArgText];
 
 		string translated = Module.Translate(language, text);
 		translated =
@@ -56,12 +54,10 @@ class Mimic : CommandHandler {
 			**{language}:**
 			{translated}
 			""";
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(translated);
-		interaction.SetResponseSummary(translated);
+		await interaction.RegisterAndRespondAsync(translated);
 	}
 
-	public async Task AutocompleteAsync(Interaction interaction, object arg, IDictionary<string, object> args) {
+	public async Task AutocompleteAsync(Interaction interaction, object arg, ParsedArgs args) {
 		string input = (string)arg;
 		List<(string, string)> options = Module.AutocompleteLanguage(input);
 		await interaction.AutocompleteAsync(options);

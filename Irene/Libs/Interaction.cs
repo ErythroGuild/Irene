@@ -1,18 +1,22 @@
 ﻿namespace Irene;
 
+using System.Diagnostics;
+
+using DiscordArg = DiscordInteractionDataOption;
+
 // A wrapper class for DiscordInteraction that also handles some related
 // functionality (e.g. timers).
 class Interaction {
-	// --------
-	// Properties, constructors, and basic access methods:
-	// --------
-
 	// List of allowed events to register time points at.
 	// These aren't required, e.g., none may be registered.
 	public enum Events {
 		InitialResponse,
 		FinalResponse,
 	}
+
+	// --------
+	// Properties, constructors, and basic access methods:
+	// --------
 
 	// Properties with backing fields.
 	public DateTimeOffset TimeReceived { get; }
@@ -23,7 +27,7 @@ class Interaction {
 
 	// Private properties.
 	private Stopwatch Timer { get; }
-	private ConcurrentDictionary<Events, TimeSpan> TimeOffsets { get; } = new ();
+	private ConcurrentDictionary<Events, TimeSpan> EventDurations { get; } = new ();
 
 	// Calculated properties.
 	// These are provided as syntax sugar for common properties.
@@ -48,19 +52,18 @@ class Interaction {
 
 	// Public factory constructors.
 	// These cannot be instance methods because some processing needs
-	// to be done before calling the actual constructor, and that isn't
-	// allowed in C#.
+	// to be done before calling the actual constructor.
 	// The alternative would be a shared Init() method, which is still
 	// clunkier than just using factory methods.
 	public static Interaction FromCommand(InteractionCreateEventArgs e) =>
 		new (e.Interaction);
 	public static Interaction FromContextMenu(ContextMenuInteractionCreateEventArgs e) =>
 		e.Type switch {
-			ApplicationCommandType.MessageContextMenu =>
+			CommandType.MessageContextMenu =>
 				new (e.Interaction, targetMessage: e.TargetMessage),
-			ApplicationCommandType.UserContextMenu =>
+			CommandType.UserContextMenu =>
 				new (e.Interaction, targetUser: e.TargetUser),
-			_ => throw new ArgumentException("Event args must be a context menu interaction.", nameof(e)),
+			_ => throw new UnclosedEnumException(typeof(CommandType), e.Type),
 		};
 	public static Interaction FromModal(ModalSubmitEventArgs e) =>
 		new (e.Interaction);
@@ -69,33 +72,102 @@ class Interaction {
 
 	// Methods relating to event time points.
 	// RegisterEvent() overwrites any current events of that type.
-	public void RegisterEvent(Events id) {
-		TimeOffsets[id] = Timer.Elapsed;
-	}
+	public void RegisterEvent(Events id) =>
+		EventDurations[id] = Timer.Elapsed;
 	public TimeSpan? GetEventDuration(Events id) =>
-		TimeOffsets.ContainsKey(id)
-			? TimeOffsets[id]
+		EventDurations.ContainsKey(id)
+			? EventDurations[id]
 			: null;
 	public DateTimeOffset? GetEventTime(Events id) =>
-		TimeOffsets.ContainsKey(id)
-			? (TimeReceived + TimeOffsets[id])
+		EventDurations.ContainsKey(id)
+			? (TimeReceived + EventDurations[id])
 			: null;
 
-	public void RegisterInitialResponse() => RegisterEvent(Events.FinalResponse);
+	public void RegisterInitialResponse() => RegisterEvent(Events.InitialResponse);
 	public void RegisterFinalResponse() => RegisterEvent(Events.FinalResponse);
 
 	// Methods relating to response summaries.
-	public void SetResponseSummary(string summary) {
+	public void SetResponseSummary(string summary) =>
 		ResponseSummary = summary;
-	}
-	public void ClearResponseSummary() {
+	public void ClearResponseSummary() =>
 		ResponseSummary = null;
+
+	// Convenience method for logging all the aggregated data for this
+	// interaction.
+	public void LogResponseData() {
+		Log.Information(
+			"Command processed:{FlagDM} /{CommandName}",
+			Object.Channel.IsPrivate ? " [DM]" : "",
+			Name
+		);
+		Log.Debug(
+			"  Received: {TimestampReceived:HH:mm:ss.fff}",
+			TimeReceived.ToLocalTime()
+		);
+
+		double? GetDurationMsec(Events eventType) =>
+			GetEventDuration(eventType)
+				?.TotalMilliseconds
+				?? null;
+		double? initialResponse = GetDurationMsec(Events.InitialResponse);
+		if (initialResponse is not null) {
+			Log.Debug(
+				"  Initial response - {DurationInitial,6:F2} msec",
+				initialResponse
+			);
+		}
+		double? finalResponse = GetDurationMsec(Events.FinalResponse);
+		if (finalResponse is not null) {
+			Log.Debug(
+				"  Final response   - {DurationFinal,6:F2} msec",
+				finalResponse
+			);
+		}
+
+		if (ResponseSummary is not null) {
+			Log.Debug("  Response summary:");
+			string[] lines = ResponseSummary.Split("\n");
+			foreach (string line in lines)
+				Log.Debug("    {ResponseLine}", line);
+		}
 	}
-
-
+	
+	
 	// --------
 	// Convenience methods for responding to interactions:
 	// --------
+
+	// Convenience methods for responding to a command, and registering
+	// a final response at the same time.
+	public Task RegisterAndRespondAsync(
+		string message,
+		bool isEphemeral=false
+	) =>
+		RegisterAndRespondAsync(message, message, isEphemeral);
+	public async Task RegisterAndRespondAsync(
+		string message,
+		string summary,
+		bool isEphemeral = false
+	) {
+		RegisterFinalResponse();
+		await RespondCommandAsync(message, isEphemeral);
+		SetResponseSummary(summary);
+	}
+	public async Task RegisterAndRespondAsync(
+		DiscordMessageBuilder message,
+		string summary,
+		bool isEphemeral=false
+	) {
+		RegisterFinalResponse();
+		await RespondCommandAsync(message, isEphemeral);
+		SetResponseSummary(summary);
+	}
+	// Convenience method for deferring a command, and registering an
+	// initial response at the same time.
+	public async Task RegisterAndDeferAsync(bool isEphemeral=false) {
+		RegisterInitialResponse();
+		await DeferCommandAsync(isEphemeral);
+	}
 
 	// Responses to autocomplete interactions:
 	public Task AutocompleteAsync(IList<(string, string)> choices) =>
@@ -121,7 +193,7 @@ class Interaction {
 	}
 
 	// Responses to command interactions:
-	public Task RespondCommandAsync(string message, bool isEphemeral = false) {
+	public Task RespondCommandAsync(string message, bool isEphemeral=false) {
 		DiscordMessageBuilder messageBuilder =
 			new DiscordMessageBuilder()
 			.WithContent(message);
@@ -134,11 +206,7 @@ class Interaction {
 				.AsEphemeral(isEphemeral)
 		);
 	public Task DeferCommandAsync(bool isEphemeral=false) =>
-		Object.CreateResponseAsync(
-			InteractionResponseType.DeferredChannelMessageWithSource,
-			new DiscordInteractionResponseBuilder()
-				.AsEphemeral(isEphemeral)
-		);
+		Object.DeferAsync(isEphemeral);
 
 	// Responses to component interactions:
 	public Task UpdateComponentAsync(DiscordMessageBuilder message) =>
@@ -173,30 +241,30 @@ class Interaction {
 	// --------
 
 	// Data relating to command args.
-	public static IList<DiscordInteractionDataOption> GetArgs(Interaction interaction) =>
+	public static IList<DiscordArg> GetArgs(Interaction interaction) =>
 		GetArgs(interaction.Data);
-	public static IList<DiscordInteractionDataOption> GetArgs(DiscordInteractionData data) =>
+	public static IList<DiscordArg> GetArgs(DiscordInteractionData data) =>
 		(data.Options is not null)
-			? new List<DiscordInteractionDataOption>(data.Options)
-			: new List<DiscordInteractionDataOption>();
-	public static IList<DiscordInteractionDataOption> GetArgs(DiscordInteractionDataOption subcommand) =>
+			? new List<DiscordArg>(data.Options)
+			: new List<DiscordArg>();
+	public static IList<DiscordArg> GetArgs(DiscordArg subcommand) =>
 		(subcommand.Options is not null)
-			? new List<DiscordInteractionDataOption>(subcommand.Options)
-			: new List<DiscordInteractionDataOption>();
+			? new List<DiscordArg>(subcommand.Options)
+			: new List<DiscordArg>();
 
-	public static IDictionary<string, object> UnpackArgs(Interaction interaction) =>
+	public static ParsedArgs UnpackArgs(Interaction interaction) =>
 		UnpackArgs(GetArgs(interaction));
-	public static IDictionary<string, object> UnpackArgs(IList<DiscordInteractionDataOption> args) {
+	public static ParsedArgs UnpackArgs(IList<DiscordArg> args) {
 		Dictionary<string, object> table = new ();
-		foreach (DiscordInteractionDataOption arg in args)
+		foreach (DiscordArg arg in args)
 			table.Add(arg.Name, arg.Value);
 		return table;
 	}
 
-	public static DiscordInteractionDataOption? GetFocusedArg(Interaction interaction) =>
+	public static DiscordArg? GetFocusedArg(Interaction interaction) =>
 		GetFocusedArg(GetArgs(interaction));
-	public static DiscordInteractionDataOption? GetFocusedArg(IList<DiscordInteractionDataOption> args) {
-		foreach (DiscordInteractionDataOption arg in args) {
+	public static DiscordArg? GetFocusedArg(IList<DiscordArg> args) {
+		foreach (DiscordArg arg in args) {
 			if (arg.Focused)
 				return arg;
 		}
@@ -206,13 +274,13 @@ class Interaction {
 	// Data relating to modals.
 	public IReadOnlyDictionary<string, DiscordComponent> GetModalData() { 
 		Dictionary<string, DiscordComponent> components = new ();
-		foreach (DiscordActionRowComponent row in Data.Components) {
+		foreach (DiscordComponentRow row in Data.Components) {
 			foreach (DiscordComponent component in row.Components) {
 				if (component.Type is ComponentType.FormInput)
 					components.Add(component.CustomId, component);
 			}
 		}
-		return new ReadOnlyDictionary<string, DiscordComponent>(components);
+		return new Dictionary<string, DiscordComponent>(components);
 	}
 
 	// Resolved data.

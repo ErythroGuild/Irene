@@ -1,69 +1,69 @@
-using Module = Irene.Modules.Cap;
-
 namespace Irene.Commands;
+
+using Module = Modules.Cap;
 
 class Cap : CommandHandler {
 	public const string
-		Command_Cap  = "cap",
-		Arg_Resource = "resource";
+		CommandCap  = "cap",
+		ArgResource = "resource";
 	public const string
-		Label_Valor    = "Valor",
-		Label_Conquest = "Conquest",
-		Label_Renown   = "Renown",
-		Label_Torghast = "Tower Knowledge";
+		LabelValor    = "Valor",
+		LabelConquest = "Conquest",
+		LabelRenown   = "Covenant Renown",
+		LabelTorghast = "Tower Knowledge";
 	public const string
-		Option_Valor    = "valor",
-		Option_Conquest = "conquest",
-		Option_Renown   = "renown",
-		Option_Torghast = "tower-knowledge";
-
-	public Cap(GuildData erythro) : base (erythro) { }
+		OptionValor    = "valor",
+		OptionConquest = "conquest",
+		OptionRenown   = "renown",
+		OptionTorghast = "tower-knowledge";
 
 	public override string HelpText =>
 		$"""
-		{Command.Mention(Command_Cap)} `<{Arg_Resource}>` displays the current cap of the resource (e.g. valor).
+		{RankIcon(AccessLevel.None)}{Mention(CommandCap)} `<{ArgResource}>` displays the current cap of the resource (e.g. valor).
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
-			Command_Cap,
+			CommandCap,
 			"Display the current cap of a resource.",
-			new List<CommandOption> { new (
-				Arg_Resource,
+			AccessLevel.None,
+			new List<DiscordCommandOption> { new (
+				ArgResource,
 				"The type of resource to display.",
-				ApplicationCommandOptionType.String,
+				ArgType.String,
 				required: true,
-				new List<CommandOptionEnum> {
-					new (Label_Valor   , Option_Valor	),
-					new (Label_Conquest, Option_Conquest),
-					new (Label_Renown  , Option_Renown  ),
-					new (Label_Torghast, Option_Torghast),
+				new List<DiscordCommandOptionEnum> {
+					new (LabelValor   , OptionValor	),
+					new (LabelConquest, OptionConquest),
+					new (LabelRenown  , OptionRenown  ),
+					new (LabelTorghast, OptionTorghast),
 				}
-			) },
-			Permissions.None
+			) }
 		),
-		ApplicationCommandType.SlashCommand,
+		CommandType.SlashCommand,
 		RespondAsync
 	);
 
-	public async Task RespondAsync(Interaction interaction, IDictionary<string, object> args) {
-		string id = (string)args[Arg_Resource];
+	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
+		string id = (string)args[ArgResource];
 		Func<DateTimeOffset, Module.HideableString> calculator =
 			id switch {
-				Option_Valor    => Module.DisplayValor,
-				Option_Conquest => Module.DisplayConquest,
-				Option_Renown   => Module.DisplayRenown,
-				Option_Torghast => Module.DisplayTorghast,
-				_ => throw new ArgumentException("Unrecognized resource type.", nameof(args)),
+				OptionValor    => Module.DisplayValor,
+				OptionConquest => Module.DisplayConquest,
+				OptionRenown   => Module.DisplayRenown,
+				OptionTorghast => Module.DisplayTorghast,
+				_ => throw new ImpossibleArgException(ArgResource, id),
 			};
 
 		DateTimeOffset now = DateTimeOffset.Now;
 		Module.HideableString message = calculator(now);
-		interaction.RegisterFinalResponse();
-		await interaction.RespondCommandAsync(
+
+		AccessLevel accessLevel = await Modules.Rank.GetRank(interaction.User);
+		bool isPrivate = accessLevel == AccessLevel.None;
+
+		await interaction.RegisterAndRespondAsync(
 			message.String,
-			message.IsEphemeral
+			message.IsEphemeral || isPrivate
 		);
-		interaction.SetResponseSummary(message.String);
 	}
 }
