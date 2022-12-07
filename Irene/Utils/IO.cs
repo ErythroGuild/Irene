@@ -1,4 +1,4 @@
-﻿namespace Irene.Utils;
+namespace Irene.Utils;
 
 using System.Text.RegularExpressions;
 
@@ -85,14 +85,14 @@ static partial class Util {
 					channels.Add(channel.Name, channel);
 			}
 
-			MatchEvaluator FindChannel = new ((match) => {
-				string name = match.Captures[1].Value;
+			MatchEvaluator FindChannel = new (match => {
+				string name = match.Groups[1].Value;
 				return channels.ContainsKey(name)
 					? channels[name].Mention
 					: match.Value;
 			});
 
-			Regex.Replace(output, @"#([^#\s]+)", FindChannel);
+			output = Regex.Replace(output, @"#([^#\s]+)", FindChannel);
 		}
 		
 		if (renderRoles) {
@@ -102,14 +102,14 @@ static partial class Util {
 
 			// This will not mention any roles with spaces in the name,
 			// since the regex won't even match it as a candidate.
-			MatchEvaluator FindRole = new ((match) => {
-				string name = match.Captures[1].Value;
+			MatchEvaluator FindRole = new (match => {
+				string name = match.Groups[1].Value;
 				return roles.ContainsKey(name)
 					? roles[name].Mention
 					: match.Value;
 			});
 
-			Regex.Replace(output, @"@([^@\s]+)", FindRole);
+			output = Regex.Replace(output, @"@([^@\s]+)", FindRole);
 		}
 
 		if (renderEmojis) {
