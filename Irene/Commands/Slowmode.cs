@@ -132,7 +132,7 @@ class Slowmode : CommandHandler {
 	//private static readonly ConcurrentDictionary<ulong, Data> _channelTimers = new ();
 
 	//private static readonly ReadOnlyDictionary<string, TimeSpan> _tableTimes =
-	//	new (new ConcurrentDictionary<string, TimeSpan>() {
+	//	new (new ConcurrentDictionary<string, TimeSpan> {
 	//		[_time15sec] = TimeSpan.FromSeconds(15),
 	//		[_time1min ] = TimeSpan.FromMinutes(1),
 	//		[_time2min ] = TimeSpan.FromMinutes(2),

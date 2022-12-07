@@ -14,7 +14,7 @@ class Raid {
 	//private static readonly ConcurrentDictionary<ulong, Confirm> _confirms = new ();
 
 	//private static readonly ReadOnlyCollection<string> _dateExamples =
-	//	new (new List<string>() {
+	//	new (new List<string> {
 	//		"today",
 	//		"yesterday",
 	//		"tomorrow",

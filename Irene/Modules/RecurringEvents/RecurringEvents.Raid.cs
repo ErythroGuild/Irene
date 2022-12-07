@@ -430,7 +430,7 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string announcement = new List<string>() {
+		string announcement = new List<string> {
 			$"{Erythro.Role(id_r.raidOfficer).Mention} -",
 			$"{_t}Reminder to set logs for tonight. :ok_hand: :card_box:",
 			$"{_t}`/raid set-logs`",
@@ -450,7 +450,7 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string announcement = new List<string>() {
+		string announcement = new List<string> {
 			$"{Erythro.Role(id_r.raidOfficer).Mention} -",
 			$"{_t}Raid break soon. :slight_smile: :tropical_drink:",
 		}.ToLines();
@@ -502,7 +502,7 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string announcement = new List<string>() {
+		string announcement = new List<string> {
 			$"{Erythro.Role(id_r.raidOfficer).Mention} -",
 			$"{_t}Decide on the raid plans for next week (if you haven't already). :ok_hand:",
 			$"{_t}`/raid set-plan`",
@@ -522,7 +522,7 @@ static partial class RecurringEvents {
 		}
 
 		// Send reminder.
-		string announcement = new List<string>() {
+		string announcement = new List<string> {
 			$"{Erythro.Role(id_r.recruiter).Mention} -",
 			$"{_t}Go over the 2-week+-trials this week (if there are any). :seedling:",
 			$"{_t}`/rank list-trials`",

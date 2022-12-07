@@ -26,7 +26,7 @@ static class ClassSpec {
 	// Conversion tables.
 	// `ConstBiMap` can't used here because the input isn't one-to-one.
 	private static readonly IReadOnlyDictionary<Class, IReadOnlyList<Spec>> _classSpecs =
-		new ConcurrentDictionary<Class, IReadOnlyList<Spec>>() {
+		new ConcurrentDictionary<Class, IReadOnlyList<Spec>> {
 			[Class.DK     ] = new List<Spec> { Spec.DK_Blood    , Spec.DK_Frost    , Spec.DK_Unholy      },
 			[Class.DH     ] = new List<Spec> { Spec.DH_Vengeance, Spec.DH_Havoc    },
 			[Class.Druid  ] = new List<Spec> { Spec.Druid_Bear  , Spec.Druid_Resto , Spec.Druid_Feral    , Spec.Druid_Balance },
@@ -48,7 +48,7 @@ static class ClassSpec {
 
 	// Parsing tables.
 	private static readonly IReadOnlyDictionary<Class, IReadOnlyList<string>> _dictClass =
-		new ConcurrentDictionary<Class, IReadOnlyList<string>>() {
+		new ConcurrentDictionary<Class, IReadOnlyList<string>> {
 			[Class.DK     ] = new List<string> { "death knight", "deathknight", "dk" },
 			[Class.DH     ] = new List<string> { "demon hunter", "demonhunter", "dh" },
 			[Class.Druid  ] = new List<string> { "druid", "drood" },
@@ -64,7 +64,7 @@ static class ClassSpec {
 			[Class.Warrior] = new List<string> { "warrior", "warr", "war" },
 		};
 	private static readonly IReadOnlyDictionary<Spec, IReadOnlyList<string>> _dictSpec =
-		new ConcurrentDictionary<Spec, IReadOnlyList<string>>() {
+		new ConcurrentDictionary<Spec, IReadOnlyList<string>> {
 			[Spec.DK_Blood ] = new List<string> { "blood", "bdk" },
 			[Spec.DK_Frost ] = new List<string> { "frost" },
 			[Spec.DK_Unholy] = new List<string> { "unholy", "uh" },
@@ -112,9 +112,9 @@ static class ClassSpec {
 			[Spec.Warlock_Demo  ] = new List<string> { "demo", "demonology", "demolock" },
 			[Spec.Warlock_Destro] = new List<string> { "destro", "destruction", "destrolock" },
 
-			[Spec.Warrior_Prot] = new List<string>() { "protection", "prot" },
-			[Spec.Warrior_Arms] = new List<string>() { "arms" },
-			[Spec.Warrior_Fury] = new List<string>() { "fury" },
+			[Spec.Warrior_Prot] = new List<string> { "protection", "prot" },
+			[Spec.Warrior_Arms] = new List<string> { "arms" },
+			[Spec.Warrior_Fury] = new List<string> { "fury" },
 		};
 
 	// Initialize dictionary caches with redundant indices. (This improves

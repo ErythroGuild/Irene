@@ -27,7 +27,7 @@ class RecurringEvent {
 			Day = date.Day;
 		}
 		private static readonly ReadOnlyDictionary<int, int> _monthLengths =
-			new (new ConcurrentDictionary<int, int>() {
+			new (new ConcurrentDictionary<int, int> {
 				[ 1] = 31, [ 2] = 29, [ 3] = 31,
 				[ 4] = 30, [ 5] = 31, [ 6] = 30,
 				[ 7] = 31, [ 8] = 31, [ 9] = 30,
@@ -103,7 +103,7 @@ class RecurringEvent {
 			Index = index;
 		}
 		private static readonly ReadOnlyDictionary<BasisType, Type> _typeTable =
-			new (new ConcurrentDictionary<BasisType, Type>() {
+			new (new ConcurrentDictionary<BasisType, Type> {
 				[BasisType.Days  ] = typeof(int),
 				[BasisType.Weeks ] = typeof(int),
 				[BasisType.Months] = typeof(int),
@@ -141,7 +141,7 @@ class RecurringEvent {
 			_ => throw new UnclosedEnumException(typeof(BasisType), Basis),
 		};
 		private static readonly ReadOnlyDictionary<BasisType, int> _periodTable =
-			new (new ConcurrentDictionary<BasisType, int>() {
+			new (new ConcurrentDictionary<BasisType, int> {
 				[BasisType.Days  ] =   1,
 				[BasisType.Weeks ] =   7,
 				[BasisType.Months] =  31,

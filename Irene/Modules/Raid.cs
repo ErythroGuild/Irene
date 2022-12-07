@@ -93,7 +93,7 @@ class Raid {
 		}
 
 		private static readonly ReadOnlyCollection<string> _emojis =
-			new (new List<string>() {
+			new (new List<string> {
 				":dolphin:", ":whale:"   , ":fox:"        , ":squid:"   ,
 				":rabbit2:", ":bee:"     , ":butterfly:"  , ":owl:"     ,
 				":shark:"  , ":swan:"    , ":lady_beetle:", ":sloth:"   ,
