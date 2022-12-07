@@ -16,10 +16,10 @@ class Rank : CommandHandler {
 	public override string HelpText =>
 		$"""
 		{RankIcon(AccessLevel.Officer)}{Mention(Command_Rank)} `{Command_ListTrials}` lists all users who are trials.
-		    Trials are members with both "<Erythro>" and "Guest" roles.
+		{_t}Trials are members with both "<Erythro>" and "Guest" roles.
 		{RankIcon(AccessLevel.Officer)}{Mention(Command_Rank)} `{Command_Set} <{Arg_User}>` sets the user's rank.
 		{RankIcon(AccessLevel.Officer)}{Mention(Command_Rank)} `{Command_SetErythro} <{Arg_User}>` sets the user to a trial.
-		    This won't demote a user if they have a higher rank already.
+		{_t}This won't demote a user if they have a higher rank already.
 		""";
 
 	public override CommandTree CreateTree() => new (

@@ -12,10 +12,10 @@ class Help : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.None)}{Mention(CommandHelp)} lists help for *all* commands,
+		{RankIcon(AccessLevel.None)}{Mention(CommandHelp)} lists help for all commands,
 		{RankIcon(AccessLevel.None)}{Mention(CommandHelp)} `<{ArgCommand}>` displays the help for that command.
-		    {RankIcon(AccessLevel.None)}{RankIcon(AccessLevel.Guest)}{RankIcon(AccessLevel.Member)} indicate the permissions required.
-		    Arguments: `<required> [optional] [option A | option B]`
+		{_t}Required permissions for commands: {RankIcon(AccessLevel.Guest)}{RankIcon(AccessLevel.Member)}{RankIcon(AccessLevel.Officer)}
+		{_t}Arguments: `<required> [optional] [option A|option B]`
 		""";
 
 	public override CommandTree CreateTree() => new (

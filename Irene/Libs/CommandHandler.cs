@@ -20,6 +20,8 @@ abstract class CommandHandler {
 	// Syntax sugar for accessing rank emojis.
 	public static DiscordEmoji RankIcon(AccessLevel level) =>
 		Modules.Rank.Emoji(level);
+	// Syntax sugar for helptext. Roughly aligns with rank emoji.
+	protected const string _t = "\u2003\u2002"; // em space + en space
 
 	public abstract string HelpText { get; }
 	// `CreateTree()` should define the `CommandTree` of this command.

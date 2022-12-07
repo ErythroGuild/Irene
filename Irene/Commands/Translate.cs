@@ -17,8 +17,8 @@ class Translate : CommandHandler {
 	public override string HelpText =>
 		$"""
 		{RankIcon(AccessLevel.Guest)}{Mention(CommandTranslate)} `<{ArgText}> [{ArgSource}] [{ArgTarget}] [{ArgShare}]` translates the input text.
-		    Defaults to "Auto-Detect" + "English" + `false`.
-		    Translation powered by DeepL.
+		{_t}Defaults to "Auto-Detect" + "English" + `false`.
+		{_t}Translation powered by DeepL.
 		""";
 
 	public override CommandTree CreateTree() => new (

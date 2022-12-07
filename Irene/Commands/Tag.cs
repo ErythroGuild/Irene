@@ -19,13 +19,13 @@ class Tag : CommandHandler {
 		$"""
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandTag} {CommandList}")} lists all available tags,
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandTag} {CommandView}")} `<{ArgName}> <{ArgShare}>` displays a tag.
-		    Tag names are *not* case-sensitive, and ignore spaces.
+		{_t}Tag names are *not* case-sensitive, and ignore spaces.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandTag} {CommandSet}")} `<{ArgName}>` sets the contents of a personal tag,
 		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandTag} {CommandSetServer}")} `<{ArgName}>` sets the contents of a server tag.
-		    Tags you create are only usable by you.
-		    You can /suggest new server tags, or edits to current ones!
+		{_t}Tags you create are only usable by you.
+		{_t}You can /suggest new server tags, or edits to current ones!
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandTag} {CommandRemove}")} `<{ArgName}> [{ArgUser}]` removes a tag.
-		    Only officers can remove personal tags (with `[{ArgUser}]`).
+		{_t}Only officers can remove personal tags (with `[{ArgUser}]`).
 		""";
 
 	public override CommandTree CreateTree() => new (

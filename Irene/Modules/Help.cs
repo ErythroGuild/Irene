@@ -19,7 +19,11 @@ class Help {
 	// Returns the compiled list of help text for all available commands,
 	// paginated with interactable Pages.
 	public static List<string> GeneralHelp() {
-		const string flower = "\u273F";
+		const string
+			_h = "\u200B\u2003", // zero-width space + em space
+			_t = "\u2003\u2002", // em space + en space
+			_l = "\u296A",       // left harpoon above line
+			_r = "\u296C";       // right harpoon above line
 		IReadOnlyDictionary<string, CommandHandler> commands =
 			Dispatcher.Table;
 
@@ -27,118 +31,119 @@ class Help {
 
 		return new () {
 			$"""
+			{_h}{_l} **Help** {_r}
 			{HelpText(Commands.Help.CommandHelp)}
-			    *If you need any help, ask, or DM Ernie! :+1:*
+			{_t}*If you need any help, ask, or DM Ernie! :+1:*
 
-			{flower} **About** {flower}
+			{_h}{_l} **About** {_r}
 			{HelpText(Commands.About.CommandAbout)}
 
-			{flower} **Discord Servers** {flower}
+			{_h}{_l} **Discord Servers** {_r}
 			{HelpText(Commands.Invite.CommandInvite)}
 			{HelpText(Commands.ClassDiscord.CommandClassDiscord)}
 
-			{flower} **Suggestions** {flower}
+			{_h}{_l} **Suggestions** {_r}
 			{/*HelpText("suggest")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **Rank** {flower}
+			{_h}{_l} **Rank** {_r}
 			{/*HelpText("rank")*/ "[WIP]"}
 			
-			{flower} **Roles** {flower}
+			{_h}{_l} **Roles** {_r}
 			{HelpText(Commands.Roles.CommandRoles)}
 			
-			{flower} **Birthday** {flower}
+			{_h}{_l} **Birthday** {_r}
 			{/*HelpText("birthday")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **Keys** {flower}
+			{_h}{_l} **Keys** {_r}
 			{/*HelpText("keys")*/ "[WIP]"}
 			
-			{flower} **Raid** {flower}
+			{_h}{_l} **Raid** {_r}
 			{/*HelpText("raid")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **Roster** {flower}
+			{_h}{_l} **Roster** {_r}
 			{/*HelpText("roster")*/ "[WIP]"}
 
-			{flower} **Crafters** {flower}
+			{_h}{_l} **Crafters** {_r}
 			{/*HelpText("craft")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **Tags** {flower}
+			{_h}{_l} **Tags** {_r}
 			{HelpText(Commands.Tag.CommandTag)}
 			
-			{flower} **Farming Guides** {flower}
+			{_h}{_l} **Farming Guides** {_r}
 			{HelpText(Commands.Farm.CommandFarm)}
 
-			{flower} **M+ Routes** {flower}
+			{_h}{_l} **M+ Routes** {_r}
 			{/*HelpText("mdt")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **Raid Boss Guides** {flower}
+			{_h}{_l} **Raid Boss Guides** {_r}
 			{/*HelpText("boss-guide")*/ "[WIP]"}
 			
-			{flower} **Dungeon Guides** {flower}
+			{_h}{_l} **Dungeon Guides** {_r}
 			{/*HelpText("dungeon-guide")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **In-Game Data** {flower}
+			{_h}{_l} **In-Game Data** {_r}
 			{HelpText(Commands.Cap.CommandCap)}
 			{/*HelpText("emissaries")*/ "[WIP]"}
 			{/*HelpText("assaults")*/ "[WIP]"}
 			{HelpText(Commands.WowToken.CommandWowToken)}
 			
-			{flower} **Solvers** {flower}
+			{_h}{_l} **Solvers** {_r}
 			{/*HelpText("solve")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **Macros** {flower}
+			{_h}{_l} **Macros** {_r}
 			{/*HelpText("macro")*/ "[WIP]"}
 
-			{flower} **Tools** {flower}
+			{_h}{_l} **Tools** {_r}
 			{/*HelpText("remind-me")*/ "[WIP]"}
 			{/*HelpText("checklist")*/ "[WIP]"}
 			{HelpText(Commands.Translate.CommandTranslate)}
 			""",
 
 			$"""
-			{flower} **Awards** {flower}
+			{_h}{_l} **Awards** {_r}
 			{/*HelpText("commend")*/ "[WIP]"}
 			{HelpText(Commands.Starboard.CommandBestOf)}
 			{/*HelpText("cupcake")*/ "[WIP]"}
 
-			{flower} **Audit Logs** {flower}
+			{_h}{_l} **Audit Logs** {_r}
 			{/*HelpText("audit-log")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **Moderation** {flower}
+			{_h}{_l} **Moderation** {_r}
 			{/*HelpText("move-post")*/ "[WIP]"}
 			{/*HelpText("slowmode")*/ "[WIP]"}
 			{/*HelpText("change-subject")*/ "[WIP]"}
 			{/*HelpText("ban")*/ "[WIP]"}
 
-			{flower} **Community** {flower}
+			{_h}{_l} **Community** {_r}
 			{/*HelpText("poll")*/ "[WIP]"}
 			{/*HelpText("event")*/ "[WIP]"}
 			{/*HelpText("movie-night")*/ "[WIP]"}
 			""",
 
 			$"""
-			{flower} **Utilities** {flower}
+			{_h}{_l} **Utilities** {_r}
 			{HelpText(Commands.Roll.CommandRoll)}
 			{HelpText(Commands.Random.CommandRandom)}
 			{/*HelpText("aww")*/ "[WIP]"}
 			{HelpText(Commands.Mimic.CommandMimic)}
 
-			{flower} **Bot Status** {flower}
+			{_h}{_l} **Bot Status** {_r}
 			{HelpText(Commands.IreneStatus.CommandStatus)}
 			""",
 		};

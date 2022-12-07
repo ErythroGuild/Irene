@@ -22,7 +22,7 @@ class WowToken : CommandHandler {
 	public override string HelpText =>
 		$"""
 		{RankIcon(AccessLevel.Guest)}{Mention(CommandWowToken)} `[{ArgRegion}]` shows the latest token price.
-		    If no region is specified, defaults to US prices.
+		{_t}If no region is specified, defaults to US prices.
 		""";
 
 	public override CommandTree CreateTree() => new (

@@ -8,8 +8,8 @@ class Roles : CommandHandler {
 	public override string HelpText =>
 		$"""
 		{RankIcon(AccessLevel.None)}{Mention(CommandRoles)} shows all self-assignable roles.
-		    You can choose what you'd like to get pinged for.
-		    Reassign these at any time!
+		{_t}You can choose what you'd like to get pinged for.
+		{_t}Reassign these at any time!
 		""";
 
 	public override CommandTree CreateTree() => new (

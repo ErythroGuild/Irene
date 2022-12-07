@@ -19,8 +19,8 @@ class Solve : CommandHandler {
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandSolve} {CommandCantaric}")} shows how to solve a Cantaric Protolock.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandSolve} {CommandMezzonic}")} shows how to solve a Mezzonic Protolock.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandSolve} {CommandFugueal}")} shows how to solve a Fugueal Protolock.
-		    For the protolock solvers, you can screenshot with `Win`+`Shift`+`S`.
-		    You can then `Ctrl`+`V` directly into the `<{ArgScreenshot}>` box.
+		{_t}For the protolock solvers, you can screenshot with `Win`+`Shift`+`S`.
+		{_t}You can then `Ctrl`+`V` directly into the `<{ArgScreenshot}>` box.
 		""";
 
 	private static readonly List<DiscordCommandOption> _argScreenshot =

@@ -10,7 +10,7 @@ class Farm : CommandHandler {
 	public override string HelpText =>
 		$"""
 		{RankIcon(AccessLevel.Guest)}{Mention(CommandFarm)} `<{ArgMaterial}>` finds farming routes for the material.
-		    Data adapted from `wow-professions.com`.
+		{_t}Data adapted from `wow-professions.com`.
 		""";
 
 	public override CommandTree CreateTree() => new (

@@ -14,10 +14,8 @@ class Roll : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Guest)}{Mention(CommandRoll)} generates a number between `1` and `100`,
-		{RankIcon(AccessLevel.Guest)}{Mention(CommandRoll)} `<{ArgMax}>` generates a number between `1` and `{ArgMax}`,
-		{RankIcon(AccessLevel.Guest)}{Mention(CommandRoll)} `<{ArgMin}> <{ArgMax}>` generates a number between `{ArgMin}` and `{ArgMax}`.
-		    All ranges are inclusive, e.g. `[7, 23]`.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRoll)} `[{ArgMin}] [{ArgMax}]` generates a random number.
+		{_t}This works the same way as `/roll` does in-game.
 		""";
 
 	public override CommandTree CreateTree() => new (
@@ -73,11 +71,11 @@ class Random : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandNumber}")} functions the same as `/roll`.
+		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandNumber}")} is the same as `/roll`.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandCoin}")} displays the result of a coin flip.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandCard}")} draws a card from a standard deck.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {Command8Ball}")} `<{ArgQuestion}> [{ArgShare}]` forecasts the answer to a yes/no question.
-		    If `[{ArgShare}]` isn't specified, the response will be private.
+		{_t}If `[{ArgShare}]` isn't specified, the response will be private.
 		""";
 
 	public override CommandTree CreateTree() => new (
