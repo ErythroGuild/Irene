@@ -1,10 +1,10 @@
-﻿using System.Linq;
+﻿namespace Irene.Modules;
+
+using System.Linq;
 using System.Text.RegularExpressions;
 
-using TierBasisPair = System.Tuple<Irene.Modules.Raid.RaidTier?, System.DateOnly?>;
-using GroupDataPair = System.Collections.Generic.KeyValuePair<Irene.Modules.Raid.RaidGroup, Irene.Modules.Raid.RaidData>;
-
-namespace Irene.Modules;
+using TierBasisPair = Tuple<Raid.RaidTier?, DateOnly?>;
+using GroupDataPair = KeyValuePair<Raid.RaidGroup, Raid.RaidData>;
 
 class Raid {
 	public enum RaidTier {
@@ -145,16 +145,12 @@ class Raid {
 		_keyGroup     = "group",
 		_keyLogId     = "log-id";
 
-	public static void Init() { }
 	static Raid() {
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
 		// Make sure datafile exists.
-		Util.CreateIfMissing(_pathData, _lock);
+		Util.CreateIfMissing(_pathData);
 
 		Log.Information("  Initialized module: Raid");
 		Log.Debug("    Raid data file checked.");
-		stopwatch.LogMsecDebug("    Took {Time} msec.");
 	}
 
 	// Returns null if the link is ill-formed.
@@ -242,10 +238,12 @@ class Raid {
 	public string Hash => Date.Hash;
 	public string Emoji => Date.Emoji;
 	public string LogLinks { get {
+		CheckErythroInit();
+
 		DiscordEmoji
-			emoji_wipefest = Emojis![id_e.wipefest],
-			emoji_analyzer = Emojis![id_e.wowanalyzer],
-			emoji_logs = Emojis![id_e.warcraftlogs];
+			emoji_wipefest = Erythro.Emoji(id_e.wipefest),
+			emoji_analyzer = Erythro.Emoji(id_e.wowanalyzer),
+			emoji_logs = Erythro.Emoji(id_e.warcraftlogs);
 
 		List<string> lines = new ();
 		List<GroupDataPair> data = Data
@@ -386,7 +384,7 @@ class Raid {
 
 	// Syntax sugar to call the static methods.
 	public async Task UpdateAnnouncement() {
-		await AwaitGuildInitAsync();
+		CheckErythroInit();
 
 		// Exit early if required data isn't available.
 		if (MessageId is null) {
@@ -406,7 +404,7 @@ class Raid {
 			announcement += "\n" + LogLinks;
 
 		// Fetch the announcement message and edit it.
-		DiscordChannel announcements = Channels[id_ch.announce];
+		DiscordChannel announcements = Erythro.Channel(id_ch.announce);
 		DiscordMessage message = await
 			announcements.GetMessageAsync(MessageId.Value);
 		await message.ModifyAsync(announcement);
