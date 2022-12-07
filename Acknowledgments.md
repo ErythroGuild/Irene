@@ -5,15 +5,16 @@ particular order.
 
 ---
 
-**Amber**, for moral support, encouragement, and putting up with me ♥
+**Amber**, for moral support, encouragement, testing, and putting up
+with me ♥
 
-**Void**, **Slumbers**, and **Violet**, for testing the bot
+**Void**, **Violet**, **Slumbers**, and **Neko**, for testing the bot
 
 **Velvet**, **Lunar**, and the rest of **the D#+ discord server**,
 for help with library issues
 
-and **everyone in \<Erythro\>**, for testing, feedback, and putting
-up with all the random glitches during development
+and **everyone in \<Erythro\>**, for testing, feedback, and tolerating
+all the random glitches during development
 
 ---
 
