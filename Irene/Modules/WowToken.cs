@@ -16,7 +16,7 @@ class WowToken {
 		int PriceTrend
 	);
 
-	private static readonly HttpClient _client = new ();
+	private static readonly HttpClient _http = new ();
 
 	// Parsing configuration.
 	private const string _urlFeed = @"https://wowtokenprices.com/current_prices.json";
@@ -43,7 +43,7 @@ class WowToken {
 	// Returns null if prices could not be fetched.
 	public static async Task<DiscordEmbed?> DisplayPrices(Region region) {
 		// Fetch and parse data.
-		string json = await _client.GetStringAsync(_urlFeed);
+		string json = await _http.GetStringAsync(_urlFeed);
 		Data? data = ParseData(json, region);
 
 		// Return null if JSON parsing failed.
