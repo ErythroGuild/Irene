@@ -14,6 +14,7 @@ global using System.Threading.Tasks;
 // Libraries.
 global using DSharpPlus;
 global using DSharpPlus.Entities;
+global using DSharpPlus.EventArgs;
 global using Microsoft.Extensions.Logging;
 global using Serilog;
 

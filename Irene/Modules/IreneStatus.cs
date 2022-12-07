@@ -3,8 +3,6 @@
 using System.Globalization; // CultureInfo
 using System.Timers; // ElapsedEventArgs
 
-using DSharpPlus.EventArgs;
-
 class IreneStatus {
 	public record class Status {
 		public readonly ActivityType Type;

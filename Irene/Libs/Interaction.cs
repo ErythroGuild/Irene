@@ -2,8 +2,6 @@
 
 using System.Diagnostics;
 
-using DSharpPlus.EventArgs;
-
 using DiscordArg = DiscordInteractionDataOption;
 
 // A wrapper class for DiscordInteraction that also handles some related

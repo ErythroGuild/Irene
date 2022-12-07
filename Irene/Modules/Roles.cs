@@ -1,7 +1,5 @@
 namespace Irene.Modules;
 
-using DSharpPlus.EventArgs;
-
 using Irene.Interactables;
 
 using Option = Interactables.Selection.Option;
