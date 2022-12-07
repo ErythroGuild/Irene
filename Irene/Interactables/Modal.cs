@@ -1,21 +1,22 @@
-﻿using System.Timers;
+﻿namespace Irene.Interactables;
 
-using ModalCallback = System.Func<DSharpPlus.EventArgs.ModalSubmitEventArgs, System.Threading.Tasks.Task>;
+using System.Timers;
 
-namespace Irene.Interactables;
+using ModalCallback = Func<ModalSubmitEventArgs, Task>;
 
 class Modal {
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(20);
 
 	private static readonly ConcurrentDictionary<string, Modal> _modals = new ();
 
-	public static void Init() { }
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Modal() {
-		Client.ModalSubmitted += (client, e) => {
+		CheckErythroInit();
+
+		Erythro.Client.ModalSubmitted += (c, e) => {
 			_ = Task.Run(async () => {
 				string id = e.Interaction.Data.CustomId;
 				if (_modals.ContainsKey(id)) {
@@ -36,7 +37,7 @@ class Modal {
 	public static async Task<Modal> RespondAsync(
 		DiscordInteraction interaction,
 		string title,
-		IReadOnlyList<TextInputComponent> components,
+		IReadOnlyList<DiscordTextInput> components,
 		ModalCallback callback,
 		TimeSpan? timeout=null
 	) {
@@ -47,14 +48,14 @@ class Modal {
 			new DiscordInteractionResponseBuilder()
 			.WithTitle(title)
 			.WithCustomId(id);
-		foreach (TextInputComponent component in components)
+		foreach (DiscordTextInput component in components)
 			response = response.AddComponents(component);
 
 		// Setup timer.
 		timeout ??= DefaultTimeout;
 		Timer timer = Util.CreateTimer(timeout.Value, false);
 		timer.Elapsed +=
-			(t, e) => _modals.TryRemove(id, out _);
+			(_, _) => _modals.TryRemove(id, out _);
 
 		// Instantiate object.
 		Modal modal = new (timer, callback);

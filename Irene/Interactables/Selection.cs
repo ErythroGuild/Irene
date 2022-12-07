@@ -2,7 +2,7 @@ namespace Irene.Interactables;
 
 using System.Timers;
 
-using SelectionCallback = Func<DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs, Task>;
+using SelectionCallback = Func<ComponentInteractionCreateEventArgs, Task>;
 using ComponentCallback = Func<DiscordSelect, DiscordSelect>;
 
 class Selection {

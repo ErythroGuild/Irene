@@ -1,8 +1,6 @@
-using System.Timers;
-
-using Component = DSharpPlus.Entities.DiscordComponent;
-
 namespace Irene.Interactables;
+
+using System.Timers;
 
 class Pages {
 	public const int DefaultPageSize = 8;
@@ -28,7 +26,9 @@ class Pages {
 	// that each event has to filter through until it hits the correct
 	// handler.
 	static Pages() {
-		Client.ComponentInteractionCreated += (client, e) => {
+		CheckErythroInit();
+
+		Erythro.Client.ComponentInteractionCreated += (c, e) => {
 			_ = Task.Run(async () => {
 				ulong id = e.Message.Id;
 
@@ -115,7 +115,7 @@ class Pages {
 		timer.Elapsed += async (obj, e) => {
 			// Run (or schedule to run) cleanup task.
 			if (!messageTask.IsCompleted)
-				await messageTask.ContinueWith((e) => pages.Cleanup());
+				await messageTask.ContinueWith(e => pages.Cleanup());
 			else
 				await pages.Cleanup();
 		};
@@ -154,6 +154,7 @@ class Pages {
 	// Cleanup task to dispose of all resources.
 	// Assumes _message has been set; returns immediately if it hasn't.
 	private async Task Cleanup() {
+		CheckErythroInit();
 		if (_message is null)
 			return;
 
@@ -161,7 +162,7 @@ class Pages {
 		_pages.TryRemove(_message.Id, out _);
 
 		// Re-fetch message.
-		_message = await Util.RefetchMessage(_message);
+		_message = await Util.RefetchMessage(Erythro.Client, _message);
 
 		// Rebuild message as disabled.
 		await _interaction.EditResponseAsync(BuildWebhook(false));
@@ -190,23 +191,23 @@ class Pages {
 	}
 
 	// Returns a row of buttons for paginating the data.
-	private Component[] GetButtons(bool isEnabled=true) =>
+	private DiscordComponent[] GetButtons(bool isEnabled=true) =>
 		GetButtons(_page, _pageCount, isEnabled);
-	private static Component[] GetButtons(int page, int total, bool isEnabled=true) =>
-		new Component[] {
-			new DiscordButtonComponent(
+	private static DiscordComponent[] GetButtons(int page, int total, bool isEnabled=true) =>
+		new DiscordComponent[] {
+			new DiscordButton(
 				ButtonStyle.Secondary,
 				_idButtonPrev,
 				_labelPrev,
 				disabled: !isEnabled || (page + 1 == 1)
 			),
-			new DiscordButtonComponent(
+			new DiscordButton(
 				ButtonStyle.Secondary,
 				_idButtonPage,
 				$"{page + 1} / {total}",
 				disabled: !isEnabled
 			),
-			new DiscordButtonComponent(
+			new DiscordButton(
 				ButtonStyle.Secondary,
 				_idButtonNext,
 				_labelNext,
