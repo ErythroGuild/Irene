@@ -131,6 +131,28 @@ abstract class CommandHandler {
 			// Context menu commands always have one and only one leaf
 			// node, so only slash commands will use this constructor.
 		}
+		// Construct a tree for a context menu command.
+		public CommandTree(
+			string name,
+			AccessLevel accessLevel,
+			CommandType type,
+			ResponseHandler responseHandler,
+			AutocompleteHandlerTable? autocompleteHandlers=null
+		) {
+			autocompleteHandlers ??= new Dictionary<string, AutocompleteHandler>();
+			_tree = new RootTree(
+				accessLevel,
+				new (responseHandler, autocompleteHandlers)
+			);
+			// Discord developer docs say the description field should
+			// be an empty string, instead of just null.
+			Command = new (
+				name,
+				"",
+				new List<DiscordCommandOption>(),
+				type: type
+			);
+		}
 
 		public void UpdateRegisteredCommand(DiscordCommand command) =>
 			Command = command;

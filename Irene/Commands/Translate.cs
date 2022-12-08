@@ -112,12 +112,8 @@ class TranslateContext : CommandHandler {
 		""";
 
 	public override CommandTree CreateTree() => new (
-		new (
-			CommandTranslate,
-			"",
-			AccessLevel.Guest,
-			new List<DiscordCommandOption>()
-		),
+		CommandTranslate,
+		AccessLevel.Guest,
 		CommandType.MessageContextMenu,
 		TranslateAsync
 	);
