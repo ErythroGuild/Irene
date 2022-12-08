@@ -91,7 +91,10 @@ class Program {
 		Log.Information("Logging initialized (Serilog).");
 
 		// Set program-wide regex timeout.
-		AppDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", _timeoutRegex);
+		AppDomain.CurrentDomain.SetData(
+			"REGEX_DEFAULT_MATCH_TIMEOUT",
+			_timeoutRegex
+		);
 
 		// Parse authentication token from file.
 		// Throw if token is not found.
