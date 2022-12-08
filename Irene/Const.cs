@@ -115,11 +115,11 @@ static class Const {
 			public const ulong
 				erythro = 651475835387248660,
 
-				wooloo   = 588112288628604928,
-				cupcake  = 777925283499737138,
-				toxic    = 839929134326349825,
-				pooh     = 756560918208446514,
-				mrrogers = 777861300423884803,
+				wooloo   =  588112288628604928,
+				cupcake  =  777925283499737138,
+				toxic    =  839929134326349825,
+				pooh     = 1050218788613800038,
+				mrrogers =  777861300423884803,
 
 				// Erythro bear
 				eryLove = 860386122566991883,
@@ -187,6 +187,16 @@ static class Const {
 				kurog         = 1047021950758813786,
 				diurna        = 1047021965619232788,
 				raszageth     = 1047021981343690782,
+
+				// Sparkles
+				sparkleRed     = 1050217729552044083,
+				sparkleOrange  = 1050217716990083082,
+				sparkleYellow  = 1050217708723126303,
+				sparkleGreen   = 1050217692981895198,
+				sparkleCyan    = 1050217676158554112,
+				sparkleBlue    = 1050217667174334514,
+				sparklePurple  = 1050217657183506473,
+				sparkleFuschia = 1050217643480711310,
 
 				// Ranks
 				rankNone      = 1047313293087359037,
