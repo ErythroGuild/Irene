@@ -38,31 +38,31 @@ class Rank {
 			new (AccessLevel.Admin, new Option {
 				Label = "Admin",
 				Id = _optionRankAdmin,
-				Emoji = new ("\U0001F99A"), // :peacock:
+				Emoji = new (id_e.rankAdmin),
 				Description = "Guild Master.",
 			}),
 			new (AccessLevel.Officer, new Option {
 				Label = "Officer",
 				Id = _optionRankOfficer,
-				Emoji = new ("\U0001F426"), // :bird:
+				Emoji = new (id_e.rankOfficer),
 				Description = "Officer / moderator.",
 			}),
 			new (AccessLevel.Member, new Option {
 				Label = "Member",
 				Id = _optionRankMember,
-				Emoji = new ("\U0001F98B"), // :butterfly:
+				Emoji = new (id_e.rankMember),
 				Description = "Trusted member.",
 			}),
 			new (AccessLevel.Guest, new Option {
 				Label = "Guest",
 				Id = _optionRankGuest,
-				Emoji = new ("\U0001F41B"), // :bug:
+				Emoji = new (id_e.rankGuest),
 				Description = "Verified member.",
 			}),
 			new (AccessLevel.None, new Option {
 				Label = "No Rank",
 				Id = _optionRankNone,
-				Emoji = new ("\U0001F401"), // :mouse2:
+				Emoji = new (id_e.rankNone),
 				Description = "No rank assigned.",
 			}),
 		};
