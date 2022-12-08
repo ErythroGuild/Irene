@@ -1,4 +1,4 @@
-namespace Irene.Utils;
+﻿namespace Irene.Utils;
 
 using System.Text.RegularExpressions;
 
@@ -112,23 +112,47 @@ static partial class Util {
 			output = Regex.Replace(output, @"@([^@\s]+)", FindRole);
 		}
 
+		// Rendering emojis is more involved than a simple find & replace,
+		// because a failed match may be the start of the next match,
+		// so there needs to be some backtracking involved.
 		if (renderEmojis) {
-			MatchEvaluator FindEmoji = new ((match) => {
-				// Regex does not include ending ":" (allows the regex
-				// to use that ":" in the following match), so we need
-				// to append it back on.
-				bool isEmoji = DiscordEmoji.TryFromName(
-					erythro.Client,
-					match.Value + ":",
-					out DiscordEmoji emoji
-				);
+			Regex regexEmoji = new (@":([^:\s]+):");
 
-				return isEmoji
-					? emoji.ToString()
-					: match.Value;
-			});
+			StringBuilder outputEmoji = new ();
+			int i = 0;
+			while (i < output.Length) {
+				Match match = regexEmoji.Match(output, i);
 
-			Regex.Replace(output, @":([^:\s]+)", FindEmoji);
+				if (match.Success) {
+					string emojiCode = match.Value;
+					int i_match = match.Index;
+					// Read in any text since the last match.
+					outputEmoji.Append(output[i..i_match]);
+
+					bool isEmoji = DiscordEmoji.TryFromName(
+						erythro.Client,
+						match.Value,
+						out DiscordEmoji emoji
+					);
+					if (isEmoji) {
+						// Replace the code with the actual emoji.
+						outputEmoji.Append(emoji.ToString());
+						i = i_match + emojiCode.Length;
+					} else {
+						// Read in all but the last character (':').
+						int i_end = i_match + emojiCode.Length - 1;
+						outputEmoji.Append(output[i_match..i_end]);
+						i = i_end;
+					}
+					continue;
+				}
+
+				// Else no matches left, and we simply append the rest
+				// of the input string.
+				outputEmoji.Append(output[i..]);
+				break;
+			}
+			output = outputEmoji.ToString();
 		}
 
 		return output;
