@@ -36,6 +36,7 @@ class Program {
 		_stopwatchConnect  = new (),
 		_stopwatchDownload = new ();
 
+	private static readonly TimeSpan _timeoutRegex = TimeSpan.FromMilliseconds(200);
 	// Date / time format strings.
 	private const string
 		_formatLogs = @"yyyy-MM\/lo\g\s-MM-dd";
@@ -88,6 +89,9 @@ class Program {
 		// Set up Serilog.
 		InitSerilog();
 		Log.Information("Logging initialized (Serilog).");
+
+		// Set program-wide regex timeout.
+		AppDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", _timeoutRegex);
 
 		// Parse authentication token from file.
 		// Throw if token is not found.
