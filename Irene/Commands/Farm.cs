@@ -28,7 +28,7 @@ class Farm : CommandHandler {
 		),
 		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, Autocompleter> {
+		new Dictionary<string, AutocompleteHandler> {
 			[ArgMaterial] = AutocompleteAsync,
 		}
 	);

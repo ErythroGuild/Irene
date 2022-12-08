@@ -33,7 +33,7 @@ class Help : CommandHandler {
 		),
 		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, Autocompleter> {
+		new Dictionary<string, AutocompleteHandler> {
 			[ArgCommand] = AutocompleteAsync,
 		}
 	);

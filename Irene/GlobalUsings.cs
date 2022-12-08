@@ -52,8 +52,8 @@ global using id_u  = Irene.Const.Id.User;
 // Type aliases - project types.
 global using AccessLevel = Irene.Modules.Rank.AccessLevel;
 global using ParsedArgs = System.Collections.Generic.IDictionary<string, object>;
-global using Responder = System.Func<Irene.Interaction, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
-global using Autocompleter = System.Func<Irene.Interaction, object, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
-global using AutocompleterTable = System.Collections.Generic.IReadOnlyDictionary<string, System.Func<Irene.Interaction, object, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
+global using ResponseHandler = System.Func<Irene.Interaction, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
+global using AutocompleteHandler = System.Func<Irene.Interaction, object, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
+global using AutocompleteHandlerTable = System.Collections.Generic.IReadOnlyDictionary<string, System.Func<Irene.Interaction, object, System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
 
 #pragma warning restore IDE0065 // Misplaced using directive

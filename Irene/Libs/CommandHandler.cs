@@ -66,16 +66,16 @@ abstract class CommandHandler {
 		);
 		// Handlers are associated with leaf nodes (or the root command).
 		public record class Handler {
-			public Responder Responder { get; }
-			public AutocompleterTable Autocompleters { get; }
+			public ResponseHandler ResponseHandler { get; }
+			public AutocompleteHandlerTable AutocompleteHandlers { get; }
 
 			public Handler(
-				Responder responder,
-				AutocompleterTable? autocompleters=null
+				ResponseHandler responseHandler,
+				AutocompleteHandlerTable? autocompleteHandlers=null
 			) {
-				Responder = responder;
-				Autocompleters = autocompleters
-					?? new Dictionary<string, Autocompleter>();
+				ResponseHandler = responseHandler;
+				AutocompleteHandlers = autocompleteHandlers
+					?? new Dictionary<string, AutocompleteHandler>();
 			}
 		}
 
@@ -93,13 +93,13 @@ abstract class CommandHandler {
 		public CommandTree(
 			LeafArgs args,
 			CommandType type,
-			Responder responder,
-			AutocompleterTable? autocompleters=null
+			ResponseHandler responseHandler,
+			AutocompleteHandlerTable? autocompleteHandlers=null
 		) {
-			autocompleters ??= new Dictionary<string, Autocompleter>();
+			autocompleteHandlers ??= new Dictionary<string, AutocompleteHandler>();
 			_tree = new RootTree(
 				args.AccessLevel,
-				new (responder, autocompleters)
+				new (responseHandler, autocompleteHandlers)
 			);
 			Command = new (
 				args.Name,
@@ -219,7 +219,7 @@ abstract class CommandHandler {
 					is not InteractionType.ApplicationCommand
 					and not InteractionType.AutoComplete
 				) {
-					throw new ArgumentException("Can only dispatch Responders and Autocompleters.", nameof(interaction));
+					throw new ArgumentException("Can only handle responses and autocompletes.", nameof(interaction));
 				}
 
 				// Populate common fields.
@@ -235,18 +235,18 @@ abstract class CommandHandler {
 						await RespondNoAccessAsync(interaction, level);
 						return ResultType.NoPermissions;
 					}
-					await handler.Responder.Invoke(interaction, argTable);
+					await handler.ResponseHandler.Invoke(interaction, argTable);
 					return ResultType.Success;
 				}
 
-				// Autocompleters can throw and we won't respond; the
-				// user simply sees an empty list (no error).
+				// Autocomplete handlers can throw and we won't respond;
+				// the user simply sees an empty list (no error).
 				if (interaction.Type is InteractionType.AutoComplete) {
 					DiscordArg? arg = GetFocusedArg(argList);
-					if (arg is null || !handler.Autocompleters.ContainsKey(arg.Name))
-						throw new InvalidOperationException("No autocompleter for the given field was found.");
+					if (arg is null || !handler.AutocompleteHandlers.ContainsKey(arg.Name))
+						throw new InvalidOperationException("No autocomplete handler for the given field was found.");
 
-					await handler.Autocompleters[arg.Name]
+					await handler.AutocompleteHandlers[arg.Name]
 						.Invoke(interaction, arg.Value, argTable);
 					return ResultType.Success;
 				}
