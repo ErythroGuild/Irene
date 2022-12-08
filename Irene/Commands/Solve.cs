@@ -712,7 +712,7 @@ class Solve : CommandHandler {
 ////   L.Debug()
 //public static class DebugExtensions {
 //	public static string Debug(this double[][] array, int pad=5) {
-//		var result = "";
+//		string result = "";
 //		for (int i=0; i<25; i++) {
 //			for (int j=0; j<25; j++)
 //				result += array[i][j].ToString("f1").PadLeft(pad);

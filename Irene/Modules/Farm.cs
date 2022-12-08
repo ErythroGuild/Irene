@@ -212,7 +212,7 @@ partial class Farm {
 		DateOnly date = DateOnly.ParseExact(lines[0], _formatDate);
 
 		// Start parsing after the first line (date).
-		for (var i = 1; i<lines.Count; i++) {
+		for (int i = 1; i<lines.Count; i++) {
 			string line = lines[i];
 
 			// Skip comment lines and empty lines.

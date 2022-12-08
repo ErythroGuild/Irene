@@ -22,11 +22,11 @@ class LruQueueMap<TKey, TValue>
 			: new (queue);
 
 		// Populate available slots with initial data.
-		for (var i=0; i<Math.Min(capacity, cacheInit.Count); i++)
+		for (int i=0; i<Math.Min(capacity, cacheInit.Count); i++)
 			_cache[i] = cacheInit[i];
 
 		// Populate remaining slots with empty data.
-		for (var i=cacheInit.Count; i<capacity; i++)
+		for (int i=cacheInit.Count; i<capacity; i++)
 			_cache[i] = null;
 	}
 
@@ -36,7 +36,7 @@ class LruQueueMap<TKey, TValue>
 	// This mimics the classic "TryParse" pattern (which is why an `out`
 	// parameter is used).
 	public bool TryAccess(TKey key, out TValue? value) {
-		for (var i=0; i<_cache.Length; i++) {
+		for (int i=0; i<_cache.Length; i++) {
 			// Assigning a temporary here allows the compiler to correctly
 			// analyze nullability.
 			(TKey Key, TValue Value)? pair = _cache[i];
@@ -66,7 +66,7 @@ class LruQueueMap<TKey, TValue>
 		int end = _cache.Length;
 
 		// Search forward through the cache for existing key.
-		for (var i = 0; i<_cache.Length; i++) {
+		for (int i = 0; i<_cache.Length; i++) {
 			// Assigning a temporary here allows the compiler to correctly
 			// analyze nullability.
 			(TKey Key, TValue Value)? pair = _cache[i];
@@ -99,7 +99,7 @@ class LruQueueMap<TKey, TValue>
 	// false otherwise (no changes were made).
 	public bool Flush(TKey key) {
 		// Search forward through the cache for existing key.
-		for (var i = 0; i<_cache.Length; i++) {
+		for (int i = 0; i<_cache.Length; i++) {
 			// Assigning a temporary here allows the compiler to correctly
 			// analyze nullability.
 			(TKey Key, TValue Value)? pair = _cache[i];
@@ -110,7 +110,7 @@ class LruQueueMap<TKey, TValue>
 
 			// Shift everything past the found key backwards by one.
 			if (pair.Value.Key.Equals(key)) {
-				for (var j = i+1; j<_cache.Length; j++)
+				for (int j = i+1; j<_cache.Length; j++)
 					_cache[i] = _cache[j];
 				// The shift won't affect the found key when its index
 				// is exactly at the end of the cache. Manually set it
