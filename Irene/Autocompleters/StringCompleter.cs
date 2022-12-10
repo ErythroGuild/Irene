@@ -5,7 +5,7 @@ class StringCompleter : Completer {
 	// Definitions and data structures:
 	// --------
 
-	public delegate IList<string> ListHandler(ParsedArgs args);
+	public delegate IReadOnlyList<string> ListHandler(ParsedArgs args);
 
 	private enum MatchType {
 		Start,
@@ -65,11 +65,11 @@ class StringCompleter : Completer {
 	// Top-level delegates for inherited handlers:
 	// --------
 
-	private Task<IList<(string, string)>> MatchOptionsAsync(string arg, ParsedArgs args) =>
-		Task.Run<IList<(string, string)>>(() => MatchOptions(arg, args));
-	private IList<(string, string)> MatchOptions(string arg, ParsedArgs args) {
+	private Task<IReadOnlyList<(string, string)>> MatchOptionsAsync(string arg, ParsedArgs args) =>
+		Task.Run(() => MatchOptions(arg, args));
+	private IReadOnlyList<(string, string)> MatchOptions(string arg, ParsedArgs args) {
 		arg = arg.Trim().ToLower();
-		IList<string> options = _getListAll.Invoke(args);
+		List<string> options = new (_getListAll.Invoke(args));
 		List<MatchList> matches = new () {
 			new (MaxOptions),
 			new (MaxOptions),
@@ -141,7 +141,7 @@ class StringCompleter : Completer {
 		return ListToPairList(results);
 	}
 
-	private IList<(string, string)> GetDefaultList(ParsedArgs args) =>
+	private IReadOnlyList<(string, string)> GetDefaultList(ParsedArgs args) =>
 		ListToPairList(_getListDefault.Invoke(args));
 	
 
@@ -370,7 +370,7 @@ class StringCompleter : Completer {
 	private static bool IsAlpha(char? c) =>
 		c is not null and ((>='a' and <='z') or (>='A' and <='Z'));
 	// Expand a list to a list of pairs by duplicating each entry.
-	private static IList<(string, string)> ListToPairList(IList<string> list) {
+	private static IReadOnlyList<(string, string)> ListToPairList(IReadOnlyList<string> list) {
 		List<(string, string)> tupleList = new ();
 		foreach (string item in list)
 			tupleList.Add(new (item, item));

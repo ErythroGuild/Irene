@@ -1,8 +1,8 @@
 ﻿namespace Irene.Autocompleters;
 
 class Completer {
-	public delegate Task<IList<(string, string)>> AllOptionsHandler(string arg, ParsedArgs args);
-	public delegate IList<(string, string)> DefaultOptionsHandler(ParsedArgs args);
+	public delegate Task<IReadOnlyList<(string, string)>> AllOptionsHandler(string arg, ParsedArgs args);
+	public delegate IReadOnlyList<(string, string)> DefaultOptionsHandler(ParsedArgs args);
 
 	public int MaxOptions { get; }
 	public const int MaxOptionsDefault = 16;
@@ -33,7 +33,7 @@ class Completer {
 		// Return default options when string is empty.
 		arg = arg.Trim();
 		if (arg == "")
-			return GetOptionsDefault.Invoke(args);
+			return new List<(string, string)>(GetOptionsDefault.Invoke(args));
 
 		// Fetch all options.
 		List<(string, string)> options =
