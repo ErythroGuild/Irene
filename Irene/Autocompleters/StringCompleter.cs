@@ -225,27 +225,25 @@ class StringCompleter : Completer {
 
 			// Character matched.
 			if (charOption == input[i_input]) {
-				// Start new match if at a boundary.
-				if (isBoundary && i_input == 0) {
-					i_match = i_option;
-					i_input++;
-					continue;
+				// Register a new match if starting on boundary.
+				if (i_input == 0) {
+					if (isBoundary)
+						i_match = i_option;
+					else
+						continue;
 				}
-				// Continue an existing match.
-				if (i_input > 0) {
-					// Match complete.
-					if (i_input == input.Length-1)
-						return new (true, 0, i_match);
-					// Potential candidate index for next match.
-					if (isBoundary && charOption == input[0]) {
-						// This potential match doesn't have a potential
-						// next candidate yet.
-						if (i_candidate < i_match)
-							i_candidate = i_option;
-					}
-					i_input++;
-					continue;
+				// Match complete.
+				if (i_input == input.Length-1)
+					return new (true, 0, i_match);
+				// Potential candidate index for next match.
+				if (isBoundary && charOption == input[0]) {
+					// This potential match doesn't have a potential
+					// next candidate yet.
+					if (i_candidate < i_match)
+						i_candidate = i_option;
 				}
+				i_input++;
+				continue;
 			}
 
 			// Reset input index.
@@ -280,11 +278,8 @@ class StringCompleter : Completer {
 			// Character matched.
 			if (charOption == charInput) {
 				// Register a new match.
-				if (i_input == 0) {
+				if (i_input == 0)
 					i_match = i_option;
-					i_input++;
-					continue;
-				}
 				// Match complete.
 				if (i_input == input.Length-1)
 					return new (true, 0, i_match);
@@ -343,11 +338,8 @@ class StringCompleter : Completer {
 			// Character matched.
 			if (option[i_option] == input[i_input]) {
 				// Register a new match.
-				if (i_input == 0) {
+				if (i_input == 0)
 					i_match = i_option;
-					i_input++;
-					continue;
-				}
 				// Match complete.
 				if (i_input == input.Length-1)
 					return new (true, incursions, i_match);
@@ -361,7 +353,8 @@ class StringCompleter : Completer {
 				continue;
 
 			// Otherwise, we have an unignorable mismatch.
-			incursions++;
+			if (i_input > 0)
+				incursions++;
 		}
 
 		return new (false, 0, 0);
