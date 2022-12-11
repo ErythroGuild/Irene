@@ -320,7 +320,7 @@ class Program {
 		_client.MessageCreated += (c, e) => {
 			_ = Task.Run(async () => {
 				// Only handle messages from Erythro.
-				if (e.Guild.Id != id_g.erythro)
+				if ((e.Guild?.Id ?? null) != id_g.erythro)
 					return;
 
 				CheckErythroInit();
