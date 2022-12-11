@@ -92,6 +92,29 @@ class ImpossibleArgException : IreneException {
 	}
 }
 
+// Thrown when an outgoing HTTP request has failed.
+class NetworkException : IreneException {
+	public override void Log() {
+		Serilog.Log.Error("Caught NetworkException: {Exception}", this);
+		Serilog.Log.Debug("  Server: {Name}", ServerName);
+	}
+	public override string ResponseMessage =>
+		$"""
+		:thread: Sorry, something might have interrupted my connection.
+		There is nothing wrong with your command! The servers might just be glitchy.
+		Try again in a short while?
+
+		*If that still doesn't work, tell {Util.MentionUserId(id_u.admin)}, and he'll sort it out.* :hammer:
+		:notepad_spiral: You can also give him this code: `{ServerName}`
+		""";
+
+	public string ServerName { get; }
+
+	public NetworkException(string serverName) {
+		ServerName=serverName;
+	}
+}
+
 // Thrown when attempting to handle a command which isn't in the handler
 // table.
 class UnknownCommandException : IreneException {
@@ -109,6 +132,7 @@ class UnknownCommandException : IreneException {
 		""";
 
 	public string Command { get; }
+
 	public UnknownCommandException(string command) {
 		Command = command;
 	}
