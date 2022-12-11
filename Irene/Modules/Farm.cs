@@ -87,14 +87,13 @@ partial class Farm {
 		foreach (string path in _pathData)
 			ParseDataFile(path);
 
-		// Check that default options are valid. Remove any that aren't.
-		foreach (string option in _defaultOptions) {
-			if (!_data.ContainsKey(option)) {
-				Log.Warning("  Default material option invalid:");
-				Log.Information("    {MaterialName}", option);
-				_defaultOptions.Remove(option);
-			}
-		}
+		// Remove any invalid default options.
+		int invalidCount =
+			_defaultOptions.RemoveAll(option =>
+				!_data.ContainsKey(option)
+			);
+		if (invalidCount > 0)
+			Log.Warning("  Some default material options were invalid.");
 	}
 
 	public static readonly Completer Completer = new StringCompleter(

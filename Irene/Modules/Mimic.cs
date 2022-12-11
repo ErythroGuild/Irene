@@ -57,14 +57,13 @@ class Mimic {
 	static Mimic() {
 		_wordlists = ParseWordlists();
 
-		// Check that default options are valid. Remove any that aren't.
-		foreach (string option in _defaultOptions) {
-			if (!_wordlists.ContainsKey(option)) {
-				Log.Warning("  Default language option invalid:");
-				Log.Information("    {LanguageName}", option);
-				_defaultOptions.Remove(option);
-			}
-		}
+		// Remove any invalid default options.
+		int invalidCount =
+			_defaultOptions.RemoveAll(option =>
+				!_wordlists.ContainsKey(option)
+			);
+		if (invalidCount > 0)
+			Log.Warning("  Some default language options were invalid.");
 	}
 
 	public static readonly Completer Completer = new StringCompleter(
