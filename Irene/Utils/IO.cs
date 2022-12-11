@@ -3,6 +3,47 @@
 using System.Text.RegularExpressions;
 
 static partial class Util {
+	// Syntax sugar for passing a string as a Lazy<string>.
+	public static Lazy<string> AsLazy(this string s) => new (s);
+
+	// Returns the filename with "-temp" inserted at the end of the name,
+	// before the file extension.
+	// Throws if the filename doesn't end with a file extension.
+	public static string Temp(this string filename) {
+		Regex regexFilename = new (@".\.\w+$");
+		if (!regexFilename.IsMatch(filename))
+			throw new ArgumentException("Original filename must have a file extension.", nameof(filename));
+
+		int i = filename.LastIndexOf('.');
+		return filename.Insert(i, "-temp");
+	}
+
+	// Returns all of the string up to the first newline if one exists,
+	// and returns the entire string otherwise.
+	public static string ElideFirstLine(this string input) {
+		if (input.Contains('\n')) {
+			int i_newline = input.IndexOf("\n");
+			return input[..i_newline] + " [...]";
+		} else {
+			return input;
+		}
+	}
+
+	// Print a List<string> as concatenated lines.
+	public static string ToLines(this List<string> lines) =>
+		string.Join("\n", lines);
+
+	// Create a blank file at the given path, if it doesn't exist.
+	// Returns true if file was created, false otherwise.
+	public static bool CreateIfMissing(string path) {
+		bool didCreate = false;
+		if (!File.Exists(path)) {
+			File.Create(path).Close();
+			didCreate = true;
+		}
+		return didCreate;
+	}
+
 	// Converts strings to/from single-line, easily parseable text.
 	// Escape codes are defined in `Const`.
 	public static string Escape(this string input) {
@@ -156,46 +197,5 @@ static partial class Util {
 		}
 
 		return output;
-	}
-
-	// Syntax sugar for passing a string as a Lazy<string>.
-	public static Lazy<string> AsLazy(this string s) => new (s);
-
-	// Returns the filename with "-temp" inserted at the end of the name,
-	// before the file extension.
-	// Throws if the filename doesn't end with a file extension.
-	public static string Temp(this string filename) {
-		Regex regexFilename = new (@".\.\w+$");
-		if (!regexFilename.IsMatch(filename))
-			throw new ArgumentException("Original filename must have a file extension.", nameof(filename));
-
-		int i = filename.LastIndexOf('.');
-		return filename.Insert(i, "-temp");
-	}
-
-	// Returns all of the string up to the first newline if one exists,
-	// and returns the entire string otherwise.
-	public static string ElideFirstLine(this string input) {
-		if (input.Contains('\n')) {
-			int i_newline = input.IndexOf("\n");
-			return input[..i_newline] + " [...]";
-		} else {
-			return input;
-		}
-	}
-
-	// Print a List<string> as concatenated lines.
-	public static string ToLines(this List<string> lines) =>
-		string.Join("\n", lines);
-
-	// Create a blank file at the given path, if it doesn't exist.
-	// Returns true if file was created, false otherwise.
-	public static bool CreateIfMissing(string path) {
-		bool didCreate = false;
-		if (!File.Exists(path)) {
-			File.Create(path).Close();
-			didCreate = true;
-		}
-		return didCreate;
 	}
 }
