@@ -205,14 +205,38 @@ static partial class Util {
 	// can be surrounded in a try/catch.
 	public static bool ParseBool(JsonNode node, string key) =>
 		node[key]?.GetValue<bool>()
-			?? throw new FormatException();
+		?? throw new FormatException();
 	public static int ParseInt(JsonNode node, string key) =>
 		node[key]?.GetValue<int>()
-			?? throw new FormatException();
+		?? throw new FormatException();
 	public static long ParseLong(JsonNode node, string key) =>
 		node[key]?.GetValue<long>()
-			?? throw new FormatException();
+		?? throw new FormatException();
 	public static string ParseString(JsonNode node, string key) =>
 		node[key]?.GetValue<string>()
-			?? throw new FormatException();
+		?? throw new FormatException();
+
+	// Convenience functions for parsing sub-nodes of a `JsonNode`, and
+	// throwing on any error. These can be chained and the entire parsing
+	// section can be surrounded in a try/catch.
+	public static bool ParseSubBool(JsonNode node, string keyNode, string keyValue) =>
+		node[keyNode]
+		?.AsObject()[keyValue]
+		?.GetValue<bool>()
+		?? throw new FormatException();
+	public static int ParseSubInt(JsonNode node, string keyNode, string keyValue) =>
+		node[keyNode]
+		?.AsObject()[keyValue]
+		?.GetValue<int>()
+		?? throw new FormatException();
+	public static long ParseSubLong(JsonNode node, string keyNode, string keyValue) =>
+		node[keyNode]
+		?.AsObject()[keyValue]
+		?.GetValue<long>()
+		?? throw new FormatException();
+	public static string ParseSubString(JsonNode node, string keyNode, string keyValue) =>
+		node[keyNode]
+		?.AsObject()[keyValue]
+		?.GetValue<string>()
+		?? throw new FormatException();
 }
