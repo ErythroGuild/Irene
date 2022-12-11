@@ -92,7 +92,8 @@ class ImpossibleArgException : IreneException {
 	}
 }
 
-// Thrown when an outgoing HTTP request has failed.
+// Thrown when an outgoing HTTP request has failed, or the response was
+// unexpected or malformed.
 class NetworkException : IreneException {
 	public override void Log() {
 		Serilog.Log.Error("Caught NetworkException: {Exception}", this);
@@ -111,7 +112,7 @@ class NetworkException : IreneException {
 	public string ServerName { get; }
 
 	public NetworkException(string serverName) {
-		ServerName=serverName;
+		ServerName = serverName;
 	}
 }
 
