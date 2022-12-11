@@ -12,21 +12,21 @@ class Mimic {
 		IReadOnlyList<IReadOnlyList<string>> Words
 	);
 
-	// Common languages + most "fun" languages to try.
+	// (Alphabetized) common languages + some "fun" languages to try.
 	// Note: validate entries on static initialization.
 	private static readonly List<string> _defaultOptions = new () {
 		"Darnassian",
-		"Orcish",
-		"Nerglish / Murloc",
-		"Moonkin",
-		"Shath'Yar",
 		"Draconic",
 		"Gnomish Binary",
-		"Pandaren",
-		"Vulpera",
-		"Gutterspeak / Forsaken",
 		"Goblin",
+		"Gutterspeak / Forsaken",
+		"Moonkin",
+		"Nerglish / Murloc",
+		"Orcish",
+		"Pandaren",
+		"Shath'Yar",
 		"Sprite",
+		"Vulpera",
 	};
 
 	// Master table of wordlists, indexed by (regularly-capitalized)

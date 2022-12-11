@@ -51,20 +51,22 @@ class Translate {
 	private static readonly List<string> _defaultSources = new () {
 		CodeAutoDetect,
 		LanguageCode.English,
-		LanguageCode.Spanish,
+		// Alphabetize the rest.
+		LanguageCode.Chinese,
+		LanguageCode.French,
+		LanguageCode.German,
 		LanguageCode.Japanese,
 		LanguageCode.Portuguese,
-		LanguageCode.French,
-		LanguageCode.Chinese,
-		LanguageCode.German,
+		LanguageCode.Spanish,
 	};
 	private static readonly List<string> _defaultTargets = new () {
 		CodeEnglishUS,
-		LanguageCode.Spanish,
-		LanguageCode.PortugueseBrazilian,
+		// Alphabetize the rest.
+		LanguageCode.Chinese,
 		LanguageCode.French,
 		LanguageCode.Japanese,
-		LanguageCode.Chinese,
+		LanguageCode.PortugueseBrazilian,
+		LanguageCode.Spanish,
 	};
 
 	// Table of all languages, indexed by language code.

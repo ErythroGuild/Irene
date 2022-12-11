@@ -33,24 +33,14 @@ partial class Farm {
 	// of mats (not all current mats need to be in here).
 	// Note: validate entries on static initialization.
 	private static readonly List<string> _defaultOptions = new () {
-		// Herbs
-
-		// Ore
-
-		// Cloth
-		"Wildercloth",
-		
-		// Leather
+		// Alphabetized (not sorted by material type).
 		"Adamant Scales",
-		"Resilient Leather",
 		"Dense Hide",
-
-		// Elementals
+		"Resilient Leather",
 		"Rousing Frost",
 		"Rousing Earth",
 		"Rousing Decay",
-
-		// Meat
+		"Wildercloth",
 	};
 
 	// Parser & renderer definitions.
