@@ -1,6 +1,33 @@
 ﻿namespace Irene.Modules;
 
 class Help {
+	// Most commonly used / most useful / most confusing help commands.
+	private readonly static List<string> _defaultOptions = new () {
+		Commands.Help.CommandHelp,
+		Commands.Roles.CommandRoles,
+		//Commands.Birthday.CommandBirthday,
+		Commands.Random.CommandRandom,
+		Commands.Farm.CommandFarm,
+	};
+
+	// Autocompleter.
+	public static readonly Completer Completer = new StringCompleter(
+		args => GetCommandNames(),
+		args => _defaultOptions,
+		12
+	);
+	// Returns only the slash commands' names.
+	private static List<string> GetCommandNames() {
+		List<string> commandNames = new ();
+		IReadOnlyDictionary<string, CommandHandler> commands = Dispatcher.Table;
+		foreach (string command in commands.Keys) {
+			if (commands[command].Command.Type == CommandType.SlashCommand) {
+				commandNames.Add(command);
+			}
+		}
+		return commandNames;
+	}
+
 	// Returns the help text for a command, and returns null if no handler
 	// for the given command has been registered.
 	// This function does not perform normalization on its input.

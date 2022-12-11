@@ -39,8 +39,8 @@ class Mimic : CommandHandler {
 		),
 		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, AutocompleteHandler> {
-			[ArgLanguage] = AutocompleteAsync,
+		new Dictionary<string, Completer> {
+			[ArgLanguage] = Module.Completer,
 		}
 	);
 
@@ -55,11 +55,5 @@ class Mimic : CommandHandler {
 			{translated}
 			""";
 		await interaction.RegisterAndRespondAsync(translated);
-	}
-
-	public async Task AutocompleteAsync(Interaction interaction, object arg, ParsedArgs args) {
-		string input = (string)arg;
-		List<(string, string)> options = Module.AutocompleteLanguage(input);
-		await interaction.AutocompleteAsync(options);
 	}
 }

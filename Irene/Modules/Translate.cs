@@ -16,11 +16,20 @@ class Translate {
 	);
 	// Contains all fields needed for displaying a language.
 	public readonly record struct Language {
+		public readonly LanguageType Type;
 		public readonly string Code;
 		public readonly string Name;
 		public readonly string NativeName;
+		public readonly string SearchString =>
+			string.Join(' ', Name, NativeName, Code);
 
-		public Language(string code, string name, string nativeName) {
+		public Language(
+			LanguageType type,
+			string code,
+			string name,
+			string nativeName
+		) {
+			Type = type;
 			Code = code;
 			Name = name;
 			NativeName = nativeName;
@@ -35,22 +44,43 @@ class Translate {
 			Code.GetHashCode();
 	}
 
-	// The default language has to be en-us; attempting to translate
-	// *to* "English" will fail.
-	public const string LanguageEnglishUS = LanguageCode.EnglishAmerican;
-	public const string
-		LabelDetect = "Auto-Detect",
-		IdDetect = "autodetect";
-
 	// DeepL client that wraps all API calls.
 	private static readonly Translator _translator;
 
-	// The master table of all languages, indexed by language code.
-	private static readonly IReadOnlyDictionary<string, Language> _languages;
-	// The sets of supported source and target languages.
-	private static readonly IReadOnlySet<Language> _languagesSource, _languagesTarget;
-	// List of autocomplete options to search through - (Label, Value).
-	private static readonly IReadOnlyList<(string, string)> _optionsSource, _optionsTarget;
+	// Default autocomplete options for languages.
+	private static readonly List<string> _defaultSources = new () {
+		CodeAutoDetect,
+		LanguageCode.English,
+		LanguageCode.Spanish,
+		LanguageCode.Japanese,
+		LanguageCode.Portuguese,
+		LanguageCode.French,
+		LanguageCode.Chinese,
+		LanguageCode.German,
+	};
+	private static readonly List<string> _defaultTargets = new () {
+		CodeEnglishUS,
+		LanguageCode.Spanish,
+		LanguageCode.PortugueseBrazilian,
+		LanguageCode.French,
+		LanguageCode.Japanese,
+		LanguageCode.Chinese,
+	};
+
+	// Table of all languages, indexed by language code.
+	private static readonly IReadOnlyDictionary<string, Language>
+		_languagesSource,
+		_languagesTarget;
+	// Table of all languages, indexed by search string.
+	private static readonly IReadOnlyDictionary<string, Language>
+		_searchStringsSource,
+		_searchStringsTarget;
+
+	// The default language has to be en-us; attempting to translate
+	// (*to*) just "English" will fail.
+	public const string
+		CodeEnglishUS = LanguageCode.EnglishAmerican,
+		CodeAutoDetect = "Auto-Detect";
 
 	// Display configuration properties.
 	private static readonly DiscordColor _colorDeepL = new ("#0F2B46");
@@ -59,7 +89,6 @@ class Translate {
 		_footerIcon = @"https://i.imgur.com/dQ1sXFW.png";
 	private const string _arrow = "\u21D2";
 
-	private const int _maxOptions = 20;
 	private const string _pathKey = @"config/deepl.txt";
 
 	static Translate() {
@@ -81,34 +110,43 @@ class Translate {
 		DeepLLanguage[] supportedTargets = _translator.GetTargetLanguagesAsync().Result;
 
 		// Populate source and target language container caches.
-		Dictionary<string, Language> languages = new ();
-		HashSet<Language> languagesSource =
-			CompileLanguageCache(supportedSources, ref languages);
-		HashSet<Language> languagesTarget = 
-			CompileLanguageCache(supportedTargets, ref languages);
+		_languagesSource = CompileLanguages(supportedSources, LanguageType.Source);
+		_languagesTarget = CompileLanguages(supportedTargets, LanguageType.Target);
+		_searchStringsSource = CacheSearchStrings(_languagesSource);
+		_searchStringsTarget = CacheSearchStrings(_languagesTarget);
+	}
 
-		// Alphabetize supported language sets into lists.
-		List<Language> languagesSourceList = new (languagesSource);
-		List<Language> languagesTargetList = new (languagesTarget);
-		languagesSourceList.Sort((a, b) => string.Compare(a.Name, b.Name, true));
-		languagesTargetList.Sort((a, b) => string.Compare(a.Name, b.Name, true));
-
-		// Set static fields.
-		_languages = languages;
-		_languagesSource = languagesSource;
-		_languagesTarget = languagesTarget;
-
-		// Create option lists.
-		List<(string, string)> optionsSource = new ();
-		List<(string, string)> optionsTarget = new ();
-
-		foreach (Language language in languagesSourceList)
-			optionsSource.Add(new (language.Name, language.Code));
-		foreach (Language language in languagesTargetList)
-			optionsTarget.Add(new (language.Name, language.Code));
-
-		_optionsSource = optionsSource;
-		_optionsTarget = optionsTarget;
+	// Autocompleters.
+	public static readonly Completer CompleterSource = new StringCompleter(
+		args => GetSourceSearchStrings(),
+		args => GetDefaultSourceSearchStrings(),
+		8,
+		s => SearchStringToOption(s, LanguageType.Source)
+	);
+	public static readonly Completer CompleterTarget = new StringCompleter(
+		args => GetTargetSearchStrings(),
+		args => GetDefaultTargetSearchStrings(),
+		8,
+		s => SearchStringToOption(s, LanguageType.Target)
+	);
+	private static List<string> GetSourceSearchStrings() {
+		List<string> list = new (_searchStringsSource.Keys);
+		list.Insert(0, CodeAutoDetect);
+		return list;
+	}
+	private static List<string> GetTargetSearchStrings() =>
+		new (_searchStringsTarget.Keys);
+	private static List<string> GetDefaultSourceSearchStrings() {
+		List<string> searchStrings = new ();
+		foreach (string code in _defaultSources)
+			searchStrings.Add(CodeToSearchString(code, LanguageType.Source));
+		return searchStrings;
+	}
+	private static List<string> GetDefaultTargetSearchStrings() {
+		List<string> searchStrings = new ();
+		foreach (string code in _defaultTargets)
+			searchStrings.Add(CodeToSearchString(code, LanguageType.Target));
+		return searchStrings;
 	}
 
 	// If `languageSource` is null, the language will be auto-detected.
@@ -118,15 +156,6 @@ class Translate {
 		Language? languageSource,
 		Language languageTarget
 	) {
-		// Ensure source and target languages are supported.
-		if (languageSource is not null &&
-			!_languagesSource.Contains(languageSource.Value)
-		) {
-			throw new ImpossibleArgException(Commands.Translate.ArgSource, languageSource.Value.Name);
-		}
-		if (!_languagesTarget.Contains(languageTarget))
-			throw new ImpossibleArgException(Commands.Translate.ArgTarget, languageTarget.Name);
-
 		// Fetch results from API.
 		TextResult result = await _translator.TranslateTextAsync(
 			input,
@@ -134,13 +163,13 @@ class Translate {
 			languageTarget.Code
 		);
 		string detectedLanguageCode = result.DetectedSourceLanguageCode;
-		Language? sourceLanguage = ParseLanguageCode(detectedLanguageCode);
-		if (sourceLanguage is null)
-			throw new ImpossibleArgException(Commands.Translate.ArgSource, detectedLanguageCode);
+		Language sourceLanguage =
+			CodeToLanguage(detectedLanguageCode, LanguageType.Source)
+			?? throw new ImpossibleArgException(Commands.Translate.ArgSource, detectedLanguageCode);
 
 		return new (
 			result.Text,
-			sourceLanguage.Value.Name,
+			sourceLanguage.Name,
 			languageTarget.Name
 		);
 	}
@@ -168,70 +197,75 @@ class Translate {
 		return embed.Build();
 	}
 
-	// Both source and target languages are combined in a single call.
-	// Generally the sets are identical. Any invalid cases are handled
-	// in the main `TranslateText()` method.
-	// "Auto-Detect" won't be in the table, and correctly returns null.
-	public static Language? ParseLanguageCode(string? code) =>
-		(code is not null && _languages.ContainsKey(code))
-			? _languages[code]
-			: null;
+	// Helper method for converting the ID of an autocomplete option
+	// (i.e. its language code) to the `Language` object itself.
+	// Returns null for auto-detect.
+	public static Language? CodeToLanguage(
+		string languageCode,
+		LanguageType type
+	) =>
+		(languageCode == CodeAutoDetect)
+			? null
+			: type switch {
+				LanguageType.Source => _languagesSource[languageCode],
+				LanguageType.Target => _languagesTarget[languageCode],
+				_ => throw new UnclosedEnumException(typeof(LanguageType), type),
+			};
+	// Helper method for converting the ID of an autocomplete option
+	// (i.e. its language code) directly to a search string, to pass
+	// into a `StringCompleter`.
+	private static string CodeToSearchString(
+		string languageCode,
+		LanguageType type
+	) {
+		Language? language = CodeToLanguage(languageCode, type);
+		return language is null
+			? CodeAutoDetect
+			: language.Value.SearchString;
+	}
+	// Helper method for looking up a search string and converting it
+	// to an autocomplete label/value pair.
+	private static (string, string) SearchStringToOption(
+		string searchString,
+		LanguageType type
+	) {
+		if (searchString == CodeAutoDetect)
+			return new (CodeAutoDetect, CodeAutoDetect);
 
-	// Returns a list of `(string Label, string Value)` options.
-	public static IList<(string, string)> Autocomplete(bool isSource, string arg) {
-		arg = arg.Trim().ToLower();
-
-		List<(string, string)> results = new ();
-		if (isSource)
-			results.Add((LabelDetect, IdDetect));
-
-		// Compile all valid options.
-		IReadOnlyList<(string, string)> optionsTotal = isSource switch {
-			true  => _optionsSource,
-			false => _optionsTarget,
+		Language language = type switch {
+			LanguageType.Source => _searchStringsSource[searchString],
+			LanguageType.Target => _searchStringsTarget[searchString],
+			_ => throw new UnclosedEnumException(typeof(LanguageType), type),
 		};
-		foreach ((string, string) option in optionsTotal)
-			results.Add(option);
-
-		// Filter down matching options.
-		List<(string, string)> resultsFiltered = new ();
-		foreach ((string, string id) option in results) {
-			// Null case isn't an actual "Language" record, just using
-			// it to conveniently hold the data to filter on.
-			Language language = ParseLanguageCode(option.id)
-				?? new (IdDetect, LabelDetect, LabelDetect);
-			if (language.Code.ToLower().Contains(arg) ||
-				language.Name.ToLower().Contains(arg) ||
-				language.NativeName.ToLower().Contains(arg)
-			) {
-				resultsFiltered.Add(option);
-			}
-		}
-
-		// Cap the number of results.
-		if (resultsFiltered.Count > _maxOptions)
-			resultsFiltered = resultsFiltered.GetRange(0, _maxOptions);
-
-		return resultsFiltered;
+		return new (language.Name, language.Code);
 	}
 
-	// Helper method for initializing static caches from API data.
-	private static HashSet<Language> CompileLanguageCache(
-		DeepLLanguage[] languagesSupported,
-		ref Dictionary<string, Language> languages
+	// Helper method for initializing language caches from API data.
+	private static ConcurrentDictionary<string, Language> CompileLanguages(
+		DeepLLanguage[] languages,
+		LanguageType type
 	) {
-		HashSet<Language> languageSet = new ();
-		foreach (DeepLLanguage language_i in languagesSupported) {
+		ConcurrentDictionary<string, Language> table = new ();
+		foreach (DeepLLanguage language_i in languages) {
 			string id = language_i.Code;
 			Language language = new (
+				type,
 				id,
 				language_i.Name,
 				language_i.CultureInfo.NativeName
 			);
-			languageSet.Add(language);
-			if (!languages.ContainsKey(id))
-				languages.TryAdd(id, language);
+			table.TryAdd(id, language);
 		}
-		return languageSet;
+		return table;
+	}
+	// Helper method for converting a language cache to a table indexed
+	// by each language's search string.
+	private static ConcurrentDictionary<string, Language> CacheSearchStrings(
+		IReadOnlyDictionary<string, Language> languages
+	) {
+		ConcurrentDictionary<string, Language> cache = new ();
+		foreach (Language language in languages.Values)
+			cache.TryAdd(language.SearchString, language);
+		return cache;
 	}
 }

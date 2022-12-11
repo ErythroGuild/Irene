@@ -1,6 +1,7 @@
 ﻿namespace Irene.Commands;
 
 using Module = Modules.Translate;
+using LanguageType = Modules.Translate.LanguageType;
 using Language = Modules.Translate.Language;
 using Result = Modules.Translate.Result;
 
@@ -58,22 +59,23 @@ class Translate : CommandHandler {
 		),
 		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, AutocompleteHandler> {
-			[ArgSource] = AutocompleteSourceAsync,
-			[ArgTarget] = AutocompleteTargetAsync,
+		new Dictionary<string, Completer> {
+			[ArgSource] = Module.CompleterSource,
+			[ArgTarget] = Module.CompleterTarget,
 		}
 	);
 
 	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
 		string text = (string)args[ArgText];
-		string? argSource = args.ContainsKey(ArgSource)
-			? (string)args[ArgSource]
-			: null;
-		string argTarget = args.ContainsKey(ArgTarget)
-			? (string)args[ArgTarget]
-			: Module.LanguageEnglishUS;
-		Language? languageSource = Module.ParseLanguageCode(argSource);
-		Language languageTarget = Module.ParseLanguageCode(argTarget)
+		string argSource = args.TryGetValue(ArgSource, out object? sourceObject)
+			? (string)sourceObject
+			: Module.CodeAutoDetect;
+		string argTarget = args.TryGetValue(ArgTarget, out object? targetObject)
+			? (string)targetObject
+			: Module.CodeEnglishUS;
+
+		Language? languageSource = Module.CodeToLanguage(argSource, LanguageType.Source);
+		Language  languageTarget = Module.CodeToLanguage(argTarget, LanguageType.Target)
 			?? throw new ImpossibleArgException(ArgTarget, argTarget);
 
 		Result result = await Module.TranslateText(text, languageSource, languageTarget);
@@ -87,18 +89,6 @@ class Translate : CommandHandler {
 			: false;
 		string summary = $"{embed.Title}\n{embed.Description}";
 		await interaction.RegisterAndRespondAsync(response, summary, !doShare);
-	}
-
-	public async Task AutocompleteSourceAsync(Interaction interaction, object arg, ParsedArgs args) {
-		string text = (string)arg;
-		IList<(string, string)> options = Module.Autocomplete(true, text);
-		await interaction.AutocompleteAsync(options);
-	}
-
-	public async Task AutocompleteTargetAsync(Interaction interaction, object arg, ParsedArgs args) {
-		string text = (string)arg;
-		IList<(string, string)> options = Module.Autocomplete(false, text);
-		await interaction.AutocompleteAsync(options);
 	}
 }
 
@@ -137,17 +127,17 @@ class TranslateContext : CommandHandler {
 			return;
 		}
 
-		Language? languageTarget =
-			Module.ParseLanguageCode(Module.LanguageEnglishUS);
-		if (languageTarget is null)
-			throw new ImpossibleException();
-		// This throws if initialization failed somehow.
+		// Language conversion can only fail if the initialization
+		// failed somehow.
+		Language languageTarget =
+			Module.CodeToLanguage(Module.CodeEnglishUS, LanguageType.Target)
+			?? throw new ImpossibleException();
 
 		// Fetch and display results.
 		Result result = await Module.TranslateText(
 			text,
 			null,
-			languageTarget.Value
+			languageTarget
 		);
 		DiscordEmbed embed = Module.RenderResult(text, result);
 		DiscordMessageBuilder response =

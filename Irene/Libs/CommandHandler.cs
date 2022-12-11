@@ -66,16 +66,16 @@ abstract class CommandHandler {
 		);
 		// Handlers are associated with leaf nodes (or the root command).
 		public record class Handler {
-			public ResponseHandler ResponseHandler { get; }
-			public AutocompleteHandlerTable AutocompleteHandlers { get; }
+			public Responder Responder { get; }
+			public CompleterTable Completers { get; }
 
 			public Handler(
-				ResponseHandler responseHandler,
-				AutocompleteHandlerTable? autocompleteHandlers=null
+				Responder responder,
+				CompleterTable? completers=null
 			) {
-				ResponseHandler = responseHandler;
-				AutocompleteHandlers = autocompleteHandlers
-					?? new Dictionary<string, AutocompleteHandler>();
+				Responder = responder;
+				Completers = completers
+					?? new Dictionary<string, Completer>();
 			}
 		}
 
@@ -93,13 +93,13 @@ abstract class CommandHandler {
 		public CommandTree(
 			LeafArgs args,
 			CommandType type,
-			ResponseHandler responseHandler,
-			AutocompleteHandlerTable? autocompleteHandlers=null
+			Responder responder,
+			CompleterTable? completers=null
 		) {
-			autocompleteHandlers ??= new Dictionary<string, AutocompleteHandler>();
+			completers ??= new Dictionary<string, Completer>();
 			_tree = new RootTree(
 				args.AccessLevel,
-				new (responseHandler, autocompleteHandlers)
+				new (responder, completers)
 			);
 			Command = new (
 				args.Name,
@@ -136,13 +136,13 @@ abstract class CommandHandler {
 			string name,
 			AccessLevel accessLevel,
 			CommandType type,
-			ResponseHandler responseHandler,
-			AutocompleteHandlerTable? autocompleteHandlers=null
+			Responder responder,
+			CompleterTable? completers=null
 		) {
-			autocompleteHandlers ??= new Dictionary<string, AutocompleteHandler>();
+			completers ??= new Dictionary<string, Completer>();
 			_tree = new RootTree(
 				accessLevel,
-				new (responseHandler, autocompleteHandlers)
+				new (responder, completers)
 			);
 			// Discord developer docs say the description field should
 			// be an empty string, instead of just null.
@@ -257,7 +257,7 @@ abstract class CommandHandler {
 						await RespondNoAccessAsync(interaction, level);
 						return ResultType.NoPermissions;
 					}
-					await handler.ResponseHandler.Invoke(interaction, argTable);
+					await handler.Responder.Invoke(interaction, argTable);
 					return ResultType.Success;
 				}
 
@@ -265,11 +265,14 @@ abstract class CommandHandler {
 				// the user simply sees an empty list (no error).
 				if (interaction.Type is InteractionType.AutoComplete) {
 					DiscordArg? arg = GetFocusedArg(argList);
-					if (arg is null || !handler.AutocompleteHandlers.ContainsKey(arg.Name))
+					if (arg is null || !handler.Completers.ContainsKey(arg.Name))
 						throw new InvalidOperationException("No autocomplete handler for the given field was found.");
 
-					await handler.AutocompleteHandlers[arg.Name]
-						.Invoke(interaction, arg.Value, argTable);
+					IList<(string, string)> options = await
+						handler.Completers[arg.Name]
+						.GetOptions((string)arg.Value, argTable);
+					await interaction.AutocompleteAsync(options);
+
 					return ResultType.Success;
 				}
 
