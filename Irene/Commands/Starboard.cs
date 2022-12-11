@@ -180,12 +180,8 @@ class StarboardContext : CommandHandler {
 		""";
 
 	public override CommandTree CreateTree() => new (
-		new (
-			CommandPin,
-			"",
-			AccessLevel.Officer,
-			new List<DiscordCommandOption>()
-		),
+		CommandPin,
+		AccessLevel.Officer,
 		CommandType.MessageContextMenu,
 		PinAsync
 	);

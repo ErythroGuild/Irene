@@ -33,8 +33,8 @@ class Help : CommandHandler {
 		),
 		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, Autocompleter> {
-			[ArgCommand] = AutocompleteAsync,
+		new Dictionary<string, Completer> {
+			[ArgCommand] = Module.Completer,
 		}
 	);
 
@@ -64,27 +64,6 @@ class Help : CommandHandler {
 
 		DiscordMessage message = await interaction.GetResponseAsync();
 		messagePromise.SetResult(message);
-	}
-
-	public async Task AutocompleteAsync(Interaction interaction, object arg, ParsedArgs args) {
-		string input = NormalizeCommand(arg);
-		List<(string, string)> options = new ();
-
-		// Search through registered commands for matching slash commands.
-		IReadOnlyDictionary<string, CommandHandler> commands = Dispatcher.Table;
-		foreach (string command in commands.Keys) {
-			if (command.Contains(input) &&
-				commands[command].Command.Type == CommandType.SlashCommand
-			) {
-				options.Add((command, command));
-			}
-		}
-
-		// Limit the number of provided options.
-		if (options.Count > _maxOptions)
-			options = options.GetRange(0, _maxOptions);
-
-		await interaction.AutocompleteAsync(options);
 	}
 
 	private static string NormalizeCommand(object arg) =>

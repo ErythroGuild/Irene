@@ -67,15 +67,15 @@ abstract class CommandHandler {
 		// Handlers are associated with leaf nodes (or the root command).
 		public record class Handler {
 			public Responder Responder { get; }
-			public AutocompleterTable Autocompleters { get; }
+			public CompleterTable Completers { get; }
 
 			public Handler(
 				Responder responder,
-				AutocompleterTable? autocompleters=null
+				CompleterTable? completers=null
 			) {
 				Responder = responder;
-				Autocompleters = autocompleters
-					?? new Dictionary<string, Autocompleter>();
+				Completers = completers
+					?? new Dictionary<string, Completer>();
 			}
 		}
 
@@ -94,12 +94,12 @@ abstract class CommandHandler {
 			LeafArgs args,
 			CommandType type,
 			Responder responder,
-			AutocompleterTable? autocompleters=null
+			CompleterTable? completers=null
 		) {
-			autocompleters ??= new Dictionary<string, Autocompleter>();
+			completers ??= new Dictionary<string, Completer>();
 			_tree = new RootTree(
 				args.AccessLevel,
-				new (responder, autocompleters)
+				new (responder, completers)
 			);
 			Command = new (
 				args.Name,
@@ -130,6 +130,28 @@ abstract class CommandHandler {
 			);
 			// Context menu commands always have one and only one leaf
 			// node, so only slash commands will use this constructor.
+		}
+		// Construct a tree for a context menu command.
+		public CommandTree(
+			string name,
+			AccessLevel accessLevel,
+			CommandType type,
+			Responder responder,
+			CompleterTable? completers=null
+		) {
+			completers ??= new Dictionary<string, Completer>();
+			_tree = new RootTree(
+				accessLevel,
+				new (responder, completers)
+			);
+			// Discord developer docs say the description field should
+			// be an empty string, instead of just null.
+			Command = new (
+				name,
+				"",
+				new List<DiscordCommandOption>(),
+				type: type
+			);
 		}
 
 		public void UpdateRegisteredCommand(DiscordCommand command) =>
@@ -219,7 +241,7 @@ abstract class CommandHandler {
 					is not InteractionType.ApplicationCommand
 					and not InteractionType.AutoComplete
 				) {
-					throw new ArgumentException("Can only dispatch Responders and Autocompleters.", nameof(interaction));
+					throw new ArgumentException("Can only handle responses and autocompletes.", nameof(interaction));
 				}
 
 				// Populate common fields.
@@ -239,15 +261,18 @@ abstract class CommandHandler {
 					return ResultType.Success;
 				}
 
-				// Autocompleters can throw and we won't respond; the
-				// user simply sees an empty list (no error).
+				// Autocomplete handlers can throw and we won't respond;
+				// the user simply sees an empty list (no error).
 				if (interaction.Type is InteractionType.AutoComplete) {
 					DiscordArg? arg = GetFocusedArg(argList);
-					if (arg is null || !handler.Autocompleters.ContainsKey(arg.Name))
-						throw new InvalidOperationException("No autocompleter for the given field was found.");
+					if (arg is null || !handler.Completers.ContainsKey(arg.Name))
+						throw new InvalidOperationException("No autocomplete handler for the given field was found.");
 
-					await handler.Autocompleters[arg.Name]
-						.Invoke(interaction, arg.Value, argTable);
+					IList<(string, string)> options = await
+						handler.Completers[arg.Name]
+						.GetOptions((string)arg.Value, argTable);
+					await interaction.AutocompleteAsync(options);
+
 					return ResultType.Success;
 				}
 

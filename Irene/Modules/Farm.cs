@@ -26,12 +26,32 @@ partial class Farm {
 	// It is safe for a single user to have multiple open.
 	private static readonly ConcurrentDictionary<ulong, Selection> _selections = new ();
 
-	// A list of all normalized names to canonical names, for autocomplete.
-	// E.g.: zinanthid -> Zin'anthid
-	private static readonly ConcurrentDictionary<string, string> _ids = new ();
-	// A database of all materials, indexed by normalized names (`_ids`).
-	// E.g.: zinanthid -> Zin'anthid
+	// A database of all materials, indexed by name.
 	private static readonly ConcurrentDictionary<string, Material> _data = new ();
+
+	// Default options for autocomplete (materials arg); simply a sample
+	// of mats (not all current mats need to be in here).
+	// Note: validate entries on static initialization.
+	private static readonly List<string> _defaultOptions = new () {
+		// Herbs
+
+		// Ore
+
+		// Cloth
+		"Wildercloth",
+		
+		// Leather
+		"Adamant Scales",
+		"Resilient Leather",
+		"Dense Hide",
+
+		// Elementals
+		"Rousing Frost",
+		"Rousing Earth",
+		"Rousing Decay",
+
+		// Meat
+	};
 
 	// Parser & renderer definitions.
 	private const string _formatDate = @"\!\!\!\ yyyy\-MM\-dd\ \!\!\!";
@@ -49,7 +69,6 @@ partial class Farm {
 	private const string _bullet = "\u2022";
 
 	// Configuration data.
-	private const int _maxOptions = 20;
 	private const string _pathVotes = @"data/farm-votes.txt";
 	private readonly static string[] _pathData = new string[] {
 		@"data/farm/herbs.txt",
@@ -67,7 +86,21 @@ partial class Farm {
 		// Read in and cache all data.
 		foreach (string path in _pathData)
 			ParseDataFile(path);
+
+		// Check that default options are valid. Remove any that aren't.
+		foreach (string option in _defaultOptions) {
+			if (!_data.ContainsKey(option)) {
+				Log.Warning("  Default material option invalid:");
+				Log.Information("    {MaterialName}", option);
+				_defaultOptions.Remove(option);
+			}
+		}
 	}
+
+	public static readonly Completer Completer = new StringCompleter(
+		args => new List<string>(_data.Keys),
+		args => _defaultOptions
+	);
 
 	public static DiscordColor GetColor(Quality quality) => quality switch {
 		Quality.Poor      => new ("#9D9D9D"),
@@ -83,12 +116,10 @@ partial class Farm {
 
 	// Returns a Material object if one matches the query string, otherwise
 	// returns null.
-	public static Material? ParseMaterial(string query) {
-		string id = NormalizeName(query);
-		return _data.ContainsKey(id)
-			? _data[id]
+	public static Material? ParseMaterial(string query) =>
+		_data.TryGetValue(query, out Material? value)
+			? value
 			: null;
-	}
 
 	// Respond to an interaction with a message.
 	// The response has to occur here, in order to set the message promise
@@ -119,44 +150,6 @@ partial class Farm {
 		// Add interactable to global tracking table.
 		// (Removal happens inside interactable's own cleanup.)
 		_selections.TryAdd(message.Id, selection);
-	}
-	
-	// Autocomplete valid options for a given query.
-	public static IList<(string, string)> AutocompleteOptions(string query) {
-		string id = NormalizeName(query);
-
-		// Search for matching options.
-		List<(string, string)> options = new ();
-		foreach (string option in _ids.Keys) {
-			if (option.Contains(id))
-				options.Add((_ids[option], _ids[option]));
-		}
-
-		// Limit the number of provided options.
-		if (options.Count > _maxOptions)
-			options = options.GetRange(0, _maxOptions);
-
-		// Sort options.
-		options.Sort();
-
-		return options;
-	}
-	
-	// Lower-case and strip all non-alpha characters from an input string,
-	// resulting in a normalized identifier string.
-	private static string NormalizeName(string name) {
-		string id = name.Trim().ToLower();
-		
-		if (id == "")
-			return id;
-
-		StringBuilder builder = new ();
-		foreach (char c in id) {
-			// Only need to check lower-case characters.
-			if (c is >='a' and <='z')
-				builder.Append(c);
-		}
-		return builder.ToString();
 	}
 
 	// Get a message builder with an appropriately rendered embed page.
@@ -265,10 +258,8 @@ partial class Farm {
 				date
 			);
 
-			// Add parsed material to caches.
-			string materialId = NormalizeName(name);
-			_ids.TryAdd(materialId, name);
-			_data.TryAdd(materialId, material);
+			// Add material object to cache.
+			_data.TryAdd(name, material);
 		}
 	}
 }

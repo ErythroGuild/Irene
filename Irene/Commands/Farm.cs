@@ -28,8 +28,8 @@ class Farm : CommandHandler {
 		),
 		CommandType.SlashCommand,
 		RespondAsync,
-		new Dictionary<string, Autocompleter> {
-			[ArgMaterial] = AutocompleteAsync,
+		new Dictionary<string, Completer> {
+			[ArgMaterial] = Module.Completer,
 		}
 	);
 
@@ -47,9 +47,5 @@ class Farm : CommandHandler {
 		// The module method will handle all responding, since it also
 		// needs to register the sent message for component interactions.
 		await Module.RespondAsync(interaction, material);
-	}
-
-	public async Task AutocompleteAsync(Interaction interaction, object arg, ParsedArgs args) {
-		await interaction.AutocompleteAsync(Module.AutocompleteOptions((string)arg));
 	}
 }
