@@ -215,6 +215,8 @@ static partial class Util {
 	public static string ParseString(JsonNode node, string key) =>
 		node[key]?.GetValue<string>()
 		?? throw new FormatException();
+	public static JsonNode ParseSubnode(JsonNode node, string key) =>
+		node[key] ?? throw new FormatException();
 
 	// Convenience functions for parsing sub-nodes of a `JsonNode`, and
 	// throwing on any error. These can be chained and the entire parsing
