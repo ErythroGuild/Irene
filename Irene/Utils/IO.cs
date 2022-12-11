@@ -1,5 +1,6 @@
 ﻿namespace Irene.Utils;
 
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 static partial class Util {
@@ -198,4 +199,20 @@ static partial class Util {
 
 		return output;
 	}
+
+	// Convenience functions for parsing a `JsonNode` and throwing on
+	// any error. These can be chained and the entire parsing section
+	// can be surrounded in a try/catch.
+	public static bool ParseBool(JsonNode node, string key) =>
+		node[key]?.GetValue<bool>()
+			?? throw new FormatException();
+	public static int ParseInt(JsonNode node, string key) =>
+		node[key]?.GetValue<int>()
+			?? throw new FormatException();
+	public static long ParseLong(JsonNode node, string key) =>
+		node[key]?.GetValue<long>()
+			?? throw new FormatException();
+	public static string ParseString(JsonNode node, string key) =>
+		node[key]?.GetValue<string>()
+			?? throw new FormatException();
 }

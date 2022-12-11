@@ -102,27 +102,21 @@ class WowToken {
 		if (data is null)
 			return null;
 
-		// Convenience functions for throwing on null results.
-		static int ParseInt(JsonNode node, string key) =>
-			node[key]?.GetValue<int>() ?? throw new FormatException();
-		static long ParseLong(JsonNode node, string key) =>
-			node[key]?.GetValue<long>() ?? throw new FormatException();
-
 		// Populate data from deserialized JSON object.
 		try {
-			int priceCurrent = ParseInt(data, _keyPriceCurrent);
-			int price1dHigh  = ParseInt(data, _keyPrice1dHigh );
-			int price1dLow   = ParseInt(data, _keyPrice1dLow  );
-			int price7dHigh  = ParseInt(data, _keyPrice7dHigh );
-			int price7dLow   = ParseInt(data, _keyPrice7dLow  );
-			int price30dHigh = ParseInt(data, _keyPrice30dHigh);
-			int price30dLow  = ParseInt(data, _keyPrice30dLow );
+			int priceCurrent = Util.ParseInt(data, _keyPriceCurrent);
+			int price1dHigh  = Util.ParseInt(data, _keyPrice1dHigh );
+			int price1dLow   = Util.ParseInt(data, _keyPrice1dLow  );
+			int price7dHigh  = Util.ParseInt(data, _keyPrice7dHigh );
+			int price7dLow   = Util.ParseInt(data, _keyPrice7dLow  );
+			int price30dHigh = Util.ParseInt(data, _keyPrice30dHigh);
+			int price30dLow  = Util.ParseInt(data, _keyPrice30dLow );
 
-			long timeRaw = ParseLong(data, _keyTimeUpdated);
+			long timeRaw = Util.ParseLong(data, _keyTimeUpdated);
 			DateTimeOffset timeUpdated =
 				DateTimeOffset.FromUnixTimeSeconds(timeRaw);
 
-			int priceTrend = ParseInt(data, _keyPriceTrend);
+			int priceTrend = Util.ParseInt(data, _keyPriceTrend);
 
 			return new (
 				priceCurrent,
