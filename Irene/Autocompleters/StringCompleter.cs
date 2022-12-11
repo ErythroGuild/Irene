@@ -6,6 +6,7 @@ class StringCompleter : Completer {
 	// --------
 
 	public delegate IReadOnlyList<string> ListHandler(ParsedArgs args);
+	public delegate (string, string) DisplayConverter(string searchString);
 
 	private enum MatchType {
 		Start,
@@ -40,6 +41,7 @@ class StringCompleter : Completer {
 
 	private ListHandler _getListAll;
 	private ListHandler _getListDefault;
+	private DisplayConverter _displayConverter;
 
 	private static readonly StringComparison _stringCompare =
 		StringComparison.InvariantCultureIgnoreCase;
@@ -51,10 +53,12 @@ class StringCompleter : Completer {
 	public StringCompleter(
 		ListHandler getListAll,
 		ListHandler listDefault,
-		int maxOptions=MaxOptionsDefault
+		int maxOptions=MaxOptionsDefault,
+		DisplayConverter? displayConverter=null
 	) : base (null!, null, maxOptions) {
 		_getListAll = getListAll;
 		_getListDefault = listDefault;
+		_displayConverter = displayConverter ?? StringDoubler;
 
 		GetOptionsAll = MatchOptionsAsync;
 		GetOptionsDefault = GetDefaultList;
@@ -138,11 +142,11 @@ class StringCompleter : Completer {
 				break;
 		}
 
-		return ListToPairList(results);
+		return ConvertList(results);
 	}
 
 	private IReadOnlyList<(string, string)> GetDefaultList(ParsedArgs args) =>
-		ListToPairList(_getListDefault.Invoke(args));
+		ConvertList(_getListDefault.Invoke(args));
 	
 
 	// --------
@@ -369,11 +373,16 @@ class StringCompleter : Completer {
 	// Returns false if the character is null.
 	private static bool IsAlpha(char? c) =>
 		c is not null and ((>='a' and <='z') or (>='A' and <='Z'));
-	// Expand a list to a list of pairs by duplicating each entry.
-	private static IReadOnlyList<(string, string)> ListToPairList(IReadOnlyList<string> list) {
-		List<(string, string)> tupleList = new ();
+	// Default `DisplayConverter`: the Id is the same as the Value.
+	private static (string, string) StringDoubler(string list) =>
+		new (list, list);
+
+	// Convert a list to a list of autocomplete options, using the set
+	// `DisplayConverter`.
+	private IReadOnlyList<(string, string)> ConvertList(IReadOnlyList<string> list) {
+		List<(string, string)> options = new ();
 		foreach (string item in list)
-			tupleList.Add(new (item, item));
-		return tupleList;
+			options.Add(_displayConverter(item));
+		return options;
 	}
 }
