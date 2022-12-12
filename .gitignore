@@ -4,12 +4,16 @@ remote-start.ps1
 
 ## Build Info
 */config/token.txt
+*/config/blizzard.txt
+*/config/deepl.txt
+
 */config/commit.txt
 */config/tag.txt
-*/config/deepl.txt
+
 */config/dir-data.txt
 */config/dir-logs.txt
 */config/path-ak.txt
+
 */data/secret-responses.txt
 
 ## Ignore Visual Studio temporary files, build results, and

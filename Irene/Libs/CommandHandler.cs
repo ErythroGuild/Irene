@@ -74,8 +74,10 @@ abstract class CommandHandler {
 				CompleterTable? completers=null
 			) {
 				Responder = responder;
-				Completers = completers
-					?? new Dictionary<string, Completer>();
+
+				completers ??= new Dictionary<string, Completer>();
+				Completers =
+					new ConcurrentDictionary<string, Completer>(completers);
 			}
 		}
 

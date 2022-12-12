@@ -12,21 +12,21 @@ class Mimic {
 		IReadOnlyList<IReadOnlyList<string>> Words
 	);
 
-	// Common languages + most "fun" languages to try.
+	// (Alphabetized) common languages + some "fun" languages to try.
 	// Note: validate entries on static initialization.
 	private static readonly List<string> _defaultOptions = new () {
 		"Darnassian",
-		"Orcish",
-		"Nerglish / Murloc",
-		"Moonkin",
-		"Shath'Yar",
 		"Draconic",
 		"Gnomish Binary",
-		"Pandaren",
-		"Vulpera",
-		"Gutterspeak / Forsaken",
 		"Goblin",
+		"Gutterspeak / Forsaken",
+		"Moonkin",
+		"Nerglish / Murloc",
+		"Orcish",
+		"Pandaren",
+		"Shath'Yar",
 		"Sprite",
+		"Vulpera",
 	};
 
 	// Master table of wordlists, indexed by (regularly-capitalized)
@@ -57,14 +57,13 @@ class Mimic {
 	static Mimic() {
 		_wordlists = ParseWordlists();
 
-		// Check that default options are valid. Remove any that aren't.
-		foreach (string option in _defaultOptions) {
-			if (!_wordlists.ContainsKey(option)) {
-				Log.Warning("  Default language option invalid:");
-				Log.Information("    {LanguageName}", option);
-				_defaultOptions.Remove(option);
-			}
-		}
+		// Remove any invalid default options.
+		int invalidCount =
+			_defaultOptions.RemoveAll(option =>
+				!_wordlists.ContainsKey(option)
+			);
+		if (invalidCount > 0)
+			Log.Warning("  Some default language options were invalid.");
 	}
 
 	public static readonly Completer Completer = new StringCompleter(

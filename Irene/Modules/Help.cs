@@ -1,13 +1,14 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 class Help {
 	// Most commonly used / most useful / most confusing help commands.
-	private readonly static List<string> _defaultOptions = new () {
+	private static readonly List<string> _defaultOptions = new () {
 		Commands.Help.CommandHelp,
 		Commands.Roles.CommandRoles,
+		// Alphabetize the rest:
 		//Commands.Birthday.CommandBirthday,
-		Commands.Random.CommandRandom,
 		Commands.Farm.CommandFarm,
+		Commands.Random.CommandRandom,
 	};
 
 	// Autocompleter.
@@ -65,7 +66,7 @@ class Help {
 			{_h}{_l} **About** {_r}
 			{HelpText(Commands.About.CommandAbout)}
 
-			{_h}{_l} **Discord Servers** {_r}
+			{_h}{_l} **Server Invites** {_r}
 			{HelpText(Commands.Invite.CommandInvite)}
 			{HelpText(Commands.ClassDiscord.CommandClassDiscord)}
 

@@ -8,21 +8,23 @@ class Invite : CommandHandler {
 		ArgServer = "server";
 	public const string
 		LabelErythro = "Erythro",
-		LabelLeuko   = "Leuko";
+		LabelLeuko   = "Leuko"  ,
+		LabelBnet    = "B.net"  ;
 	public const string
 		OptionErythro = "erythro",
-		OptionLeuko   = "leuko";
+		OptionLeuko   = "leuko"  ,
+		OptionBnet    = "bnet"   ;
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.None)}{Mention(CommandInvite)} `[{ArgServer}]` links an invite to the selected discord server.
+		{RankIcon(AccessLevel.None)}{Mention(CommandInvite)} `[{ArgServer}]` links server invites.
 		{_t}These links can also be found in {Erythro?.Channel(id_ch.resources).Mention ?? "#resources"}.
 		""";
 
 	public override CommandTree CreateTree() => new (
 		new (
 			CommandInvite,
-			"Show invite links for the guild discord servers.",
+			"Show invite links for guild-related servers.",
 			AccessLevel.None,
 			new List<DiscordCommandOption> { new (
 				ArgServer,
@@ -32,6 +34,7 @@ class Invite : CommandHandler {
 				new List<DiscordCommandOptionEnum> {
 					new (LabelErythro, OptionErythro),
 					new (LabelLeuko  , OptionLeuko  ),
+					new (LabelBnet   , OptionBnet   ),
 				}
 			) }
 		),
@@ -46,6 +49,7 @@ class Invite : CommandHandler {
 		Module.Server server = id switch {
 			OptionErythro => Module.Server.Erythro,
 			OptionLeuko   => Module.Server.Leuko  ,
+			OptionBnet    => Module.Server.Bnet   ,
 			_ => throw new ImpossibleArgException(ArgServer, id),
 		};
 

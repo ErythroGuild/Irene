@@ -1,8 +1,50 @@
 ﻿namespace Irene.Utils;
 
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 static partial class Util {
+	// Syntax sugar for passing a string as a Lazy<string>.
+	public static Lazy<string> AsLazy(this string s) => new (s);
+
+	// Returns the filename with "-temp" inserted at the end of the name,
+	// before the file extension.
+	// Throws if the filename doesn't end with a file extension.
+	public static string Temp(this string filename) {
+		Regex regexFilename = new (@".\.\w+$");
+		if (!regexFilename.IsMatch(filename))
+			throw new ArgumentException("Original filename must have a file extension.", nameof(filename));
+
+		int i = filename.LastIndexOf('.');
+		return filename.Insert(i, "-temp");
+	}
+
+	// Returns all of the string up to the first newline if one exists,
+	// and returns the entire string otherwise.
+	public static string ElideFirstLine(this string input) {
+		if (input.Contains('\n')) {
+			int i_newline = input.IndexOf("\n");
+			return input[..i_newline] + " [...]";
+		} else {
+			return input;
+		}
+	}
+
+	// Print a List<string> as concatenated lines.
+	public static string ToLines(this List<string> lines) =>
+		string.Join("\n", lines);
+
+	// Create a blank file at the given path, if it doesn't exist.
+	// Returns true if file was created, false otherwise.
+	public static bool CreateIfMissing(string path) {
+		bool didCreate = false;
+		if (!File.Exists(path)) {
+			File.Create(path).Close();
+			didCreate = true;
+		}
+		return didCreate;
+	}
+
 	// Converts strings to/from single-line, easily parseable text.
 	// Escape codes are defined in `Const`.
 	public static string Escape(this string input) {
@@ -158,44 +200,45 @@ static partial class Util {
 		return output;
 	}
 
-	// Syntax sugar for passing a string as a Lazy<string>.
-	public static Lazy<string> AsLazy(this string s) => new (s);
+	// Convenience functions for parsing a `JsonNode` and throwing on
+	// any error. These can be chained and the entire parsing section
+	// can be surrounded in a try/catch.
+	public static bool ParseBool(JsonNode node, string key) =>
+		node[key]?.GetValue<bool>()
+		?? throw new FormatException();
+	public static int ParseInt(JsonNode node, string key) =>
+		node[key]?.GetValue<int>()
+		?? throw new FormatException();
+	public static long ParseLong(JsonNode node, string key) =>
+		node[key]?.GetValue<long>()
+		?? throw new FormatException();
+	public static string ParseString(JsonNode node, string key) =>
+		node[key]?.GetValue<string>()
+		?? throw new FormatException();
+	public static JsonNode ParseSubnode(JsonNode node, string key) =>
+		node[key] ?? throw new FormatException();
 
-	// Returns the filename with "-temp" inserted at the end of the name,
-	// before the file extension.
-	// Throws if the filename doesn't end with a file extension.
-	public static string Temp(this string filename) {
-		Regex regexFilename = new (@".\.\w+$");
-		if (!regexFilename.IsMatch(filename))
-			throw new ArgumentException("Original filename must have a file extension.", nameof(filename));
-
-		int i = filename.LastIndexOf('.');
-		return filename.Insert(i, "-temp");
-	}
-
-	// Returns all of the string up to the first newline if one exists,
-	// and returns the entire string otherwise.
-	public static string ElideFirstLine(this string input) {
-		if (input.Contains('\n')) {
-			int i_newline = input.IndexOf("\n");
-			return input[..i_newline] + " [...]";
-		} else {
-			return input;
-		}
-	}
-
-	// Print a List<string> as concatenated lines.
-	public static string ToLines(this List<string> lines) =>
-		string.Join("\n", lines);
-
-	// Create a blank file at the given path, if it doesn't exist.
-	// Returns true if file was created, false otherwise.
-	public static bool CreateIfMissing(string path) {
-		bool didCreate = false;
-		if (!File.Exists(path)) {
-			File.Create(path).Close();
-			didCreate = true;
-		}
-		return didCreate;
-	}
+	// Convenience functions for parsing sub-nodes of a `JsonNode`, and
+	// throwing on any error. These can be chained and the entire parsing
+	// section can be surrounded in a try/catch.
+	public static bool ParseSubBool(JsonNode node, string keyNode, string keyValue) =>
+		node[keyNode]
+		?.AsObject()[keyValue]
+		?.GetValue<bool>()
+		?? throw new FormatException();
+	public static int ParseSubInt(JsonNode node, string keyNode, string keyValue) =>
+		node[keyNode]
+		?.AsObject()[keyValue]
+		?.GetValue<int>()
+		?? throw new FormatException();
+	public static long ParseSubLong(JsonNode node, string keyNode, string keyValue) =>
+		node[keyNode]
+		?.AsObject()[keyValue]
+		?.GetValue<long>()
+		?? throw new FormatException();
+	public static string ParseSubString(JsonNode node, string keyNode, string keyValue) =>
+		node[keyNode]
+		?.AsObject()[keyValue]
+		?.GetValue<string>()
+		?? throw new FormatException();
 }

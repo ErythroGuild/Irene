@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -30,7 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DeepL.net" Version="1.5.0" />
-    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01189" />
+    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01193" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageReference Include="NLua" Version="1.6.0" />
@@ -44,6 +44,9 @@
     <PackageReference Include="Spectre.Console" Version="0.45.0" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="config\blizzard.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="config\commit.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -64,6 +67,9 @@
     </None>
     <None Update="config\token.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="data\crafters.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="data\events.txt">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
