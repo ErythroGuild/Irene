@@ -220,7 +220,7 @@ static class Const {
 				barEmptyR     = 1047326999137488987,
 				barFilledL    = 1047327000219627630,
 				barFilledM    = 1047327001473732719,
-				barFilledR    = 1047326999137488987,
+				barFilledR    = 1047327003122081842,
 				barFillingL   = 1047327004724318228,
 				barFillingLtR = 1047327521592574042,
 				barFillingRtL = 1047327540857028610,
