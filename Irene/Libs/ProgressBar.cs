@@ -23,7 +23,11 @@ static class ProgressBar {
 		_eFillingR   = Erythro.Emoji(id_e.barFillingR  );
 	}
 	
-	// the size must be at least 2
+	// Construct a new progress bar using emojis. The visualization is
+	// slightly inaccurate since the "center" of the "filling" emojis
+	// isn't at the border of the emoji, but this is close enough (and
+	// makes the math a lot simpler).
+	// Note: Bars must be at least size 2.
 	public static string Get(double percent, int size, bool isReversed=false) {
 		int fill = (int)Math.Round(percent * size);
 		fill = Math.Clamp(fill, 0, size);
