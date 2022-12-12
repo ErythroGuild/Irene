@@ -13,8 +13,8 @@ class Help {
 
 	// Autocompleter.
 	public static readonly Completer Completer = new StringCompleter(
-		args => GetCommandNames(),
-		args => _defaultOptions,
+		(_, _) => GetCommandNames(),
+		(_, _) => _defaultOptions,
 		12
 	);
 	// Returns only the slash commands' names.

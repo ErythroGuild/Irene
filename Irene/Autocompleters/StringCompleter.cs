@@ -5,7 +5,10 @@ class StringCompleter : Completer {
 	// Definitions and data structures:
 	// --------
 
-	public delegate IReadOnlyList<string> ListHandler(ParsedArgs args);
+	public delegate IReadOnlyList<string> ListHandler(
+		ParsedArgs args,
+		Interaction interaction
+	);
 	public delegate (string, string) DisplayConverter(string searchString);
 
 	private enum MatchType {
@@ -69,11 +72,20 @@ class StringCompleter : Completer {
 	// Top-level delegates for inherited handlers:
 	// --------
 
-	private Task<IReadOnlyList<(string, string)>> MatchOptionsAsync(string arg, ParsedArgs args) =>
-		Task.Run(() => MatchOptions(arg, args));
-	private IReadOnlyList<(string, string)> MatchOptions(string arg, ParsedArgs args) {
+	private Task<IReadOnlyList<(string, string)>> MatchOptionsAsync(
+		string arg,
+		ParsedArgs args,
+		Interaction interaction
+	) =>
+		Task.Run(() => MatchOptions(arg, args, interaction));
+	private IReadOnlyList<(string, string)> MatchOptions(
+		string arg,
+		ParsedArgs args,
+		Interaction interaction
+	) {
 		arg = arg.Trim().ToLower();
-		List<string> options = new (_getListAll.Invoke(args));
+		List<string> options =
+			new (_getListAll.Invoke(args, interaction));
 		List<MatchList> matches = new () {
 			new (MaxOptions),
 			new (MaxOptions),
@@ -145,8 +157,11 @@ class StringCompleter : Completer {
 		return ConvertList(results);
 	}
 
-	private IReadOnlyList<(string, string)> GetDefaultList(ParsedArgs args) =>
-		ConvertList(_getListDefault.Invoke(args));
+	private IReadOnlyList<(string, string)> GetDefaultList(
+		ParsedArgs args,
+		Interaction interaction
+	) =>
+		ConvertList(_getListDefault.Invoke(args, interaction));
 	
 
 	// --------
