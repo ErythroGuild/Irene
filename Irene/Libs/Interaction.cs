@@ -232,6 +232,14 @@ class Interaction {
 		Object.DeleteOriginalResponseAsync();
 	public Task DeleteFollowupAsync(ulong id) =>
 		Object.DeleteFollowupMessageAsync(id);
+	public Task<DiscordMessage> EditResponseAsync(string message) {
+		DiscordMessageBuilder response =
+			new DiscordMessageBuilder()
+			.WithContent(message);
+		return EditResponseAsync(response);
+	}
+	public Task<DiscordMessage> EditResponseAsync(DiscordMessageBuilder message) =>
+		EditResponseAsync(new DiscordWebhookBuilder(message));
 	public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder message) =>
 		Object.EditOriginalResponseAsync(message);
 

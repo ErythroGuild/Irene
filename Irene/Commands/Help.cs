@@ -8,7 +8,6 @@ class Help : CommandHandler {
 	public const string
 		CommandHelp = "help",
 		ArgCommand = "command";
-	private const int _maxOptions = 20;
 
 	public override string HelpText =>
 		$"""

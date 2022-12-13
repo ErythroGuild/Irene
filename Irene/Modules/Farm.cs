@@ -87,8 +87,8 @@ partial class Farm {
 	}
 
 	public static readonly Completer Completer = new StringCompleter(
-		args => new List<string>(_data.Keys),
-		args => _defaultOptions
+		(_, _) => new List<string>(_data.Keys),
+		(_, _) => _defaultOptions
 	);
 
 	public static DiscordColor GetColor(Quality quality) => quality switch {

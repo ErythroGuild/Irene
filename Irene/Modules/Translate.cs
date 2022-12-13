@@ -120,14 +120,14 @@ class Translate {
 
 	// Autocompleters.
 	public static readonly Completer CompleterSource = new StringCompleter(
-		args => GetSourceSearchStrings(),
-		args => GetDefaultSourceSearchStrings(),
+		(_, _) => GetSourceSearchStrings(),
+		(_, _) => GetDefaultSourceSearchStrings(),
 		8,
 		s => SearchStringToOption(s, LanguageType.Source)
 	);
 	public static readonly Completer CompleterTarget = new StringCompleter(
-		args => GetTargetSearchStrings(),
-		args => GetDefaultTargetSearchStrings(),
+		(_, _) => GetTargetSearchStrings(),
+		(_, _) => GetDefaultTargetSearchStrings(),
 		8,
 		s => SearchStringToOption(s, LanguageType.Target)
 	);

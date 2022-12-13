@@ -67,8 +67,8 @@ class Mimic {
 	}
 
 	public static readonly Completer Completer = new StringCompleter(
-		args => GetLanguageNames(),
-		args => _defaultOptions,
+		(_, _) => GetLanguageNames(),
+		(_, _) => _defaultOptions,
 		12
 	);
 	private static List<string> GetLanguageNames() => new (_wordlists.Keys);

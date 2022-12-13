@@ -1,8 +1,15 @@
 ﻿namespace Irene.Autocompleters;
 
 class Completer {
-	public delegate Task<IReadOnlyList<(string, string)>> AllOptionsHandler(string arg, ParsedArgs args);
-	public delegate IReadOnlyList<(string, string)> DefaultOptionsHandler(ParsedArgs args);
+	public delegate Task<IReadOnlyList<(string, string)>> AllOptionsHandler(
+		string arg,
+		ParsedArgs args,
+		Interaction interaction
+	);
+	public delegate IReadOnlyList<(string, string)> DefaultOptionsHandler(
+		ParsedArgs args,
+		Interaction interaction
+	);
 
 	public int MaxOptions { get; }
 	public const int MaxOptionsDefault = 16;
@@ -22,22 +29,34 @@ class Completer {
 	) {
 		// If default options are null/unspecified, just have it return
 		// an empty list.
-		getOptionsDefault ??= args => new List<(string, string)>();
+		getOptionsDefault ??= (_, _) => new List<(string, string)>();
 
 		MaxOptions = maxOptions;
 		GetOptionsDefault = getOptionsDefault;
 		GetOptionsAll = getOptionsAll;
 	}
 
-	public async Task<IList<(string, string)>> GetOptions(string arg, ParsedArgs args) {
+	public async Task<IList<(string, string)>> GetOptions(
+		string arg,
+		ParsedArgs args,
+		Interaction interaction
+	) {
 		// Return default options when string is empty.
 		arg = arg.Trim();
-		if (arg == "")
-			return new List<(string, string)>(GetOptionsDefault.Invoke(args));
+		if (arg == "") {
+			List<(string, string)> optionsDefault =
+				new (GetOptionsDefault.Invoke(args, interaction));
+
+			// Limit option count.
+			if (optionsDefault.Count > MaxOptions)
+				optionsDefault = optionsDefault.GetRange(0, MaxOptions);
+
+			return optionsDefault;
+		}
 
 		// Fetch all options.
 		List<(string, string)> options =
-			new (await GetOptionsAll.Invoke(arg, args));
+			new (await GetOptionsAll.Invoke(arg, args, interaction));
 		
 		// Limit option count.
 		if (options.Count > MaxOptions)

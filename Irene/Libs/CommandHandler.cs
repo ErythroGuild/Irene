@@ -272,7 +272,7 @@ abstract class CommandHandler {
 
 					IList<(string, string)> options = await
 						handler.Completers[arg.Name]
-						.GetOptions((string)arg.Value, argTable);
+						.GetOptions((string)arg.Value, argTable, interaction);
 					await interaction.AutocompleteAsync(options);
 
 					return ResultType.Success;
