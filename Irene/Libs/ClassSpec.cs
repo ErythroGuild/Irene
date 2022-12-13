@@ -222,16 +222,18 @@ static class ClassSpec {
 	};
 
 	// Emojis associated with roles/classes.
-	public static DiscordEmoji Emoji(this Role role, GuildData erythro) {
+	public static DiscordEmoji Emoji(this Role role) {
+		CheckErythroInit();
 		ulong id = role switch {
 			Role.Tank => id_e.tank,
 			Role.Heal => id_e.heal,
 			Role.DPS  => id_e.dps ,
 			_ => throw new UnclosedEnumException(typeof(Role), role),
 		};
-		return erythro.Emoji(id);
+		return Erythro.Emoji(id);
 	}
-	public static DiscordEmoji Emoji(this Class @class, GuildData erythro) {
+	public static DiscordEmoji Emoji(this Class @class) {
+		CheckErythroInit();
 		ulong id = @class switch {
 			Class.DK      => id_e.dk     ,
 			Class.DH      => id_e.dh     ,
@@ -248,7 +250,7 @@ static class ClassSpec {
 			Class.Warrior => id_e.warrior,
 			_ => throw new UnclosedEnumException(typeof(Class), @class),
 		};
-		return erythro.Emoji(id);
+		return Erythro.Emoji(id);
 	}
 
 	// The categories a Spec falls into.
