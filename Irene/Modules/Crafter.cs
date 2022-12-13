@@ -715,6 +715,8 @@ class Crafter {
 			);
 
 			// Update `_playerCrafters`.
+			if (!_playerCrafters.ContainsKey(userId))
+				_playerCrafters.TryAdd(userId, new List<Character>());
 			List<Character> characters = new (_playerCrafters[userId])
 				{ character };
 			_playerCrafters[userId] = characters;
