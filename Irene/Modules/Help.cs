@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 class Help {
 	// Most commonly used / most useful / most confusing help commands.
@@ -98,7 +98,7 @@ class Help {
 			{/*HelpText("roster")*/ "[WIP]"}
 
 			{_h}{_l} **Crafters** {_r}
-			{/*HelpText("craft")*/ "[WIP]"}
+			{HelpText(Commands.Crafter.CommandCrafter)}
 			""",
 
 			$"""
