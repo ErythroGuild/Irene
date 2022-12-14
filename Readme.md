@@ -97,3 +97,7 @@ of the files in here contain save data for various modules, and is periodically
 copied back from the running bot and updated as part of the repo. Some
 of the files are read and cached on program start, and require a restart
 of the bot before any changes are reflected.
+
+### GitHub Next Visualization
+
+![Repo visualization diagram](./visualizer.svg)
