@@ -97,3 +97,10 @@ of the files in here contain save data for various modules, and is periodically
 copied back from the running bot and updated as part of the repo. Some
 of the files are read and cached on program start, and require a restart
 of the bot before any changes are reflected.
+
+### GitHub Next Visualization
+
+*click image for interactive visualization*
+
+<a href="https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ErythroGuild%2Firene" alt="Repo visualization diagram">
+	<img src="./visualizer.svg" /></a>
