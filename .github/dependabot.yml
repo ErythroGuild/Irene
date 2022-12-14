@@ -1,0 +1,20 @@
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  # NuGet dependencies
+  - package-ecosystem: "nuget"
+    directory: "Irene/"
+    target-branch: "dev"
+    labels: [ ]
+    commit-message:
+      prefix: "[Dependabot]"
+    ignore:
+      # Nightly changes may break things, manually upgrade as needed
+      - dependency-name: "DSharpPlus"
+      # Requires custom-built matching binaries, only upgrade as needed
+      - dependency-name: "OpenCvSharp4*"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
