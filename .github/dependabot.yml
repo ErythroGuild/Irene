@@ -12,7 +12,10 @@ updates:
     commit-message:
       prefix: "[Dependabot]"
     ignore:
+      # Nightly changes may break things, manually upgrade as needed
       - dependency-name: "DSharpPlus"
+      # Requires custom-built matching binaries, only upgrade as needed
+      - dependency-name: "OpenCvSharp4*"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
