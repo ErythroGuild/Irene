@@ -23,10 +23,10 @@ jobs:
 
     # Update diagram.
     - name: Update diagram
-      uses: githubocto/repo-visualizer@0.7.1
+      uses: githubocto/repo-visualizer@main
       with:
         output_file: "visualizer.svg"
-        excluded_paths: "config"
+        excluded_paths: "Irene/config"
         root_path: "Irene/"
         commit_message: "[CI] Update repo visualizer diagram"
         # Some default colors are out-of-date (or ugly).
