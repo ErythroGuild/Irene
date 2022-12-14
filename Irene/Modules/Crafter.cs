@@ -1,7 +1,6 @@
 ﻿namespace Irene.Modules;
 
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text.Json.Nodes;
 using System.Timers;
@@ -399,17 +398,20 @@ class Crafter {
 		);
 
 		// Convert list to strings.
-		DiscordEmoji star = Erythro.Emoji(id_e.sparkleRed);
-		const string _endash = "\u2013";
+		DiscordEmoji quality = Erythro.Emoji(id_e.sparkleRed);
+		const string
+			_emDash = "\u2014",
+			_enSpace = "\u2002";
 		List<string> lines = new () {
-			$"{star} __**{title}s**__ {star}",
+			// Two spaces here on one side lines up better.
+			$"{quality}  __**{title}s:**__ {quality}",
 			"",
 		};
 		foreach (CharacterData crafter in crafters) {
 			DiscordEmoji @class = crafter.Class.Emoji();
 			string name = GetServerLocalName(crafter.Character);
 			string mention = crafter.UserId.MentionUserId();
-			lines.Add($"{@class} **{name}** {_endash} {mention}");
+			lines.Add($"{@class}{_enSpace}**{name}**{_enSpace}{_emDash} {mention}");
 		}
 		
 		// Respond with list of crafters.
