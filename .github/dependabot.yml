@@ -7,8 +7,7 @@ updates:
   - package-ecosystem: "nuget"
     directory: "Irene/"
     target-branch: "dev"
-    labels:
-      - "area: build"
+    labels: [ ]
     commit-message:
       prefix: "[Dependabot]"
     ignore:
