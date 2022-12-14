@@ -1,3 +1,145 @@
+SFO,25,Saturday
+	raid-date=SFO,25,Saturday
+	canceled=False
+	summary=Heroic Fated Sepulcher! Provided we have the people.
+	message-id=1010724925176303717
+	group=Salad
+		log-id=Kzjq4CQ6GbmYayXN
+SFO,25,Friday
+	raid-date=SFO,25,Friday
+	canceled=False
+	summary=Normal Fated Sepulcher!! Lets get that slime cat!
+	message-id=1010362537189060628
+	group=Salad
+		log-id=pgxDRwY9WAPFkqmC
+SFO,24,Saturday
+	raid-date=SFO,24,Saturday
+	canceled=True
+	summary=
+	message-id=
+SFO,24,Friday
+	raid-date=SFO,24,Friday
+	canceled=False
+	summary=Normal Fated Sanctum!
+	message-id=1007825822440226846
+	group=Salad
+		log-id=vTJYFbgBZAKWwfcx
+SFO,23,Saturday
+	raid-date=SFO,23,Saturday
+	canceled=False
+	summary=Fated Heroic Nathria!
+	message-id=1005651494860759093
+	group=Spaghetti
+		log-id=MavGKRj6tAYNTDpc
+SFO,23,Friday
+	raid-date=SFO,23,Friday
+	canceled=False
+	summary=
+	message-id=1005289124749639680
+	group=Salad
+		log-id=m6kCAMVPj2BZDR7N
+SFO,22,Saturday
+	raid-date=SFO,22,Saturday
+	canceled=True
+	summary=
+	message-id=1003114796184518677
+SFO,22,Friday
+	raid-date=SFO,22,Friday
+	canceled=False
+	summary=
+	message-id=1002752392812580945
+SFO,21,Saturday
+	raid-date=SFO,21,Saturday
+	canceled=False
+	summary=AotC party!! :D
+	message-id=1000578065509924886
+	group=Salad
+		log-id=PARTYYYYYYYY
+SFO,21,Friday
+	raid-date=SFO,21,Friday
+	canceled=True
+	summary=
+	message-id=
+SFO,20,Saturday
+	raid-date=SFO,20,Saturday
+	canceled=True
+	summary=Sepulcher Achives take 2!
+	message-id=998041349838348358
+SFO,20,Friday
+	raid-date=SFO,20,Friday
+	canceled=True
+	summary=Sepulchre Achievement Run!! (on Normal difficulty)
+	message-id=997678962157293578
+	group=Salad
+		log-id=tga3jLkxGWndJ2zr
+SFO,19,Saturday
+	raid-date=SFO,19,Saturday
+	canceled=True
+	summary=
+	message-id=
+SFO,19,Friday
+	raid-date=SFO,19,Friday
+	canceled=False
+	summary=
+	message-id=995142247089705061
+	group=Salad
+		log-id=jqH2rCfb7awJZ3YQ
+SFO,18,Saturday
+	raid-date=SFO,18,Saturday
+	canceled=False
+	summary=Jailer! :sfo11_jailer: Cleaning up mechanics let's get that curve!
+	message-id=992967920814669824
+	group=Salad
+		log-id=bHRa72tYqzMrmDXA
+SFO,18,Friday
+	raid-date=SFO,18,Friday
+	canceled=False
+	summary=Jailer!! Lets smash those pylons and stack for defile!
+	message-id=992605532152148059
+	group=Spaghetti
+		log-id=gQpW7NY6yZrbfJAw
+SFO,17,Saturday
+	raid-date=SFO,17,Saturday
+	canceled=False
+	summary=
+	message-id=990431219168739358
+	group=Salad
+		log-id=TQ2xAj9qg3vV8JHG
+SFO,17,Friday
+	raid-date=SFO,17,Friday
+	canceled=False
+	summary=MORE JAILER! Watch yer back! keep an eye out for those pits and move clockwise during chains! :slight_smile:
+	message-id=990068830678175754
+	group=Spaghetti
+		log-id=DkKbdZWa93NF4G1v
+SFO,16,Saturday
+	raid-date=SFO,16,Saturday
+	canceled=False
+	summary=More H Jailer! This time with less sprinting off the edge and dancing in defile :)
+	message-id=987894489899212841
+	group=Spaghetti
+		log-id=W6mg3nJaXQ8fbxHL
+SFO,16,Friday
+	raid-date=SFO,16,Friday
+	canceled=False
+	summary=JAILER!! JAILER!! JAILER!!
+	message-id=987532101807132673
+	group=Salad
+		log-id=R4mvxJ2jdrCy3bTL
+SFO,15,Saturday
+	raid-date=SFO,15,Saturday
+	canceled=False
+	summary=heroic wriggles\ngood luck fam
+	message-id=985357774559019058
+	group=Salad
+		log-id=nc37MWgYDqrbG8x6
+SFO,15,Friday
+	raid-date=SFO,15,Friday
+	canceled=False
+	summary=lord's of Dread, then rygelon if we can learn how to overlap circles.
+	message-id=984995385628037210
+	group=Spaghetti
+		log-id=RBQ8chg7M3CYZak4
 SFO,14,Saturday
 	raid-date=SFO,14,Saturday
 	canceled=False
