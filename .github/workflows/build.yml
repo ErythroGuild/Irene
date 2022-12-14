@@ -1,4 +1,4 @@
-name: .NET 6 Build (Linux)
+name: .NET 7 Build (Linux)
 
 on:
   push:
@@ -12,11 +12,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  call-intellicode:
+    uses: ./.github/workflows/intellicode.yml
+
   build:
     runs-on: [ self-hosted, Linux ]
     defaults:
       run:
         working-directory: ./Irene
+
     steps:
     # Checkout repository.
     - name: Checkout
@@ -28,8 +32,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: true
+        dotnet-version: 7.0.x
         
     # Build/test/publish.
     - name: Clean
