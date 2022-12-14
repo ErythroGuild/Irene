@@ -42,6 +42,7 @@
     <PackageReference Include="Spectre.Console" Version="0.45.0" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="data\.stignore" />
     <None Include="config\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
