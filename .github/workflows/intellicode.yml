@@ -1,0 +1,39 @@
+name: Intellicode Training
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  
+concurrency:
+  group: ci-intellicode-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: [ self-hosted, Linux ]
+    defaults:
+      run:
+        working-directory: ./Irene
+
+    steps:
+    # Checkout repository.
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        # On v2, override fetch-depth to fetch entire codebase for analysis.
+        fetch-depth: 0
+
+    # Setup .NET.
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 7.0.x
+
+    # Build.
+    # Project needs to build before training a model.
+    - name: Build
+      run: dotnet build -c Release
+    
+    # Train Intellicode model.
+    - name: Train Intellicode
+      uses: microsoft/vs-intellicode@v1

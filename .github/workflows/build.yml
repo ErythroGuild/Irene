@@ -12,6 +12,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  call-intellicode:
+    uses: ./.github/workflows/intellicode.yml
+
   build:
     runs-on: [ self-hosted, Linux ]
     defaults:
