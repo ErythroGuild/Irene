@@ -100,4 +100,7 @@ of the bot before any changes are reflected.
 
 ### GitHub Next Visualization
 
-![Repo visualization diagram](./visualizer.svg)
+*click image for interactive visualization*
+
+<a href="https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ErythroGuild%2Firene" alt="Repo visualization diagram">
+	<img src="./visualizer.svg" /></a>
