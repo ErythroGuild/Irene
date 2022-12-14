@@ -16,5 +16,5 @@ updates:
       # Requires custom-built matching binaries, only upgrade as needed
       - dependency-name: "OpenCvSharp4*"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 5
