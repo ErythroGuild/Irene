@@ -1,4 +1,4 @@
-name: .NET 7 Build (Linux)
+name: .NET Build (Linux)
 
 on:
   push:
