@@ -1,15 +1,15 @@
-﻿namespace Irene.Commands;
+namespace Irene.Commands;
 
 using Module = Modules.Invite;
 
 class Invite : CommandHandler {
 	public const string
 		CommandInvite = "invite",
-		ArgServer = "server";
+		ArgServer     = "server";
 	public const string
-		LabelErythro = "Erythro",
-		LabelLeuko   = "Leuko"  ,
-		LabelBnet    = "B.net"  ;
+		LabelErythro = "Erythro"   ,
+		LabelLeuko   = "Leuko"     ,
+		LabelBnet    = "Battle.net";
 	public const string
 		OptionErythro = "erythro",
 		OptionLeuko   = "leuko"  ,
