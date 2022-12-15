@@ -20,8 +20,8 @@ class About {
 		_colorIdle   = new ("#FEE75C"),
 		_colorBusy   = new ("#ED4245");
 	private const double
-		_memoryLowerLimit = 90.0,
-		_memoryUpperLimit = 180.0;
+		_memoryLowerLimit = 80.0,
+		_memoryUpperLimit = 120.0;
 	private const ulong _idMaintainer = 165557736287764483;
 	private const string
 		_linkSourceCode      = @"https://github.com/ErythroGuild/irene",
