@@ -2,7 +2,7 @@ name: .NET Build (Linux)
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   release:
     types: [ published ]
   workflow_dispatch:
