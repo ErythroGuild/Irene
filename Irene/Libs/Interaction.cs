@@ -1,4 +1,4 @@
-namespace Irene;
+﻿namespace Irene;
 
 using System.Diagnostics;
 
@@ -137,6 +137,16 @@ class Interaction {
 	// Convenience methods for responding to interactions:
 	// --------
 
+	// Convenience method for responding to a component interaction
+	// initiated by an unintended user, with a followup (ephemeral)
+	// error message explaining what happened.
+	public async Task RespondComponentNotOwned(DiscordUser owner) {
+		await DeferComponentAsync();
+		string message =
+			$":confused: Sorry, only {owner.Mention} can use this.";
+		await FollowupAsync(message, true);
+	}
+
 	// Convenience methods for responding to a command, and registering
 	// a final response at the same time.
 	public Task RegisterAndRespondAsync(
@@ -220,16 +230,16 @@ class Interaction {
 	// Responses to either command or component interactions:
 	public Task RespondModalAsync(DiscordInteractionResponseBuilder modal) =>
 		Object.CreateResponseAsync(InteractionResponseType.Modal, modal);
-	public Task<DiscordMessage> FollowupAsync(string message) {
+	public Task<DiscordMessage> FollowupAsync(string message, bool isEphemeral=false) {
 		DiscordMessageBuilder response =
 			new DiscordMessageBuilder()
 			.WithContent(message);
-		return FollowupAsync(response);
+		return FollowupAsync(response, isEphemeral);
 	}
-	public Task<DiscordMessage> FollowupAsync(IDiscordMessageBuilder message) =>
-		FollowupAsync(new DiscordFollowupMessageBuilder(message));
-	public Task<DiscordMessage> FollowupAsync(DiscordFollowupMessageBuilder message) =>
-		Object.CreateFollowupMessageAsync(message);
+	public Task<DiscordMessage> FollowupAsync(IDiscordMessageBuilder message, bool isEphemeral=false) =>
+		FollowupAsync(new DiscordFollowupMessageBuilder(message), isEphemeral);
+	public Task<DiscordMessage> FollowupAsync(DiscordFollowupMessageBuilder message, bool isEphemeral=false) =>
+		Object.CreateFollowupMessageAsync(message.AsEphemeral(isEphemeral));
 
 	// Methods for manipulating responses/followups.
 	public Task<DiscordMessage> GetResponseAsync() =>

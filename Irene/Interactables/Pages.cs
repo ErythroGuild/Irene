@@ -54,8 +54,11 @@ class Pages {
 
 					// Only respond to interactions created by the owner
 					// of the interactable.
-					if (e.User != pages._interaction.User)
+					if (e.User != pages.Owner) {
+						await Interaction.FromComponent(e)
+							.RespondComponentNotOwned(pages.Owner);
 						return;
+					}
 
 					// Handle buttons.
 					switch (e.Id) {
@@ -88,7 +91,8 @@ class Pages {
 	private int _page;
 	private readonly int _pageCount;
 	private readonly int _pageSize;
-	private string CurrentContent { get {
+	private DiscordUser Owner => _interaction.User;
+	public string CurrentContent { get {
 		int i_start = _page * _pageSize;
 		int i_end = Math.Min(i_start + _pageSize, _data.Count);
 		int i_range = i_end - i_start;
