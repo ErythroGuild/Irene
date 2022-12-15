@@ -1123,12 +1123,16 @@ class Crafter {
 		ConcurrentDictionary<Profession, ProfessionData> data = new ();
 
 		// Merge primary/secondary profession arrays into a single list.
-		JsonNode nodeProfession;
+		// These will be null if either primary or secondary professions
+		// are completely missing, so we need to guard with null checks.
+		JsonNode? nodeProfession;
 		List<JsonNode?> nodesProfession = new ();
-		nodeProfession = Util.ParseSubnode(root, _keyPrimary);
-		nodesProfession.AddRange(nodeProfession.AsArray());
-		nodeProfession = Util.ParseSubnode(root, _keySecondary);
-		nodesProfession.AddRange(nodeProfession.AsArray());
+		nodeProfession = root[_keyPrimary];
+		if (nodeProfession is not null)
+			nodesProfession.AddRange(nodeProfession.AsArray());
+		nodeProfession = root[_keySecondary];
+		if (nodeProfession is not null)
+			nodesProfession.AddRange(nodeProfession.AsArray());
 
 		// Iterate through combined list of nodes.
 		foreach (JsonNode? node_i in nodesProfession) {
