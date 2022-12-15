@@ -220,8 +220,16 @@ class Interaction {
 	// Responses to either command or component interactions:
 	public Task RespondModalAsync(DiscordInteractionResponseBuilder modal) =>
 		Object.CreateResponseAsync(InteractionResponseType.Modal, modal);
-	public Task<DiscordMessage> FollowupAsync(DiscordFollowupMessageBuilder builder) =>
-		Object.CreateFollowupMessageAsync(builder);
+	public Task<DiscordMessage> FollowupAsync(string message) {
+		DiscordMessageBuilder response =
+			new DiscordMessageBuilder()
+			.WithContent(message);
+		return FollowupAsync(message);
+	}
+	public Task<DiscordMessage> FollowupAsync(IDiscordMessageBuilder message) =>
+		FollowupAsync(new DiscordFollowupMessageBuilder(message));
+	public Task<DiscordMessage> FollowupAsync(DiscordFollowupMessageBuilder message) =>
+		Object.CreateFollowupMessageAsync(message);
 
 	// Methods for manipulating responses/followups.
 	public Task<DiscordMessage> GetResponseAsync() =>
@@ -238,7 +246,7 @@ class Interaction {
 			.WithContent(message);
 		return EditResponseAsync(response);
 	}
-	public Task<DiscordMessage> EditResponseAsync(DiscordMessageBuilder message) =>
+	public Task<DiscordMessage> EditResponseAsync(IDiscordMessageBuilder message) =>
 		EditResponseAsync(new DiscordWebhookBuilder(message));
 	public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder message) =>
 		Object.EditOriginalResponseAsync(message);
