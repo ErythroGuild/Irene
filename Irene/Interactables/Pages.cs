@@ -3,6 +3,15 @@ namespace Irene.Interactables;
 using System.Timers;
 
 class Pages {
+	// This class provides a single place to manage settings to pass
+	// to the Pages factory method.
+	public class Options {
+		public TimeSpan Timeout = DefaultTimeout;
+		public int PageSize = DefaultPageSize;
+		public string? Header = null;
+		public string? Footer = null;
+	}
+
 	public const int DefaultPageSize = 8;
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
@@ -74,6 +83,8 @@ class Pages {
 	private readonly Interaction _interaction;
 	private DiscordMessage? _message = null;
 	private readonly Timer _timer;
+	private readonly string? _header;
+	private readonly string? _footer;
 	private readonly List<string> _data;
 	private int _page;
 	private readonly int _pageCount;
@@ -83,7 +94,13 @@ class Pages {
 		int i_end = Math.Min(i_start + _pageSize, _data.Count);
 		int i_range = i_end - i_start;
 
-		return _data.GetRange(i_start, i_range).ToLines();
+		string content = _data.GetRange(i_start, i_range).ToLines();
+		if (_header is not null)
+			content = _header + content;
+		if (_footer is not null)
+			content = content + _footer;
+		
+		return content;
 	} }
 
 	// Public factory method constructor.
@@ -92,19 +109,20 @@ class Pages {
 		Interaction interaction,
 		Task<DiscordMessage> messageTask,
 		IReadOnlyList<string> data,
-		int? pageSize=null,
-		TimeSpan? timeout=null
+		Options? options=null
 	) {
-		pageSize ??= DefaultPageSize;
-		timeout ??= DefaultTimeout;
-		Timer timer = Util.CreateTimer(timeout.Value, false);
+		options ??= new ();
+
+		Timer timer = Util.CreateTimer(options.Timeout, false);
 
 		// Construct partial Pages object.
 		Pages pages = new (
 			interaction,
 			new List<string>(data),
-			pageSize.Value,
-			timer
+			timer,
+			options.PageSize,
+			options.Header,
+			options.Footer
 		);
 		messageTask.ContinueWith((messageTask) => {
 			DiscordMessage message = messageTask.Result;
@@ -125,8 +143,10 @@ class Pages {
 	private Pages(
 		Interaction interaction,
 		List<string> data,
+		Timer timer,
 		int pageSize,
-		Timer timer
+		string? header,
+		string? footer
 	) {
 		// Calculate page count.
 		// It's convenient to save this result, since it's used on every
@@ -136,6 +156,8 @@ class Pages {
 
 		_interaction = interaction;
 		_timer = timer;
+		_header = header;
+		_footer = footer;
 		_data = data;
 		_page = 0;
 		_pageCount = (int)pageCount;

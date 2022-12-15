@@ -113,7 +113,7 @@ class IreneStatus : CommandHandler {
 			interaction,
 			messagePromise.Task,
 			lines,
-			pageSize: 12
+			new Pages.Options { PageSize = 12 }
 		);
 
 		string summary = $"<List of {lines.Count} available statuses sent.>";

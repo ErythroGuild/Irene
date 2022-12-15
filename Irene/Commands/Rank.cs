@@ -97,7 +97,7 @@ class Rank : CommandHandler {
 			interaction,
 			messagePromise.Task,
 			lines,
-			pageSize: _trialListPageSize
+			new Pages.Options { PageSize = _trialListPageSize }
 		);
 		string summary = "Member list sent.";
 		await interaction.RegisterAndRespondAsync(response, summary);

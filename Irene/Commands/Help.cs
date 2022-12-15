@@ -56,7 +56,7 @@ class Help : CommandHandler {
 			interaction,
 			messagePromise.Task,
 			Module.GeneralHelp(),
-			pageSize: 1
+			new Pages.Options { PageSize = 1 }
 		);
 		string summary = "General help pages sent.";
 		await interaction.RegisterAndRespondAsync(response, summary, true);

@@ -402,11 +402,9 @@ class Crafter {
 		const string
 			_emDash = "\u2014",
 			_enSpace = "\u2002";
-		List<string> lines = new () {
-			// Two spaces here on one side lines up better.
-			$"{quality}  __**{title}s:**__ {quality}",
-			"",
-		};
+		string heading =
+			$"{quality}{_enSpace}__**{title}s:**__{_enSpace}{quality}\n";
+		List<string> lines = new ();
 		foreach (CharacterData crafter in crafters) {
 			DiscordEmoji @class = crafter.Class.Emoji();
 			string name = GetServerLocalName(crafter.Character);
@@ -420,7 +418,10 @@ class Crafter {
 			interaction,
 			messagePromise.Task,
 			lines,
-			pageSize: 16
+			new Pages.Options {
+				PageSize = 14,
+				Header = heading,
+			}
 		).WithAllowedMentions(Mentions.None);
 		string summary = "Crafter list sent.";
 		await interaction.RegisterAndRespondAsync(response, summary);
@@ -501,8 +502,7 @@ class Crafter {
 		));
 
 		// Compile results.
-		List<string> lines = new ()
-			{ heading };
+		List<string> lines = new (); ;
 		foreach (Character crafter in crafters) {
 			// Character data.
 			CharacterData crafterData = _crafterData[crafter];
@@ -545,7 +545,10 @@ class Crafter {
 			interaction,
 			messagePromise.Task,
 			lines,
-			pageSize: 4
+			new Pages.Options {
+				PageSize = 3,
+				Header = heading,
+			}
 		).WithAllowedMentions(Mentions.None);
 
 		DiscordMessage message = await
