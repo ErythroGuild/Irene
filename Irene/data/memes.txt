@@ -25,7 +25,6 @@ free-dkp
 free-real-estate
 fun-police
 gag-erhongg-wssh
-garrosh-simps
 gourmet-aspic
 hakuna-matata
 happy-little-memes
@@ -35,9 +34,9 @@ i-am-my-memes
 i-log-your-mog
 it-was-me-dio
 jerry-the-snail
+kettenkrad
 krabby-patties
 lofi-hip-hop-memes
-lousy-tshirt
 mah-na-mah-na
 mein-sticky-friend
 meme-beam
@@ -50,6 +49,7 @@ oh-heck
 oh-no-plateau
 pile-of-honks
 plain-oatmeal
+real-ducks
 rendles-wallet
 scooby-snacks
 selamat-pagi
@@ -67,6 +67,7 @@ the-secret-box
 this-is-fine
 thunderfury
 to-shreds-you-say
+trade-chat
 weird-meme-but-ok
 whalers-on-the-🌓
 yoo-hoo
