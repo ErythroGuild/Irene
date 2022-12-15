@@ -67,11 +67,11 @@ class Translate : CommandHandler {
 
 	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
 		string text = (string)args[ArgText];
-		string argSource = args.TryGetValue(ArgSource, out object? sourceObject)
-			? (string)sourceObject
+		string argSource = args.TryGetValue(ArgSource, out object? valueSource)
+			? (string)valueSource
 			: Module.CodeAutoDetect;
-		string argTarget = args.TryGetValue(ArgTarget, out object? targetObject)
-			? (string)targetObject
+		string argTarget = args.TryGetValue(ArgTarget, out object? valueTarget)
+			? (string)valueTarget
 			: Module.CodeEnglishUS;
 
 		Language? languageSource = Module.CodeToLanguage(argSource, LanguageType.Source);

@@ -83,7 +83,7 @@ class Rank : CommandHandler {
 			return;
 		}
 
-		// Format member list into data list for Pages.
+		// Format member list into data list for StringPages.
 		List<string> lines = new ();
 		foreach (DiscordMember trial in trials) {
 			TimeSpan time = DateTimeOffset.Now - trial.JoinedAt;
@@ -93,11 +93,11 @@ class Rank : CommandHandler {
 
 		// Construct and respond with member list.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = Pages.Create(
+		DiscordMessageBuilder response = StringPages.Create(
 			interaction,
 			messagePromise.Task,
 			lines,
-			pageSize: _trialListPageSize
+			new StringPages.Options { PageSize = _trialListPageSize }
 		);
 		string summary = "Member list sent.";
 		await interaction.RegisterAndRespondAsync(response, summary);

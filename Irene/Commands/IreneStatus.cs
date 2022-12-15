@@ -107,13 +107,13 @@ class IreneStatus : CommandHandler {
 			lines.Add(status.AsStatusText());
 		// Should already be sorted.
 
-		// Respond with Pages interactable.
+		// Respond with StringPages interactable.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = Pages.Create(
+		DiscordMessageBuilder response = StringPages.Create(
 			interaction,
 			messagePromise.Task,
 			lines,
-			pageSize: 12
+			new StringPages.Options { PageSize = 12 }
 		);
 
 		string summary = $"<List of {lines.Count} available statuses sent.>";

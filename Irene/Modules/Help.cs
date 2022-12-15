@@ -45,7 +45,7 @@ class Help {
 	}
 
 	// Returns the compiled list of help text for all available commands,
-	// paginated with interactable Pages.
+	// paginated with interactable StringPages.
 	public static List<string> GeneralHelp() {
 		const string
 			_h = "\u200B\u2003", // zero-width space + em space

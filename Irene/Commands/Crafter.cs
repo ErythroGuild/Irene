@@ -10,7 +10,6 @@ class Crafter : CommandHandler {
 		CommandFind    = "find"   ,
 		CommandList    = "list"   ,
 		CommandSet     = "set"    ,
-		CommandRefresh = "refresh",
 		CommandRemove  = "remove" ,
 		ArgItem       = "item"      ,
 		ArgProfession = "profession",
@@ -22,7 +21,6 @@ class Crafter : CommandHandler {
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandFind}")} `<{ArgItem}>` finds crafters who can craft an item,
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandList}")} `<{ArgProfession}>` lists registered crafters.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandSet}")} `<{ArgCharacter}> [{ArgServer}]` registers a crafter,
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandRefresh}")} `<{ArgCharacter}> [{ArgServer}]` refreshes their data,
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandRemove}")} `<{ArgCharacter}> [{ArgServer}]` removes a crafter.
 		{_t}If unspecified, `[{ArgServer}]` defaults to Moon Guard.
 		{_t}You can only manually refresh your own crafters.
@@ -104,37 +102,6 @@ class Crafter : CommandHandler {
 					}
 				)
 			),
-			//new (
-			//	AccessLevel.Guest,
-			//	new (
-			//		CommandRefresh,
-			//		"Refresh crafter data.",
-			//		ArgType.SubCommand,
-			//		options: new List<DiscordCommandOption> {
-			//			new (
-			//				ArgCharacter,
-			//				"The crafter to update.",
-			//				ArgType.String,
-			//				required: true,
-			//				autocomplete: true
-			//			),
-			//			new (
-			//				ArgServer,
-			//				"The server of the crafter.",
-			//				ArgType.String,
-			//				required: false,
-			//				autocomplete: true
-			//			),
-			//		}
-			//	),
-			//	new (
-			//		RefreshAsync,
-			//		new Dictionary<string, Completer> {
-			//			[ArgCharacter] = Module.CompleterCrafter,
-			//			[ArgServer] = Module.CompleterServer,
-			//		}
-			//	)
-			//),
 			new (
 				AccessLevel.Guest,
 				new (
@@ -206,26 +173,6 @@ class Crafter : CommandHandler {
 
 		await Module.RespondSetAsync(interaction, character.Value);
 	}
-
-	//private async Task RefreshAsync(Interaction interaction, ParsedArgs args) {
-	//	string name = (string)args[ArgCharacter];
-	//	string server = args.ContainsKey(ArgServer)
-	//		? (string)args[ArgServer]
-	//		: Module.ServerDefault;
-
-	//	Character? character = ValidateCharacter(name, server);
-	//	if (character is null) {
-	//		string errorCharacter =
-	//			$"""
-	//			Sorry, `{name}-{server}` isn't a valid character.
-	//			Maybe double-check and try again?
-	//			""";
-	//		await interaction.RegisterAndRespondAsync(errorCharacter, true);
-	//		return;
-	//	}
-
-	//	await Module.RespondRefreshAsync(interaction, character.Value);
-	//}
 
 	private async Task RemoveAsync(Interaction interaction, ParsedArgs args) {
 		string name = (string)args[ArgCharacter];

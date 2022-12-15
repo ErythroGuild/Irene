@@ -1,4 +1,26 @@
-﻿165557736287764483
-	Druid>>>Edeilinna>>>Moon Guard
-		Inscription>>>happy to craft anything I can :)
+90946687446573056
+	DK>>>Voidwyrm>>>Moon Guard
 		Cooking>>>
+		Alchemy>>>
+	Mage>>>Diandry>>>Moon Guard
+		Cooking>>>
+		Jewelcrafting>>>
+		Tailoring>>>
+	Warlock>>>Voidael>>>Moon Guard
+		Cooking>>>
+		Enchanting>>>
+		Engineering>>>
+	Druid>>>Scrímshaw>>>Moon Guard
+		Cooking>>>
+		Inscription>>>
+	DH>>>Edgeboymcgee>>>Wyrmrest Accord
+		Cooking>>>
+		Enchanting>>>
+165557736287764483
+	Druid>>>Edeilinna>>>Moon Guard
+		Cooking>>>
+		Inscription>>>happy to craft anything I can :)
+	Mage>>>Ioniia>>>Moon Guard
+		Cooking>>>
+		Jewelcrafting>>>
+		Tailoring>>>

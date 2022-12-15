@@ -5,11 +5,11 @@ using Module = Modules.Invite;
 class Invite : CommandHandler {
 	public const string
 		CommandInvite = "invite",
-		ArgServer = "server";
+		ArgServer     = "server";
 	public const string
-		LabelErythro = "Erythro",
-		LabelLeuko   = "Leuko"  ,
-		LabelBnet    = "B.net"  ;
+		LabelErythro = "Erythro"   ,
+		LabelLeuko   = "Leuko"     ,
+		LabelBnet    = "Battle.net";
 	public const string
 		OptionErythro = "erythro",
 		OptionLeuko   = "leuko"  ,
@@ -43,8 +43,8 @@ class Invite : CommandHandler {
 	);
 
 	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
-		string id = args.ContainsKey(ArgServer)
-			? (string)args[ArgServer]
+		string id = args.TryGetValue(ArgServer, out object? value)
+			? (string)value
 			: OptionErythro;
 		Module.Server server = id switch {
 			OptionErythro => Module.Server.Erythro,

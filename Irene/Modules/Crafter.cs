@@ -1,7 +1,6 @@
 ﻿namespace Irene.Modules;
 
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text.Json.Nodes;
 using System.Timers;
@@ -399,26 +398,31 @@ class Crafter {
 		);
 
 		// Convert list to strings.
-		DiscordEmoji star = Erythro.Emoji(id_e.sparkleRed);
-		const string _endash = "\u2013";
-		List<string> lines = new () {
-			$"{star} __**{title}s**__ {star}",
-			"",
-		};
+		DiscordEmoji quality = Erythro.Emoji(id_e.quality5);
+		const string
+			_emDash = "\u2014",
+			_zwSpace = "\u200B",
+			_enSpace = "\u2002";
+		string heading =
+			$"{_zwSpace}{_enSpace}{quality}{_enSpace}__**{title}s**__{_enSpace}{quality}\n";
+		List<string> lines = new ();
 		foreach (CharacterData crafter in crafters) {
 			DiscordEmoji @class = crafter.Class.Emoji();
 			string name = GetServerLocalName(crafter.Character);
 			string mention = crafter.UserId.MentionUserId();
-			lines.Add($"{@class} **{name}** {_endash} {mention}");
+			lines.Add($"{@class}{_enSpace}**{name}**{_enSpace}{_emDash} {mention}");
 		}
 		
 		// Respond with list of crafters.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = Pages.Create(
+		DiscordMessageBuilder response = StringPages.Create(
 			interaction,
 			messagePromise.Task,
 			lines,
-			pageSize: 16
+			new StringPages.Options {
+				PageSize = 14,
+				Header = heading,
+			}
 		).WithAllowedMentions(Mentions.None);
 		string summary = "Crafter list sent.";
 		await interaction.RegisterAndRespondAsync(response, summary);
@@ -499,8 +503,7 @@ class Crafter {
 		));
 
 		// Compile results.
-		List<string> lines = new ()
-			{ heading };
+		List<string> lines = new (); ;
 		foreach (Character crafter in crafters) {
 			// Character data.
 			CharacterData crafterData = _crafterData[crafter];
@@ -539,11 +542,14 @@ class Crafter {
 
 		// Respond with results.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = Pages.Create(
+		DiscordMessageBuilder response = StringPages.Create(
 			interaction,
 			messagePromise.Task,
 			lines,
-			pageSize: 4
+			new StringPages.Options {
+				PageSize = 3,
+				Header = heading,
+			}
 		).WithAllowedMentions(Mentions.None);
 
 		DiscordMessage message = await
@@ -1117,12 +1123,16 @@ class Crafter {
 		ConcurrentDictionary<Profession, ProfessionData> data = new ();
 
 		// Merge primary/secondary profession arrays into a single list.
-		JsonNode nodeProfession;
+		// These will be null if either primary or secondary professions
+		// are completely missing, so we need to guard with null checks.
+		JsonNode? nodeProfession;
 		List<JsonNode?> nodesProfession = new ();
-		nodeProfession = Util.ParseSubnode(root, _keyPrimary);
-		nodesProfession.AddRange(nodeProfession.AsArray());
-		nodeProfession = Util.ParseSubnode(root, _keySecondary);
-		nodesProfession.AddRange(nodeProfession.AsArray());
+		nodeProfession = root[_keyPrimary];
+		if (nodeProfession is not null)
+			nodesProfession.AddRange(nodeProfession.AsArray());
+		nodeProfession = root[_keySecondary];
+		if (nodeProfession is not null)
+			nodesProfession.AddRange(nodeProfession.AsArray());
 
 		// Iterate through combined list of nodes.
 		foreach (JsonNode? node_i in nodesProfession) {

@@ -75,12 +75,12 @@ class Interaction {
 	public void RegisterEvent(Events id) =>
 		EventDurations[id] = Timer.Elapsed;
 	public TimeSpan? GetEventDuration(Events id) =>
-		EventDurations.ContainsKey(id)
-			? EventDurations[id]
+		EventDurations.TryGetValue(id, out TimeSpan duration)
+			? duration
 			: null;
 	public DateTimeOffset? GetEventTime(Events id) =>
-		EventDurations.ContainsKey(id)
-			? (TimeReceived + EventDurations[id])
+		EventDurations.TryGetValue(id, out TimeSpan duration)
+			? (TimeReceived + duration)
 			: null;
 
 	public void RegisterInitialResponse() => RegisterEvent(Events.InitialResponse);
@@ -136,6 +136,16 @@ class Interaction {
 	// --------
 	// Convenience methods for responding to interactions:
 	// --------
+
+	// Convenience method for responding to a component interaction
+	// initiated by an unintended user, with a followup (ephemeral)
+	// error message explaining what happened.
+	public async Task RespondComponentNotOwned(DiscordUser owner) {
+		await DeferComponentAsync();
+		string message =
+			$":confused: Sorry, only {owner.Mention} can use this.";
+		await FollowupAsync(message, true);
+	}
 
 	// Convenience methods for responding to a command, and registering
 	// a final response at the same time.
@@ -220,8 +230,16 @@ class Interaction {
 	// Responses to either command or component interactions:
 	public Task RespondModalAsync(DiscordInteractionResponseBuilder modal) =>
 		Object.CreateResponseAsync(InteractionResponseType.Modal, modal);
-	public Task<DiscordMessage> FollowupAsync(DiscordFollowupMessageBuilder builder) =>
-		Object.CreateFollowupMessageAsync(builder);
+	public Task<DiscordMessage> FollowupAsync(string message, bool isEphemeral=false) {
+		DiscordMessageBuilder response =
+			new DiscordMessageBuilder()
+			.WithContent(message);
+		return FollowupAsync(response, isEphemeral);
+	}
+	public Task<DiscordMessage> FollowupAsync(IDiscordMessageBuilder message, bool isEphemeral=false) =>
+		FollowupAsync(new DiscordFollowupMessageBuilder(message), isEphemeral);
+	public Task<DiscordMessage> FollowupAsync(DiscordFollowupMessageBuilder message, bool isEphemeral=false) =>
+		Object.CreateFollowupMessageAsync(message.AsEphemeral(isEphemeral));
 
 	// Methods for manipulating responses/followups.
 	public Task<DiscordMessage> GetResponseAsync() =>
@@ -238,7 +256,7 @@ class Interaction {
 			.WithContent(message);
 		return EditResponseAsync(response);
 	}
-	public Task<DiscordMessage> EditResponseAsync(DiscordMessageBuilder message) =>
+	public Task<DiscordMessage> EditResponseAsync(IDiscordMessageBuilder message) =>
 		EditResponseAsync(new DiscordWebhookBuilder(message));
 	public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder message) =>
 		Object.EditOriginalResponseAsync(message);

@@ -52,11 +52,11 @@ class Help : CommandHandler {
 
 		// Otherwise, respond with general help command.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = Pages.Create(
+		DiscordMessageBuilder response = StringPages.Create(
 			interaction,
 			messagePromise.Task,
 			Module.GeneralHelp(),
-			pageSize: 1
+			new StringPages.Options { PageSize = 1 }
 		);
 		string summary = "General help pages sent.";
 		await interaction.RegisterAndRespondAsync(response, summary, true);
