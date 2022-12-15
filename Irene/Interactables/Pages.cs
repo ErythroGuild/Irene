@@ -95,9 +95,9 @@ class Pages {
 
 		string content = _data.GetRange(i_start, i_range).ToLines();
 		if (_header is not null)
-			content = _header + content;
+			content = $"{_header}\n{content}";
 		if (_footer is not null)
-			content = content + _footer;
+			content = $"{content}\n{_footer}";
 		
 		return content;
 	} }

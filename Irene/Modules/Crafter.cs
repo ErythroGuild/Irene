@@ -398,12 +398,13 @@ class Crafter {
 		);
 
 		// Convert list to strings.
-		DiscordEmoji quality = Erythro.Emoji(id_e.sparkleRed);
+		DiscordEmoji quality = Erythro.Emoji(id_e.quality5);
 		const string
 			_emDash = "\u2014",
+			_zwSpace = "\u200B",
 			_enSpace = "\u2002";
 		string heading =
-			$"{quality}{_enSpace}__**{title}s:**__{_enSpace}{quality}\n";
+			$"{_zwSpace}{_enSpace}{quality}{_enSpace}__**{title}s**__{_enSpace}{quality}\n";
 		List<string> lines = new ();
 		foreach (CharacterData crafter in crafters) {
 			DiscordEmoji @class = crafter.Class.Emoji();
