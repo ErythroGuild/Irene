@@ -415,11 +415,11 @@ class Crafter {
 		
 		// Respond with list of crafters.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = Pages.Create(
+		DiscordMessageBuilder response = StringPages.Create(
 			interaction,
 			messagePromise.Task,
 			lines,
-			new Pages.Options {
+			new StringPages.Options {
 				PageSize = 14,
 				Header = heading,
 			}
@@ -542,11 +542,11 @@ class Crafter {
 
 		// Respond with results.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = Pages.Create(
+		DiscordMessageBuilder response = StringPages.Create(
 			interaction,
 			messagePromise.Task,
 			lines,
-			new Pages.Options {
+			new StringPages.Options {
 				PageSize = 3,
 				Header = heading,
 			}

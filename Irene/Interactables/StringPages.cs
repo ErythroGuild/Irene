@@ -2,9 +2,9 @@ namespace Irene.Interactables;
 
 using System.Timers;
 
-class Pages {
+class StringPages {
 	// This class provides a single place to manage settings to pass
-	// to the Pages factory method.
+	// to the StringPages factory method.
 	public class Options {
 		public TimeSpan Timeout = DefaultTimeout;
 		public int PageSize = DefaultPageSize;
@@ -15,11 +15,11 @@ class Pages {
 	public const int DefaultPageSize = 8;
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
-	// Master table of all Pages to handle, indexed by the message ID
+	// Master table of all StringPages to handle, indexed by the message ID
 	// of the owning message.
 	// This also serves as a way to "hold" fired timers, preventing them
 	// from prematurely going out of scope and being destroyed.
-	private static readonly ConcurrentDictionary<ulong, Pages> _pages = new ();
+	private static readonly ConcurrentDictionary<ulong, StringPages> _pages = new ();
 	private const string
 		_idButtonPrev = "pages_list_prev",
 		_idButtonNext = "pages_list_next",
@@ -34,7 +34,7 @@ class Pages {
 	// This means there doesn't need to be a large amount of delegates
 	// that each event has to filter through until it hits the correct
 	// handler.
-	static Pages() {
+	static StringPages() {
 		CheckErythroInit();
 
 		Erythro.Client.ComponentInteractionCreated += (c, e) => {
@@ -43,7 +43,7 @@ class Pages {
 
 				// Consume all interactions originating from a registered
 				// message, and created by the corresponding component.
-				if (_pages.TryGetValue(id, out Pages? pages)) {
+				if (_pages.TryGetValue(id, out StringPages? pages)) {
 					if (!_ids.Contains(e.Id))
 						return;
 					e.Handled = true;
@@ -118,8 +118,8 @@ class Pages {
 
 		Timer timer = Util.CreateTimer(options.Timeout, false);
 
-		// Construct partial Pages object.
-		Pages pages = new (
+		// Construct partial StringPages object.
+		StringPages pages = new (
 			interaction,
 			new List<string>(data),
 			timer,
@@ -143,7 +143,7 @@ class Pages {
 
 		return pages.BuildMessage();
 	}
-	private Pages(
+	private StringPages(
 		Interaction interaction,
 		List<string> data,
 		Timer timer,
