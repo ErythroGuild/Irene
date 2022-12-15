@@ -43,8 +43,7 @@ class Pages {
 
 				// Consume all interactions originating from a registered
 				// message, and created by the corresponding component.
-				if (_pages.ContainsKey(id)) {
-					Pages pages = _pages[id];
+				if (_pages.TryGetValue(id, out Pages? pages)) {
 					if (!_ids.Contains(e.Id))
 						return;
 					e.Handled = true;

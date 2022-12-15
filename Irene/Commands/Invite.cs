@@ -1,4 +1,4 @@
-namespace Irene.Commands;
+﻿namespace Irene.Commands;
 
 using Module = Modules.Invite;
 
@@ -43,8 +43,8 @@ class Invite : CommandHandler {
 	);
 
 	public async Task RespondAsync(Interaction interaction, ParsedArgs args) {
-		string id = args.ContainsKey(ArgServer)
-			? (string)args[ArgServer]
+		string id = args.TryGetValue(ArgServer, out object? value)
+			? (string)value
 			: OptionErythro;
 		Module.Server server = id switch {
 			OptionErythro => Module.Server.Erythro,

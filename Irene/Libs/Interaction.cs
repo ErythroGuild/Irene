@@ -1,4 +1,4 @@
-﻿namespace Irene;
+namespace Irene;
 
 using System.Diagnostics;
 
@@ -75,12 +75,12 @@ class Interaction {
 	public void RegisterEvent(Events id) =>
 		EventDurations[id] = Timer.Elapsed;
 	public TimeSpan? GetEventDuration(Events id) =>
-		EventDurations.ContainsKey(id)
-			? EventDurations[id]
+		EventDurations.TryGetValue(id, out TimeSpan duration)
+			? duration
 			: null;
 	public DateTimeOffset? GetEventTime(Events id) =>
-		EventDurations.ContainsKey(id)
-			? (TimeReceived + EventDurations[id])
+		EventDurations.TryGetValue(id, out TimeSpan duration)
+			? (TimeReceived + duration)
 			: null;
 
 	public void RegisterInitialResponse() => RegisterEvent(Events.InitialResponse);

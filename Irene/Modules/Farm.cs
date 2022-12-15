@@ -106,8 +106,8 @@ partial class Farm {
 	// Returns a Material object if one matches the query string, otherwise
 	// returns null.
 	public static Material? ParseMaterial(string query) =>
-		_data.TryGetValue(query, out Material? value)
-			? value
+		_data.TryGetValue(query, out Material? material)
+			? material
 			: null;
 
 	// Respond to an interaction with a message.
