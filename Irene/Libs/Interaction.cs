@@ -224,7 +224,7 @@ class Interaction {
 		DiscordMessageBuilder response =
 			new DiscordMessageBuilder()
 			.WithContent(message);
-		return FollowupAsync(message);
+		return FollowupAsync(response);
 	}
 	public Task<DiscordMessage> FollowupAsync(IDiscordMessageBuilder message) =>
 		FollowupAsync(new DiscordFollowupMessageBuilder(message));
