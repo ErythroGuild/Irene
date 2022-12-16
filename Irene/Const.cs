@@ -131,16 +131,31 @@ static class Const {
 				eryLove = 860386122566991883,
 				eryWoah = 920545959883202620,
 
-				// Analysis websites
-				raiderio     = 699710975451856967,
-				warcraftlogs = 699709399094132884,
-				wipefest     = 699647884819169700,
-				wowanalyzer  = 699648774099828796,
-				lorrgs       = 946214790043410462,
+				// Noto (animated)
+				noto100       = 1047648870160666625,
+				notoClover    = 1047621349016875128,
+				notoSprout    = 1047621342574420088,
+				notoConfetti  = 1047621474103607336,
+				notoParty     = 1047621479711383622,
+				notoFireworks = 1047648858529861834,
+				notoButterfly = 1047621240703168513,
+				notoOctopus   = 1047621235930038352,
+				notoInnocent  = 1047648956705931385,
+				notoMelting   = 1047648977153183783,
+				notoMindblown = 1047648943946858566,
+				notoEyebrow   = 1047649025886781501,
+				notoSmile     = 1047656340182544384,
+				notoSob       = 1047656345467371664,
 
-				// Coins
-				heads = 1022712367999615006,
-				tails = 1022712370579124294,
+				// Ranks
+				rankNone      = 1047313293087359037,
+				rankGuest     = 1047313291443175424,
+				rankMember    = 1047313289895493834,
+				rankOfficer   = 1047313288200978503,
+				rankAdmin     = 1047313286544248933,
+				rankBot       = 1047313285369839616,
+				rankStylist   = 1047313283796971551,
+				rankAmbassador= 1047313282442199050,
 
 				// Roles
 				tank = 708431859369115790,
@@ -168,6 +183,24 @@ static class Const {
 				warlock =  676750927889170437,
 				warrior =  676750939910045707,
 
+				// Profession quality
+				quality1   = 1046997123494838282,
+				quality2   = 1046997182240280628,
+				quality3   = 1046997219305328701,
+				quality4   = 1046997260942196796,
+				quality5   = 1046997302486769695,
+				qualityAny = 1046997344731799563,
+
+				// Raid
+				eranog        = 1047021853815873627,
+				terros        = 1047021887596806155,
+				primalCouncil = 1047021903480631316,
+				sennarth      = 1047021918362030091,
+				dathea        = 1047021936212967424,
+				kurog         = 1047021950758813786,
+				diurna        = 1047021965619232788,
+				raszageth     = 1047021981343690782,
+
 				// Dungeons
 				algethar        = 1047046693499191308,
 				azureVault      = 1047046695323709520,
@@ -184,15 +217,12 @@ static class Const {
 				hallsOfValor = 1047046967311740949,
 				courtOfStars = 1047046965692727356,
 
-				// Raid
-				eranog        = 1047021853815873627,
-				terros        = 1047021887596806155,
-				primalCouncil = 1047021903480631316,
-				sennarth      = 1047021918362030091,
-				dathea        = 1047021936212967424,
-				kurog         = 1047021950758813786,
-				diurna        = 1047021965619232788,
-				raszageth     = 1047021981343690782,
+				// Analysis websites
+				raiderio     = 699710975451856967,
+				warcraftlogs = 699709399094132884,
+				wipefest     = 699647884819169700,
+				wowanalyzer  = 699648774099828796,
+				lorrgs       = 946214790043410462,
 
 				// Sparkles
 				sparkleRed     = 1050217729552044083,
@@ -203,16 +233,6 @@ static class Const {
 				sparkleBlue    = 1050217667174334514,
 				sparklePurple  = 1050217657183506473,
 				sparkleFuschia = 1050217643480711310,
-
-				// Ranks
-				rankNone      = 1047313293087359037,
-				rankGuest     = 1047313291443175424,
-				rankMember    = 1047313289895493834,
-				rankOfficer   = 1047313288200978503,
-				rankAdmin     = 1047313286544248933,
-				rankBot       = 1047313285369839616,
-				rankStylist   = 1047313283796971551,
-				rankAmbassador= 1047313282442199050,
 
 				// Progress bars
 				barEmptyL     = 1047326995886915614,
@@ -227,34 +247,14 @@ static class Const {
 				barFillingR   = 1047327007102480404,
 
 				// Progress spinners
-				spinnerLine   = 1048081457521897523,
+				spinnerLines  = 1048081457521897523,
 				spinnerDots   = 1047801017049305130,
 				spinnerOrbit  = 1048073321964646522,
 				spinnerCircle = 1047757059589943356,
 
-				// Profession quality
-				quality1   = 1046997123494838282,
-				quality2   = 1046997182240280628,
-				quality3   = 1046997219305328701,
-				quality4   = 1046997260942196796,
-				quality5   = 1046997302486769695,
-				qualityAny = 1046997344731799563,
-
-				// Noto (animated)
-				noto100       = 1047648870160666625,
-				notoClover    = 1047621349016875128,
-				notoSprout    = 1047621342574420088,
-				notoConfetti  = 1047621474103607336,
-				notoParty     = 1047621479711383622,
-				notoFireworks = 1047648858529861834,
-				notoButterfly = 1047621240703168513,
-				notoOctopus   = 1047621235930038352,
-				notoInnocent  = 1047648956705931385,
-				notoMelting   = 1047648977153183783,
-				notoMindblown = 1047648943946858566,
-				notoEyebrow   = 1047649025886781501,
-				notoSmile     = 1047656340182544384,
-				notoSob       = 1047656345467371664;
+				// Coins
+				heads = 1022712367999615006,
+				tails = 1022712370579124294;
 		}
 		public static class Guild {
 			public const ulong
