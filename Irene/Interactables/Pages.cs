@@ -2,6 +2,31 @@
 
 using System.Timers;
 
+// `PagesOptions` can be individually set and passed to the static
+// `Pages` factory constructor. Any unspecified options default to
+// the specified values.
+class PagesOptions {
+	public static int DefaultPageSize => 8;
+	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
+
+	// Whether or not the pagination buttons are disabled.
+	public bool IsEnabled { get; init; } = true;
+
+	// The number of data items to render per page.
+	public int PageSize { get; init; } = DefaultPageSize;
+
+	// The duration each `Pages` lasts before being automatically
+	// disabled. Ephemeral responses MUST have a timeout less than
+	// Discord's limit of 15 mins/interaction--past that the message
+	// itself cannot be updated anymore.
+	public TimeSpan Timeout { get; init; } = DefaultTimeout;
+
+	// An additional delegate to run after a page is constructed,
+	// enabling extended formatting (e.g. adding extra components
+	// under the pagination buttons).
+	public Pages.Decorator? Decorator { get; init; } = null;
+}
+
 class Pages {
 	// The `Renderer` delegate transforms data into rendered messages,
 	// allowing the data itself to be stored more concisely/naturally.
@@ -13,34 +38,10 @@ class Pages {
 	public delegate IDiscordMessageBuilder
 		Decorator(IDiscordMessageBuilder content, bool isEnabled);
 
-	// Options can be individually set and passed to the static factory
-	// constructor. Any unspecified options default to the values below.
-	public class Options {
-		// Whether or not the pagination buttons are disabled.
-		public bool IsEnabled { get; init; } = true;
-		
-		// The number of data items to render per page.
-		public int PageSize { get; init; } = DefaultPageSize;
-
-		// The duration each `Pages` lasts before being automatically
-		// disabled. Ephemeral responses MUST have a timeout less than
-		// Discord's limit of 15 mins/interaction--past that the message
-		// itself cannot be updated anymore.
-		public TimeSpan Timeout { get; init; } = DefaultTimeout;
-
-		// An additional delegate to run after a page is constructed,
-		// enabling extended formatting (e.g. adding extra components
-		// under the pagination buttons).
-		public Decorator? Decorator { get; init; } = null;
-	}
-
 
 	// --------
 	// Constants and static properties:
 	// --------
-
-	public static int DefaultPageSize => 8;
-	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
 	// Master table of all `Pages` being tracked, indexed by the message
 	// ID of the containing message (since this will be unique).
@@ -109,9 +110,9 @@ class Pages {
 		Task<DiscordMessage> messageTask,
 		Renderer renderer,
 		IReadOnlyList<object> data,
-		Options? options=null
+		PagesOptions? options=null
 	) {
-		options ??= new Options();
+		options ??= new PagesOptions();
 
 		// Construct partial (uninitialized) object.
 		Timer timer = Util.CreateTimer(options.Timeout, false);
@@ -287,7 +288,7 @@ class Pages {
 				}
 
 				// Handle buttons.
-				await pages.HandleButtonAsync(e.Id);
+				await pages.HandleButtonAsync(interaction, e.Id);
 			}
 		});
 		return Task.CompletedTask;
