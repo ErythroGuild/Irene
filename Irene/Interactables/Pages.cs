@@ -65,7 +65,7 @@ class Pages {
 	static Pages() {
 		CheckErythroInit();
 		Erythro.Client.ComponentInteractionCreated +=
-			InteractionHandlerAsync;
+			InteractionDispatcherAsync;
 	}
 
 
@@ -73,6 +73,7 @@ class Pages {
 	// Instance properties and fields:
 	// --------
 
+	// Public properties.
 	public bool IsEnabled { get; private set; }
 	public DiscordUser Owner => _interaction.User;
 	public readonly int PageCount;
@@ -84,15 +85,18 @@ class Pages {
 	protected virtual void OnInteractableDiscarded() =>
 		InteractableDiscarded?.Invoke(this, new());
 
+	// Private fields.
 	private readonly TaskQueue _queueUpdates = new ();
 	private readonly Interaction _interaction;
 	private DiscordMessage? _message = null;
 	private readonly Timer _timer;
-	private readonly Renderer _renderer;
 	private readonly List<object> _data;
 	private readonly int _pageSize;
-	private readonly Decorator? _decorator;
 	private int _page;
+
+	// Protected fields for dependency injection.
+	protected Renderer _renderer;
+	protected Decorator? _decorator;
 
 	private DiscordComponent[] Buttons =>
 		GetButtons(_page, PageCount, IsEnabled);
@@ -108,52 +112,39 @@ class Pages {
 	public static Pages Create(
 		Interaction interaction,
 		Task<DiscordMessage> messageTask,
-		Renderer renderer,
 		IReadOnlyList<object> data,
+		Renderer renderer,
 		PagesOptions? options=null
 	) {
-		options ??= new PagesOptions();
+		options ??= new ();
 
 		// Construct partial (uninitialized) object.
-		Timer timer = Util.CreateTimer(options.Timeout, false);
 		Pages pages = new (
 			options.IsEnabled,
 			interaction,
-			timer,
-			renderer,
+			options.Timeout,
 			new List<object>(data),
 			options.PageSize,
+			renderer,
 			options.Decorator
 		);
 
 		// Set up registration and auto-discard.
-		messageTask.ContinueWith(t => {
-			DiscordMessage message = t.Result;
-			pages._message = message;
-			_pages.TryAdd(message.Id, pages);
-			pages._timer.Start();
-		});
-		timer.Elapsed += async (_, _) => {
-			// Run (or schedule to run) auto-discard.
-			if (!messageTask.IsCompleted)
-				await messageTask.ContinueWith(e => pages.Cleanup());
-			else
-				await pages.Cleanup();
-		};
+		pages.FinalizeInstance(messageTask);
 
 		return pages;
 	}
 
-	// Since the private constructor only partially constructs the object,
-	// it should never be called directly. Always use the public factory
-	// method instead.
-	private Pages(
+	// Since the protected constructor only partially constructs the
+	// object, it should never be called directly. Always use the public
+	// factory method instead.
+	protected Pages(
 		bool isEnabled,
 		Interaction interaction,
-		Timer timer,
-		Renderer renderer,
+		TimeSpan timeout,
 		List<object> data,
 		int pageSize,
+		Renderer renderer,
 		Decorator? decorator
 	) {
 		// Calculate page count.
@@ -166,12 +157,33 @@ class Pages {
 		PageCount = (int)pageCount;
 
 		_interaction = interaction;
-		_timer = timer;
+		_timer = Util.CreateTimer(timeout, false);
 		_renderer = renderer;
 		_data = data;
 		_page = 0;
 		_pageSize = pageSize;
 		_decorator = decorator;
+	}
+
+	// The entire `Pages object cannot be constructed in one stage;
+	// this second stage registers the object after the message promise
+	// is fulfilled and sets up auto-discard.
+	protected void FinalizeInstance(Task<DiscordMessage> messageTask) {
+		// Registers instance.
+		messageTask.ContinueWith(t => {
+			DiscordMessage message = t.Result;
+			_message = message;
+			_pages.TryAdd(message.Id, this);
+			_timer.Start();
+		});
+
+		// Run (or schedule to run) auto-discard.
+		_timer.Elapsed += async (_, _) => {
+			if (!messageTask.IsCompleted)
+				await messageTask.ContinueWith(e => Cleanup());
+			else
+				await Cleanup();
+		};
 	}
 
 
@@ -234,7 +246,7 @@ class Pages {
 	// --------
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
-	private Task Update() =>
+	protected virtual Task Update() =>
 		_queueUpdates.Run(new Task<Task>(async () => {
 			if (_message is null)
 				return;
@@ -243,7 +255,7 @@ class Pages {
 		}));
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
-	private async Task Cleanup() {
+	protected virtual async Task Cleanup() {
 		if (_message is null)
 			return;
 
@@ -261,7 +273,9 @@ class Pages {
 	}
 
 	// Filter and dispatch any interactions to be properly handled.
-	private static Task InteractionHandlerAsync(
+	// This delegate handles dispatch for all derived classes as well,
+	// and so doesn't need to be overridden.
+	private static Task InteractionDispatcherAsync(
 		DiscordClient c,
 		ComponentInteractionCreateEventArgs e
 	) {
@@ -297,6 +311,8 @@ class Pages {
 	// Handle any button presses for this interactable. The passed in
 	// `Interaction` allows for button press-initiated message edits
 	// to work reliably even if the message itself has timed out.
+	// This should behave the same for all derived classes, and therefore
+	// doesn't need to be overridden.
 	private Task HandleButtonAsync(Interaction interaction, string buttonId) =>
 		_queueUpdates.Run(new Task<Task>(async () => {
 			switch (buttonId) {
