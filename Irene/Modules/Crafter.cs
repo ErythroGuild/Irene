@@ -402,7 +402,8 @@ class Crafter {
 		const string
 			_emDash = "\u2014",
 			_zwSpace = "\u200B",
-			_enSpace = "\u2002";
+			_enSpace = "\u2002",
+			_emSpace = "\u2003";
 		string heading =
 			$"{_zwSpace}{_enSpace}{quality}{_enSpace}__**{title}s**__{_enSpace}{quality}\n";
 		List<string> lines = new ();
@@ -410,7 +411,7 @@ class Crafter {
 			DiscordEmoji @class = crafter.Class.Emoji();
 			string name = GetServerLocalName(crafter.Character);
 			string mention = crafter.UserId.MentionUserId();
-			lines.Add($"{@class}{_enSpace}**{name}**{_enSpace}{_emDash} {mention}");
+			lines.Add($"{@class}{_enSpace}**{name}**\n{_emSpace}{_emDash} {mention}");
 		}
 		
 		// Respond with list of crafters.
