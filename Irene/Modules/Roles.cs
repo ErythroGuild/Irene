@@ -2,7 +2,7 @@ namespace Irene.Modules;
 
 using Irene.Interactables;
 
-using Option = Interactables.Selection.Option;
+using Option = Interactables.Selector.Option;
 
 class Roles {
 	public enum PingRole {
@@ -25,7 +25,7 @@ class Roles {
 	private record class UserRoleTypeSelect(ulong UserId, Type RoleTypeEnum);
 	// Master table of selection menus.
 	// NOTE: New selection menus should be registered here.
-	private static readonly ConcurrentDictionary<UserRoleTypeSelect, Selection> _menus = new ();
+	private static readonly ConcurrentDictionary<UserRoleTypeSelect, Selector> _menus = new ();
 	
 	// Role object conversion tables.
 	private static readonly ConstBiMap<PingRole, ulong> _pingRoles = new (
@@ -243,9 +243,9 @@ class Roles {
 				guildRoles.Add(_guildRoles[id]);
 		}
 
-		// Create Selection interactables.
+		// Create Selector interactables.
 		MessagePromise messagePromise = new ();
-		Selection selectPings = Selection.Create(
+		Selector selectPings = Selector.Create(
 			interaction,
 			messagePromise.Task,
 			AssignPingsAsync,
@@ -256,7 +256,7 @@ class Roles {
 			"Select roles to be pinged for.",
 			_timeout
 		);
-		Selection selectGuilds = Selection.Create(
+		Selector selectGuilds = Selector.Create(
 			interaction,
 			messagePromise.Task,
 			AssignGuildsAsync,
@@ -268,18 +268,18 @@ class Roles {
 			_timeout
 		);
 
-		// Update global Selection tracking table, and disable any menus
+		// Update global Selector tracking table, and disable any menus
 		// already in-flight.
 		UserRoleTypeSelect idPingSelect = new (user.Id, typeof(PingRole));
 		UserRoleTypeSelect idGuildSelect = new (user.Id, typeof(GuildRole));
 		if (_menus.ContainsKey(idPingSelect)) {
-			Selection menu = _menus[idPingSelect];
+			Selector menu = _menus[idPingSelect];
 			// Discarding is just an extra safety, so no need to await.
 			_ = menu.Discard();
 			_menus.TryRemove(idPingSelect, out _);
 		}
 		if (_menus.ContainsKey(idGuildSelect)) {
-			Selection menu = _menus[idGuildSelect];
+			Selector menu = _menus[idGuildSelect];
 			// Discarding is just an extra safety, so no need to await.
 			_ = menu.Discard();
 			_menus.TryRemove(idGuildSelect, out _);
@@ -326,7 +326,7 @@ class Roles {
 		}
 
 		// Fetch list of desired roles.
-		// Added enum roles are saved separately (to update Selection).
+		// Added enum roles are saved separately (to update Selector).
 		HashSet<DiscordRole> rolesAdded = new ();
 		foreach (string option in e.Values) {
 			DiscordRole role =
@@ -346,8 +346,8 @@ class Roles {
 		await user.ReplaceRolesAsync(roles);
 		Log.Information("Updated member roles for {Username}.", user.DisplayName);
 
-		// Update Selection object.
-		Selection selection = _menus[new (user.Id, typeof(T))];
+		// Update Selector object.
+		Selector selection = _menus[new (user.Id, typeof(T))];
 		HashSet<string> options = new ();
 		foreach (DiscordRole role in rolesAdded)
 			options.Add(tableRoleOptions[tableRoleIds[role.Id]]);

@@ -22,7 +22,7 @@ partial class Farm {
 		string Image
 	);
 
-	// Selection menus, indexed by the ID of the message containing them.
+	// Selector menus, indexed by the ID of the message containing them.
 	// It is safe for a single user to have multiple open.
 	private static readonly ConcurrentDictionary<ulong, Selection> _selections = new ();
 
@@ -114,7 +114,7 @@ partial class Farm {
 	// The response has to occur here, in order to set the message promise
 	// for the select menu component (instead of in `Commands.Farm`).
 	public static async Task RespondAsync(Interaction interaction, Material material) {
-		// Create Farm.Selection interactable.
+		// Create Farm.Selector interactable.
 		MessagePromise messagePromise = new ();
 		Selection selection = Selection.Create(
 			interaction,

@@ -2,7 +2,7 @@
 
 using Irene.Interactables;
 
-using Option = Interactables.Selection.Option;
+using Option = Interactables.Selector.Option;
 
 class Rank {
 	public enum AccessLevel {

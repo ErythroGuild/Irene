@@ -5,7 +5,7 @@ using System.Timers;
 using SelectionCallback = Func<ComponentInteractionCreateEventArgs, Task>;
 using ComponentCallback = Func<DiscordSelect, DiscordSelect>;
 
-class Selection {
+class Selector {
 	public readonly record struct SelectionId (
 		ulong MessageId,
 		string ComponentId
@@ -23,13 +23,13 @@ class Selection {
 	// ID of the owning message + selection custom ID.
 	// This also serves as a way to "hold" fired timers, preventing them
 	// from prematurely going out of scope and being destroyed.
-	private static readonly ConcurrentDictionary<SelectionId, Selection> _selections = new ();
+	private static readonly ConcurrentDictionary<SelectionId, Selector> _selections = new ();
 	
 	// All events are handled by a single delegate, registered on init.
 	// This means there doesn't need to be a large amount of delegates
 	// that each event has to filter through until it hits the correct
 	// handler.
-	static Selection() {
+	static Selector() {
 		CheckErythroInit();
 
 		Erythro.Client.ComponentInteractionCreated += (c, e) => {
@@ -39,7 +39,7 @@ class Selection {
 				// Consume all interactions originating from a registered
 				// message, and created by the corresponding component.
 				if (_selections.ContainsKey(id)) {
-					Selection selection = _selections[id];
+					Selector selection = _selections[id];
 					if (selection.Id != e.Id)
 						return;
 					e.Handled = true;
@@ -77,7 +77,7 @@ class Selection {
 	// Public factory method constructor.
 	// Use this method to instantiate a new interactable.
 	// NOTE: The selection callback should probably call `Update()`.
-	public static Selection Create<T>(
+	public static Selector Create<T>(
 		Interaction interaction,
 		Task<DiscordMessage> messageTask,
 		SelectionCallback callback,
@@ -116,8 +116,8 @@ class Selection {
 			maxOptions: isMultiple ? options.Count : 1
 		);
 
-		// Construct partial Selection object.
-		Selection selection = new (interaction, component, timer, callback);
+		// Construct partial Selector object.
+		Selector selection = new (interaction, component, timer, callback);
 		messageTask.ContinueWith((messageTask) => {
 			DiscordMessage message = messageTask.Result;
 			selection._message = message;
@@ -134,7 +134,7 @@ class Selection {
 
 		return selection;
 	}
-	private Selection(
+	private Selector(
 		Interaction interaction,
 		DiscordSelect component,
 		Timer timer,
