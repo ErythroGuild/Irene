@@ -109,15 +109,19 @@ class IreneStatus : CommandHandler {
 
 		// Respond with StringPages interactable.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = StringPages.Create(
+		StringPages response = StringPages.Create(
 			interaction,
-			messagePromise.Task,
+			messagePromise,
 			lines,
-			new StringPages.Options { PageSize = 12 }
+			new StringPagesOptions { PageSize = 12 }
 		);
 
 		string summary = $"<List of {lines.Count} available statuses sent.>";
-		await interaction.RegisterAndRespondAsync(response, summary, true);
+		await interaction.RegisterAndRespondAsync(
+			response.GetContentAsBuilder(),
+			summary,
+			true
+		);
 
 		DiscordMessage message = await interaction.GetResponseAsync();
 		messagePromise.SetResult(message);

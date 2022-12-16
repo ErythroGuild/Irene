@@ -402,7 +402,8 @@ class Crafter {
 		const string
 			_emDash = "\u2014",
 			_zwSpace = "\u200B",
-			_enSpace = "\u2002";
+			_enSpace = "\u2002",
+			_emSpace = "\u2003";
 		string heading =
 			$"{_zwSpace}{_enSpace}{quality}{_enSpace}__**{title}s**__{_enSpace}{quality}\n";
 		List<string> lines = new ();
@@ -410,22 +411,34 @@ class Crafter {
 			DiscordEmoji @class = crafter.Class.Emoji();
 			string name = GetServerLocalName(crafter.Character);
 			string mention = crafter.UserId.MentionUserId();
-			lines.Add($"{@class}{_enSpace}**{name}**{_enSpace}{_emDash} {mention}");
+			string entry =
+				$"""
+				{@class}{_enSpace}**{name}**
+				{_emSpace}{_emSpace}{_enSpace}{_emDash} {mention}
+				""";
+			lines.Add(entry);
 		}
 		
 		// Respond with list of crafters.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = StringPages.Create(
+		StringPages pages = StringPages.Create(
 			interaction,
-			messagePromise.Task,
+			messagePromise,
 			lines,
-			new StringPages.Options {
-				PageSize = 14,
+			new StringPagesOptions {
+				PageSize = 6,
 				Header = heading,
 			}
-		).WithAllowedMentions(Mentions.None);
+		);
+		DiscordMessageBuilder response = pages
+			.GetContentAsBuilder()
+			.WithAllowedMentions(Mentions.None);
+
 		string summary = "Crafter list sent.";
-		await interaction.RegisterAndRespondAsync(response, summary);
+		await interaction.RegisterAndRespondAsync(
+			response,
+			summary
+		);
 
 		DiscordMessage message = await interaction.GetResponseAsync();
 		messagePromise.SetResult(message);
@@ -542,18 +555,22 @@ class Crafter {
 
 		// Respond with results.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = StringPages.Create(
+		StringPages pages = StringPages.Create(
 			interaction,
-			messagePromise.Task,
+			messagePromise,
 			lines,
-			new StringPages.Options {
+			new StringPagesOptions {
 				PageSize = 3,
 				Header = heading,
 			}
-		).WithAllowedMentions(Mentions.None);
+		);
 
+		DiscordMessageBuilder response = pages
+			.GetContentAsBuilder()
+			.WithAllowedMentions(Mentions.None);
 		DiscordMessage message = await
 			interaction.EditResponseAsync(response);
+
 		messagePromise.SetResult(message);
 		Log.Information("  Crafter search results sent.");
 	}

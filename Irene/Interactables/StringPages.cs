@@ -1,242 +1,94 @@
 namespace Irene.Interactables;
 
-using System.Timers;
+// `StringPagesOptions` can be individually set and passed to the static
+// `StringPages` factory constructor. Any unspecified options default
+// to the specified values.
+class StringPagesOptions : PagesOptions {
+	// "Sticky" strings which will always be shown on the page, no
+	// matter which page is shown.
+	// These do not include spacing so extra newlines may be necessary.
+	public string? Header { get; init; } = null;
+	public string? Footer { get; init; } = null;
+}
 
-class StringPages {
-	// This class provides a single place to manage settings to pass
-	// to the StringPages factory method.
-	public class Options {
-		public TimeSpan Timeout = DefaultTimeout;
-		public int PageSize = DefaultPageSize;
-		public string? Header = null;
-		public string? Footer = null;
-	}
-
-	public const int DefaultPageSize = 8;
-	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
-
-	// Master table of all StringPages to handle, indexed by the message ID
-	// of the owning message.
-	// This also serves as a way to "hold" fired timers, preventing them
-	// from prematurely going out of scope and being destroyed.
-	private static readonly ConcurrentDictionary<ulong, StringPages> _pages = new ();
-	private const string
-		_idButtonPrev = "pages_list_prev",
-		_idButtonNext = "pages_list_next",
-		_idButtonPage = "pages_list_page";
-	private static readonly IReadOnlySet<string> _ids =
-		new HashSet<string> { _idButtonPrev, _idButtonNext, _idButtonPage };
-	private const string
-		_labelPrev = "\u25B2",
-		_labelNext = "\u25BC";
-
-	// All events are handled by a single delegate, registered on init.
-	// This means there doesn't need to be a large amount of delegates
-	// that each event has to filter through until it hits the correct
-	// handler.
-	static StringPages() {
-		CheckErythroInit();
-
-		Erythro.Client.ComponentInteractionCreated += (c, e) => {
-			_ = Task.Run(async () => {
-				ulong id = e.Message.Id;
-
-				// Consume all interactions originating from a registered
-				// message, and created by the corresponding component.
-				if (_pages.TryGetValue(id, out StringPages? pages)) {
-					if (!_ids.Contains(e.Id))
-						return;
-					e.Handled = true;
-
-					// Can only update if message was already created.
-					if (pages._message is null)
-						return;
-
-					// Only respond to interactions created by the owner
-					// of the interactable.
-					if (e.User != pages.Owner) {
-						await Interaction.FromComponent(e)
-							.RespondComponentNotOwned(pages.Owner);
-						return;
-					}
-
-					// Handle buttons.
-					switch (e.Id) {
-					case _idButtonPrev:
-						pages._page--;
-						break;
-					case _idButtonNext:
-						pages._page++;
-						break;
-					}
-					pages._page = Math.Max(pages._page, 0);
-					pages._page = Math.Min(pages._page, pages._pageCount);
-
-					// Update original message.
-					Interaction interaction = Interaction.FromComponent(e);
-					await interaction.UpdateComponentAsync(pages.BuildMessage());
-				}
-			});
-			return Task.CompletedTask;
-		};
-	}
-
-	// Instance properties.
-	private readonly Interaction _interaction;
-	private DiscordMessage? _message = null;
-	private readonly Timer _timer;
+class StringPages : Pages {
+	// Additional instance properties.
 	private readonly string? _header;
 	private readonly string? _footer;
-	private readonly List<string> _data;
-	private int _page;
-	private readonly int _pageCount;
-	private readonly int _pageSize;
-	private DiscordUser Owner => _interaction.User;
-	public string CurrentContent { get {
-		int i_start = _page * _pageSize;
-		int i_end = Math.Min(i_start + _pageSize, _data.Count);
-		int i_range = i_end - i_start;
 
-		string content = _data.GetRange(i_start, i_range).ToLines();
+	// The interactable is registered to the table of `Pages` (and the
+	// auto-discard timer starts running) only when the `DiscordMessage`
+	// promise is fulfilled. (There is no separate table of instances
+	// for `StringPages`.)
+	public static StringPages Create(
+		Interaction interaction,
+		MessagePromise promise,
+		IReadOnlyList<string> data,
+		StringPagesOptions? options=null
+	) {
+		options ??= new ();
+
+		// Construct partial (uninitialized) object.
+		StringPages pages = new (
+			options.IsEnabled,
+			interaction,
+			options.Timeout,
+			new List<string>(data),
+			options.PageSize,
+			options.Decorator,
+			options.Header,
+			options.Footer
+		);
+
+		// Set up registration and auto-discard.
+		pages.FinalizeInstance(promise);
+
+		return pages;
+	}
+
+	// Since the protected constructor only partially constructs the
+	// object, it should never be called directly. Always use the public
+	// factory method instead.
+	protected StringPages(
+		bool isEnabled,
+		Interaction interaction,
+		TimeSpan timeout,
+		List<string> data,
+		int pageSize,
+		Decorator? decorator,
+		string? header,
+		string? footer
+	) : base (
+		isEnabled,
+		interaction,
+		timeout,
+		ToObjectList(data),
+		pageSize,
+		null!,
+		decorator
+	) {
+		_header = header;
+		_footer = footer;
+
+		_renderer = RenderData;
+	}
+
+	// All `StringPages` render their underlying data the same way.
+	private IDiscordMessageBuilder RenderData(List<object> data, bool isEnabled) {
+		string content = ToStringList(data).ToLines();
+
 		if (_header is not null)
 			content = $"{_header}\n{content}";
 		if (_footer is not null)
 			content = $"{content}\n{_footer}";
-		
-		return content;
-	} }
 
-	// Public factory method constructor.
-	// Use this method to instantiate a new interactable.
-	public static DiscordMessageBuilder Create(
-		Interaction interaction,
-		Task<DiscordMessage> messageTask,
-		IReadOnlyList<string> data,
-		Options? options=null
-	) {
-		options ??= new ();
-
-		Timer timer = Util.CreateTimer(options.Timeout, false);
-
-		// Construct partial StringPages object.
-		StringPages pages = new (
-			interaction,
-			new List<string>(data),
-			timer,
-			options.PageSize,
-			options.Header,
-			options.Footer
-		);
-		messageTask.ContinueWith((messageTask) => {
-			DiscordMessage message = messageTask.Result;
-			pages._message = message;
-			_pages.TryAdd(message.Id, pages);
-			pages._timer.Start();
-		});
-		timer.Elapsed += async (obj, e) => {
-			// Run (or schedule to run) cleanup task.
-			if (!messageTask.IsCompleted)
-				await messageTask.ContinueWith(e => pages.Cleanup());
-			else
-				await pages.Cleanup();
-		};
-
-		return pages.BuildMessage();
-	}
-	private StringPages(
-		Interaction interaction,
-		List<string> data,
-		Timer timer,
-		int pageSize,
-		string? header,
-		string? footer
-	) {
-		// Calculate page count.
-		// It's convenient to save this result, since it's used on every
-		// button press.
-		double pageCount = data.Count / (double)pageSize;
-		pageCount = Math.Round(Math.Ceiling(pageCount));
-
-		_interaction = interaction;
-		_timer = timer;
-		_header = header;
-		_footer = footer;
-		_data = data;
-		_page = 0;
-		_pageCount = (int)pageCount;
-		_pageSize = pageSize;
+		return new DiscordMessageBuilder().WithContent(content);
 	}
 
-	// Manually time-out the timer (and fire the elapsed handler).
-	public async Task Discard() {
-		_timer.Stop();
-		const double delay = 0.1;
-		_timer.Interval = delay; // arbitrarily small interval, must be >0
-		_timer.Start();
-		await Task.Delay(TimeSpan.FromMilliseconds(delay));
-	}
-
-	// Cleanup task to dispose of all resources.
-	// Assumes _message has been set; returns immediately if it hasn't.
-	private async Task Cleanup() {
-		CheckErythroInit();
-		if (_message is null)
-			return;
-
-		// Remove held references.
-		_pages.TryRemove(_message.Id, out _);
-
-		// Re-fetch message.
-		_message = await Util.RefetchMessage(Erythro.Client, _message);
-
-		// Rebuild message as disabled.
-		await _interaction.EditResponseAsync(BuildWebhook(false));
-
-		Log.Debug("Cleaned up Pages interactable.");
-		Log.Debug("  Channel ID: {ChannelId}", _message.ChannelId);
-		Log.Debug("  Message ID: {MessageId}", _message.Id);
-	}
-
-	// Construct a message based on the current instance's data.
-	private DiscordMessageBuilder BuildMessage(bool isEnabled=true) {
-		DiscordMessageBuilder message =
-			new DiscordMessageBuilder()
-			.WithContent(CurrentContent);
-		if (_pageCount > 1)
-			message = message.AddComponents(GetButtons(isEnabled));
-		return message;
-	}
-	private DiscordWebhookBuilder BuildWebhook(bool isEnabled=true) {
-		DiscordWebhookBuilder webhook =
-			new DiscordWebhookBuilder()
-			.WithContent(CurrentContent);
-		if (_pageCount > 1)
-			webhook = webhook.AddComponents(GetButtons(isEnabled));
-		return webhook;
-	}
-
-	// Returns a row of buttons for paginating the data.
-	private DiscordComponent[] GetButtons(bool isEnabled=true) =>
-		GetButtons(_page, _pageCount, isEnabled);
-	private static DiscordComponent[] GetButtons(int page, int total, bool isEnabled=true) =>
-		new DiscordComponent[] {
-			new DiscordButton(
-				ButtonStyle.Secondary,
-				_idButtonPrev,
-				_labelPrev,
-				disabled: !isEnabled || (page + 1 == 1)
-			),
-			new DiscordButton(
-				ButtonStyle.Secondary,
-				_idButtonPage,
-				$"{page + 1} / {total}",
-				disabled: !isEnabled
-			),
-			new DiscordButton(
-				ButtonStyle.Secondary,
-				_idButtonNext,
-				_labelNext,
-				disabled: !isEnabled || (page + 1 == total)
-			),
-		};
+	// Convenience functions for converting the `_data` into/from what
+	// the base `Pages` class expects.
+	private static List<object> ToObjectList(List<string> list) =>
+		list.ConvertAll(s => (object)s);
+	private static List<string> ToStringList(List<object> list) =>
+		list.ConvertAll(o => (string)o);
 }
