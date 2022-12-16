@@ -93,14 +93,18 @@ class Rank : CommandHandler {
 
 		// Construct and respond with member list.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = StringPages.Create(
+		StringPages response = StringPages.Create(
 			interaction,
-			messagePromise.Task,
+			messagePromise,
 			lines,
-			new StringPages.Options { PageSize = _trialListPageSize }
+			new StringPagesOptions { PageSize = _trialListPageSize }
 		);
+
 		string summary = "Member list sent.";
-		await interaction.RegisterAndRespondAsync(response, summary);
+		await interaction.RegisterAndRespondAsync(
+			response.GetContentAsBuilder(),
+			summary
+		);
 
 		DiscordMessage message = await interaction.GetResponseAsync();
 		messagePromise.SetResult(message);

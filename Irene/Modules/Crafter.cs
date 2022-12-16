@@ -416,17 +416,24 @@ class Crafter {
 		
 		// Respond with list of crafters.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = StringPages.Create(
+		StringPages pages = StringPages.Create(
 			interaction,
-			messagePromise.Task,
+			messagePromise,
 			lines,
-			new StringPages.Options {
+			new StringPagesOptions {
 				PageSize = 14,
 				Header = heading,
 			}
-		).WithAllowedMentions(Mentions.None);
+		);
+		DiscordMessageBuilder response = pages
+			.GetContentAsBuilder()
+			.WithAllowedMentions(Mentions.None);
+
 		string summary = "Crafter list sent.";
-		await interaction.RegisterAndRespondAsync(response, summary);
+		await interaction.RegisterAndRespondAsync(
+			response,
+			summary
+		);
 
 		DiscordMessage message = await interaction.GetResponseAsync();
 		messagePromise.SetResult(message);
@@ -543,18 +550,22 @@ class Crafter {
 
 		// Respond with results.
 		MessagePromise messagePromise = new ();
-		DiscordMessageBuilder response = StringPages.Create(
+		StringPages pages = StringPages.Create(
 			interaction,
-			messagePromise.Task,
+			messagePromise,
 			lines,
-			new StringPages.Options {
+			new StringPagesOptions {
 				PageSize = 3,
 				Header = heading,
 			}
-		).WithAllowedMentions(Mentions.None);
+		);
 
+		DiscordMessageBuilder response = pages
+			.GetContentAsBuilder()
+			.WithAllowedMentions(Mentions.None);
 		DiscordMessage message = await
 			interaction.EditResponseAsync(response);
+
 		messagePromise.SetResult(message);
 		Log.Information("  Crafter search results sent.");
 	}

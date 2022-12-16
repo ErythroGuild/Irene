@@ -9,7 +9,7 @@ class PagesOptions {
 	public static int DefaultPageSize => 8;
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
-	// Whether or not the pagination buttons are disabled.
+	// Whether or not the pagination buttons are enabled.
 	public bool IsEnabled { get; init; } = true;
 
 	// The number of data items to render per page.
@@ -111,7 +111,7 @@ class Pages {
 	// promise is fulfilled.
 	public static Pages Create(
 		Interaction interaction,
-		Task<DiscordMessage> messageTask,
+		MessagePromise promise,
 		IReadOnlyList<object> data,
 		Renderer renderer,
 		PagesOptions? options=null
@@ -130,7 +130,7 @@ class Pages {
 		);
 
 		// Set up registration and auto-discard.
-		pages.FinalizeInstance(messageTask);
+		pages.FinalizeInstance(promise);
 
 		return pages;
 	}
@@ -168,9 +168,11 @@ class Pages {
 	// The entire `Pages object cannot be constructed in one stage;
 	// this second stage registers the object after the message promise
 	// is fulfilled and sets up auto-discard.
-	protected void FinalizeInstance(Task<DiscordMessage> messageTask) {
+	protected void FinalizeInstance(MessagePromise promise) {
+		Task<DiscordMessage> promiseTask = promise.Task;
+
 		// Registers instance.
-		messageTask.ContinueWith(t => {
+		promiseTask.ContinueWith(t => {
 			DiscordMessage message = t.Result;
 			_message = message;
 			_pages.TryAdd(message.Id, this);
@@ -179,8 +181,8 @@ class Pages {
 
 		// Run (or schedule to run) auto-discard.
 		_timer.Elapsed += async (_, _) => {
-			if (!messageTask.IsCompleted)
-				await messageTask.ContinueWith(e => Cleanup());
+			if (!promiseTask.IsCompleted)
+				await promiseTask.ContinueWith(e => Cleanup());
 			else
 				await Cleanup();
 		};
