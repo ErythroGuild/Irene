@@ -64,7 +64,7 @@ class Pages {
 	static Pages() {
 		CheckErythroInit();
 		Erythro.Client.ComponentInteractionCreated +=
-			ButtonHandlerAsync;
+			InteractionHandlerAsync;
 	}
 
 
@@ -83,6 +83,7 @@ class Pages {
 	protected virtual void OnInteractableDiscarded() =>
 		InteractableDiscarded?.Invoke(this, new());
 
+	private readonly TaskQueue _queueUpdates = new ();
 	private readonly Interaction _interaction;
 	private DiscordMessage? _message = null;
 	private readonly Timer _timer;
@@ -232,12 +233,13 @@ class Pages {
 	// --------
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
-	private async Task Update() {
-		if (_message is null)
-			return;
+	private Task Update() =>
+		_queueUpdates.Run(new Task<Task>(async () => {
+			if (_message is null)
+				return;
 
-		await _interaction.EditResponseAsync(GetContentAsWebhook());
-	}
+			await _interaction.EditResponseAsync(GetContentAsWebhook());
+		}));
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	private async Task Cleanup() {
@@ -257,8 +259,8 @@ class Pages {
 		Log.Debug("  Message ID: {MessageId}", _message.Id);
 	}
 
-	// Handle any button presses.
-	private static Task ButtonHandlerAsync(
+	// Filter and dispatch any interactions to be properly handled.
+	private static Task InteractionHandlerAsync(
 		DiscordClient c,
 		ComponentInteractionCreateEventArgs e
 	) {
@@ -285,23 +287,31 @@ class Pages {
 				}
 
 				// Handle buttons.
-				switch (e.Id) {
-				case _idButtonPrev:
-					pages._page--;
-					break;
-				case _idButtonNext:
-					pages._page++;
-					break;
-				}
-				pages._page = Math.Max(pages._page, 0);
-				pages._page = Math.Min(pages._page, pages.PageCount);
-
-				// Update original message.
-				await interaction.UpdateComponentAsync(pages.GetContentAsBuilder());
+				await pages.HandleButtonAsync(e.Id);
 			}
 		});
 		return Task.CompletedTask;
 	}
+
+	// Handle any button presses for this interactable. The passed in
+	// `Interaction` allows for button press-initiated message edits
+	// to work reliably even if the message itself has timed out.
+	private Task HandleButtonAsync(Interaction interaction, string buttonId) =>
+		_queueUpdates.Run(new Task<Task>(async () => {
+			switch (buttonId) {
+			case _idButtonPrev:
+				_page--;
+				break;
+			case _idButtonNext:
+				_page++;
+				break;
+			}
+			_page = Math.Max(_page, 0);
+			_page = Math.Min(_page, PageCount);
+
+			// Update original message.
+			await interaction.UpdateComponentAsync(GetContentAsBuilder());
+		}));
 
 	// Creates a row of pagination buttons.
 	private static DiscordComponent[] GetButtons(
