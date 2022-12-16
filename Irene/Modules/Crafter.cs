@@ -411,7 +411,12 @@ class Crafter {
 			DiscordEmoji @class = crafter.Class.Emoji();
 			string name = GetServerLocalName(crafter.Character);
 			string mention = crafter.UserId.MentionUserId();
-			lines.Add($"{@class}{_enSpace}**{name}**\n{_emSpace}{_emDash} {mention}");
+			string entry =
+				$"""
+				{@class}{_enSpace}**{name}**
+				{_emSpace}{_emSpace}{_enSpace}{_emDash} {mention}
+				""";
+			lines.Add(entry);
 		}
 		
 		// Respond with list of crafters.
@@ -421,7 +426,7 @@ class Crafter {
 			messagePromise,
 			lines,
 			new StringPagesOptions {
-				PageSize = 14,
+				PageSize = 6,
 				Header = heading,
 			}
 		);
