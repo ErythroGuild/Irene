@@ -1,5 +1,6 @@
 ﻿namespace Irene.Interactables;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Timers;
 
 // `PagesOptions` can be individually set and passed to the static
@@ -75,6 +76,7 @@ class Pages {
 
 	// Public properties.
 	public bool IsEnabled { get; private set; }
+	[MemberNotNullWhen(true, nameof(_message))]
 	public bool HasMessage => _message is not null;
 	public DiscordUser Owner => _interaction.User;
 	public readonly int PageCount;
