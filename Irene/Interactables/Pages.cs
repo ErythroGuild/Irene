@@ -75,6 +75,7 @@ class Pages {
 
 	// Public properties.
 	public bool IsEnabled { get; private set; }
+	public bool HasMessage => _message is not null;
 	public DiscordUser Owner => _interaction.User;
 	public readonly int PageCount;
 
@@ -250,7 +251,7 @@ class Pages {
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	protected virtual Task Update() =>
 		_queueUpdates.Run(new Task<Task>(async () => {
-			if (_message is null)
+			if (!HasMessage)
 				return;
 
 			await _interaction.EditResponseAsync(GetContentAsWebhook());
@@ -258,7 +259,7 @@ class Pages {
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	protected virtual async Task Cleanup() {
-		if (_message is null)
+		if (!HasMessage)
 			return;
 
 		// Remove held references.
@@ -292,7 +293,7 @@ class Pages {
 				e.Handled = true;
 
 				// Can only update if message was already created.
-				if (pages._message is null)
+				if (!pages.HasMessage)
 					return;
 
 				// Only respond to interactions created by the owner
