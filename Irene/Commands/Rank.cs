@@ -1,7 +1,5 @@
 namespace Irene.Commands;
 
-using Irene.Interactables;
-
 using Module = Modules.Rank;
 
 class Rank : CommandHandler {
@@ -214,8 +212,8 @@ class Rank : CommandHandler {
 
 	//	//// Construct select component by picking only usable options.
 	//	//// Admin has special permission to set others to Admin.
-	//	//List<KeyValuePair<Level, Entry>> options = new ();
-	//	//foreach (KeyValuePair<Level, Entry> option in _optionsRankList) {
+	//	//List<KeyValuePair<Level, Option>> options = new ();
+	//	//foreach (KeyValuePair<Level, Option> option in _optionsRankList) {
 	//	//	if (level_caller > option.Key) {
 	//	//		options.Add(option);
 	//	//	 } else if (option.Key == Level.Admin && level_caller == Level.Admin) {
@@ -310,7 +308,7 @@ class Rank : CommandHandler {
 	//	Log.Information("  Updated rank successfully.");
 
 	//	//// Update select component.
-	//	//HashSet<Entry> options_updated = new ();
+	//	//HashSet<Option> options_updated = new ();
 	//	//options_updated.Add(_optionsRank[rank_new]);
 	//	//await _selectsRank[member_id].Selector.Update(options_updated);
 	//	//Log.Debug("  Updated select component successfully.");
@@ -425,7 +423,7 @@ class Rank : CommandHandler {
 	//	Log.Information("  Updated roles successfully.");
 
 	//	//// Update select component.
-	//	//HashSet<Entry> options_updated = new ();
+	//	//HashSet<Option> options_updated = new ();
 	//	//foreach (Officer key in _optionsGuild.Keys) {
 	//	//	DiscordRole role = Program.Guild.GetRole(ToDiscordId(key));
 	//	//	if (roles_new.Contains(role))

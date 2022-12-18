@@ -32,7 +32,7 @@ class Roles : CommandHandler {
 		if (user is null) {
 			string error =
 				$"""
-				Failed to fetch your server data.
+				:frowning: I couldn't find your server data.
 				Try running the command again in {Erythro.Channel(id_ch.bots).Mention}?
 				""";
 			await interaction.RegisterAndRespondAsync(error, true);
