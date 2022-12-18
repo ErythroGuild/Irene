@@ -153,7 +153,7 @@ class Selector<T> : ISelector where T : Enum {
 	public event EventHandler? InteractableDiscarded;
 	// Wrapper method to allow derived classes to invoke this event.
 	protected virtual void OnInteractableDiscarded() =>
-		InteractableDiscarded?.Invoke(this, new());
+		InteractableDiscarded?.Invoke(this, new ());
 
 	// Private fields.
 	private readonly TaskQueue _queueUpdates = new ();
@@ -172,7 +172,7 @@ class Selector<T> : ISelector where T : Enum {
 	// Factory method and constructor:
 	// --------
 
-	// The interactable is registered to the table of `Selectors` (and
+	// The interactable is registered to the table of `Selector`s (and
 	// the auto-discard timer starts running) only when the `DiscordMessage`
 	// promise is fulfilled.
 	public static Selector<T> Create(
@@ -235,7 +235,7 @@ class Selector<T> : ISelector where T : Enum {
 		_maxSelected = maxSelected;
 	}
 
-	// The entire `Pages object cannot be constructed in one stage;
+	// The entire `Selector` object cannot be constructed in one stage;
 	// this second stage registers the object after the message promise
 	// is fulfilled and sets up auto-discard.
 	private void FinalizeInstance(MessagePromise promise) {
@@ -358,7 +358,7 @@ class Selector<T> : ISelector where T : Enum {
 			await _interaction.EditResponseAsync(ReplaceSelector(_message));
 		}));
 
-	// Assumes _message has been set; returns immediately if it hasn't.
+	// Assumes `_message` has been set; returns immediately if it hasn't.
 	private async Task Cleanup() {
 		if (!HasMessage)
 			return;

@@ -7,7 +7,7 @@ using System.Timers;
 // `Pages` factory constructor. Any unspecified options default to
 // the specified values.
 class PagesOptions {
-	public static int DefaultPageSize => 8;
+	public const int DefaultPageSize = 8;
 	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(10);
 
 	// Whether or not the pagination buttons are enabled.
@@ -86,7 +86,7 @@ class Pages {
 	public event EventHandler? InteractableDiscarded;
 	// Wrapper method to allow derived classes to invoke this event.
 	protected virtual void OnInteractableDiscarded() =>
-		InteractableDiscarded?.Invoke(this, new());
+		InteractableDiscarded?.Invoke(this, new ());
 
 	// Private fields.
 	private readonly TaskQueue _queueUpdates = new ();
@@ -109,7 +109,7 @@ class Pages {
 	// Factory method and constructor:
 	// --------
 
-	// The interactable is registered to the table of `Pages` (and the
+	// The interactable is registered to the table of `Page`s (and the
 	// auto-discard timer starts running) only when the `DiscordMessage`
 	// promise is fulfilled.
 	public static Pages Create(
