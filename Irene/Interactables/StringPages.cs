@@ -33,7 +33,7 @@ class StringPages : Pages {
 			options.IsEnabled,
 			interaction,
 			options.Timeout,
-			new List<string>(data),
+			new (data),
 			options.PageSize,
 			options.Decorator,
 			options.Header,
@@ -74,7 +74,10 @@ class StringPages : Pages {
 	}
 
 	// All `StringPages` render their underlying data the same way.
-	private IDiscordMessageBuilder RenderData(List<object> data, bool isEnabled) {
+	private IDiscordMessageBuilder RenderData(
+		IReadOnlyList<object> data,
+		bool isEnabled
+	) {
 		string content = ToStringList(data).ToLines();
 
 		if (_header is not null)
@@ -87,8 +90,8 @@ class StringPages : Pages {
 
 	// Convenience functions for converting the `_data` into/from what
 	// the base `Pages` class expects.
-	private static List<object> ToObjectList(List<string> list) =>
-		list.ConvertAll(s => (object)s);
-	private static List<string> ToStringList(List<object> list) =>
-		list.ConvertAll(o => (string)o);
+	private static List<object> ToObjectList(IReadOnlyList<string> list) =>
+		new List<string>(list).ConvertAll(s => (object)s);
+	private static List<string> ToStringList(IReadOnlyList<object> list) =>
+		new List<object>(list).ConvertAll(o => (string)o);
 }

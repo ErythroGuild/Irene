@@ -1,8 +1,6 @@
 ﻿namespace Irene.Modules;
 
-using Irene.Interactables;
-
-using Option = Interactables.Selection.Option;
+using Option = ISelector.Entry;
 
 class Rank {
 	public enum AccessLevel {
@@ -21,15 +19,6 @@ class Rank {
 			[AccessLevel.Officer] = id_r.officer,
 			[AccessLevel.Member ] = id_r.member ,
 			[AccessLevel.Guest  ] = id_r.guest  ,
-		}
-	);
-	private static readonly ConstBiMap<AccessLevel, string> _rankOptions = new (
-		new Dictionary<AccessLevel, string> {
-			[AccessLevel.Admin  ] = _optionRankAdmin  ,
-			[AccessLevel.Officer] = _optionRankOfficer,
-			[AccessLevel.Member ] = _optionRankMember ,
-			[AccessLevel.Guest  ] = _optionRankGuest  ,
-			[AccessLevel.None   ] = _optionRankNone   ,
 		}
 	);
 	// Select menu definitions.
@@ -75,6 +64,14 @@ class Rank {
 		_optionRankNone    = "option_none"   ;
 
 	static Rank() {
+		CheckErythroInit();
+
+		_rankRoles = new List<DiscordRole> {
+			Erythro.Role(id_r.guest),
+			Erythro.Role(id_r.member),
+			Erythro.Role(id_r.officer),
+			Erythro.Role(id_r.admin),
+		};
 	}
 
 	// Returns the "color dot" emoji associated with the given rank.

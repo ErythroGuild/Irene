@@ -1,5 +1,6 @@
 ﻿namespace Irene.Interactables;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Timers;
 
 // `PagesOptions` can be individually set and passed to the static
@@ -31,7 +32,7 @@ class Pages {
 	// The `Renderer` delegate transforms data into rendered messages,
 	// allowing the data itself to be stored more concisely/naturally.
 	public delegate IDiscordMessageBuilder
-		Renderer(List<object> data, bool isEnabled);
+		Renderer(IReadOnlyList<object> data, bool isEnabled);
 	// The `Decorator` delegate runs after a page's message content has
 	// been rendered, allowing for extended formatting (e.g. appending
 	// extra components under the pagination buttons).
@@ -75,6 +76,8 @@ class Pages {
 
 	// Public properties.
 	public bool IsEnabled { get; private set; }
+	[MemberNotNullWhen(true, nameof(_message))]
+	public bool HasMessage => _message is not null;
 	public DiscordUser Owner => _interaction.User;
 	public readonly int PageCount;
 
@@ -123,7 +126,7 @@ class Pages {
 			options.IsEnabled,
 			interaction,
 			options.Timeout,
-			new List<object>(data),
+			new (data),
 			options.PageSize,
 			renderer,
 			options.Decorator
@@ -165,7 +168,7 @@ class Pages {
 		_decorator = decorator;
 	}
 
-	// The entire `Pages object cannot be constructed in one stage;
+	// The entire `Pages` object cannot be constructed in one stage;
 	// this second stage registers the object after the message promise
 	// is fulfilled and sets up auto-discard.
 	protected void FinalizeInstance(MessagePromise promise) {
@@ -233,7 +236,7 @@ class Pages {
 	public async Task Discard() {
 		_timer.Stop();
 
-		// Set the timeout to an arbitrarily small interval, (`Timer`
+		// Set the timeout to an arbitrarily small interval (`Timer`
 		// disallows setting to 0), triggering the auto-discard.
 		const double delta = 0.1;
 		_timer.Interval = delta;
@@ -250,7 +253,7 @@ class Pages {
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	protected virtual Task Update() =>
 		_queueUpdates.Run(new Task<Task>(async () => {
-			if (_message is null)
+			if (!HasMessage)
 				return;
 
 			await _interaction.EditResponseAsync(GetContentAsWebhook());
@@ -258,7 +261,7 @@ class Pages {
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	protected virtual async Task Cleanup() {
-		if (_message is null)
+		if (!HasMessage)
 			return;
 
 		// Remove held references.
@@ -292,7 +295,7 @@ class Pages {
 				e.Handled = true;
 
 				// Can only update if message was already created.
-				if (pages._message is null)
+				if (!pages.HasMessage)
 					return;
 
 				// Only respond to interactions created by the owner

@@ -1,8 +1,6 @@
 namespace Irene.Modules;
 
-using Irene.Interactables;
-
-using Option = Interactables.Selection.Option;
+using Option = ISelector.Entry;
 
 class Roles {
 	public enum PingRole {
@@ -25,7 +23,7 @@ class Roles {
 	private record class UserRoleTypeSelect(ulong UserId, Type RoleTypeEnum);
 	// Master table of selection menus.
 	// NOTE: New selection menus should be registered here.
-	private static readonly ConcurrentDictionary<UserRoleTypeSelect, Selection> _menus = new ();
+	private static readonly ConcurrentDictionary<UserRoleTypeSelect, ISelector> _menus = new ();
 	
 	// Role object conversion tables.
 	private static readonly ConstBiMap<PingRole, ulong> _pingRoles = new (
@@ -53,33 +51,6 @@ class Roles {
 			[OfficerRole.Events   ] = id_r.eventPlanner,
 			[OfficerRole.Recruiter] = id_r.recruiter   ,
 			[OfficerRole.Banker   ] = id_r.banker      ,
-		}
-	);
-	private static readonly ConstBiMap<PingRole, string> _pingOptions = new (
-		new Dictionary<PingRole, string> {
-			[PingRole.Raid   ] = _optionPingRaid   ,
-			[PingRole.Mythics] = _optionPingMythics,
-			[PingRole.KSM    ] = _optionPingKSM    ,
-			[PingRole.Gearing] = _optionPingGearing,
-			[PingRole.Events ] = _optionPingEvents ,
-			[PingRole.Herald ] = _optionPingHerald ,
-		}
-	);
-	private static readonly ConstBiMap<GuildRole, string> _guildOptions = new (
-		new Dictionary<GuildRole, string> {
-			[GuildRole.Erythro] = _optionGuildErythro,
-			[GuildRole.Glaive ] = _optionGuildGlaive ,
-			[GuildRole.Sanctum] = _optionGuildSanctum,
-			[GuildRole.Angels ] = _optionGuildAngels ,
-			[GuildRole.Asgard ] = _optionGuildAsgard ,
-		}
-	);
-	private static readonly ConstBiMap<OfficerRole, string> _officerOptions = new (
-		new Dictionary<OfficerRole, string> {
-			[OfficerRole.Raid     ] = _optionOfficerRaid     ,
-			[OfficerRole.Events   ] = _optionOfficerEvents   ,
-			[OfficerRole.Recruiter] = _optionOfficerRecruiter,
-			[OfficerRole.Banker   ] = _optionOfficerBanker   ,
 		}
 	);
 	// Select menu definitions.
@@ -177,8 +148,8 @@ class Roles {
 	private static readonly TimeSpan _timeout = TimeSpan.FromMinutes(3);
 
 	private const string
-		_idSelectPingRoles  = "select_pingroles" ,
-		_idSelectGuildRoles = "select_guildroles";
+		_idSelectPingRoles  = "selector_pingroles" ,
+		_idSelectGuildRoles = "selector_guildroles";
 	private const string
 		_optionPingRaid     = "option_raid"   ,
 		_optionPingMythics  = "option_mythics",
@@ -243,49 +214,53 @@ class Roles {
 				guildRoles.Add(_guildRoles[id]);
 		}
 
-		// Create Selection interactables.
+		// Create `Selector` interactables.
 		MessagePromise messagePromise = new ();
-		Selection selectPings = Selection.Create(
+		Selector<PingRole> selectorPings = Selector<PingRole>.Create(
 			interaction,
-			messagePromise.Task,
-			AssignPingsAsync,
+			messagePromise,
+			s => AssignPingsAsync(s, user),
 			_idSelectPingRoles,
 			PingRoleOptions,
 			pingRoles,
-			isMultiple: true,
-			"Select roles to be pinged for.",
-			_timeout
+			new SelectorOptions {
+				IsMultiple = true,
+				Timeout = _timeout,
+				Placeholder = "Select roles to be pinged for.",
+			}
 		);
-		Selection selectGuilds = Selection.Create(
+		Selector<GuildRole> selectorGuilds = Selector<GuildRole>.Create(
 			interaction,
-			messagePromise.Task,
-			AssignGuildsAsync,
+			messagePromise,
+			s => AssignGuildsAsync(s, user),
 			_idSelectGuildRoles,
 			GuildRoleOptions,
 			guildRoles,
-			isMultiple: true,
-			"Select the guilds you associate with.",
-			_timeout
+			new SelectorOptions {
+				IsMultiple = true,
+				Timeout = _timeout,
+				Placeholder = "Select any guilds you associate with.",
+			}
 		);
 
-		// Update global Selection tracking table, and disable any menus
+		// Update global Selector tracking table, and disable any menus
 		// already in-flight.
 		UserRoleTypeSelect idPingSelect = new (user.Id, typeof(PingRole));
 		UserRoleTypeSelect idGuildSelect = new (user.Id, typeof(GuildRole));
 		if (_menus.ContainsKey(idPingSelect)) {
-			Selection menu = _menus[idPingSelect];
+			ISelector menu = _menus[idPingSelect];
 			// Discarding is just an extra safety, so no need to await.
 			_ = menu.Discard();
 			_menus.TryRemove(idPingSelect, out _);
 		}
 		if (_menus.ContainsKey(idGuildSelect)) {
-			Selection menu = _menus[idGuildSelect];
+			ISelector menu = _menus[idGuildSelect];
 			// Discarding is just an extra safety, so no need to await.
 			_ = menu.Discard();
 			_menus.TryRemove(idGuildSelect, out _);
 		}
-		_menus.TryAdd(idPingSelect, selectPings);
-		_menus.TryAdd(idGuildSelect, selectGuilds);
+		_menus.TryAdd(idPingSelect, selectorPings);
+		_menus.TryAdd(idGuildSelect, selectorGuilds);
 
 		// Respond to interaction.
 		// Note: A response must have either content or an embed to be
@@ -293,9 +268,9 @@ class Roles {
 		DiscordMessageBuilder response =
 			new DiscordMessageBuilder()
 			.WithContent(" ")
-			.AddComponents(selectPings.Component)
-			.AddComponents(selectGuilds.Component);
-		string summary = "Role selection menu sent.";
+			.AddComponents(selectorPings.GetSelect())
+			.AddComponents(selectorGuilds.GetSelect());
+		string summary = "Role selection menus sent.";
 		await interaction.RegisterAndRespondAsync(response, summary, true);
 
 		// Update message promise.
@@ -303,40 +278,29 @@ class Roles {
 		messagePromise.SetResult(message);
 	}
 
-	private static Task AssignPingsAsync(ComponentInteractionCreateEventArgs e) =>
-		AssignRolesAsync(e, _pingRoles, _pingOptions);
-	private static Task AssignGuildsAsync(ComponentInteractionCreateEventArgs e) =>
-		AssignRolesAsync(e, _guildRoles, _guildOptions);
-	private static Task AssignOfficersAsync(ComponentInteractionCreateEventArgs e) =>
-		AssignRolesAsync(e, _officerRoles, _officerOptions);
+	private static Task AssignPingsAsync(IReadOnlySet<PingRole> roles, DiscordMember user) =>
+		AssignRolesAsync(user, roles, _pingRoles);
+	private static Task AssignGuildsAsync(IReadOnlySet<GuildRole> roles, DiscordMember user) =>
+		AssignRolesAsync(user, roles, _guildRoles);
+	private static Task AssignOfficersAsync(IReadOnlySet<OfficerRole> roles, DiscordMember user) =>
+		AssignRolesAsync(user, roles, _officerRoles);
 
 	private static async Task AssignRolesAsync<T>(
-		ComponentInteractionCreateEventArgs e,
-		ConstBiMap<T, ulong> tableRoleIds,
-		ConstBiMap<T, string> tableRoleOptions
+		DiscordMember user,
+		IReadOnlySet<T> rolesSelected,
+		ConstBiMap<T, ulong> tableRoleIds
 	) where T : Enum {
 		CheckErythroInit();
 
-		// Fetch member object data.
-		Interaction interaction = Interaction.FromComponent(e);
-		DiscordMember? user = await interaction.User.ToMember();
-		if (user is null) {
-			await RespondNoDataAsync(interaction);
-			return;
-		}
-
 		// Fetch list of desired roles.
-		// Added enum roles are saved separately (to update Selection).
-		HashSet<DiscordRole> rolesAdded = new ();
-		foreach (string option in e.Values) {
-			DiscordRole role =
-				Erythro.Role(tableRoleIds[tableRoleOptions[option]]);
-			rolesAdded.Add(role);
+		HashSet<DiscordRole> roles = new ();
+		foreach (T roleSelected in rolesSelected) {
+			DiscordRole role = Erythro.Role(tableRoleIds[roleSelected]);
+			roles.Add(role);
 		}
 
 		// Add non-enum role roles to desired roles.
 		// These roles must be kept the same as before.
-		HashSet<DiscordRole> roles = new (rolesAdded);
 		foreach (DiscordRole role in user.Roles) {
 			if (!tableRoleIds.Contains(role.Id))
 				roles.Add(role);
@@ -345,26 +309,5 @@ class Roles {
 		// Update member roles.
 		await user.ReplaceRolesAsync(roles);
 		Log.Information("Updated member roles for {Username}.", user.DisplayName);
-
-		// Update Selection object.
-		Selection selection = _menus[new (user.Id, typeof(T))];
-		HashSet<string> options = new ();
-		foreach (DiscordRole role in rolesAdded)
-			options.Add(tableRoleOptions[tableRoleIds[role.Id]]);
-		await selection.Update(options);
-	}
-
-	// Convenince function for responding when member data is missing.
-	private static async Task RespondNoDataAsync(Interaction interaction) {
-		DiscordFollowupMessageBuilder error =
-			new DiscordFollowupMessageBuilder()
-			.WithContent(
-				$"""
-				Failed to fetch your server data.
-				:frowning: Try again in a moment?
-				"""
-			)
-			.AsEphemeral(true);
-		await interaction.FollowupAsync(error);
 	}
 }

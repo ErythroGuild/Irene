@@ -30,7 +30,7 @@ partial class Farm {
 					ulong id = e.Message.Id;
 
 					// Consume all interactions originating from a registered
-					// message, containing this Selection object.
+					// message, containing this Selector object.
 					if (_selections.ContainsKey(id) && e.Id == _idSelect) {
 						Selection selection = _selections[id];
 						e.Handled = true;
@@ -102,7 +102,7 @@ partial class Farm {
 				options
 			);
 
-			// Construct partial Selection object.
+			// Construct partial Selector object.
 			Selection selection = new (
 				interaction,
 				component,
@@ -167,7 +167,7 @@ partial class Farm {
 		}
 
 		// Cleanup task to dispose of all resources. Also removes self
-		// from the `Farm` global `Farm.Selection` table.
+		// from the `Farm` global `Farm.Selector` table.
 		// Assumes _message has been set; returns immediately if it hasn't.
 		private async Task Cleanup() {
 			CheckErythroInit();
@@ -191,7 +191,7 @@ partial class Farm {
 			Log.Debug("  Message ID: {MessageId}", _message.Id);
 		}
 
-		// Update the message display holding this Selection.
+		// Update the message display holding this Selector.
 		// Assumes _message has been set; returns immediately if it hasn't.
 		private async Task UpdateMessageDisplayAsync(Route selected, bool isEnabled=true) {
 			if (_message is null)

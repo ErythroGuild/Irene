@@ -1,7 +1,5 @@
 namespace Irene.Commands;
 
-using Irene.Interactables;
-
 using Module = Modules.Rank;
 
 class Rank : CommandHandler {
@@ -155,9 +153,9 @@ class Rank : CommandHandler {
 
 
 	//private record class SelectionTarget
-	//	(Selection Selection, DiscordMember Member);
+	//	(Selector Selector, DiscordMember Member);
 
-	//// Selection menus, indexed by the user who requested the menu.
+	//// Selector menus, indexed by the user who requested the menu.
 	//// Although it may seem less "consistent" to have the possibility of
 	//// multiple users attempting to modify the same user (and causing
 	//// race conditions), it makes more intuitive sense when conflicts
@@ -214,8 +212,8 @@ class Rank : CommandHandler {
 
 	//	//// Construct select component by picking only usable options.
 	//	//// Admin has special permission to set others to Admin.
-	//	//List<KeyValuePair<Level, Entry>> options = new ();
-	//	//foreach (KeyValuePair<Level, Entry> option in _optionsRankList) {
+	//	//List<KeyValuePair<Level, Option>> options = new ();
+	//	//foreach (KeyValuePair<Level, Option> option in _optionsRankList) {
 	//	//	if (level_caller > option.Key) {
 	//	//		options.Add(option);
 	//	//	 } else if (option.Key == Level.Admin && level_caller == Level.Admin) {
@@ -223,7 +221,7 @@ class Rank : CommandHandler {
 	//	//	}
 	//	//}
 	//	//MessagePromise message_promise = new ();
-	//	//Selection select = Selection.Create(
+	//	//Selector select = Selector.Create(
 	//	//	handler.Interaction.Interaction,
 	//	//	AssignRank,
 	//	//	message_promise.Task,
@@ -235,7 +233,7 @@ class Rank : CommandHandler {
 
 	//	//// Disable any selections already in-flight.
 	//	//if (_selectsRank.ContainsKey(member_caller.Id)) {
-	//	//	await _selectsRank[member_caller.Id].Selection.Discard();
+	//	//	await _selectsRank[member_caller.Id].Selector.Discard();
 	//	//	_selectsRank.TryRemove(member_caller.Id, out _);
 	//	//}
 	//	//_selectsRank.TryAdd(
@@ -310,9 +308,9 @@ class Rank : CommandHandler {
 	//	Log.Information("  Updated rank successfully.");
 
 	//	//// Update select component.
-	//	//HashSet<Entry> options_updated = new ();
+	//	//HashSet<Option> options_updated = new ();
 	//	//options_updated.Add(_optionsRank[rank_new]);
-	//	//await _selectsRank[member_id].Selection.Update(options_updated);
+	//	//await _selectsRank[member_id].Selector.Update(options_updated);
 	//	//Log.Debug("  Updated select component successfully.");
 
 	//	// Send congrats message if promoted (from Guest or above).
@@ -360,7 +358,7 @@ class Rank : CommandHandler {
 
 	//	//// Construct select component.
 	//	//MessagePromise message_promise = new ();
-	//	//Selection select = Selection.Create(
+	//	//Selector select = Selector.Create(
 	//	//	handler.Interaction.Interaction,
 	//	//	AssignOfficer,
 	//	//	message_promise.Task,
@@ -372,7 +370,7 @@ class Rank : CommandHandler {
 
 	//	//// Disable any selections already in-flight.
 	//	//if (_selectsOfficer.ContainsKey(member_caller.Id)) {
-	//	//	await _selectsOfficer[member_caller.Id].Selection.Discard();
+	//	//	await _selectsOfficer[member_caller.Id].Selector.Discard();
 	//	//	_selectsOfficer.TryRemove(member_caller.Id, out _);
 	//	//}
 	//	//_selectsOfficer.TryAdd(
@@ -425,13 +423,13 @@ class Rank : CommandHandler {
 	//	Log.Information("  Updated roles successfully.");
 
 	//	//// Update select component.
-	//	//HashSet<Entry> options_updated = new ();
+	//	//HashSet<Option> options_updated = new ();
 	//	//foreach (Officer key in _optionsGuild.Keys) {
 	//	//	DiscordRole role = Program.Guild.GetRole(ToDiscordId(key));
 	//	//	if (roles_new.Contains(role))
 	//	//		options_updated.Add(_optionsOfficer[key]);
 	//	//}
-	//	//await _selectsOfficer[member_id].Selection.Update(options_updated);
+	//	//await _selectsOfficer[member_id].Selector.Update(options_updated);
 	//	//Log.Debug("  Updated select component successfully.");
 	//}
 }
