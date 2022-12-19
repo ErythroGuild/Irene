@@ -19,7 +19,8 @@ class Modal {
 
 	// The `Callback` delegate is called when the modal response has
 	// been submitted. The interaction should be responded to as if it
-	// is a command interaction (`.RespondCommandAsync()`, or defer).
+	// was the original interaction (e.g. respond/defer if it came from
+	// a command, defer/update if it came from a component).
 	public delegate Task Callback(
 		IReadOnlyDictionary<string, string> data,
 		Interaction interaction
