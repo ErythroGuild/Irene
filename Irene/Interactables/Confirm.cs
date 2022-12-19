@@ -163,7 +163,7 @@ class Confirm {
 	// This also registers the `Confirm` to the button handler, since
 	// the buttons only start existing after this.
 	public async Task Prompt() {
-		_message = await _interaction.FollowupAsync(_prompt);
+		_message = await _interaction.FollowupAsync(_prompt, true);
 		_confirms.TryAdd(_message.Id, this);
 		_timer.Start();
 	}
