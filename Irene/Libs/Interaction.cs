@@ -260,7 +260,16 @@ class Interaction {
 		EditResponseAsync(new DiscordWebhookBuilder(message));
 	public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder message) =>
 		Object.EditOriginalResponseAsync(message);
-
+	public Task<DiscordMessage> EditFollowupAsync(ulong id, string message) {
+		DiscordMessageBuilder response =
+			new DiscordMessageBuilder()
+			.WithContent(message);
+		return EditFollowupAsync(id, response);
+	}
+	public Task<DiscordMessage> EditFollowupAsync(ulong id, IDiscordMessageBuilder message) =>
+		EditFollowupAsync(id, new DiscordWebhookBuilder(message));
+	public Task<DiscordMessage> EditFollowupAsync(ulong id, DiscordWebhookBuilder message) =>
+		Object.EditFollowupMessageAsync(id, message);
 
 	// --------
 	// Convenience methods for accessing response data:
