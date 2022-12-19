@@ -2,86 +2,214 @@
 
 using System.Timers;
 
-using ModalCallback = Func<ModalSubmitEventArgs, Task>;
+// `ModalOptions` can be individually set and passed to the static
+// `Modal` factory constructor. Any unspecified options default to
+// the specified values.
+class ModalOptions {
+	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(40);
+
+	// The duration each `Modal` lasts before being discarded (and no
+	// more responses accepted).
+	public TimeSpan Timeout { get; init; } = DefaultTimeout;
+}
 
 class Modal {
-	public static TimeSpan DefaultTimeout => TimeSpan.FromMinutes(20);
+	// A unique identifier for each created `Modal`.
+	public readonly record struct Id(ulong UserId, string CustomId);
 
-	private static readonly ConcurrentDictionary<string, Modal> _modals = new ();
+	// The `Callback` delegate is called when the modal response has
+	// been submitted. The interaction should be responded to as if it
+	// is a command interaction (`.RespondCommandAsync()`, or defer).
+	public delegate Task Callback(
+		IReadOnlyDictionary<string, string> data,
+		Interaction interaction
+	);
+
+
+	// --------
+	// Constants and static properties:
+	// --------
+
+	// Master table of all `Modal`s being tracked, indexed by the user
+	// ID + the custom ID of the tracked modal.
+	// This also serves as a way to hold fired timers, preventing them
+	// from going out of scope and being destroyed prematurely.
+	private static readonly ConcurrentDictionary<Id, Modal> _modals = new ();
 
 	// All events are handled by a single delegate, registered on init.
-	// This means there doesn't need to be a large amount of delegates
-	// that each event has to filter through until it hits the correct
-	// handler.
+	// This means each event doesn't have to filter through all handlers
+	// of the same type until it hits the right one.
 	static Modal() {
 		CheckErythroInit();
-
-		Erythro.Client.ModalSubmitted += (c, e) => {
-			_ = Task.Run(async () => {
-				string id = e.Interaction.Data.CustomId;
-				if (_modals.ContainsKey(id)) {
-					e.Handled = true;
-					await _modals[id]._callback(e);
-					_modals[id]._timer.Stop();
-					_modals.TryRemove(id, out _);
-				}
-			});
-			return Task.CompletedTask;
-		};
-		Log.Debug("  Created handler for component: Modal");
+		Erythro.Client.ModalSubmitted +=
+			InteractionDispatchAsync;
 	}
 
-	private readonly Timer _timer;
-	private readonly ModalCallback _callback;
 
-	public static async Task<Modal> RespondAsync(
-		DiscordInteraction interaction,
+	// --------
+	// Instance fields:
+	// --------
+	
+	// This event is raised both when the interactable auto-times out,
+	// and also when `Discard()` is manually called.
+	public event EventHandler? InteractableDiscarded;
+	// Wrapper method to allow derived classes to invoke this event.
+	protected virtual void OnInteractableDiscarded() =>
+		InteractableDiscarded?.Invoke(this, new ());
+
+	private readonly TaskQueue _queueUpdates = new ();
+	private readonly Interaction _interaction;
+	private readonly Timer _timer;
+	private readonly Callback _callback;
+	private readonly string _customId;
+	private readonly DiscordInteractionResponseBuilder _modal;
+
+
+	// --------
+	// Factory method and constructor:
+	// --------
+	
+	// The interactable is registered to the table of `Modal`s (and
+	// the auto-discard timer starts running) only after `Send()` is
+	// called. (The response builder itself cannot be publicly accessed,
+	// since the `Modal` needs full control of registration.)
+	public static Modal Create(
+		Interaction interaction,
+		Callback callback,
+		string customId,
 		string title,
 		IReadOnlyList<DiscordTextInput> components,
-		ModalCallback callback,
-		TimeSpan? timeout=null
+		ModalOptions? options=null
 	) {
-		string id = interaction.Id.ToString();
+		options ??= new ();
 
-		// Construct modal.
-		DiscordInteractionResponseBuilder response =
-			new DiscordInteractionResponseBuilder()
-			.WithTitle(title)
-			.WithCustomId(id);
-		foreach (DiscordTextInput component in components)
-			response = response.AddComponents(component);
-
-		// Setup timer.
-		timeout ??= DefaultTimeout;
-		Timer timer = Util.CreateTimer(timeout.Value, false);
-		timer.Elapsed +=
-			(_, _) => _modals.TryRemove(id, out _);
-
-		// Instantiate object.
-		Modal modal = new (timer, callback);
-
-		// Submit interaction response.
-		await interaction.CreateResponseAsync(
-			InteractionResponseType.Modal,
-			response
+		// Construct partial Modal object.
+		Modal modal = new (
+			interaction,
+			callback,
+			customId,
+			title,
+			components,
+			options
 		);
 
-		// Start timer.
-		_modals.TryAdd(id, modal);
-		modal._timer.Start();
+		// Set up auto-discard.
+		modal.FinalizeInstance();
 
 		return modal;
 	}
 
-	// Returns the custom-id that would be created for a modal from
-	// this DiscordInteraction.
-	public static string GetId(DiscordInteraction interaction) =>
-		interaction.Id.ToString();
-
-	// Private constructor.
-	// Use Modal.RespondAsync() to create a new instance.
-	private Modal(Timer timer, ModalCallback callback) {
-		_timer = timer;
+	// Since this private constructor only partially constructs the
+	// object, it should never be called directly. Always use the public
+	// factory method instead.
+	private Modal(
+		Interaction interaction,
+		Callback callback,
+		string customId,
+		string title,
+		IReadOnlyList<DiscordTextInput> components,
+		ModalOptions options
+	) {
+		_interaction = interaction;
+		_timer = Util.CreateTimer(options.Timeout, false);
 		_callback = callback;
+		_customId = customId;
+		_modal =
+			new DiscordInteractionResponseBuilder()
+			.WithTitle(title)
+			.WithCustomId(customId)
+			.AddComponents(components);
 	}
+
+	// The entire `Confirm` object cannot be constructed in one stage;
+	// this second stage sets up auto-discard.
+	// NOTE: The timer is not started here because `Modal` encapsulates
+	// the entire response process, and controls the entire lifetime of
+	// its own object.
+	private void FinalizeInstance() {
+		// Run (or schedule to run) auto-discard.
+		_timer.Elapsed += (_, _) => Cleanup();
+	}
+
+
+	// --------
+	// Public methods:
+	// --------
+
+	// Create and send modal as interaction response.
+	// This also registers the `Modal` to the event handler (since the
+	// modal only starts existing after this), and also starts the auto-
+	// discard timer.
+	public async Task Send() {
+		await _interaction.RespondModalAsync(_modal);
+		_modals.TryAdd(GetId(), this);
+		_timer.Start();
+	}
+	
+	// Trigger the auto-discard by manually timing-out the timer.
+	public async Task Discard() {
+		_timer.Stop();
+
+		// Set the timeout to an arbitrarily small interval (`Timer`
+		// disallows setting to 0), triggering the auto-discard.
+		const double delta = 0.1;
+		_timer.Interval = delta;
+
+		_timer.Start();
+		await Task.Delay(TimeSpan.FromMilliseconds(delta));
+	}
+
+
+	// --------
+	// Private helper methods:
+	// --------
+
+	private void Cleanup() {
+		// Remove held references.
+		_modals.TryRemove(GetId(), out _);
+
+		// Raise discard event.
+		OnInteractableDiscarded();
+
+		Log.Debug("Cleaned up Modal interactable.");
+		Log.Debug("  User: {UserTag}", _interaction.User.Tag());
+		Log.Debug("  Modal custom ID: {CustomId}", _customId);
+	}
+
+	// Helper methods for conveniently creating an `Id` record.
+	private Id GetId() => GetId(_interaction, _customId);
+	private static Id GetId(Interaction interaction, string customId) =>
+		new (interaction.User.Id, customId);
+	
+	// Filter and dispatch any interactions to be properly handled.
+	private static Task InteractionDispatchAsync(
+		DiscordClient c,
+		ModalSubmitEventArgs e
+	) {
+		_ = Task.Run(async () => {
+			Id id = new (
+				e.Interaction.User.Id,
+				e.Interaction.Data.CustomId
+			);
+
+			if (_modals.TryGetValue(id, out Modal? modal)) {
+				e.Handled = true;
+				Interaction interaction = Interaction.FromModal(e);
+				await modal.HandleModalAsync(e.Values, interaction);
+			}
+		});
+		return Task.CompletedTask;
+	}
+	
+	// Handle any corresponding modal submissions.
+	private Task HandleModalAsync(
+		IReadOnlyDictionary<string, string> data,
+		Interaction interaction
+	) =>
+		_queueUpdates.Run(new Task<Task>(async () => {
+			await _callback.Invoke(data, interaction);
+
+			_modals.TryRemove(GetId(), out _);
+			await Discard();
+		}));
 }
