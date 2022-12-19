@@ -109,7 +109,7 @@ class Pages {
 	// Factory method and constructor:
 	// --------
 
-	// The interactable is registered to the table of `Page`s (and the
+	// The interactable is registered to the table of `Pages` (and the
 	// auto-discard timer starts running) only when the `DiscordMessage`
 	// promise is fulfilled.
 	public static Pages Create(

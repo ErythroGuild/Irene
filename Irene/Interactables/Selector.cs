@@ -35,7 +35,7 @@ interface ISelector {
 // Since `Selector`s are generic, unifying the handlers requires using
 // a separate class.
 static class SelectorDispatcher {
-	// Master table of all `Selectors` being tracked, indexed by the
+	// Master table of all `Selector`s being tracked, indexed by the
 	// message ID of the owning message + selector custom ID.
 	// This also serves as a way to hold fired timers, preventing them
 	// from going out of scope and being destroyed prematurely.

@@ -50,7 +50,7 @@ class Confirm {
 	// Constants and static properties:
 	// --------
 
-	// Master table of all `Confirms` being tracked, indexed by the
+	// Master table of all `Confirm`s being tracked, indexed by the
 	// message ID of the containing followup message.
 	// This also serves as a way to hold fired timers, preventing them
 	// from going out of scope and being destroyed prematurely.
@@ -160,8 +160,9 @@ class Confirm {
 	// --------
 
 	// Create and send followup message with the confirmation prompt.
-	// This also registers the `Confirm` to the button handler, since
-	// the buttons only start existing after this.
+	// This also registers the `Confirm` to the button handler (since
+	// the buttons only start existing after this), and starts the auto-
+	// discard timer.
 	public async Task Prompt() {
 		_message = await _interaction.FollowupAsync(_prompt, true);
 		_confirms.TryAdd(_message.Id, this);
