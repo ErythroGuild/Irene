@@ -94,6 +94,7 @@ class Confirm {
 	private readonly bool _doPersist;
 	private readonly DiscordFollowupMessageBuilder _prompt;
 	private readonly string _replyYes, _replyNo;
+	private bool _isProcessed = false;
 
 
 	// --------
@@ -191,12 +192,10 @@ class Confirm {
 			return;
 
 		// Remove held references.
-		// If the item wasn't found, that means it was already processed,
-		// and we should skip sending another response.
-		bool didRemove = _confirms.TryRemove(_message.Id, out _);
+		_confirms.TryRemove(_message.Id, out _);
 
 		// Send canceled response if the confirmation wasn't processed.
-		if (!didRemove)
+		if (!_isProcessed)
 			await Submit(false);
 
 		// Raise discard event.
@@ -267,6 +266,9 @@ class Confirm {
 
 			bool isConfirmed = buttonId is _idButtonYes;
 			await Submit(isConfirmed);
+			// This needs to be set so `Discard()` knows it doesn't
+			// need to invoke the callback again.
+			_isProcessed = true;
 
 			await Discard();
 		}));
