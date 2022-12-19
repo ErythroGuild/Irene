@@ -149,6 +149,9 @@ class Confirm {
 
 	// The entire `Confirm` object cannot be constructed in one stage;
 	// this second stage sets up auto-discard.
+	// NOTE: The timer is not started here because `Confirm` encapsulates
+	// the entire response process, and controls the entire lifetime of
+	// its own object.
 	private void FinalizeInstance() {
 		// Run (or schedule to run) auto-discard.
 		_timer.Elapsed += async (_, _) => await Cleanup();
