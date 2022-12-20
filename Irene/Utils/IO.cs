@@ -200,6 +200,28 @@ static partial class Util {
 		return output;
 	}
 
+	// Escapes any tokens which Discord would otherwise interpret as
+	// formatting. The resulting string will look as-is when passed
+	// back to Discord to render.
+	public static string EscapeDiscordFormatting(this string input) {
+		HashSet<char> charsFormat = new () {
+			'\\',
+			'*', '_', '~', '|', '`', '>', '<', ':',
+			'[', '(', ')', '-', '+',
+		};
+
+		StringBuilder output = new ();
+
+		for (int i=0; i<input.Length; i++) {
+			if (charsFormat.Contains(input[i]))
+				output.Append("\\" + input[i]);
+			else
+				output.Append(input[i]);
+		}
+
+		return output.ToString();
+	}
+
 	// Convenience functions for parsing a `JsonNode` and throwing on
 	// any error. These can be chained and the entire parsing section
 	// can be surrounded in a try/catch.
