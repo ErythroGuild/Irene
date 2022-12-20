@@ -96,13 +96,12 @@ class Pages {
 	private readonly List<object> _data;
 	private readonly int _pageSize;
 	private int _page;
+	private DiscordComponent[] Buttons =>
+		GetButtons(_page, PageCount, IsEnabled);
 
 	// Protected fields for dependency injection.
 	protected Renderer _renderer;
 	protected Decorator? _decorator;
-
-	private DiscordComponent[] Buttons =>
-		GetButtons(_page, PageCount, IsEnabled);
 
 
 	// --------
@@ -174,7 +173,7 @@ class Pages {
 	protected void FinalizeInstance(MessagePromise promise) {
 		Task<DiscordMessage> promiseTask = promise.Task;
 
-		// Registers instance.
+		// Register instance.
 		promiseTask.ContinueWith(t => {
 			DiscordMessage message = t.Result;
 			_message = message;
