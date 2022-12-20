@@ -21,14 +21,6 @@ class ActionButtonOptions {
 	// The style (color) of the button.
 	public ButtonStyle ButtonStyle { get; init; } = ButtonStyle.Secondary;
 
-	// The text to show on the bottom. `Label` and `Emoji` cannot both
-	// be null (but they can both be non-null).
-	public string? Label { get; init; } = null;
-
-	// The emoji to show on the button. `Label` and `Emoji` can't both
-	// be null (but they can both be non-null).
-	public DiscordComponentEmoji? Emoji { get; init; } = null;
-
 	// The duration each `ActionButton` lasts before being automatically
 	// disabled. Ephemeral responses MUST have a timeout less than
 	// Discord's limit of 15 mins/interaction--past that the message
@@ -106,11 +98,14 @@ class ActionButton {
 	// The interactable is registered to the table of `ActionButton`s
 	// (and the auto-discard timer starts running) only when the message
 	// promise is fulfilled.
+	// At least one of label and emoji must be non-null.
 	public static ActionButton Create(
 		Interaction interaction,
 		MessagePromise promise,
 		Callback callback,
 		string customId,
+		string? label,
+		DiscordComponentEmoji? emoji,
 		ActionButtonOptions? options=null
 	) {
 		options ??= new ();
@@ -120,6 +115,8 @@ class ActionButton {
 			interaction,
 			callback,
 			customId,
+			label,
+			emoji,
 			options
 		);
 
@@ -136,6 +133,8 @@ class ActionButton {
 		Interaction interaction,
 		Callback callback,
 		string customId,
+		string? label,
+		DiscordComponentEmoji? emoji,
 		ActionButtonOptions options
 	) {
 		IsEnabled = options.IsEnabled;
@@ -146,8 +145,8 @@ class ActionButton {
 		_isOwnerOnly = options.IsOwnerOnly;
 		_callback = callback;
 		_buttonStyle = options.ButtonStyle;
-		_label = options.Label;
-		_emoji = options.Emoji;
+		_label = label;
+		_emoji = emoji;
 	}
 
 	// The entire `ActionButton` object cannot be constructed in one
