@@ -115,11 +115,13 @@ class Modal {
 		_timer = Util.CreateTimer(options.Timeout, false);
 		_callback = callback;
 		_customId = customId;
+		
 		_modal =
 			new DiscordInteractionResponseBuilder()
 			.WithTitle(title)
-			.WithCustomId(customId)
-			.AddComponents(components);
+			.WithCustomId(customId);
+		foreach (DiscordComponent component in components)
+			_modal = _modal.AddComponents(component);
 	}
 
 	// The entire `Confirm` object cannot be constructed in one stage;
