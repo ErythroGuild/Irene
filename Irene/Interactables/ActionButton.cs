@@ -85,10 +85,11 @@ class ActionButton {
 	private DiscordMessage? _message = null;
 	private readonly Timer _timer;
 	private readonly bool _isOwnerOnly;
-	private readonly Callback _callback;
 	private readonly ButtonStyle _buttonStyle;
 	private readonly string? _label;
 	private readonly DiscordComponentEmoji? _emoji;
+
+	protected Callback _callback;
 
 
 	// --------
@@ -98,7 +99,7 @@ class ActionButton {
 	// The interactable is registered to the table of `ActionButton`s
 	// (and the auto-discard timer starts running) only when the message
 	// promise is fulfilled.
-	// At least one of label and emoji must be non-null.
+	// At least one of `label` or `emoji` must be non-null.
 	public static ActionButton Create(
 		Interaction interaction,
 		MessagePromise promise,
