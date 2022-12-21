@@ -242,8 +242,9 @@ class Confirm {
 			// Consume all interactions originating from a registered
 			// message, and created by the corresponding component.
 			if (_confirms.TryGetValue(id, out Confirm? confirm)) {
-				if (e.Id is not (_idButtonYes or _idButtonNo))
-					return;
+				// No need to check ID: this followup message is unique
+				// to this `Confirm`.
+
 				e.Handled = true;
 
 				// Can only update if message was already created.

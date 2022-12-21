@@ -19,7 +19,8 @@ class Modal {
 
 	// The `Callback` delegate is called when the modal response has
 	// been submitted. The interaction should be responded to as if it
-	// is a command interaction (`.RespondCommandAsync()`, or defer).
+	// was the original interaction (e.g. respond/defer if it came from
+	// a command, defer/update if it came from a component).
 	public delegate Task Callback(
 		IReadOnlyDictionary<string, string> data,
 		Interaction interaction
@@ -114,11 +115,13 @@ class Modal {
 		_timer = Util.CreateTimer(options.Timeout, false);
 		_callback = callback;
 		_customId = customId;
+		
 		_modal =
 			new DiscordInteractionResponseBuilder()
 			.WithTitle(title)
-			.WithCustomId(customId)
-			.AddComponents(components);
+			.WithCustomId(customId);
+		foreach (DiscordComponent component in components)
+			_modal = _modal.AddComponents(component);
 	}
 
 	// The entire `Confirm` object cannot be constructed in one stage;

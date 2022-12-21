@@ -66,8 +66,6 @@ static class SelectorDispatcher {
 			// Consume all interactions originating from a registered
 			// message, and created by the corresponding component.
 			if (_selectors.TryGetValue(id, out ISelector? selector)) {
-				if (selector.CustomId != e.Id)
-					return;
 				e.Handled = true;
 
 				// Can only update if message was already created.
@@ -111,6 +109,10 @@ class SelectorOptions {
 	// Takes precedence over `MaxOptions`.
 	public bool IsMultiple { get; init; } = false;
 
+	// The text for the select component to display when no entries
+	// are selected.
+	public string Placeholder { get; init; } = "";
+
 	// If non-null, specifies the bounds on the number of entries that
 	// can be selected at once. If this conflicts with `IsMultiple`,
 	// `IsMultiple` takes precedence.
@@ -124,10 +126,6 @@ class SelectorOptions {
 	// Discord's limit of 15 mins/interaction--past that the message
 	// itself cannot be updated anymore.
 	public TimeSpan Timeout { get; init; } = DefaultTimeout;
-
-	// The text for the select component to display when no entries
-	// are selected.
-	public string Placeholder { get; init; } = "";
 }
 
 class Selector<T> : ISelector where T : Enum {
@@ -241,7 +239,7 @@ class Selector<T> : ISelector where T : Enum {
 	private void FinalizeInstance(MessagePromise promise) {
 		Task<DiscordMessage> promiseTask = promise.Task;
 
-		// Registers instance.
+		// Register instance.
 		promiseTask.ContinueWith(t => {
 			DiscordMessage message = t.Result;
 			_message = message;
