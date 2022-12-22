@@ -412,19 +412,20 @@ class PagedSelector {
 			? null
 			: i_selected / _pageSize;
 
-
 	// Helper methods to instantiate pagination entries.
 	private DiscordSelectOption GetEntryPrev() => new (
 		_labelPrev,
 		_idPrev,
-		$"more options... (pg. {_page+1-1}/{PageCount})"
+		$"more options\u2026\u2003(pg. {_page+1-1}/{PageCount})"
+		// Ellipsis & em space.
 		// The increment is because `_page` is 0-indexed.
 		// The decrement is to get the previous page's value.
 	);
 	private DiscordSelectOption GetEntryNext() => new (
 		_labelNext,
 		_idNext,
-		$"more options... (pg. {_page+1+1}/{PageCount})"
+		$"more options\u2026\u2003(pg. {_page+1+1}/{PageCount})"
+		// Ellipsis & em space.
 		// The first increment is because `_page` is 0-indexed.
 		// The second increment is to get the next page's value.
 	);
