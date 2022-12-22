@@ -186,9 +186,9 @@ class Selector<T> : ISelector where T : Enum {
 
 		// Construct partial (uninitialized) object.
 		Selector<T> selector = new (
-			customId,
 			interaction,
 			callback,
+			customId,
 			new (entries),
 			new (selected),
 			options
@@ -204,9 +204,9 @@ class Selector<T> : ISelector where T : Enum {
 	// object, it should never be called directly. Always use the public
 	// factory method instead.
 	private Selector(
-		string customId,
 		Interaction interaction,
 		Callback callback,
+		string customId,
 		List<(T, Entry)> entries,
 		HashSet<T> selected,
 		SelectorOptions options
@@ -265,8 +265,8 @@ class Selector<T> : ISelector where T : Enum {
 	// state.
 	// This is actually more efficient than storing a copy and modifying
 	// it on every call, since the cost of construction stays constant,
-	// constant, and subsequent constructions are cheaper than reading
-	// back and then modifying.
+	// and subsequent constructions are cheaper than reading back and
+	// then modifying.
 	public DiscordSelect GetSelect() => new (
 		CustomId,
 		_placeholder,
