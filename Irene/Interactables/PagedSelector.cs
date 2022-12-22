@@ -301,17 +301,18 @@ class PagedSelector {
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	private Task Update() =>
-		_queueUpdates.Run(new Task<Task>(async () => {
-			CheckErythroInit();
-			if (!HasMessage)
-				return;
+		_queueUpdates.Run(new Task<Task>(UpdateUnguarded));
+	private async Task UpdateUnguarded() {
+		CheckErythroInit();
+		if (!HasMessage)
+			return;
 
-			// Re-fetch message.
-			_message = await Util.RefetchMessage(Erythro.Client, _message);
+		// Re-fetch message.
+		_message = await Util.RefetchMessage(Erythro.Client, _message);
 
-			// Rebuild message with select component updated.
-			await _interaction.EditResponseAsync(ReplaceSelector(_message));
-		}));
+		// Rebuild message with select component updated.
+		await _interaction.EditResponseAsync(ReplaceSelector(_message));
+	}
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	private async Task Cleanup() {
@@ -377,8 +378,8 @@ class PagedSelector {
 	// to work reliably even if the message itself has timed out.
 	// This should behave the same for all derived classes, and therefore
 	// doesn't need to be overridden.
-	private async Task HandleSelectorAsync(Interaction interaction, string? selected) {
-		await _queueUpdates.Run(new Task<Task>(async () => {
+	private Task HandleSelectorAsync(Interaction interaction, string? selected) =>
+		_queueUpdates.Run(new Task<Task>(async () => {
 			// Update internal state.
 			int? i_selectedPrev = _i_selected;
 			switch (selected) {
@@ -401,16 +402,15 @@ class PagedSelector {
 			// Respond to interaction.
 			await interaction.DeferComponentAsync();
 
+			// Actually update DiscordSelect menu.
+			// Note: Must use unguarded method to prevent deadlocking
+			// on the same task queue.
+			await UpdateUnguarded();
+
 			// Invoke callback if the actual selection changed.
 			if (_i_selected != i_selectedPrev)
-				_ = _callback.Invoke(Selected);
+				await _callback.Invoke(Selected);
 		}));
-
-		// Actually update DiscordSelect menu.
-		// Note: This *must* be outside the task queue! Since it uses
-		// the exact same queue, nesting it would cause a deadlock.
-		await Update();
-	}
 
 	// Returns the (0-based) index of the page of the entry index.
 	// This needs to be a separate static method because it's used in
