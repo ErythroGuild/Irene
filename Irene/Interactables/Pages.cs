@@ -122,13 +122,10 @@ class Pages {
 
 		// Construct partial (uninitialized) object.
 		Pages pages = new (
-			options.IsEnabled,
 			interaction,
-			options.Timeout,
 			new (data),
-			options.PageSize,
 			renderer,
-			options.Decorator
+			options
 		);
 
 		// Set up registration and auto-discard.
@@ -141,30 +138,27 @@ class Pages {
 	// object, it should never be called directly. Always use the public
 	// factory method instead.
 	protected Pages(
-		bool isEnabled,
 		Interaction interaction,
-		TimeSpan timeout,
 		List<object> data,
-		int pageSize,
 		Renderer renderer,
-		Decorator? decorator
+		PagesOptions options
 	) {
 		// Calculate page count.
 		// This should be cached since it's constant, and used on every
 		// single button interaction.
-		double pageCount = data.Count / (double)pageSize;
+		double pageCount = data.Count / (double)options.PageSize;
 		pageCount = Math.Round(Math.Ceiling(pageCount));
 
-		IsEnabled = isEnabled;
+		IsEnabled = options.IsEnabled;
 		PageCount = (int)pageCount;
 
 		_interaction = interaction;
-		_timer = Util.CreateTimer(timeout, false);
+		_timer = Util.CreateTimer(options.Timeout, false);
 		_renderer = renderer;
 		_data = data;
 		_page = 0;
-		_pageSize = pageSize;
-		_decorator = decorator;
+		_pageSize = options.PageSize;
+		_decorator = options.Decorator;
 	}
 
 	// The entire `Pages` object cannot be constructed in one stage;
