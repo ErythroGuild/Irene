@@ -30,14 +30,9 @@ class StringPages : Pages {
 
 		// Construct partial (uninitialized) object.
 		StringPages pages = new (
-			options.IsEnabled,
 			interaction,
-			options.Timeout,
 			new (data),
-			options.PageSize,
-			options.Decorator,
-			options.Header,
-			options.Footer
+			options
 		);
 
 		// Set up registration and auto-discard.
@@ -50,25 +45,17 @@ class StringPages : Pages {
 	// object, it should never be called directly. Always use the public
 	// factory method instead.
 	protected StringPages(
-		bool isEnabled,
 		Interaction interaction,
-		TimeSpan timeout,
 		List<string> data,
-		int pageSize,
-		Decorator? decorator,
-		string? header,
-		string? footer
+		StringPagesOptions options
 	) : base (
-		isEnabled,
 		interaction,
-		timeout,
 		ToObjectList(data),
-		pageSize,
 		null!,
-		decorator
+		options
 	) {
-		_header = header;
-		_footer = footer;
+		_header = options.Header;
+		_footer = options.Footer;
 
 		_renderer = RenderData;
 	}
