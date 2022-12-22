@@ -15,6 +15,11 @@ class PagedSelectorOptions {
 	// Whether or not the select component is enabled.
 	public bool IsEnabled { get; init; } = true;
 
+	// Whether or not deselecting an option is allowed. If false, then
+	// any attempt to deselect the active option is coerced into the
+	// originally active option (or first option, during init).
+	public bool CanDeselect { get; init; } = false;
+
 	// The text for the select component to display when no entries
 	// are idSelected.
 	public string Placeholder { get; init; } = "";
@@ -100,6 +105,7 @@ class PagedSelector {
 	private readonly Timer _timer;
 	private readonly Callback _callback;
 	private readonly List<Entry> _entries;
+	private readonly bool _canDeselect;
 	private int? _i_selected;
 	private readonly string _placeholder;
 	private int _page;
@@ -166,8 +172,9 @@ class PagedSelector {
 		_timer = Util.CreateTimer(options.Timeout, false);
 		_callback = callback;
 		_entries = new (entries);
+		_canDeselect = options.CanDeselect;
 		_i_selected = (idSelected is null)
-			? null
+			? (_canDeselect ? null : 0)
 			: _entries.FindIndex(e => e.Id == idSelected);
 		_placeholder = options.Placeholder;
 		_page = GetPageOfEntry(_i_selected) ?? 0;
@@ -376,7 +383,8 @@ class PagedSelector {
 			int? i_selectedPrev = _i_selected;
 			switch (selected) {
 			case null:
-				_i_selected = null;
+				if (_canDeselect)
+					_i_selected = null;
 				break;
 			case _idPrev:
 				_page--;
