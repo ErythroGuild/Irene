@@ -118,7 +118,7 @@ class SelectorPages {
 	protected SelectorPages(
 		Interaction interaction,
 		MessagePromise promise,
-		IReadOnlyList<Entry> pages,
+		IReadOnlyList<Entry> entries,
 		Dictionary<string, object> data,
 		string? idSelected,
 		Renderer renderer,
@@ -140,14 +140,14 @@ class SelectorPages {
 				await Update();
 			}),
 			_idSelectorPages,
-			pages,
+			entries,
 			idSelected,
 			new PagedSelectorOptions() {
 				IsEnabled = options.IsEnabled,
 				Timeout = options.Timeout,
 			}
 		);
-		_idSelected = idSelected ?? pages[0].Id;
+		_idSelected = idSelected ?? entries[0].Id;
 
 		_renderer = renderer;
 		_decorator = options.Decorator;
