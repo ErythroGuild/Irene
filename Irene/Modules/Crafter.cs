@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules;
+namespace Irene.Modules;
 
 using System.Diagnostics;
 using System.Net.Http;
@@ -92,6 +92,10 @@ class Crafter {
 			Character = character;
 			Class = @class;
 		}
+
+		// Syntax sugar for checking if a character has a profession.
+		public bool HasProfession(Profession profession) =>
+			Professions.ContainsKey(profession);
 
 		// Expects the data to be properly indented (once for the per-
 		// character data, and twice for the profession data).
@@ -369,23 +373,48 @@ class Crafter {
 	// Interaction response methods:
 	// --------
 
-	public static async Task RespondListAsync(Interaction interaction, Profession profession) {
+	public static async Task RespondListAsync(
+		Interaction interaction,
+		Profession? profession,
+		bool isSelfOnly
+	) {
 		CheckErythroInit();
 
-		string title = GetProfessionTitle(profession);
-
-		// Compile list of crafters of the requested profession.
+		// Prepare to compile crafter list.
 		List<CharacterData> crafters = new ();
+		IReadOnlyList<Character>? craftersOwned = !isSelfOnly
+			? new List<Character>()
+			: _playerCrafters.TryGetValue(interaction.User.Id, out craftersOwned)
+				? craftersOwned
+				: new List<Character>();
+
+		// Compile list of crafters matching the request.
 		foreach (CharacterData character in _crafterData.Values) {
-			if (character.Professions.ContainsKey(profession))
-				crafters.Add(character);
+			// Filter professions.
+			if (profession is not null &&
+				!character.HasProfession(profession.Value)
+			) { continue; }
+
+			// Filter ownership.
+			if (isSelfOnly &&
+				!new List<Character>(craftersOwned).Contains(character.Character)
+			) { continue; }
+
+			crafters.Add(character);
 		}
+
+		// Format title appropriately.
+		string title = profession is null
+			? "Crafter"
+			: GetProfessionTitle(profession.Value);
+		if (crafters.Count != 1)
+			title += "s";
 
 		// Handle empty case.
 		if (crafters.Count == 0) {
 			string responseNone =
 				$"""
-				:desert: Sorry, there aren't any registered {title}s yet.
+				:desert: Sorry, there aren't any registered {title} yet.
 				If you know one, maybe ask them to register?
 				""";
 			await interaction.RegisterAndRespondAsync(responseNone, true);
@@ -393,28 +422,24 @@ class Crafter {
 		}
 
 		// Sort characters.
-		crafters.Sort(
-			(a, b) => a.Character.Name.CompareTo(b.Character.Name)
+		crafters.Sort((a, b) =>
+			a.Character.Name.CompareTo(b.Character.Name)
 		);
 
 		// Convert list to strings.
-		DiscordEmoji quality = Erythro.Emoji(id_e.quality5);
 		const string
-			_emDash = "\u2014",
-			_zwSpace = "\u200B",
-			_enSpace = "\u2002",
-			_emSpace = "\u2003";
+			_hrsp = "\u200A", _thsp = "\u2009",
+			_ensp = "\u2002", _emsp = "\u2003";
+		DiscordEmoji quality = Erythro.Emoji(id_e.qualityAny);
 		string heading =
-			$"{_zwSpace}{_enSpace}{quality}{_enSpace}__**{title}s**__{_enSpace}{quality}\n";
+			$"{quality}{_ensp}{_hrsp}__**{title}**__{_ensp}{quality}";
 		List<string> lines = new ();
 		foreach (CharacterData crafter in crafters) {
-			DiscordEmoji @class = crafter.Class.Emoji();
 			string name = GetServerLocalName(crafter.Character);
-			string mention = crafter.UserId.MentionUserId();
 			string entry =
 				$"""
-				{@class}{_enSpace}**{name}**
-				{_emSpace}{_emSpace}{_enSpace}{_emDash} {mention}
+				{_thsp}{crafter.Class.Emoji()}{_ensp}{name}
+				{_thsp}{_emsp}{crafter.UserId.MentionUserId()}
 				""";
 			lines.Add(entry);
 		}

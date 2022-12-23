@@ -3,6 +3,7 @@
 using Module = Modules.Crafter;
 
 using Character = Modules.Crafter.Character;
+using Profession = Modules.Crafter.Profession;
 
 class Crafter : CommandHandler {
 	public const string
@@ -13,18 +14,19 @@ class Crafter : CommandHandler {
 		CommandRemove  = "remove" ,
 		ArgItem       = "item"      ,
 		ArgProfession = "profession",
+		ArgSelfOnly   = "self-only" ,
 		ArgCharacter  = "character" ,
 		ArgServer     = "server"    ;
 
 	public override string HelpText =>
 		$"""
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandFind}")} `<{ArgItem}>` finds crafters who can craft an item,
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandList}")} `<{ArgProfession}>` lists registered crafters.
+		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandList}")} `[{ArgProfession}] [{ArgSelfOnly}]` lists registered crafters.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandSet}")} `<{ArgCharacter}> [{ArgServer}]` registers a crafter,
+		{_t}You can only manually refresh your own crafters.
+		{_t}(All data automatically refreshes every 90 minutes.)
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandRemove}")} `<{ArgCharacter}> [{ArgServer}]` removes a crafter.
 		{_t}If unspecified, `[{ArgServer}]` defaults to Moon Guard.
-		{_t}You can only manually refresh your own crafters.
-		{_t}All data automatically refreshes every 90 minutes.
 		""";
 
 	public override CommandTree CreateTree() => new (
@@ -61,13 +63,21 @@ class Crafter : CommandHandler {
 					CommandList,
 					"Lists all crafters.",
 					ArgType.SubCommand,
-					options: new List<DiscordCommandOption> { new (
-						ArgProfession,
-						"The profession of the crafters.",
-						ArgType.String,
-						required: true,
-						choices: GetOptionsProfessions()
-					) }
+					options: new List<DiscordCommandOption> {
+						new (
+							ArgProfession,
+							"The profession of the crafters.",
+							ArgType.String,
+							required: false,
+							choices: GetOptionsProfessions()
+						),
+						new (
+							ArgSelfOnly,
+							"Whether to only show your crafters.",
+							ArgType.Boolean,
+							required: false
+						),
+					}
 				),
 				new (ListAsync)
 			),
@@ -137,7 +147,7 @@ class Crafter : CommandHandler {
 	);
 	private static List<DiscordCommandOptionEnum> GetOptionsProfessions() {
 		List<DiscordCommandOptionEnum> options = new ();
-		foreach (string profession in Enum.GetNames<Module.Profession>())
+		foreach (string profession in Enum.GetNames<Profession>())
 			options.Add(new (profession, profession));
 		return options;
 	}
@@ -148,10 +158,16 @@ class Crafter : CommandHandler {
 	}
 
 	private async Task ListAsync(Interaction interaction, ParsedArgs args) {
-		string arg = (string)args[ArgProfession];
-		Module.Profession profession =
-			Enum.Parse<Module.Profession>(arg);
-		await Module.RespondListAsync(interaction, profession);
+		Profession? profession =
+			args.TryGetValue(ArgProfession, out object? argProfession)
+				? Enum.Parse<Profession>((string)argProfession)
+				: null;
+		bool isSelfOnly =
+			args.TryGetValue(ArgSelfOnly, out object? argSelfOnly)
+				? (bool)argSelfOnly
+				: false;
+
+		await Module.RespondListAsync(interaction, profession, isSelfOnly);
 	}
 
 	private async Task SetAsync(Interaction interaction, ParsedArgs args) {
