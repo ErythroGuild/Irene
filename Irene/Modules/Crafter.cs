@@ -1,4 +1,4 @@
-namespace Irene.Modules;
+﻿namespace Irene.Modules;
 
 using System.Diagnostics;
 using System.Net.Http;
@@ -601,16 +601,24 @@ class Crafter {
 	}
 
 	public static async Task RespondSetAsync(Interaction interaction, Character character) {
+		CheckErythroInit();
 		ulong id = interaction.User.Id;
+		bool isUpdate = false;
 
 		// Check that the character isn't already registered.
 		if (_crafterData.ContainsKey(character)) {
-			string errorExists =
-				$"""
-				Sorry, **{GetServerLocalName(character)}** is already registered.
-				""";
-			await interaction.RegisterAndRespondAsync(errorExists, true);
-			return;
+			if (_playerCrafters.ContainsKey(id) &&
+				new List<Character>(_playerCrafters[id]).Contains(character)
+			) {
+				isUpdate = true;
+			} else {
+				string errorExists =
+					$"""
+					Sorry, **{GetServerLocalName(character)}** is already registered.
+					""";
+				await interaction.RegisterAndRespondAsync(errorExists, true);
+				return;
+			}
 		}
 
 		// Check that the character is valid.
@@ -630,36 +638,154 @@ class Crafter {
 		}
 
 		// Notify user that command was received.
-		string response = "Registering new character...";
+		string response = isUpdate
+			? $"{Erythro.Emoji(id_e.spinnerDots)} Updating character..."
+			: $"{Erythro.Emoji(id_e.spinnerDots)} Registering new character...";
 		await interaction.RegisterAndRespondAsync(response);
 
-		await AddCharacterAsync(id, character);
-		CharacterData data = _crafterData[character];
-		response =
-			$"""
-			Registered new character:
-			{data.Class.Emoji()} **{GetServerLocalName(character)}**
-			""";
-		await interaction.EditResponseAsync(response);
+		if (!isUpdate)
+			await AddCharacterAsync(id, character);
+
+		TimeSpan timeout = TimeSpan.FromMinutes(15);
+		MessagePromise promise = new ();
+
+		// Get list of owned characters.
+		List<SelectorPages.EntryData> selectorList = new ();
+		foreach (Character character_i in _playerCrafters[id]) {
+			CharacterData characterData_i =
+				_crafterData[character_i];
+			string characterName_i =
+				GetServerLocalName(characterData_i.Character);
+			List<Profession> professions_i =
+				new (characterData_i.Professions.Keys);
+			professions_i.Sort();
+			string professionString_i =
+				string.Join(", ", professions_i);
+			selectorList.Add(new (
+				new ISelector.Entry(
+					characterName_i,
+					characterName_i,
+					new (characterData_i.Class.Emoji()),
+					professionString_i
+				),
+				character_i
+			));
+		}
+		selectorList.Sort((s1, s2) => string.Compare(s1.Entry.Label, s2.Entry.Label));
+
+		TaskCompletionSource<SelectorPages> pagesPromise = new ();
+
+		IDiscordMessageBuilder Renderer(object data, bool isEnabled) {
+			CheckErythroInit();
+			const string _zwsp = "\u200B", _ensp = "\u2002", _emsp = "\u2003";
+
+			if (!_crafterData.ContainsKey((Character)data)) {
+				DiscordMessageBuilder responseDeleted =
+					new DiscordMessageBuilder()
+					.WithContent($"{_zwsp}{_emsp}~~**{GetServerLocalName((Character)data)}**~~\n*This crafter has been removed.*");
+				return responseDeleted;
+			}
+
+			CharacterData characterData = _crafterData[(Character)data];
+			DiscordEmoji emojiBullet = Erythro.Emoji(id_e.quality5);
+			StringBuilder content = new ();
+			content.AppendLine($"{_zwsp}{_emsp}**{GetServerLocalName(characterData.Character)}**{_ensp}{characterData.Class.Emoji()}");
+			List<Profession> professions = new (characterData.Professions.Keys);
+			professions.Sort();
+			foreach (Profession profession in professions) {
+				ProfessionData professionData = characterData.Professions[profession];
+				content.AppendLine($"{emojiBullet} __{profession}__");
+				if (professionData.Summary != "")
+					content.AppendLine($"> *{professionData.Summary.EscapeDiscordFormatting()}*");
+			}
+
+			ActionButton buttonRefresh = ActionButton.Create(
+				interaction,
+				promise,
+				i => Task.Run(async () => {
+					await i.DeferComponentAsync();
+				}),
+				"actionbutton_refreshcrafter",
+				"\u21BB", // clockwise open circle arrow
+				null,
+				new ActionButtonOptions() {
+					//IsEnabled = isEnabled,
+					IsEnabled = false,
+					Timeout = timeout,
+				}
+			);
+
+			List<DiscordTextInput> textboxes = new ();
+			foreach (Profession profession in professions) {
+				textboxes.Add(new (
+					profession.ToString(),
+					$"comments_{profession}",
+					"add a short comment",
+					required: false,
+					max_length: 120
+				));
+			}
+
+			ModalButton buttonSet = ModalButton.Create(
+				interaction,
+				promise,
+				() => Task.Run(() => {
+					Dictionary<string, string> prefillTable = new ();
+					if (!_crafterData.ContainsKey((Character)data))
+						return (IReadOnlyDictionary<string, string>)prefillTable;
+					CharacterData cdata = _crafterData[(Character)data];
+					foreach (ProfessionData profData in cdata.Professions.Values)
+						prefillTable.Add($"comments_{profData.Profession}", profData.Summary);
+					return (IReadOnlyDictionary<string, string>)prefillTable;
+				}),
+				v => Task.Run(async () => {
+					CharacterData dataCh = _crafterData[(Character)data];
+					// Construct replacement data.
+					foreach (string key in v.Keys) {
+						string summary = v[key];
+						Profession parsed = Enum.Parse<Profession>(key.Replace("comments_", ""));
+						dataCh.Professions[parsed].Summary = summary;
+					}
+					// Update files.
+					await WriteCrafterDataToFile();
+					await pagesPromise.Task.ContinueWith(async pp =>
+						await pp.Result.Update()
+					);
+				}),
+				$"button_set_{GetServerLocalName((Character)data)}",
+				"Update comments",
+				null,
+				GetServerLocalName((Character)data),
+				textboxes,
+				new ModalButtonOptions() {
+					IsEnabled = isEnabled && professions.Count > 0,
+					Timeout = timeout,
+					TimeoutModal = timeout,
+				}
+			);
+
+			DiscordMessageBuilder response =
+				new DiscordMessageBuilder()
+				.WithContent(content.ToString())
+				.AddComponents(buttonRefresh.GetButton(), buttonSet.GetButton());
+			return response;
+		}
+
+
+		// Set up `SelectorPages` interactable.
+		SelectorPages pages = SelectorPages.Create(
+			interaction,
+			promise,
+			selectorList,
+			GetServerLocalName(character),
+			Renderer,
+			new SelectorPagesOptions() { Timeout = timeout }
+		);
+		pagesPromise.SetResult(pages);
+
+		await interaction.EditResponseAsync(pages.GetContentAsBuilder());
+		promise.SetResult(await interaction.GetResponseAsync());
 	}
-
-	//public static async Task RespondRefreshAsync(Interaction interaction, Character character) {
-	//	// Ensure user owns the character.
-	//	ulong id = interaction.User.Id;
-	//	if (!_playerCrafters.ContainsKey(id))
-	//		_playerCrafters.TryAdd(id, new List<Character>());
-	//	List<Character> characters = new (_playerCrafters[id]);
-
-	//	// Respond if user is not the owner.
-	//	if (!characters.Contains(character)) {
-	//		string responseNotOwner =
-	//			$"""
-	//			You don't have a crafter named **{GetServerLocalName(character)}**.
-	//			:giraffe: *(Crafters can only be updated by their owners.)*
-	//			""";
-	//		await interaction.RegisterAndRespondAsync(responseNotOwner, true);
-	//	}
-	//}
 
 	public static async Task RespondRemoveAsync(Interaction interaction, Character character) {
 		// Ensure user owns the character.
