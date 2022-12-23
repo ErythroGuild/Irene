@@ -28,6 +28,18 @@ class SelectorPagesOptions {
 }
 
 class SelectorPages {
+	// Since all data is associated with an entry, they can be bundled
+	// together for initialization.
+	public record class EntryData {
+		public Entry Entry { get; init; }
+		public virtual object Data { get; init; }
+
+		public EntryData(Entry entry, object data) {
+			Entry = entry;
+			Data = data;
+		}
+	};
+
 	// The `Renderer` delegate transforms data into rendered messages,
 	// allowing the data itself to be stored more concisely/naturally.
 	public delegate IDiscordMessageBuilder Renderer(object data, bool isEnabled);
@@ -87,8 +99,7 @@ class SelectorPages {
 	public static SelectorPages Create(
 		Interaction interaction,
 		MessagePromise promise,
-		IReadOnlyList<Entry> entries,
-		IReadOnlyDictionary<string, object> data,
+		IReadOnlyList<EntryData> data,
 		string? idSelected,
 		Renderer renderer,
 		SelectorPagesOptions? options=null
@@ -99,8 +110,7 @@ class SelectorPages {
 		SelectorPages pages = new (
 			interaction,
 			promise,
-			entries,
-			new (data),
+			data,
 			idSelected,
 			renderer,
 			options
@@ -118,18 +128,30 @@ class SelectorPages {
 	protected SelectorPages(
 		Interaction interaction,
 		MessagePromise promise,
-		IReadOnlyList<Entry> entries,
-		Dictionary<string, object> data,
+		IReadOnlyList<EntryData> data,
 		string? idSelected,
 		Renderer renderer,
 		SelectorPagesOptions options
 	) {
+		// Deconstruct entry data.
+		List<Entry> entries = new ();
+		Dictionary<string, object> dataTable = new ();
+		foreach (EntryData entry in data) {
+			entries.Add(entry.Entry);
+			dataTable.Add(entry.Entry.Id, entry.Data);
+		}
+
 		IsEnabled = options.IsEnabled;
 
 		_interaction = interaction;
 		_timer = Util.CreateTimer(options.Timeout, false);
+		_data = dataTable;
+		_idSelected = idSelected ?? entries[0].Id;
+
 		_renderer = renderer;
-		_data = data;
+		_decorator = options.Decorator;
+
+		// Construct child selector interactable.
 		_selector = PagedSelector.Create(
 			interaction,
 			promise,
@@ -147,10 +169,6 @@ class SelectorPages {
 				Timeout = options.Timeout,
 			}
 		);
-		_idSelected = idSelected ?? entries[0].Id;
-
-		_renderer = renderer;
-		_decorator = options.Decorator;
 	}
 
 	// The entire `SelectorPages` object cannot be constructed in one
@@ -209,6 +227,15 @@ class SelectorPages {
 		return Update();
 	}
 
+	// Assumes `_message` has been set; returns immediately if it hasn't.
+	public Task Update() =>
+		_queueUpdates.Run(new Task<Task>(async () => {
+			if (!HasMessage)
+				return;
+
+			await _interaction.EditResponseAsync(GetContentAsWebhook());
+		}));
+
 	// Trigger the auto-discard by manually timing-out the timer.
 	// This disables the pagination buttons, but not any components that
 	// the `Decorator` added later.
@@ -228,15 +255,6 @@ class SelectorPages {
 	// --------
 	// Private helper methods:
 	// --------
-
-	// Assumes `_message` has been set; returns immediately if it hasn't.
-	protected virtual Task Update() =>
-		_queueUpdates.Run(new Task<Task>(async () => {
-			if (!HasMessage)
-				return;
-
-			await _interaction.EditResponseAsync(GetContentAsWebhook());
-		}));
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	protected virtual async Task Cleanup() {

@@ -117,7 +117,7 @@ static partial class Util {
 	public static async Task<DiscordMessage> RefetchMessage(DiscordClient client, DiscordMessage message) {
 		DiscordChannel channel = await
 			client.GetChannelAsync(message.ChannelId);
-		return await channel.GetMessageAsync(message.Id);
+		return await channel.GetMessageAsync(message.Id, true);
 	}
 
 	// Fetches audit log entries, but wrapping the call in a

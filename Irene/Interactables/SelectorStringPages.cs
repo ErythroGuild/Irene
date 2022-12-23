@@ -14,6 +14,13 @@ class SelectorStringPagesOptions : SelectorPagesOptions {
 }
 
 class SelectorStringPages : SelectorPages {
+	// Since all data is associated with an entry, they can be bundled
+	// together for initialization.
+	public record class StringEntryData : EntryData {
+		public StringEntryData(Entry entry, string data)
+			: base (entry, data) { }
+	}
+
 	// Additional instance properties.
 	private readonly string? _header;
 	private readonly string? _footer;
@@ -25,8 +32,7 @@ class SelectorStringPages : SelectorPages {
 	public static SelectorStringPages Create(
 		Interaction interaction,
 		MessagePromise promise,
-		IReadOnlyList<Entry> entries,
-		IReadOnlyDictionary<string, string> data,
+		IReadOnlyList<StringEntryData> data,
 		string? idSelected,
 		SelectorStringPagesOptions? options=null
 	) {
@@ -36,8 +42,7 @@ class SelectorStringPages : SelectorPages {
 		SelectorStringPages pages = new (
 			interaction,
 			promise,
-			entries,
-			new (data),
+			data,
 			idSelected,
 			options
 		);
@@ -54,15 +59,13 @@ class SelectorStringPages : SelectorPages {
 	protected SelectorStringPages(
 		Interaction interaction,
 		MessagePromise promise,
-		IReadOnlyList<Entry> entries,
-		Dictionary<string, string> data,
+		IReadOnlyList<StringEntryData> data,
 		string? idSelected,
 		SelectorStringPagesOptions options
 	) : base (
 		interaction,
 		promise,
-		entries,
-		ToObjectTable(data),
+		data,
 		idSelected,
 		null!,
 		options

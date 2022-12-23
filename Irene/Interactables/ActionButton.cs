@@ -160,7 +160,7 @@ class ActionButton {
 		promiseTask.ContinueWith(t => {
 			DiscordMessage message = t.Result;
 			_message = message;
-			_buttons.TryAdd(new (message.Id, CustomId), this);
+			_buttons[new (message.Id, CustomId)] = this;
 			_timer.Start();
 		});
 

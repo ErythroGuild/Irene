@@ -223,6 +223,15 @@ class Pages {
 		return Update();
 	}
 
+	// Assumes `_message` has been set; returns immediately if it hasn't.
+	public Task Update() =>
+		_queueUpdates.Run(new Task<Task>(async () => {
+			if (!HasMessage)
+				return;
+
+			await _interaction.EditResponseAsync(GetContentAsWebhook());
+		}));
+
 	// Trigger the auto-discard by manually timing-out the timer.
 	// This disables the pagination buttons, but not any components that
 	// the `Decorator` added later.
@@ -242,15 +251,6 @@ class Pages {
 	// --------
 	// Private helper methods:
 	// --------
-
-	// Assumes `_message` has been set; returns immediately if it hasn't.
-	protected virtual Task Update() =>
-		_queueUpdates.Run(new Task<Task>(async () => {
-			if (!HasMessage)
-				return;
-
-			await _interaction.EditResponseAsync(GetContentAsWebhook());
-		}));
 
 	// Assumes `_message` has been set; returns immediately if it hasn't.
 	protected virtual async Task Cleanup() {
