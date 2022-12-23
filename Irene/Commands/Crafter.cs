@@ -24,7 +24,7 @@ class Crafter : CommandHandler {
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandList}")} `[{ArgProfession}] [{ArgSelfOnly}]` lists registered crafters.
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandSet}")} `<{ArgCharacter}> [{ArgServer}]` registers a crafter,
 		{_t}You can only manually refresh your own crafters.
-		{_t}(All data automatically refreshes every 90 minutes.)
+		{_t}(All data gets refreshed every 90 minutes.)
 		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandRemove}")} `<{ArgCharacter}> [{ArgServer}]` removes a crafter.
 		{_t}If unspecified, `[{ArgServer}]` defaults to Moon Guard.
 		""";

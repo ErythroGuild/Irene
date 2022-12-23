@@ -567,7 +567,7 @@ class Crafter {
 			// Summary string.
 			string summary = (professionData.Summary == "")
 				? ""
-				: $"\n> *{professionData.Summary}*";
+				: $"\n> *{professionData.Summary.EscapeDiscordFormatting()}*";
 
 			// Format output.
 			string entry =
