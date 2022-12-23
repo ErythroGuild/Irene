@@ -363,6 +363,7 @@ class Crafter {
 		List<string> crafterNames = new ();
 		foreach (Character crafter in _playerCrafters[id])
 			crafterNames.Add(crafter.Name);
+		crafterNames.Sort((c1, c2) => string.Compare(c1, c2));
 		return crafterNames;
 	}
 	private static IReadOnlyList<string> GetServers() => _servers;
