@@ -264,6 +264,7 @@ class SelectorPages {
 		// Remove held references.
 		_pages.TryRemove(_message.Id, out _);
 
+		await _selector.Disable();
 		await Disable();
 
 		// Raise discard event.
