@@ -2,7 +2,7 @@
 
 using System.Net.Http;
 
-using OpenCvSharp;
+//using OpenCvSharp;
 
 class Solve : CommandHandler {
 	public const string
