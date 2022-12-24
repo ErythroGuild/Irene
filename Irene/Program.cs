@@ -60,14 +60,6 @@ class Program {
 
 	// Set up logger and D#+ client.
 	static Program() {
-		// The below fix for linux memory usage doesn't seem to work.
-		//// Tune memory management for linux. Without this, OpenCvSharp
-		//// causes "fake" (un-freed) memory usage in the range of 150+MB.
-		//if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
-		//	// By default, this is set for the current process only.
-		//	Environment.SetEnvironmentVariable("MALLOC_TRIM_THRESHOLD_", "20000");
-		//}
-
 		// Ensure the console window can display emoji/colors properly.
 		Console.OutputEncoding = Encoding.UTF8;
 
