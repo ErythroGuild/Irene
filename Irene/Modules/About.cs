@@ -55,6 +55,10 @@ class About {
 	public static DiscordEmbed CollateStatusEmbed() {
 		CheckErythroInit();
 
+		GC.Collect();
+		GC.WaitForPendingFinalizers();
+		GC.Collect();
+
 		string title = $"__**Irene {StringVersion}**__{_charSpaceM}build `{StringBuild}`";
 
 		// Change embed color depending on current user status.
