@@ -1,7 +1,6 @@
 ﻿namespace Irene.Modules;
 
 using System.Diagnostics;
-using System.Runtime;
 
 class About {
 	public enum Status { Good, Idle, Error }
@@ -55,9 +54,6 @@ class About {
 	// `DiscordEmbed`.
 	public static DiscordEmbed CollateStatusEmbed() {
 		CheckErythroInit();
-
-		GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-		GC.Collect();
 
 		string title = $"__**Irene {StringVersion}**__{_charSpaceM}build `{StringBuild}`";
 
