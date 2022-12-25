@@ -78,7 +78,7 @@ class About {
 			$"""
 			{Erythro.Emoji(id_e.erythro)} **<Erythro>**'s community admin bot.
 
-			{statusAvailableCommands} **Available commands:** {SlashCommandCount} [+{ContextCommandCount}], {helpLink}
+			{statusAvailableCommands} **Usable commands:** {SlashCommandCount} [+{ContextCommandCount}], {helpLink}
 			{statusMemoryUsage} **Memory usage:** {GetMemoryUsageMB():F0} MB
 
 			Maintained by {GetMaintainerMention()} with {_charLove}
