@@ -20,8 +20,8 @@ class About {
 		_colorIdle   = new ("#FEE75C"),
 		_colorBusy   = new ("#ED4245");
 	private const double
-		_memoryLowerLimit = 80.0,
-		_memoryUpperLimit = 120.0;
+		_memoryLowerLimit = 300.0,
+		_memoryUpperLimit = 360.0;
 	private const ulong _idMaintainer = 165557736287764483;
 	private const string
 		_linkSourceCode      = @"https://github.com/ErythroGuild/irene",
@@ -105,7 +105,8 @@ class About {
 		Process irene = Process.GetCurrentProcess();
 		irene.Refresh();
 
-		long bytes = irene.PrivateMemorySize64;
+		//long bytes = irene.PrivateMemorySize64;
+		long bytes = irene.WorkingSet64;
 		// bytes -> kilobytes -> megabytes
 		double megabytes = (double)bytes / 1000 / 1000;
 		// This gives a more conservative (i.e. higher) result.
