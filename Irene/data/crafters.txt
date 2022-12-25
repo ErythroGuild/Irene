@@ -1,11 +1,7 @@
 90946687446573056
 	DK>>>Voidwyrm>>>Moon Guard
-		Cooking>>>
-		Alchemy>>>
-	Mage>>>Diandry>>>Moon Guard
-		Cooking>>>
-		Jewelcrafting>>>
-		Tailoring>>>
+		Cooking>>>Snowcone?
+		Alchemy>>>Primary Spec - Phial Mastery
 	Warlock>>>Voidael>>>Moon Guard
 		Cooking>>>
 		Enchanting>>>
@@ -16,11 +12,36 @@
 	DH>>>Edgeboymcgee>>>Wyrmrest Accord
 		Cooking>>>
 		Enchanting>>>
+	Evoker>>>Paradormu>>>Wyrmrest Accord
+		Cooking>>>
+		Leatherworking>>>
+	Mage>>>Diandry>>>Moon Guard
+		Cooking>>>
+		Jewelcrafting>>>
+		Tailoring>>>Has Chronoweave
 165557736287764483
 	Druid>>>Edeilinna>>>Moon Guard
-		Cooking>>>
-		Inscription>>>happy to craft anything I can :)
+		Cooking>>>Cupcakes are nice!
+		Inscription>>>Happy to craft anything I can. :)
 	Mage>>>Ioniia>>>Moon Guard
 		Cooking>>>
 		Jewelcrafting>>>
 		Tailoring>>>
+114608364662685700
+	Druid>>>Pavatti>>>Wyrmrest Accord
+		Cooking>>>
+		Alchemy>>>
+163035270407651338
+	Shaman>>>Valoresta>>>Moon Guard
+		Cooking>>>
+		Leatherworking>>>
+244255632243294209
+	Mage>>>Wyndead>>>Moon Guard
+		Cooking>>>
+		Alchemy>>>
+		Enchanting>>>
+115299920222617602
+	Shaman>>>Hadzi>>>Moon Guard
+		Cooking>>>(not really)
+		Alchemy>>>Phial Mastery
+		Enchanting>>>Sophic Devotion+
