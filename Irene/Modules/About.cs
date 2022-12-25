@@ -105,10 +105,7 @@ class About {
 		Process irene = Process.GetCurrentProcess();
 		irene.Refresh();
 
-		GC.Collect(2, GCCollectionMode.Aggressive);
-
-		//long bytes = irene.PrivateMemorySize64;
-		long bytes = irene.WorkingSet64;
+		long bytes = irene.PrivateMemorySize64;
 		// bytes -> kilobytes -> megabytes
 		double megabytes = (double)bytes / 1000 / 1000;
 		// This gives a more conservative (i.e. higher) result.

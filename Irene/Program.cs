@@ -269,6 +269,8 @@ class Program {
 				// be called before everything is ready.
 				RegisterInteractionHandlers();
 				RegisterMessageHandler();
+
+				GC.Collect(2, GCCollectionMode.Aggressive);
 			});
 			return Task.CompletedTask;
 		};
