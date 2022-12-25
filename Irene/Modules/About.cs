@@ -20,8 +20,8 @@ class About {
 		_colorIdle   = new ("#FEE75C"),
 		_colorBusy   = new ("#ED4245");
 	private const double
-		_memoryLowerLimit = 300.0,
-		_memoryUpperLimit = 360.0;
+		_memoryLowerLimit = 320.0,
+		_memoryUpperLimit = 380.0;
 	private const ulong _idMaintainer = 165557736287764483;
 	private const string
 		_linkSourceCode      = @"https://github.com/ErythroGuild/irene",
@@ -105,8 +105,6 @@ class About {
 		Process irene = Process.GetCurrentProcess();
 		irene.Refresh();
 
-		GC.Collect(2, GCCollectionMode.Aggressive);
-		GC.WaitForPendingFinalizers();
 		GC.Collect(2, GCCollectionMode.Aggressive);
 
 		//long bytes = irene.PrivateMemorySize64;
