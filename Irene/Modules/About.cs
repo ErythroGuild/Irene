@@ -20,8 +20,8 @@ class About {
 		_colorIdle   = new ("#FEE75C"),
 		_colorBusy   = new ("#ED4245");
 	private const double
-		_memoryLowerLimit = 80.0,
-		_memoryUpperLimit = 120.0;
+		_memoryLowerLimit = 320.0,
+		_memoryUpperLimit = 380.0;
 	private const ulong _idMaintainer = 165557736287764483;
 	private const string
 		_linkSourceCode      = @"https://github.com/ErythroGuild/irene",
@@ -102,7 +102,7 @@ class About {
 			?? throw new UninitializedException();
 	// Returns MB (1000 kB).
 	public static double GetMemoryUsageMB() {
-		Process irene = Process.GetCurrentProcess();
+		using Process irene = Process.GetCurrentProcess();
 		irene.Refresh();
 
 		long bytes = irene.PrivateMemorySize64;
