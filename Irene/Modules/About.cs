@@ -105,9 +105,9 @@ class About {
 		Process irene = Process.GetCurrentProcess();
 		irene.Refresh();
 
-		GC.Collect();
+		GC.Collect(2, GCCollectionMode.Aggressive);
 		GC.WaitForPendingFinalizers();
-		GC.Collect();
+		GC.Collect(2, GCCollectionMode.Aggressive);
 
 		//long bytes = irene.PrivateMemorySize64;
 		long bytes = irene.WorkingSet64;
