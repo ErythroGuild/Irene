@@ -102,7 +102,7 @@ class About {
 			?? throw new UninitializedException();
 	// Returns MB (1000 kB).
 	public static double GetMemoryUsageMB() {
-		Process irene = Process.GetCurrentProcess();
+		using Process irene = Process.GetCurrentProcess();
 		irene.Refresh();
 
 		long bytes = irene.PrivateMemorySize64;
