@@ -200,6 +200,31 @@ static class Types {
 		}
 	}
 
+	public record class ItemData {
+		public readonly string Name;
+		public readonly Profession Profession;
+		public readonly string ProfessionTier;
+
+		// Properties and methods for accessing crafter data.
+		// The values in this table are the recipe IDs of the crafters'
+		// known recipes, which may have different ranks.
+		private ConcurrentDictionary<Character, long> _crafters = new ();
+		public IReadOnlySet<Character> Crafters =>
+			new HashSet<Character>(_crafters.Keys);
+		public long GetCrafterRecipeId(Character crafter) =>
+			_crafters[crafter];
+		public void SetCrafter(Character crafter, long recipeId) =>
+			_crafters[crafter] = recipeId;
+		public void RemoveCrafter(Character crafter) =>
+			_crafters.TryRemove(crafter, out _);
+
+		public ItemData(string name, Profession profession, string professionTier) {
+			Name = name;
+			Profession = profession;
+			ProfessionTier = professionTier;
+		}
+	}
+
 
 	// --------
 	// Utility methods:
