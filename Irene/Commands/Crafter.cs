@@ -1,9 +1,9 @@
 ﻿namespace Irene.Commands;
 
-using Module = Modules.Crafter;
+using static Modules.Crafter.Types;
 
-using Character = Modules.Crafter.Character;
-using Profession = Modules.Crafter.Profession;
+using Completers = Modules.Crafter.Completer;
+using Responders = Modules.Crafter.Responder;
 
 class Crafter : CommandHandler {
 	public const string
@@ -53,7 +53,7 @@ class Crafter : CommandHandler {
 				new (
 					FindAsync,
 					new Dictionary<string, Completer> {
-						[ArgItem] = Module.CompleterItem,
+						[ArgItem] = Completers.Items,
 					}
 				)
 			),
@@ -107,8 +107,8 @@ class Crafter : CommandHandler {
 				new (
 					SetAsync,
 					new Dictionary<string, Completer> {
-						[ArgCharacter] = Module.CompleterRoster,
-						[ArgServer] = Module.CompleterServer,
+						[ArgCharacter] = Completers.Roster,
+						[ArgServer] = Completers.Servers,
 					}
 				)
 			),
@@ -138,8 +138,8 @@ class Crafter : CommandHandler {
 				new (
 					RemoveAsync,
 					new Dictionary<string, Completer> {
-						[ArgCharacter] = Module.CompleterCrafter,
-						[ArgServer] = Module.CompleterServer,
+						[ArgCharacter] = Completers.Crafters,
+						[ArgServer] = Completers.Servers,
 					}
 				)
 			),
@@ -154,7 +154,7 @@ class Crafter : CommandHandler {
 
 	private async Task FindAsync(Interaction interaction, ParsedArgs args) {
 		string item = (string)args[ArgItem];
-		await Module.RespondFindAsync(interaction, item);
+		await Responders.RespondFindAsync(interaction, item);
 	}
 
 	private async Task ListAsync(Interaction interaction, ParsedArgs args) {
@@ -167,14 +167,14 @@ class Crafter : CommandHandler {
 				? (bool)argSelfOnly
 				: false;
 
-		await Module.RespondListAsync(interaction, profession, isSelfOnly);
+		await Responders.RespondListAsync(interaction, profession, isSelfOnly);
 	}
 
 	private async Task SetAsync(Interaction interaction, ParsedArgs args) {
 		string name = (string)args[ArgCharacter];
 		string server = args.ContainsKey(ArgServer)
 			? (string)args[ArgServer]
-			: Module.ServerDefault;
+			: ServerGuild;
 
 		Character? character = ValidateCharacter(name, server);
 		if (character is null) {
@@ -187,14 +187,14 @@ class Crafter : CommandHandler {
 			return;
 		}
 
-		await Module.RespondSetAsync(interaction, character.Value);
+		await Responders.RespondSetAsync(interaction, character.Value);
 	}
 
 	private async Task RemoveAsync(Interaction interaction, ParsedArgs args) {
 		string name = (string)args[ArgCharacter];
 		string server = args.ContainsKey(ArgServer)
 			? (string)args[ArgServer]
-			: Module.ServerDefault;
+			: ServerGuild;
 
 		Character? character = ValidateCharacter(name, server);
 		if (character is null) {
@@ -207,7 +207,7 @@ class Crafter : CommandHandler {
 			return;
 		}
 
-		await Module.RespondRemoveAsync(interaction, character.Value);
+		await Responders.RespondRemoveAsync(interaction, character.Value);
 	}
 
 	// Checks if the character server combination is well-formed, and
