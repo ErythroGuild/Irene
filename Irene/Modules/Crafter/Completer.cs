@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules.Crafter;
+namespace Irene.Modules.Crafter;
 
 using static Types;
 
@@ -49,13 +49,15 @@ class Completer {
 
 	// Implementation of the `Items` completer.
 	private static IReadOnlyList<string> GetItems() =>
-		new List<string>(_itemCrafters.Keys);
+		new List<string>(Database.GetItems()); // no need for sorting
 	private static IReadOnlyList<string> GetRandomItems() {
+		List<string> items = new (Database.GetItems());
+
 		// Generate random indices.
 		HashSet<int> indices = new ();
 		for (int i=0; i<12; i++) {
 			int i_items =
-				(int)Random.RandomWithFallback(0, _itemCrafters.Count);
+				(int)Random.RandomWithFallback(0, items.Count);
 			while (indices.Contains(i_items))
 				i_items++;
 			indices.Add(i_items);
@@ -63,7 +65,6 @@ class Completer {
 
 		// Convert indices to actual characters.
 		List<string> options = new ();
-		List<string> items = new (_itemCrafters.Keys);
 		foreach (int i in indices)
 			options.Add(items[i]);
 
@@ -71,13 +72,13 @@ class Completer {
 	}
 
 	// Implementation of the `Roster` completer.
-	private static IReadOnlyList<string> GetRoster() => _roster;
+	private static IReadOnlyList<string> GetRoster() => Database.Roster;
 	private static IReadOnlyList<string> GetRandomCharacters() {
 		// Generate random indices.
 		HashSet<int> indices = new ();
 		for (int i = 0; i<4; i++) {
 			int i_roster =
-				(int)Random.RandomWithFallback(0, _roster.Count);
+				(int)Random.RandomWithFallback(0, Database.Roster.Count);
 			while (indices.Contains(i_roster))
 				i_roster++;
 			indices.Add(i_roster);
@@ -86,7 +87,7 @@ class Completer {
 		// Convert indices to actual characters.
 		List<string> options = new ();
 		foreach (int i in indices)
-			options.Add(_roster[i]);
+			options.Add(Database.Roster[i]);
 
 		return options;
 	}
@@ -94,13 +95,13 @@ class Completer {
 	// Implementation of the `Crafters` completer.
 	private static IReadOnlyList<string> GetCrafters(ulong id) {
 		List<string> crafterNames = new ();
-		foreach (Character crafter in _playerCrafters[id])
-			crafterNames.Add(crafter.Name);
-		crafterNames.Sort((c1, c2) => string.Compare(c1, c2));
+		foreach (Character crafter in Database.GetCrafters(id))
+			crafterNames.Add(crafter.LocalName());
+		crafterNames.Sort();
 		return crafterNames;
 	}
 
 	// Implementation of the `Servers` completer.
-	private static IReadOnlyList<string> GetServers() => _servers;
+	private static IReadOnlyList<string> GetServers() => Database.Servers;
 	private static IReadOnlyList<string> GetDefaultServers() => _defaultServers;
 }
