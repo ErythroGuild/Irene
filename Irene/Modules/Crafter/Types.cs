@@ -1,4 +1,6 @@
-﻿namespace Irene.Modules.Crafter;
+namespace Irene.Modules.Crafter;
+
+using Class = ClassSpec.Class;
 
 // These are all within a single class, since even if the types are in
 // the namespace itself, a `using static` directive would still be needed
@@ -67,11 +69,10 @@ static class Types {
 			return Name + append;
 		}
 
-		private const string _separator = ", ";
-
 		// Serialization/deserialization methods.
 		// The deserialization method accepts an input with no separator
 		// (no server) as having that name + the default server.
+		private const string _separator = ", ";
 		public static Character FromString(string input) {
 			string[] split = input.Split(_separator, 2);
 			return (split.Length > 1)
@@ -79,6 +80,124 @@ static class Types {
 				: new (split[0]);
 		}
 		public override string ToString() => $"{Name}{_separator}{Server}";
+	}
+
+	public record class CharacterData {
+		// Basic properties.
+		public readonly ulong UserId;
+		public readonly Character Character;
+		public readonly Class Class;
+
+		// Properties and convenience methods for accessing profession
+		// data (and related queries), on the whole.
+		private IReadOnlyDictionary<Profession, ProfessionData> _professions;
+		public IReadOnlySet<Profession> Professions =>
+			new HashSet<Profession>(_professions.Keys);
+		public bool HasProfession(Profession profession) =>
+			_professions.ContainsKey(profession);
+		public ProfessionData GetProfessionData(Profession profession) =>
+			_professions[profession];
+
+		// Convenience methods for accessing specific profession data
+		// properties (summary, tier skill).
+		public string GetSummary(Profession profession) =>
+			_professions[profession].Summary;
+		public void SetSummary(Profession profession, string summary) =>
+			_professions[profession].Summary = summary;
+		public TierSkill GetSkill(Profession profession, string tier) =>
+			_professions[profession].GetSkill(tier);
+		// Not including set skill since that's an uncommon operation,
+		// and should only happen on character database updates.
+
+		public CharacterData(
+			ulong userId,
+			Character character,
+			Class @class,
+			ConcurrentDictionary<Profession, ProfessionData>? professions=null
+		) {
+			professions ??= new ();
+
+			UserId = userId;
+			Character = character;
+			Class = @class;
+			_professions = professions;
+		}
+
+		private const string
+			_indent = "\t",
+			_separator = " | ";
+		// The input data is trimmed, so it can be left indented (as-read).
+		public static CharacterData Deserialize(ulong userId, List<string> lines) {
+			// Parse character data.
+			string[] split = lines[0].Trim().Split(_separator, 2);
+			Class @class = Enum.Parse<Class>(split[0]);
+			Character character = Character.FromString(split[1]);
+
+			// Parse all profession data.
+			ConcurrentDictionary<Profession, ProfessionData> professions = new ();
+			for (int i=1; i<lines.Count; i++) {
+				ProfessionData professionData =
+					ProfessionData.FromString(lines[i].Trim());
+				professions.TryAdd(professionData.Profession, professionData);
+			}
+
+			return new (
+				userId,
+				character,
+				@class
+			) { _professions = professions };
+		}
+		// Returns a properly-indented, ready-for-collation serialization
+		// of character data. (Does not include owner's user ID.)
+		public List<string> Serialize() {
+			List<string> lines = new ()
+				{ $"{_indent}{Class}{_separator}{Character}" };
+
+			// Sort all data (for output stability).
+			List<ProfessionData> professions = new (_professions.Values);
+			professions.Sort((p1, p2) => p1.Profession - p2.Profession);
+
+			foreach (ProfessionData profession in professions)
+				lines.Add($"{_indent}{_indent}{profession}");
+
+			return lines;
+		}
+
+		public record class ProfessionData {
+			public readonly Profession Profession;
+			public string Summary {
+				get => _summary;
+				set => _summary = value.Trim();
+			}
+			private string _summary = "";
+			
+			// Methods for accessing tier skill values.
+			private IReadOnlyDictionary<string, TierSkill> _skills =
+				new ConcurrentDictionary<string, TierSkill>();
+			public TierSkill GetSkill(string tier) => _skills[tier];
+			public void SetSkills(ConcurrentDictionary<string, TierSkill> skill) =>
+				_skills = skill;
+
+			public ProfessionData(Profession profession, string summary="") {
+				Profession = profession;
+				Summary = summary;
+			}
+
+			// Serialization/deserialization methods.
+			private const string _separator = ": ";
+			public static ProfessionData FromString(string input) {
+				string[] split = input.Trim().Split(_separator, 2);
+				Profession profession = Enum.Parse<Profession>(split[0]);
+				string summary = (split.Length > 1) ? split[1] : "";
+				return new (profession, summary);
+			}
+			public override string ToString() =>
+				$"{Profession}{_separator}{Summary}";
+		}
+
+		public readonly record struct TierSkill(int Skill, int SkillMax) {
+			public override string ToString() => $"{Skill}/{SkillMax}";
+		}
 	}
 
 
