@@ -123,9 +123,9 @@ static class Types {
 			_professions = professions;
 		}
 
-		private const string
-			_indent = "\t",
-			_separator = " | ";
+		// Serialization/deserialization methods.
+		public const string Indent = "\t";
+		private const string _separator = " | ";
 		// The input data is trimmed, so it can be left indented (as-read).
 		public static CharacterData Deserialize(ulong userId, List<string> lines) {
 			// Parse character data.
@@ -151,14 +151,14 @@ static class Types {
 		// of character data. (Does not include owner's user ID.)
 		public List<string> Serialize() {
 			List<string> lines = new ()
-				{ $"{_indent}{Class}{_separator}{Character}" };
+				{ $"{Indent}{Class}{_separator}{Character}" };
 
 			// Sort all data (for output stability).
 			List<ProfessionData> professions = new (_professions.Values);
 			professions.Sort((p1, p2) => p1.Profession - p2.Profession);
 
 			foreach (ProfessionData profession in professions)
-				lines.Add($"{_indent}{_indent}{profession}");
+				lines.Add($"{Indent}{Indent}{profession}");
 
 			return lines;
 		}
