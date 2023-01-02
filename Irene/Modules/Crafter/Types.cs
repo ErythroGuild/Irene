@@ -235,7 +235,7 @@ static class Types {
 	// --------
 
 	// The job title of somebody with this profession.
-	public static string Title(Profession profession) => profession switch {
+	public static string Title(this Profession profession) => profession switch {
 		Profession.Cooking        => "Cook"         ,
 		Profession.Alchemy        => "Alchemist"    ,
 		Profession.Jewelcrafting  => "Jewelcrafter" ,
