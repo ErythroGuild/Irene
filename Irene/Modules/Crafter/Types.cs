@@ -179,12 +179,19 @@ static class Types {
 			private IReadOnlyDictionary<string, TierSkill> _skills =
 				new ConcurrentDictionary<string, TierSkill>();
 			public TierSkill GetSkill(string tier) => _skills[tier];
-			public void SetSkills(ConcurrentDictionary<string, TierSkill> skill) =>
-				_skills = skill;
+			public void SetSkills(ConcurrentDictionary<string, TierSkill> skills) =>
+				_skills = skills;
 
-			public ProfessionData(Profession profession, string summary="") {
+			public ProfessionData(
+				Profession profession,
+				string summary="",
+				ConcurrentDictionary<string, TierSkill>? skills=null
+			) {
+				skills ??= new ();
+				
 				Profession = profession;
 				Summary = summary;
+				_skills = skills;
 			}
 
 			// Serialization/deserialization methods.
