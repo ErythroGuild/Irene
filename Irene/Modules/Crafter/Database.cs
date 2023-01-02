@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules.Crafter;
+namespace Irene.Modules.Crafter;
 
 using System.Diagnostics;
 using System.Timers;
@@ -186,14 +186,31 @@ class Database {
 	public static IReadOnlySet<Character> GetCrafters(Profession profession) =>
 		_professionCrafters[profession];
 
-	public static async Task<int?> GetRecipeRankAsync(long id) {
-		// Check cache for an unexpired value.
-		if (_recipeRanks.TryGetValue(id, out ExpiringRank rankCached)) {
-			if (rankCached.IsValid)
-				return rankCached.Rank;
-		}
+	public static async Task<int?> GetRecipeRankAsync(long id) =>
+		IsRecipeRankCached(id)
+			? _recipeRanks[id].Rank
+			: await CacheRecipeRankAsync(id);
+	// Unlike `GetRecipeRankAsync()`, this method does not `await` and
+	// throws an `InvalidOperationException` if no valid value is cached.
+	// If `doAllowExpired` is true, then rank data will be returned even
+	// if expired (will not throw).
+	public static int? GetRecipeRankCached(long id, bool doAllowExpired) {
+		if (!_recipeRanks.TryGetValue(id, out ExpiringRank rankCached))
+			throw new InvalidOperationException($"Recipe rank not found in cache: {id}");
 
-		// Else, fetch value, update cache, and return.
+		if (doAllowExpired || rankCached.IsValid)
+			return rankCached.Rank;
+
+		throw new InvalidOperationException($"Cached recipe rank data expired: {id}");
+	}
+	
+	// Whether or not the given recipe ID has a non-expired, cached rank.
+	public static bool IsRecipeRankCached(long id) =>
+		_recipeRanks.TryGetValue(id, out ExpiringRank rankCached) &&
+		rankCached.IsValid;
+	// Forces a refresh of the recipe rank data, and also returns the
+	// rank that was fetched (this can be ignored).
+	public static async Task<int?> CacheRecipeRankAsync(long id) {
 		string json = await RequestRecipeAsync(id);
 		int? rank = ParseRecipeJson(json);
 		_recipeRanks[id] = new (rank);
