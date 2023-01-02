@@ -97,6 +97,10 @@ static class Types {
 			_professions.ContainsKey(profession);
 		public ProfessionData GetProfessionData(Profession profession) =>
 			_professions[profession];
+		public IReadOnlyDictionary<Profession, ProfessionData> GetProfessionData() =>
+			_professions;
+		public void SetProfessions(ConcurrentDictionary<Profession, ProfessionData> professions) =>
+			_professions = professions;
 
 		// Convenience methods for accessing specific profession data
 		// properties (summary, tier skill).
