@@ -181,10 +181,20 @@ class Database {
 	public static CharacterData GetCrafterData(Character crafter) =>
 		_crafterData[crafter];
 
-	public static IReadOnlySet<Character> GetCrafters(ulong userId) =>
-		_playerCrafters[userId];
-	public static IReadOnlySet<Character> GetCrafters(Profession profession) =>
-		_professionCrafters[profession];
+	public static IReadOnlySet<Character> GetCrafters(ulong userId) {
+		_playerCrafters.TryGetValue(
+			userId,
+			out IReadOnlySet<Character>? crafters
+		);
+		return crafters ?? new HashSet<Character>();
+	}
+	public static IReadOnlySet<Character> GetCrafters(Profession profession) {
+		_professionCrafters.TryGetValue(
+			profession,
+			out IReadOnlySet<Character>? crafters
+		);
+		return crafters ?? new HashSet<Character>();
+	}
 
 	public static async Task<int?> GetRecipeRankAsync(long id) =>
 		IsRecipeRankCached(id)
