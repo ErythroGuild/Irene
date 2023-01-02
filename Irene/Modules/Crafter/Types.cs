@@ -44,7 +44,7 @@ static class Types {
 			// Select server from list.
 			server = server.Trim().ToLower();
 			bool foundServer = false;
-			foreach (string server_i in _servers) {
+			foreach (string server_i in Database.Servers) {
 				if (server == server_i.ToLower()) {
 					foundServer = true;
 					server = server_i;
