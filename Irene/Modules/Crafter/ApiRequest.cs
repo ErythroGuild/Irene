@@ -1,4 +1,4 @@
-﻿namespace Irene.Modules.Crafter;
+namespace Irene.Modules.Crafter;
 
 using System.Text.Json.Nodes;
 
@@ -150,7 +150,7 @@ class ApiRequest {
 	}
 
 	public record class ParsedCharacterData(
-		ConcurrentDictionary<Character, HashSet<ParsedProfessionData>> CharacterProfessionData,
+		ConcurrentDictionary<Character, HashSet<ParsedProfessionData>> ProfessionData,
 		ConcurrentDictionary<string, ItemData> ItemTable
 	);
 	public record class ParsedProfessionData(
@@ -160,6 +160,14 @@ class ApiRequest {
 	// Returns parsed data (a list of `CharacterData` + a compiled table
 	// of `ItemData`) for a set of characters.
 	// This can either be merged into the main tables or replaced.
+	public static ParsedCharacterData ParseProfessionsJson(
+		Character character,
+		string json
+	) {
+		Dictionary<Character, string> jsonTable =
+			new () { [character] = json };
+		return ParseProfessionsJson(jsonTable);
+	}
 	public static ParsedCharacterData ParseProfessionsJson(
 		IReadOnlyDictionary<Character, string> json
 	) {
@@ -172,7 +180,7 @@ class ApiRequest {
 				out HashSet<ParsedProfessionData> parsedProfessionData,
 				output.ItemTable
 			);
-			output.CharacterProfessionData.TryAdd(
+			output.ProfessionData.TryAdd(
 				character,
 				parsedProfessionData
 			);
