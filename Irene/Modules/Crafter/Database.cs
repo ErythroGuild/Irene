@@ -175,12 +175,17 @@ class Database {
 
 	public static IReadOnlySet<string> GetItems() =>
 		new HashSet<string>(_itemCrafters.Keys);
+	public static bool HasItemCrafter(string itemName) =>
+		_itemCrafters.TryGetValue(itemName, out ItemData? data) &&
+		(data.Crafters.Count != 0);
 
 	public static ItemData GetItemData(string itemName) =>
 		_itemCrafters[itemName];
 	public static CharacterData GetCrafterData(Character crafter) =>
 		_crafterData[crafter];
 
+	public static bool HasCrafter(Character crafter) =>
+		_crafterData.ContainsKey(crafter);
 	public static IReadOnlySet<Character> GetCrafters(ulong userId) {
 		_playerCrafters.TryGetValue(
 			userId,
