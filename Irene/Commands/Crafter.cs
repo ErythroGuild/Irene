@@ -154,7 +154,7 @@ class Crafter : CommandHandler {
 
 	private async Task FindAsync(Interaction interaction, ParsedArgs args) {
 		string item = (string)args[ArgItem];
-		await Responders.RespondFindAsync(interaction, item);
+		await Responders.FindAsync(interaction, item);
 	}
 
 	private async Task ListAsync(Interaction interaction, ParsedArgs args) {
@@ -167,7 +167,7 @@ class Crafter : CommandHandler {
 				? (bool)argSelfOnly
 				: false;
 
-		await Responders.RespondListAsync(interaction, profession, isSelfOnly);
+		await Responders.ListAsync(interaction, profession, isSelfOnly);
 	}
 
 	private async Task SetAsync(Interaction interaction, ParsedArgs args) {
@@ -187,7 +187,7 @@ class Crafter : CommandHandler {
 			return;
 		}
 
-		await Responders.RespondSetAsync(interaction, character.Value);
+		await Responders.SetAsync(interaction, character.Value);
 	}
 
 	private async Task RemoveAsync(Interaction interaction, ParsedArgs args) {
@@ -207,7 +207,7 @@ class Crafter : CommandHandler {
 			return;
 		}
 
-		await Responders.RespondRemoveAsync(interaction, character.Value);
+		await Responders.RemoveAsync(interaction, character.Value);
 	}
 
 	// Checks if the character server combination is well-formed, and
