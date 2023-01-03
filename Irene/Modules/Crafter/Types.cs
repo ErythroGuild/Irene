@@ -207,7 +207,7 @@ static class Types {
 		}
 
 		public readonly record struct TierSkill(int Skill, int SkillMax) {
-			public override string ToString() => $"{Skill}/{SkillMax}";
+			public override string ToString() => $"{Skill} / {SkillMax}";
 		}
 	}
 
