@@ -138,7 +138,7 @@ class Database {
 	//   - replaced: `_itemCrafters`
 	// Note: This requires `_playerCrafters` to already be populated,
 	// and `_crafterData` to already have saved data read in.
-	private static async Task InitItemDatabaseAsync() {
+	public static async Task InitItemDatabaseAsync() {
 		Stopwatch stopwatch = Stopwatch.StartNew();
 		Log.Information("  Crafter item database rebuild started.");
 
