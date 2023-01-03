@@ -1,11 +1,13 @@
 namespace Irene.Modules.Crafter;
 
+using System.Net.Http;
 using System.Text.Json.Nodes;
 
 using static Types;
 
 using ApiType = BlizzardClient.Namespace;
 using Class = ClassSpec.Class;
+using HttpStatusCode = System.Net.HttpStatusCode;
 using TierSkill = Types.CharacterData.TierSkill;
 
 class ApiRequest {
@@ -19,10 +21,13 @@ class ApiRequest {
 	// Paths for the Blizzard API.
 	private const string
 		_urlServers     = @"/data/wow/realm/index",                      // dynamic
+		_urlServer      = @"/data/wow/realm/{0}",                        // dynamic
 		_urlRoster      = @"/data/wow/guild/moon-guard/erythro/roster",  // profile
 		_urlProfile     = @"/profile/wow/character/{1}/{0}",             // profile
 		_urlProfessions = @"/profile/wow/character/{1}/{0}/professions", // profile
 		_urlRecipe      = @"/data/wow/recipe/{0}";                       // static
+
+	private const HttpStatusCode _statusNotFound = HttpStatusCode.NotFound;
 
 	// Client authentication info.
 	private const string _pathToken = @"config/blizzard.txt";
@@ -47,6 +52,36 @@ class ApiRequest {
 
 
 	// --------
+	// Validity check methods:
+	// --------
+	// These methods check if the requested argument has a corresponding
+	// valid source, according to the Blizzard API.
+
+	// Takes the canonical name of the server as input (the method will
+	// transform it into the appropriate server slug).
+	public static async Task<bool> CheckIsValidServer(string server) {
+		try {
+			await RequestServerAsync(server);
+			return true;
+		} catch (HttpRequestException e) {
+			if (e.StatusCode == _statusNotFound)
+				return false;
+			throw;
+		}
+	}
+	public static async Task<bool> CheckIsValidCharacter(Character character) {
+		try {
+			await RequestProfileAsync(character);
+			return true;
+		} catch (HttpRequestException e) {
+			if (e.StatusCode == _statusNotFound)
+				return false;
+			throw;
+		}
+	}
+
+
+	// --------
 	// API request methods:
 	// --------
 	// These methods return JSON strings that can be parsed directly
@@ -54,6 +89,11 @@ class ApiRequest {
 
 	public static Task<string> RequestServersAsync() =>
 		_client.RequestAsync(ApiType.Dynamic, _urlServers);
+	// Uses the canonical server name (not the slug).
+	public static Task<string> RequestServerAsync(string server) {
+		string url = GetServerUrl(server);
+		return _client.RequestAsync(ApiType.Dynamic, url);
+	}
 	public static Task<string> RequestRosterAsync() =>
 		_client.RequestAsync(ApiType.Profile, _urlRoster);
 	public static Task<string> RequestProfileAsync(Character character) {
@@ -341,6 +381,10 @@ class ApiRequest {
 		_ => null,
 	};
 
+	// Populate the server API URL with the given server.
+	// This uses the canonical server name, not the slug.
+	private static string GetServerUrl(string server) =>
+		string.Format(_urlServer, ServerNameToSlug(server));
 	// Populate the profile API URL with the character's name/server.
 	private static string GetProfileUrl(Character name) =>
 		string.Format(
