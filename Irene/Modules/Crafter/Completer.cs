@@ -1,4 +1,4 @@
-namespace Irene.Modules.Crafter;
+﻿namespace Irene.Modules.Crafter;
 
 using static Types;
 
@@ -31,21 +31,22 @@ class Completer {
 		);
 
 	// Default options.
-	private static readonly List<string> _defaultServers = new () {
-		"Moon Guard",
-		"Wyrmrest Accord",
-		// Alphabetize the rest.
-		"Blackrock",
-		"Cenarius",
-		"Dalaran",
-		"Darkspear",
-		"Elune",
-		"Emerald Dream",
-		"Korgath",
-		"Moonrunner",
-		"Terokkar",
-		"Tichondrius",
-	};
+	private static readonly IReadOnlyList<string> _defaultServers =
+		new List<string>() {
+			"Moon Guard",
+			"Wyrmrest Accord",
+			// Alphabetize the rest.
+			"Blackrock",
+			"Cenarius",
+			"Dalaran",
+			"Darkspear",
+			"Elune",
+			"Emerald Dream",
+			"Korgath",
+			"Moonrunner",
+			"Terokkar",
+			"Tichondrius",
+		};
 
 	// Implementation of the `Items` completer.
 	private static IReadOnlyList<string> GetItems() =>
