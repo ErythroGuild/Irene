@@ -14,6 +14,10 @@ static class Dispatcher {
 	static Dispatcher() =>
 		Table = new ConcurrentDictionary<string, CommandHandler>();
 
+	// Requires the command to be registered (`ReplaceAllHandlers()`).
+	public static string Mention(string command, params string[] subcommands) =>
+		Table[command].Mention(string.Join(" ", command, subcommands));
+
 	public static bool CanHandle(string commandName) =>
 		Table.ContainsKey(commandName);
 	public static Task<ResultType> HandleAsync(string commandName, Interaction interaction) =>
