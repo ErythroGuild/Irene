@@ -78,12 +78,12 @@ static class Const {
 		public static class Channel {
 			public const ulong
 			// Broadcast
-				rules     = 443002035604815872,
-				announce  = 443001903123791873,
-				resources = 542093130502111252,
-				pins      = 648461869979271179,
-				starboard = 778102974551293962,
-				audit     = 778102942141382678,
+				rules     =  443002035604815872,
+				announce  =  443001903123791873,
+				resources = 1058564619804880906,
+				pins      =  648461869979271179,
+				starboard =  778102974551293962,
+				audit     =  778102942141382678,
 
 				// Text
 				general  =  317723973968461824,
