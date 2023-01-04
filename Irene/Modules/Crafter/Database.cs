@@ -538,7 +538,7 @@ class Database {
 	private static void PopulateTierSkills(
 		ConcurrentDictionary<Character, HashSet<ParsedProfessionData>> parsedData
 	) {
-		foreach (Character character in _crafterData.Keys) {
+		foreach (Character character in parsedData.Keys) {
 			HashSet<ParsedProfessionData> professionData = parsedData[character];
 			ConcurrentDictionary<Profession, ProfessionData> professions = new ();
 			CharacterData data = _crafterData[character];
@@ -555,8 +555,7 @@ class Database {
 				professions.TryAdd(profession, dataPopulated);
 
 				// Update profession data with parsed `TierSkill`s.
-				data.GetProfessionData(profession)
-					.SetSkills(professionData_i.TierSkills);
+				dataPopulated.SetSkills(professionData_i.TierSkills);
 			}
 
 			data.SetProfessions(professions);
