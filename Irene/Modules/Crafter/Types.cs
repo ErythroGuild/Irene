@@ -27,6 +27,8 @@ static class Types {
 	public readonly record struct Character {
 		public readonly string Name;
 		public readonly string Server;
+		public string FullName =>
+			$"{Name}-{ServerNameToNormalized(Server)}";
 
 		// All instances have proper capitalization of the name and only
 		// allow valid server names (an exception is thrown if otherwise).
