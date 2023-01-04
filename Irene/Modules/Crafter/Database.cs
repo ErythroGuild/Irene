@@ -36,6 +36,8 @@ class Database {
 	// item data updates.
 	public static DateTimeOffset LastUpdated { get; private set; }
 
+	public const int MaxSummaryLength = 120;
+
 	// Timers to automatically refresh database tables.
 	private static readonly Timer
 		_timerItemData,
