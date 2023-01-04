@@ -54,8 +54,7 @@ class Database {
 		_queueFile = new (),
 		_queueItemData = new ();
 
-	//private const string _pathCharacters = @"data/crafters.txt";
-	private const string _pathCharacters = @"data/crafters-new-format.txt";
+	private const string _pathCharacters = @"data/crafters.txt";
 
 
 	// --------

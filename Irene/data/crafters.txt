@@ -1,47 +1,49 @@
 90946687446573056
-	DK>>>Voidwyrm>>>Moon Guard
-		Cooking>>>Snowcone?
-		Alchemy>>>Primary Spec - Phial Mastery
-	Warlock>>>Voidael>>>Moon Guard
-		Cooking>>>
-		Enchanting>>>
-		Engineering>>>
-	Druid>>>Scrímshaw>>>Moon Guard
-		Cooking>>>
-		Inscription>>>
-	DH>>>Edgeboymcgee>>>Wyrmrest Accord
-		Cooking>>>
-		Enchanting>>>
-	Evoker>>>Paradormu>>>Wyrmrest Accord
-		Cooking>>>
-		Leatherworking>>>
-	Mage>>>Diandry>>>Moon Guard
-		Cooking>>>
-		Jewelcrafting>>>
-		Tailoring>>>Has Chronoweave
-165557736287764483
-	Druid>>>Edeilinna>>>Moon Guard
-		Cooking>>>Cupcakes are nice!
-		Inscription>>>Happy to craft anything I can. :)
-	Mage>>>Ioniia>>>Moon Guard
-		Cooking>>>
-		Jewelcrafting>>>
-		Tailoring>>>
+	Mage | Diandry, Moon Guard
+		Cooking: 
+		Jewelcrafting: 
+		Tailoring: Has Chronoweave
+	DH | Edgeboymcgee, Wyrmrest Accord
+		Cooking: 
+		Enchanting: 
+	Evoker | Paradormu, Wyrmrest Accord
+		Cooking: 
+		Leatherworking: 
+	Warlock | Voidael, Moon Guard
+		Cooking: 
+		Enchanting: 
+		Engineering: 
+	DK | Voidwyrm, Moon Guard
+		Cooking: Snowcone?
+		Alchemy: Primary Spec - Phial Mastery
+106191300587454464
+	Mage | Kilarii, Moon Guard
+		Cooking: 
+		Enchanting: 
+		Tailoring: 
 114608364662685700
-	Druid>>>Pavatti>>>Wyrmrest Accord
-		Cooking>>>
-		Alchemy>>>
-163035270407651338
-	Shaman>>>Valoresta>>>Moon Guard
-		Cooking>>>
-		Leatherworking>>>
-244255632243294209
-	Mage>>>Wyndead>>>Moon Guard
-		Cooking>>>
-		Alchemy>>>
-		Enchanting>>>
+	Druid | Pavatti, Wyrmrest Accord
+		Cooking: 
+		Alchemy: 
 115299920222617602
-	Shaman>>>Hadzi>>>Moon Guard
-		Cooking>>>(not really)
-		Alchemy>>>Phial Mastery
-		Enchanting>>>Sophic Devotion+
+	Shaman | Hadzi, Moon Guard
+		Cooking: (not really)
+		Alchemy: Phial Mastery
+		Enchanting: Sophic Devotion+
+163035270407651338
+	Shaman | Valoresta, Moon Guard
+		Cooking: 
+		Leatherworking: 
+165557736287764483
+	Druid | Edeilinna, Moon Guard
+		Cooking: cupcakes :)
+		Inscription: able to make most old glyphs/marks
+	Mage | Ioniia, Moon Guard
+		Cooking: 
+		Jewelcrafting: 
+		Tailoring: 
+244255632243294209
+	Mage | Wyndead, Moon Guard
+		Cooking: 
+		Alchemy: 
+		Enchanting: 
