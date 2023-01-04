@@ -63,10 +63,10 @@ class Database {
 	// --------
 
 	// Master list of valid servers (according to Blizzard's API).
-	public static IReadOnlyList<string> Servers { get; private set; } = new List<string>();
+	public static IReadOnlyList<string> Servers { get; private set; }
 	// Master list of all guild members, stored as strings (since this
 	// is only used to populate a `StringCompleter`).
-	public static IReadOnlyList<string> Roster { get; private set; } = new List<string>();
+	public static IReadOnlyList<string> Roster { get; private set; }
 	
 	// Master table of crafters, indexed by the user ID of the player
 	// who owns the crafters in that list.
@@ -89,10 +89,10 @@ class Database {
 
 	static Database() {
 		// Initialize server list and guild roster from API query.
-		Task.WaitAll(
-			InitServersAsync(),
-			InitRosterAsync()
-		);
+		// (See comments for these methods for an explanation why they
+		// don't set the static properties directly.)
+		Servers = GetServersAsync().Result;
+		Roster = GetRosterAsync().Result;
 
 		// Initialize database, first fetching all saved character data.
 		// This is threadsafe and can happen in the background.
@@ -102,13 +102,15 @@ class Database {
 
 		// Set up server list auto-update.
 		Timer timerServers = Util.CreateTimer(_intervalServersRefresh, true);
-		timerServers.Elapsed += (_, _) => _ = InitServersAsync();
+		timerServers.Elapsed += async (_, _) =>
+			Servers = await GetServersAsync();
 		_timerServers = timerServers;
 		_timerServers.Start();
 
 		// Set up guild roster auto-update.
 		Timer timerRoster = Util.CreateTimer(_intervalRosterRefresh, true);
-		timerRoster.Elapsed += (_, _) => _ = InitRosterAsync();
+		timerRoster.Elapsed += async (_, _) =>
+			Roster = await GetRosterAsync();
 		_timerRoster = timerRoster;
 		_timerRoster.Start();
 
@@ -119,19 +121,24 @@ class Database {
 		_timerItemData.Start();
 	}
 
+	// Note: The server/roster initialization methods must return their
+	// respective values. If they set the static properties directly,
+	// a sort of deadlock will occur when the static initializer attempts
+	// to call them synchronously.
+
 	// Update server list (in case servers are added/removed somehow).
-	private static async Task InitServersAsync() {
+	private static async Task<List<string>> GetServersAsync() {
 		string json = await RequestServersAsync();
 		List<string> servers = new (ParseServersJson(json));
 		servers.Sort();
-		Servers = servers;
+		return servers;
 	}
 	// Update guild roster (needed to include new members that join).
-	private static async Task InitRosterAsync() {
+	private static async Task<List<string>> GetRosterAsync() {
 		string json = await RequestRosterAsync();
 		List<string> roster = new (ParseRosterJson(json));
 		roster.Sort();
-		Roster = roster;
+		return roster;
 	}
 
 	// Repopulate the main databases from scratch. These include:
