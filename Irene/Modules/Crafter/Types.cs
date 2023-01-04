@@ -1,4 +1,6 @@
-namespace Irene.Modules.Crafter;
+﻿namespace Irene.Modules.Crafter;
+
+using System.Diagnostics.CodeAnalysis;
 
 using Class = ClassSpec.Class;
 
@@ -173,9 +175,10 @@ static class Types {
 			public readonly Profession Profession;
 			public string Summary {
 				get => _summary;
+				[MemberNotNull(nameof(_summary))]
 				set => _summary = value.Trim();
 			}
-			private string _summary = "";
+			private string _summary;
 			
 			// Methods for accessing tier skill values.
 			private IReadOnlyDictionary<string, TierSkill> _skills =
