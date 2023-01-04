@@ -1,15 +1,20 @@
-namespace Irene.Modules.Crafter;
+﻿namespace Irene.Modules.Crafter;
 
 using System.Diagnostics;
 using System.Timers;
 
-using static Types;
 using static ApiRequest;
+using static Types;
 
 using Class = ClassSpec.Class;
 using ProfessionData = Types.CharacterData.ProfessionData;
 
 class Database {
+	// --------
+	// Properties and constants:
+	// --------
+
+	// Internal data structure for recipe rank TTL info.
 	private readonly record struct ExpiringRank {
 		public readonly int? Rank;
 		public readonly DateTimeOffset Expiry;
@@ -25,11 +30,6 @@ class Database {
 			Expiry = DateTimeOffset.UtcNow + _ttl;
 		}
 	};
-
-
-	// --------
-	// Properties and constants:
-	// --------
 
 	// Static status indicator for item data updates.
 	// Not thread-safe. Should only be modified behind the queue for

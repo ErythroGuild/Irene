@@ -1,4 +1,4 @@
-namespace Irene.Modules.Crafter;
+﻿namespace Irene.Modules.Crafter;
 
 using System.Net.Http;
 using System.Text.Json.Nodes;
@@ -47,7 +47,7 @@ class ApiRequest {
 
 		id = id[_keyClientId.Length..];
 		secret = secret[_keyClientSecret.Length..];
-		_client = new(id, secret);
+		_client = new (id, secret);
 	}
 
 
@@ -108,7 +108,7 @@ class ApiRequest {
 		string url = GetRecipeUrl(id);
 		return _client.RequestAsync(ApiType.Static, url);
 	}
-	
+
 
 	// --------
 	// JSON parsing methods:
@@ -231,7 +231,7 @@ class ApiRequest {
 
 	// Inner helper method: this should only ever be invoked by
 	// `ParseProfessionsJson()`.
-	// Note: the `itemData` parameter is modified with added data.
+	// Note: The `itemData` parameter is modified with added data.
 	private static void ParseCharacterProfessionsJson(
 		string json,
 		Character character,
@@ -258,7 +258,7 @@ class ApiRequest {
 		if (nodeProfession is not null)
 			nodesProfession.AddRange(nodeProfession.AsArray());
 
-		// Iterate through combined list of nodes.
+		// Iterate through the combined list of nodes.
 		foreach (JsonNode? node_i in nodesProfession) {
 			if (node_i is null)
 				continue;
@@ -271,13 +271,14 @@ class ApiRequest {
 					itemData
 				);
 
+			// Skip any nodes that failed to parse.
 			if (professionData is not null)
 				parsedProfessionData.Add(professionData);
 		}
 	}
 	// Inner helper method: this should only ever be invoked by
 	// `ParseCharacterProfessionsJson()`.
-	// Note: the `itemData` parameter is modified with added data.
+	// Note: The `itemData` parameter is modified with added data.
 	private static ParsedProfessionData? ParseProfessionJsonNode(
 		JsonNode node,
 		Character character,
@@ -335,7 +336,7 @@ class ApiRequest {
 						new (item, profession.Value, tier)
 					);
 				}
-				// Append the current crafter to the list.
+				// Update the current crafter in the `itemData` table.
 				itemData[item].SetCrafter(character, id);
 			}
 		}
