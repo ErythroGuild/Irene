@@ -141,7 +141,7 @@ static class Types {
 			ConcurrentDictionary<Profession, ProfessionData> professions = new ();
 			for (int i=1; i<lines.Count; i++) {
 				ProfessionData professionData =
-					ProfessionData.FromString(lines[i].Trim());
+					ProfessionData.FromString(lines[i].TrimStart());
 				professions.TryAdd(professionData.Profession, professionData);
 			}
 
@@ -197,7 +197,7 @@ static class Types {
 			// Serialization/deserialization methods.
 			private const string _separator = ": ";
 			public static ProfessionData FromString(string input) {
-				string[] split = input.Trim().Split(_separator, 2);
+				string[] split = input.TrimStart().Split(_separator, 2);
 				Profession profession = Enum.Parse<Profession>(split[0]);
 				string summary = (split.Length > 1) ? split[1] : "";
 				return new (profession, summary);
