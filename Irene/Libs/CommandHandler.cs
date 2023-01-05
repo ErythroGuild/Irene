@@ -305,8 +305,7 @@ abstract class CommandHandler {
 			private static async Task RespondNoAccessAsync(Interaction interaction, AccessLevel levelNeeded) {
 				string emojiFace = ":face_with_open_eyes_and_hand_over_mouth:";
 				string emojiRank = Modules.Rank.Emoji(levelNeeded);
-				string commandHelp = Dispatcher.Table[Commands.Help.CommandHelp]
-					.Mention(Commands.Help.CommandHelp);
+				string commandHelp = Dispatcher.Mention(Commands.Help.CommandHelp);
 				string response =
 					$"""
 					{emojiFace} Sorry, that command requires {emojiRank}{levelNeeded} permissions to use.
