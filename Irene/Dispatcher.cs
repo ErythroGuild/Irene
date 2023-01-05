@@ -18,7 +18,8 @@ static class Dispatcher {
 	public static string Mention(string command, params string[] subcommands) {
 		List<string> tokens = new () { command };
 		tokens.AddRange(subcommands);
-		return Table[command].Mention(string.Join(" ", tokens));
+		string commandString = string.Join(" ", tokens);
+		return Util.Mention(Table[command].Command, commandString);
 	}
 
 	public static bool CanHandle(string commandName) =>

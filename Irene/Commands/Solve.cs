@@ -15,10 +15,10 @@ class Solve : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandSolve} {CommandMrrl}")} provides instructions for Mrrl's Trading Game.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandSolve} {CommandCantaric}")} shows how to solve a Cantaric Protolock.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandSolve} {CommandMezzonic}")} shows how to solve a Mezzonic Protolock.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandSolve} {CommandFugueal}")} shows how to solve a Fugueal Protolock.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandSolve, CommandMrrl)} provides instructions for Mrrl's Trading Game.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandSolve, CommandCantaric)} shows how to solve a Cantaric Protolock.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandSolve, CommandMezzonic)} shows how to solve a Mezzonic Protolock.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandSolve, CommandFugueal)} shows how to solve a Fugueal Protolock.
 		{_t}For the protolock solvers, you can screenshot with `Win`+`Shift`+`S`.
 		{_t}You can then `Ctrl`+`V` directly into the `<{ArgScreenshot}>` box.
 		""";

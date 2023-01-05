@@ -29,7 +29,10 @@ abstract class CommandHandler {
 
 	public CommandTree Tree { get; }
 	public DiscordCommand Command => Tree.Command;
-	public string Mention(string display) => Command.Mention(display);
+	// Calls `Dispatcher.Mention()` to always mention the registered
+	// version of a command (if available).
+	public static string Mention(string command, params string[] subcommands) =>
+		Dispatcher.Mention(command, subcommands);
 
 	public CommandHandler() {
 		Tree = CreateTree();

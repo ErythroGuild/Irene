@@ -71,10 +71,10 @@ class Random : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandNumber}")} is the same as `/roll`.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandCoin}")} displays the result of a coin flip.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandCard}")} draws a card from a standard deck.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {Command8Ball}")} `<{ArgQuestion}> [{ArgShare}]` forecasts the answer to a yes/no question.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, CommandNumber)} is the same as `/roll`.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, CommandCoin)} displays the result of a coin flip.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, CommandCard)} draws a card from a standard deck.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, Command8Ball)} `<{ArgQuestion}> [{ArgShare}]` predicts the answer to a yes/no question.
 		{_t}If `[{ArgShare}]` isn't specified, the response will be private.
 		""";
 
