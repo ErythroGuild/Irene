@@ -46,10 +46,10 @@ static class Const {
 
 	// US time zones.
 	public static readonly TimeZoneInfo
-		TimeZone_PT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Los_Angeles"),
-		TimeZone_MT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Denver"),
-		TimeZone_CT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Chicago"),
-		TimeZone_ET = TimeZoneInfo.FindSystemTimeZoneById(@"America/New_York");
+		TimeZone_PT = TimeZoneInfo.FindSystemTimeZoneById(@"US/Pacific"),
+		TimeZone_MT = TimeZoneInfo.FindSystemTimeZoneById(@"US/Mountain"),
+		TimeZone_CT = TimeZoneInfo.FindSystemTimeZoneById(@"US/Central"),
+		TimeZone_ET = TimeZoneInfo.FindSystemTimeZoneById(@"US/Eastern");
 	public static readonly TimeZoneInfo TimeZone_Server = TimeZone_CT;
 
 	// Patch release days.
