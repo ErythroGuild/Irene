@@ -13,8 +13,8 @@ class Slowmode : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandSlowmode} {CommandSet}")} `<{ArgChannel}> [{ArgDuration}] [{ArgInterval}]` limits messaging speed,
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandSlowmode} {CommandClear}")} `<{ArgChannel}>` cancels any restrictions early.
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandSlowmode, CommandSet)} `<{ArgChannel}> [{ArgDuration}] [{ArgInterval}]` limits messaging speed,
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandSlowmode, CommandClear)} `<{ArgChannel}>` cancels any restrictions early.
 		""";
 
 	public override CommandTree CreateTree() => new (

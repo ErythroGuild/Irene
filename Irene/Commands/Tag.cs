@@ -17,14 +17,14 @@ class Tag : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandTag} {CommandList}")} lists all available tags,
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandTag} {CommandView}")} `<{ArgName}> <{ArgShare}>` displays a tag.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandTag, CommandList)} lists all available tags,
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandTag, CommandView)} `<{ArgName}> <{ArgShare}>` displays a tag.
 		{_t}Tag names are *not* case-sensitive, and ignore spaces.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandTag} {CommandSet}")} `<{ArgName}>` sets the contents of a personal tag,
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandTag} {CommandSetServer}")} `<{ArgName}>` sets the contents of a server tag.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandTag, CommandSet)} `<{ArgName}>` sets the contents of a personal tag,
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandTag, CommandSetServer)} `<{ArgName}>` sets the contents of a server tag.
 		{_t}Tags you create are only usable by you.
 		{_t}You can /suggest new server tags, or edits to current ones!
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandTag} {CommandRemove}")} `<{ArgName}> [{ArgUser}]` removes a tag.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandTag, CommandRemove)} `<{ArgName}> [{ArgUser}]` removes a tag.
 		{_t}Only officers can remove personal tags (with `[{ArgUser}]`).
 		""";
 

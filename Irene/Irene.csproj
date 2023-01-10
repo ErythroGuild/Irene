@@ -68,6 +68,9 @@
     <None Update="data\raids.txt">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Update="data\random-answers.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="data\secret-responses.txt">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

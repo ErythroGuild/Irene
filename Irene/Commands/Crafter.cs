@@ -20,13 +20,12 @@ class Crafter : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandFind}")} `<{ArgItem}>` finds crafters who can craft an item,
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandList}")} `[{ArgProfession}] [{ArgSelfOnly}]` lists registered crafters.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandSet}")} `<{ArgCharacter}> [{ArgServer}]` registers a crafter,
-		{_t}You can only manually refresh your own crafters.
-		{_t}(All data gets refreshed every 90 minutes.)
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandCrafter} {CommandRemove}")} `<{ArgCharacter}> [{ArgServer}]` removes a crafter.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandCrafter, CommandFind)} `<{ArgItem}>` finds crafters who can craft an item,
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandCrafter, CommandList)} `[{ArgProfession}] [{ArgSelfOnly}]` lists registered crafters.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandCrafter, CommandSet)} `<{ArgCharacter}> [{ArgServer}]` registers a crafter,
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandCrafter, CommandRemove)} `<{ArgCharacter}> [{ArgServer}]` removes a crafter.
 		{_t}If unspecified, `[{ArgServer}]` defaults to Moon Guard.
+		{_t}(Crafter data auto-refreshes every 90 minutes.)
 		""";
 
 	public override CommandTree CreateTree() => new (

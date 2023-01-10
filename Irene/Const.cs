@@ -46,10 +46,10 @@ static class Const {
 
 	// US time zones.
 	public static readonly TimeZoneInfo
-		TimeZone_PT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Los_Angeles"),
-		TimeZone_MT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Denver"),
-		TimeZone_CT = TimeZoneInfo.FindSystemTimeZoneById(@"America/Chicago"),
-		TimeZone_ET = TimeZoneInfo.FindSystemTimeZoneById(@"America/New_York");
+		TimeZone_PT = TimeZoneInfo.FindSystemTimeZoneById(@"US/Pacific"),
+		TimeZone_MT = TimeZoneInfo.FindSystemTimeZoneById(@"US/Mountain"),
+		TimeZone_CT = TimeZoneInfo.FindSystemTimeZoneById(@"US/Central"),
+		TimeZone_ET = TimeZoneInfo.FindSystemTimeZoneById(@"US/Eastern");
 	public static readonly TimeZoneInfo TimeZone_Server = TimeZone_CT;
 
 	// Patch release days.
@@ -78,12 +78,12 @@ static class Const {
 		public static class Channel {
 			public const ulong
 			// Broadcast
-				rules     = 443002035604815872,
-				announce  = 443001903123791873,
-				resources = 542093130502111252,
-				pins      = 648461869979271179,
-				starboard = 778102974551293962,
-				audit     = 778102942141382678,
+				rules     =  443002035604815872,
+				announce  =  443001903123791873,
+				resources = 1058564619804880906,
+				pins      =  648461869979271179,
+				starboard =  778102974551293962,
+				audit     =  778102942141382678,
 
 				// Text
 				general  =  317723973968461824,
@@ -148,14 +148,20 @@ static class Const {
 				notoSob       = 1047656345467371664,
 
 				// Ranks
-				rankNone      = 1047313293087359037,
-				rankGuest     = 1047313291443175424,
-				rankMember    = 1047313289895493834,
-				rankOfficer   = 1047313288200978503,
-				rankAdmin     = 1047313286544248933,
-				rankBot       = 1047313285369839616,
-				rankStylist   = 1047313283796971551,
-				rankAmbassador= 1047313282442199050,
+				rankNone       = 1047313293087359037,
+				rankGuest      = 1047313291443175424,
+				rankMember     = 1047313289895493834,
+				rankOfficer    = 1047313288200978503,
+				rankAdmin      = 1047313286544248933,
+				rankBot        = 1047313285369839616,
+				rankStylist    = 1047313283796971551,
+				rankAmbassador = 1047313282442199050,
+
+				// Titles
+				beloved    = 1060156214681534495,
+				hallowed   = 1060156211380629545,
+				chosen     = 1060156219299471401,
+				celebrated = 1060156216644481024,
 
 				// Roles
 				tank = 708431859369115790,
@@ -275,9 +281,9 @@ static class Const {
 
 				// Titles
 				beloved    = 780159178202284053,
-				acclaimed  = 780161029111021630,
-				celebrated = 780159754676338700,
+				hallowed   = 780161029111021630,
 				chosen     = 903853996714913834,
+				celebrated = 780159754676338700,
 
 				// Officers
 				raidOfficer  = 723061867127373874,

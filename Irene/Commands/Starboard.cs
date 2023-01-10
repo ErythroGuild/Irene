@@ -38,10 +38,10 @@ class Starboard : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandBestOf} {CommandBlock}")} `<{ArgId}> <{ArgChannel}>` blocks a message from being pinned,
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandBestOf} {CommandUnblock}")} `<{ArgId}> <{ArgChannel}>` allows a message to be pinned.
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandBestOf} {CommandPin}")} `<{ArgId}> <{ArgChannel}>` immediately pins a message,
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandBestOf} {CommandUnpin}")} `<{ArgId}> <{ArgChannel}>` allows a message to be unpinned.
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandBestOf, CommandBlock)} `<{ArgId}> <{ArgChannel}>` blocks a message from being pinned,
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandBestOf, CommandUnblock)} `<{ArgId}> <{ArgChannel}>` allows a message to be pinned.
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandBestOf, CommandPin)} `<{ArgId}> <{ArgChannel}>` immediately pins a message,
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandBestOf, CommandUnpin)} `<{ArgId}> <{ArgChannel}>` allows a message to be unpinned.
 		{_t}Blocked and pinned messages are mutually exclusive.
 		{_t}Adding to one list will remove from the other.
 		""";

@@ -66,15 +66,18 @@ class Random : CommandHandler {
 		CommandCoin   = "coin-flip",
 		CommandCard   = "card",
 		Command8Ball  = "8-ball",
+		CommandAnswer = "answer",
 		ArgQuestion   = "question",
 		ArgShare      = "share";
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandNumber}")} is the same as `/roll`.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandCoin}")} displays the result of a coin flip.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {CommandCard}")} draws a card from a standard deck.
-		{RankIcon(AccessLevel.Guest)}{Mention($"{CommandRandom} {Command8Ball}")} `<{ArgQuestion}> [{ArgShare}]` forecasts the answer to a yes/no question.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, CommandNumber)} is the same as `/roll`.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, CommandCoin)} displays the result of a coin flip.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, CommandCard)} draws a card from a standard deck.
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, Command8Ball)} `<{ArgQuestion}> [{ArgShare}]` emulates a Magic 8-Ball,
+		{RankIcon(AccessLevel.Guest)}{Mention(CommandRandom, CommandAnswer)} `<{ArgQuestion}> [{ArgShare}]` emulates the "Book of Answers".
+		{_t}The questions must be closed (e.g. yes/no) questions.
 		{_t}If `[{ArgShare}]` isn't specified, the response will be private.
 		""";
 
@@ -153,6 +156,29 @@ class Random : CommandHandler {
 				),
 				new (Predict8BallAsync)
 			),
+			new (
+				AccessLevel.Guest,
+				new (
+					CommandAnswer,
+					@"Forecast the answer to a yes/no question.",
+					ArgType.SubCommand,
+					options: new List<DiscordCommandOption> {
+						new (
+							ArgQuestion,
+							@"The yes/no question to answer.",
+							ArgType.String,
+							required: true
+						),
+						new (
+							ArgShare,
+							"Whether the prediction is public.",
+							ArgType.Boolean,
+							required: false
+						),
+					}
+				),
+				new (PredictAnswerAsync)
+			),
 		}
 	);
 
@@ -198,6 +224,20 @@ class Random : CommandHandler {
 		// in mysterious ways, after all.
 
 		string response = Module.Magic8Ball(question, today);
+
+		await interaction.RegisterAndRespondAsync(response, !doShare);
+	}
+
+	public async Task PredictAnswerAsync(Interaction interaction, ParsedArgs args) {
+		string question = (string)args[ArgQuestion];
+		bool doShare = args.ContainsKey(ArgShare)
+			? (bool)args[ArgShare]
+			: false;
+		DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+		// Date doesn't need to be server time--the crystal ball works
+		// in mysterious ways, after all.
+
+		string response = Module.PickAnswer(question, today);
 
 		await interaction.RegisterAndRespondAsync(response, !doShare);
 	}

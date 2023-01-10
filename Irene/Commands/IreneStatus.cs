@@ -25,9 +25,9 @@ class IreneStatus : CommandHandler {
 
 	public override string HelpText =>
 		$"""
-		{RankIcon(AccessLevel.Member)}{Mention($"{CommandStatus} {CommandList}")} lists all saved statuses.
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandStatus} {CommandSet}")} `<{ArgType}> <{ArgStatus}>` sets and saves a new status,
-		{RankIcon(AccessLevel.Officer)}{Mention($"{CommandStatus} {CommandRandom}")} randomly picks a saved status.
+		{RankIcon(AccessLevel.Member)}{Mention(CommandStatus, CommandList)} lists all saved statuses.
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandStatus, CommandSet)} `<{ArgType}> <{ArgStatus}>` sets and saves a new status,
+		{RankIcon(AccessLevel.Officer)}{Mention(CommandStatus, CommandRandom)} randomly picks a saved status.
 		""";
 
 	public override CommandTree CreateTree() => new (
