@@ -64,7 +64,6 @@ class Random {
 		// There are some repeats, but these are kept intentionally.
 		string[] lines = File.ReadAllLines(_pathAnswers);
 		_answers = new List<string>(lines);
-		Log.Debug("  Modules.Random initialized successfully.");
 	}
 
 
