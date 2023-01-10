@@ -21,7 +21,7 @@ class Timezone {
 
 	static Timezone() {
 		foreach (TimeZoneInfo tz in TimeZoneInfo.GetSystemTimeZones()) {
-			Log.Debug("  {Timezone}", tz);
+			Log.Debug("  {Timezone}", tz.Id);
 		}
 	}
 
