@@ -54,6 +54,18 @@ class Random {
 			"Concentrate and ask again.",
 		};
 
+	// Possible "Book of Answers" answers, extracted from the book.
+	private static readonly IReadOnlyList<string> _answers;
+
+	private const string _pathAnswers = @"data/random-answers.txt";
+
+	static Random() {
+		// Initialize answer list from extracted data.
+		// There are some repeats, but these are kept intentionally.
+		string[] lines = File.ReadAllLines(_pathAnswers);
+		_answers = new List<string>(lines);
+	}
+
 
 	// --------
 	// Number generation methods:
@@ -203,10 +215,46 @@ class Random {
 
 	// The input query is normalized and hashed, and then used to select
 	// a prediction. The hash is tied to the date of the query.
-	// The overall result isn't guaranteed to be cryptographically-secure,
-	// but it *does* allow the same query to return consistent results
-	// for the same query, on the same day.
 	public static string Magic8Ball(string query, DateOnly date) {
+		// Generate prediction list index.
+		int hash = HashQuery(query, date);
+		int cutoff = int.MaxValue - (int.MaxValue % _predictions.Count);
+		int i = (hash < cutoff)
+			? hash % _predictions.Count
+			: (int)RandomFallback(0, _predictions.Count - 1);
+
+		// Format the selected response.
+		const string emDash = "\u2014";
+		return
+			$"""
+			> {query}
+			    {emDash} *{_predictions[i]}*
+			""";
+	}
+
+	// Very similar to 8-ball command, only difference is
+	public static string PickAnswer(string query, DateOnly date) {
+		// Generate answer list index.
+		int hash = HashQuery(query, date);
+		int cutoff = int.MaxValue - (int.MaxValue % _answers.Count);
+		int i = (hash < cutoff)
+			? hash % _answers.Count
+			: (int)RandomFallback(0, _answers.Count - 1);
+
+		// Format the selected response.
+		const string emDash = "\u2014";
+		return
+			$"""
+			> {query}
+			    {emDash} *{_answers[i]}*
+			""";
+	}
+
+	// Normalize the query (based on the date). The end result isn't
+	// guaranteed to be cryptographically-secure, but it *does* allow
+	// the same query to return consistent results, on the same day
+	// (but *can* vary based on the wording, which is desirable).
+	private static int HashQuery(string query, DateOnly date) {
 		// Condense input query (lower case + remove punctuation).
 		string queryStripped = query.Replace('\n', ' ');
 		queryStripped = queryStripped.ToLower();
@@ -221,17 +269,7 @@ class Random {
 		// (cryptographically-INsecure) if the result would be biased.
 		int hash = BitConverter.ToInt32(hashRaw);
 		hash = Math.Abs(hash);
-		int cutoff = int.MaxValue - (int.MaxValue % _predictions.Count);
-		int i = (hash < cutoff)
-			? hash % _predictions.Count
-			: (int)RandomFallback(0, _predictions.Count - 1);
 
-		// Format the selected response.
-		const string emDash = "\u2014";
-		return
-			$"""
-			> {query}
-			    {emDash} *{_predictions[i]}*
-			""";
+		return hash;
 	}
 }
