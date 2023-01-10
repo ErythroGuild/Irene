@@ -233,8 +233,14 @@ class Program {
 
 				// Collate all command objects.
 				List<DiscordCommand> commands = new ();
-				foreach (CommandHandler handler in Dispatcher.Handlers)
+				List<string> commandsAllowed = new () {
+					"help",
+				};
+				foreach (CommandHandler handler in Dispatcher.Handlers) {
+					if (!commandsAllowed.Contains(handler.Command.Name))
+						continue;
 					commands.Add(handler.Command);
+				}
 				// Register (and fetch updated) commands.
 				Stopwatch stopwatchRegister = Stopwatch.StartNew();
 				commands = new (await _client.BulkOverwriteGlobalApplicationCommandsAsync(commands));
