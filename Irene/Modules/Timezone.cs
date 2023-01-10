@@ -19,6 +19,12 @@ class Timezone {
 		TimeZone_EST = TimeZoneInfo.FindSystemTimeZoneById("America/Denver"),
 		TimeZone_EDT = TimeZoneInfo.FindSystemTimeZoneById("America/Denver");
 
+	static Timezone() {
+		foreach (TimeZoneInfo tz in TimeZoneInfo.GetSystemTimeZones()) {
+			Log.Debug("  {Timezone}", tz);
+		}
+	}
+
 	public static TimeZoneInfo? GetUserLocalTime(DiscordUser user) =>
 		GetUserLocalTime(user.Id);
 	public static TimeZoneInfo? GetUserLocalTime(ulong userId) {
