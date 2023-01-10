@@ -56,8 +56,11 @@ class BlizzardClient {
 		// Send and wait for a successful response.
 		using HttpResponseMessage response =
 			await _http.SendAsync(request);
-		if (!response.IsSuccessStatusCode)
+		if (!response.IsSuccessStatusCode) {
+			Log.Error("Blizzard API authorization failure: {StatusCode}", response.StatusCode);
+			Log.Information("  {Reason}", response.ReasonPhrase);
 			throw new NetworkException(_urlOauth);
+		}
 
 		// Parse and extract data from the response.
 		try {
