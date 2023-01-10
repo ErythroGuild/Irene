@@ -237,8 +237,10 @@ class Program {
 					"help",
 				};
 				foreach (CommandHandler handler in Dispatcher.Handlers) {
-					if (!commandsAllowed.Contains(handler.Command.Name))
+					if (!commandsAllowed.Contains(handler.Command.Name)) {
+						Log.Debug("   {Command}", handler.Command.Name);
 						continue;
+					}
 					commands.Add(handler.Command);
 				}
 				// Register (and fetch updated) commands.
