@@ -1,33 +1,71 @@
 ﻿namespace Irene.Modules;
 
 class Timezone {
-	public static readonly TimeZoneInfo
-		//TimeZone_PST = TimeZoneInfo.FindSystemTimeZoneById("PST"),
-		//TimeZone_PDT = TimeZoneInfo.FindSystemTimeZoneById("Etc/GMT+7"),
-		//TimeZone_MST = TimeZoneInfo.FindSystemTimeZoneById("MST"),
-		//TimeZone_MDT = TimeZoneInfo.FindSystemTimeZoneById("Etc/GMT+6"),
-		//TimeZone_CST = TimeZoneInfo.FindSystemTimeZoneById("CST"),
-		//TimeZone_CDT = TimeZoneInfo.FindSystemTimeZoneById("Etc/GMT+5"),
-		//TimeZone_EST = TimeZoneInfo.FindSystemTimeZoneById("EST"),
-		//TimeZone_EDT = TimeZoneInfo.FindSystemTimeZoneById("Etc/GMT+4");
-		TimeZone_PST = TimeZoneInfo.FindSystemTimeZoneById("America/Denver"),
-		TimeZone_PDT = TimeZoneInfo.FindSystemTimeZoneById("America/Denver"),
-		TimeZone_MST = TimeZoneInfo.FindSystemTimeZoneById("America/Denver"),
-		TimeZone_MDT = TimeZoneInfo.FindSystemTimeZoneById("America/Denver"),
-		TimeZone_CST = TimeZoneInfo.FindSystemTimeZoneById("America/Denver"),
-		TimeZone_CDT = TimeZoneInfo.FindSystemTimeZoneById("America/Denver"),
-		TimeZone_EST = TimeZoneInfo.FindSystemTimeZoneById("America/Denver"),
-		TimeZone_EDT = TimeZoneInfo.FindSystemTimeZoneById("America/Denver");
+	public static class Const {
+		public static readonly TimeZoneInfo
+			PT, PST, PDT,
+			MT, MST, MDT,
+			CT, CST, CDT,
+			ET, EST, EDT;
 
-	static Timezone() {
-		foreach (TimeZoneInfo tz in TimeZoneInfo.GetSystemTimeZones()) {
-			Log.Debug("  {Timezone}", tz.Id);
+		static Const() {
+			PT  = Get(@"America/Los_Angeles")
+				?? throw new ImpossibleException();
+			PST = Get(new TimeSpan(-8, 0, 0));
+			PDT = Get(new TimeSpan(-7, 0, 0));
+
+			MT  = Get(@"America/Denver")
+				?? throw new ImpossibleException();
+			MST = Get(new TimeSpan(-7, 0, 0));
+			MDT = Get(new TimeSpan(-6, 0, 0));
+
+			CT  = Get(@"America/Chicago")
+				?? throw new ImpossibleException();
+			CST = Get(new TimeSpan(-6, 0, 0));
+			CDT = Get(new TimeSpan(-5, 0, 0));
+
+			ET  = Get(@"America/New_York")
+				?? throw new ImpossibleException();
+			EST = Get(new TimeSpan(-5, 0, 0));
+			EDT = Get(new TimeSpan(-4, 0, 0));
 		}
 	}
 
-	public static TimeZoneInfo? GetUserLocalTime(DiscordUser user) =>
-		GetUserLocalTime(user.Id);
-	public static TimeZoneInfo? GetUserLocalTime(ulong userId) {
+	private static readonly ConcurrentDictionary<TimeSpan, TimeZoneInfo> _listByOffset;
+	private static readonly IReadOnlyDictionary <string  , TimeZoneInfo> _listByIanaId;
+
+	// Initialize timezone cache.
+	static Timezone() {
+		ConcurrentDictionary<string, TimeZoneInfo> timezones = new ();
+
+		// Add system timezones.
+		foreach (TimeZoneInfo timezone in TimeZoneInfo.GetSystemTimeZones())
+			timezones.TryAdd(timezone.Id, timezone);
+	}
+
+	public static TimeZoneInfo Get(TimeSpan offset) {
+		return null!;
+	}
+
+	public static TimeZoneInfo? Get(string ianaId) =>
+		_listByIanaId.TryGetValue(ianaId, out TimeZoneInfo? timezone)
+			? timezone
+			: null;
+
+	public static Task<TimeZoneInfo?> Get(DiscordUser user) =>
+		Get(user.Id);
+	public static async Task<TimeZoneInfo?> Get(ulong userId) {
 		return TimeZone_Server;
+	}
+
+	public static Task Set(DiscordUser user, TimeZoneInfo timezone) =>
+		Set(user.Id, timezone);
+	public static async Task Set(ulong userId, TimeZoneInfo timezone) {
+		;
+	}
+
+	public static Task Clear(DiscordUser user) => Clear(user.Id);
+	public static async Task Clear(ulong userId) {
+
 	}
 }
