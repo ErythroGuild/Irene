@@ -36,11 +36,23 @@ class Timezone {
 
 	// Initialize timezone cache.
 	static Timezone() {
+		_listByOffset = new ();
+
 		ConcurrentDictionary<string, TimeZoneInfo> timezones = new ();
 
 		// Add system timezones.
-		foreach (TimeZoneInfo timezone in TimeZoneInfo.GetSystemTimeZones())
-			timezones.TryAdd(timezone.Id, timezone);
+		// These may need to be converted first, if not in IANA format.
+		foreach (TimeZoneInfo timezone in TimeZoneInfo.GetSystemTimeZones()) {
+			if (timezone.HasIanaId) {
+				timezones.TryAdd(timezone.Id, timezone);
+			} else {
+				TimeZoneInfo.TryConvertWindowsIdToIanaId(timezone.Id, out string? id);
+				if (id is not null)
+					timezones.TryAdd(id, timezone);
+			}
+		}
+
+		_listByIanaId = timezones;
 	}
 
 	public static TimeZoneInfo Get(TimeSpan offset) {
