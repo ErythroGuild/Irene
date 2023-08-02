@@ -56,38 +56,33 @@ static class SelectorDispatcher {
 	}
 
 	// Filter and dispatch any interactions to be properly handled.
-	private static Task DispatchAsync(
+	private static async Task DispatchAsync(
 		DiscordClient c,
 		ComponentInteractionCreateEventArgs e
 	) {
-		_ = Task.Run(async () => {
-			Id id = new (e.Message.Id, e.Id);
+		Id id = new (e.Message.Id, e.Id);
 
-			// Consume all interactions originating from a registered
-			// message, and created by the corresponding component.
-			if (_selectors.TryGetValue(id, out ISelector? selector)) {
-				e.Handled = true;
+		// Consume all interactions originating from a registered
+		// message, and created by the corresponding component.
+		if (_selectors.TryGetValue(id, out ISelector? selector)) {
+			// Can only update if message was already created.
+			if (!selector.HasMessage)
+				return;
 
-				// Can only update if message was already created.
-				if (!selector.HasMessage)
-					return;
-
-				// Only respond to interactions created by the owner
-				// of the interactable.
-				Interaction interaction = Interaction.FromComponent(e);
-				if (e.User != selector.Owner) {
-					await interaction.RespondComponentNotOwned(selector.Owner);
-					return;
-				}
-
-				// Acknowledge the interaction. Let the selector update
-				// the message and invoke the callback.
-				await interaction.DeferComponentAsync();
-				HashSet<string> selected = new (interaction.Values);
-				await selector.UpdateSelected(selected);
+			// Only respond to interactions created by the owner
+			// of the interactable.
+			Interaction interaction = Interaction.FromComponent(e);
+			if (e.User != selector.Owner) {
+				await interaction.RespondComponentNotOwned(selector.Owner);
+				return;
 			}
-		});
-		return Task.CompletedTask;
+
+			// Acknowledge the interaction. Let the selector update
+			// the message and invoke the callback.
+			await interaction.DeferComponentAsync();
+			HashSet<string> selected = new (interaction.Values);
+			await selector.UpdateSelected(selected);
+		}
 	}
 }
 

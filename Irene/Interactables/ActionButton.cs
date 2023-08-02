@@ -283,36 +283,31 @@ class ActionButton {
 	// Filter and dispatch any interactions to be properly handled.
 	// This delegate handles dispatch for all derived classes as well,
 	// and so doesn't need to be overridden.
-	private static Task InteractionDispatcherAsync(
+	private static async Task InteractionDispatcherAsync(
 		DiscordClient c,
 		ComponentInteractionCreateEventArgs e
 	) {
-		_ = Task.Run(async () => {
-			Id id = new (e.Message.Id, e.Id);
+		Id id = new (e.Message.Id, e.Id);
 
-			// Consume all interactions originating from a registered
-			// message, and created by the corresponding component.
-			if (_buttons.TryGetValue(id, out ActionButton? button)) {
-				e.Handled = true;
+		// Consume all interactions originating from a registered
+		// message, and created by the corresponding component.
+		if (_buttons.TryGetValue(id, out ActionButton? button)) {
+			// Can only update if message was already created.
+			if (!button.HasMessage)
+				return;
 
-				// Can only update if message was already created.
-				if (!button.HasMessage)
-					return;
-
-				// Only respond to interactions created by the owner
-				// of the interactable.
-				Interaction interaction = Interaction.FromComponent(e);
-				if (button._isOwnerOnly && e.User != button.Owner) {
-					await interaction.RespondComponentNotOwned(button.Owner);
-					return;
-				}
-
-				// Handle button. Passing the interaction itself lets
-				// the callback decide how to respond (to defer or not).
-				await button.HandleButtonAsync(interaction);
+			// Only respond to interactions created by the owner
+			// of the interactable.
+			Interaction interaction = Interaction.FromComponent(e);
+			if (button._isOwnerOnly && e.User != button.Owner) {
+				await interaction.RespondComponentNotOwned(button.Owner);
+				return;
 			}
-		});
-		return Task.CompletedTask;
+
+			// Handle button. Passing the interaction itself lets
+			// the callback decide how to respond (to defer or not).
+			await button.HandleButtonAsync(interaction);
+		}
 	}
 
 	// Handle any button presses for this interactable. The passed in

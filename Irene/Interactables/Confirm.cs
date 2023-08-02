@@ -232,34 +232,29 @@ class Confirm {
 	}
 	
 	// Filter and dispatch any interactions to be properly handled.
-	private static Task InteractionDispatchAsync(
+	private static async Task InteractionDispatchAsync(
 		DiscordClient c,
 		ComponentInteractionCreateEventArgs e
 	) {
-		_ = Task.Run(async () => {
-			ulong id = e.Message.Id;
+		ulong id = e.Message.Id;
 
-			// Consume all interactions originating from a registered
-			// message, and created by the corresponding component.
-			if (_confirms.TryGetValue(id, out Confirm? confirm)) {
-				// No need to check ID: this followup message is unique
-				// to this `Confirm`.
+		// Consume all interactions originating from a registered
+		// message, and created by the corresponding component.
+		if (_confirms.TryGetValue(id, out Confirm? confirm)) {
+			// No need to check ID: this followup message is unique
+			// to this `Confirm`.
 
-				e.Handled = true;
+			// Can only update if message was already created.
+			if (!confirm.HasMessage)
+				return;
 
-				// Can only update if message was already created.
-				if (!confirm.HasMessage)
-					return;
+			// Skip component owner check--`Confirm`s are always
+			// ephemeral.
 
-				// Skip component owner check--`Confirm`s are always
-				// ephemeral.
-
-				// Handle buttons.
-				Interaction interaction = Interaction.FromComponent(e);
-				await confirm.HandleButtonAsync(interaction, e.Id);
-			}
-		});
-		return Task.CompletedTask;
+			// Handle buttons.
+			Interaction interaction = Interaction.FromComponent(e);
+			await confirm.HandleButtonAsync(interaction, e.Id);
+		}
 	}
 	
 	// Handle any button presses for this interactable. The passed in

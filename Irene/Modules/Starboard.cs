@@ -66,26 +66,23 @@ class Starboard {
 		_cache = new (_cacheSize);
 
 		// Queue up any candidate updates to the starboard.
-		static Task HandleReaction(DiscordMessage messagePartial) {
-			_ = Task.Run(async () => {
-				CheckErythroInit();
+		static async Task HandleReaction(DiscordMessage messagePartial) {
+			CheckErythroInit();
 
-				// Reaction events always return a partial object.
-				// According to official API docs:
-				// - user ID
-				// - channel ID
-				// - message ID
-				// - guild ID (nullable)
-				// - member object (nullable)
-				// - emoji (partial object)
-				DiscordMessage message = await
-					Util.RefetchMessage(Erythro.Client, messagePartial);
+			// Reaction events always return a partial object.
+			// According to official API docs:
+			// - user ID
+			// - channel ID
+			// - message ID
+			// - guild ID (nullable)
+			// - member object (nullable)
+			// - emoji (partial object)
+			DiscordMessage message = await
+				Util.RefetchMessage(Erythro.Client, messagePartial);
 
-				await _queueCandidates.Run(new Task<Task>(async () => {
-					await RefreshStarredPost(message);
-				}));
-			});
-			return Task.CompletedTask;
+			await _queueCandidates.Run(new Task<Task>(async () => {
+				await RefreshStarredPost(message);
+			}));
 		}
 		Erythro.Client.MessageReactionAdded += (c, e) =>
 			HandleReaction(e.Message);

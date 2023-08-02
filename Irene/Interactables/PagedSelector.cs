@@ -339,38 +339,33 @@ class PagedSelector {
 	}
 	
 	// Filter and dispatch any interactions to be properly handled.
-	private static Task InteractionDispatcherAsync(
+	private static async Task InteractionDispatcherAsync(
 		DiscordClient c,
 		ComponentInteractionCreateEventArgs e
 	) {
-		_ = Task.Run(async () => {
-			Id id = new (e.Message.Id, e.Id);
+		Id id = new (e.Message.Id, e.Id);
 
-			// Consume all interactions originating from a registered
-			// message, and created by the corresponding component.
-			if (_selectors.TryGetValue(id, out PagedSelector? selector)) {
-				e.Handled = true;
+		// Consume all interactions originating from a registered
+		// message, and created by the corresponding component.
+		if (_selectors.TryGetValue(id, out PagedSelector? selector)) {
+			// Can only update if message was already created.
+			if (!selector.HasMessage)
+				return;
 
-				// Can only update if message was already created.
-				if (!selector.HasMessage)
-					return;
-
-				// Only respond to interactions created by the owner
-				// of the interactable.
-				Interaction interaction = Interaction.FromComponent(e);
-				if (e.User != selector.Owner) {
-					await interaction.RespondComponentNotOwned(selector.Owner);
-					return;
-				}
-
-				// Handle selection.
-				string? selected = (e.Values.Length == 0)
-					? null
-					: e.Values[0];
-				await selector.HandleSelectorAsync(interaction, selected);
+			// Only respond to interactions created by the owner
+			// of the interactable.
+			Interaction interaction = Interaction.FromComponent(e);
+			if (e.User != selector.Owner) {
+				await interaction.RespondComponentNotOwned(selector.Owner);
+				return;
 			}
-		});
-		return Task.CompletedTask;
+
+			// Handle selection.
+			string? selected = (e.Values.Length == 0)
+				? null
+				: e.Values[0];
+			await selector.HandleSelectorAsync(interaction, selected);
+		}
 	}
 
 	// Handle any button presses for this interactable. The passed in
