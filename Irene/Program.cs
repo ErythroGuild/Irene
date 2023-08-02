@@ -193,17 +193,10 @@ class Program {
 	// Main program:
 	// --------
 
-	public static void Main() {
+	public static async Task Main() {
 		// Initialize static members.
 		InitStatic();
 
-		// Run async entry point.
-		MainAsync()
-			.ConfigureAwait(false)
-			.GetAwaiter()
-			.GetResult();
-	}
-	private static async Task MainAsync() {
 		// Connected to discord servers, but not necessarily guilds yet!
 		_client.Ready += (_, _) => {
 			Log.Information("  Logged in to Discord servers.");
@@ -212,65 +205,62 @@ class Program {
 		};
 
 		// All guild data has finished downloading.
-		_client.GuildDownloadCompleted += (_, _) => {
-			_ = Task.Run(async () => {
-				// Stop download timer.
-				Log.Information("  Discord guild data downloaded.");
-				_stopwatchDownload.LogMsec(2);
+		_client.GuildDownloadCompleted += async (_, _) => {
+			// Stop download timer.
+			Log.Information("  Discord guild data downloaded.");
+			_stopwatchDownload.LogMsec(2);
 
-				// Initialize GuildData.
-				Erythro = await GuildData.InitializeData(_client);
-				Log.Debug("  GuildData object initialized.");
+			// Initialize GuildData.
+			Erythro = await GuildData.InitializeData(_client);
+			Log.Debug("  GuildData object initialized.");
 
-				// --------
-				// IMPORTANT!
-				// After this point, `Erythro` initialization is complete,
-				// and everything else can safely be initialized.
-				// --------
+			// --------
+			// IMPORTANT!
+			// After this point, `Erythro` initialization is complete,
+			// and everything else can safely be initialized.
+			// --------
 
-				// Initialize commands.
-				Dispatcher.ReplaceAllHandlers();
+			// Initialize commands.
+			Dispatcher.ReplaceAllHandlers();
 
-				// Collate all command objects.
-				List<DiscordCommand> commands = new ();
-				foreach (CommandHandler handler in Dispatcher.Handlers)
-					commands.Add(handler.Command);
-				// Register (and fetch updated) commands.
-				Stopwatch stopwatchRegister = Stopwatch.StartNew();
-				commands = new (await _client.BulkOverwriteGlobalApplicationCommandsAsync(commands));
-				Log.Information("  Registered all commands.");
-				stopwatchRegister.LogMsec(2);
+			// Collate all command objects.
+			List<DiscordCommand> commands = new ();
+			foreach (CommandHandler handler in Dispatcher.Handlers)
+				commands.Add(handler.Command);
+			// Register (and fetch updated) commands.
+			Stopwatch stopwatchRegister = Stopwatch.StartNew();
+			commands = new (await _client.BulkOverwriteGlobalApplicationCommandsAsync(commands));
+			Log.Information("  Registered all commands.");
+			stopwatchRegister.LogMsec(2);
 
-				// Update command objects and keep a tally of types.
-				// The tally is used for updating `Module.About`.
-				int countSlash = 0, countContext = 0;
-				foreach (DiscordCommand command in commands) {
-					Dispatcher.Table[command.Name]
-						.UpdateRegisteredCommand(command);
-					IncrementCommandCounters(
-						command,
-						ref countSlash,
-						ref countContext
-					);
-				}
-				// Update status module with registered command count.
-				About.SetRegisteredCommands(countSlash, countContext);
+			// Update command objects and keep a tally of types.
+			// The tally is used for updating `Module.About`.
+			int countSlash = 0, countContext = 0;
+			foreach (DiscordCommand command in commands) {
+				Dispatcher.Table[command.Name]
+					.UpdateRegisteredCommand(command);
+				IncrementCommandCounters(
+					command,
+					ref countSlash,
+					ref countContext
+				);
+			}
+			// Update status module with registered command count.
+			About.SetRegisteredCommands(countSlash, countContext);
 
-				// --------
-				// After this point, commands have their proper IDs.
-				// --------
+			// --------
+			// After this point, commands have their proper IDs.
+			// --------
 
-				// Initialize remaining uninitialized modules.
-				// `Dispatcher` should've initialized all commands.
-				EnsureStaticConstruction();
+			// Initialize remaining uninitialized modules.
+			// `Dispatcher` should've initialized all commands.
+			EnsureStaticConstruction();
 
-				// Only register command & message handlers after guild
-				// initialization completes; this ensures they cannot
-				// be called before everything is ready.
-				RegisterInteractionHandlers();
-				RegisterMessageHandler();
-			});
-			return Task.CompletedTask;
+			// Only register command & message handlers after guild
+			// initialization completes; this ensures they cannot
+			// be called before everything is ready.
+			RegisterInteractionHandlers();
+			RegisterMessageHandler();
 		};
 
 		// Start connection timer and connect.
@@ -289,19 +279,13 @@ class Program {
 	private static void RegisterInteractionHandlers() {
 		// C# only infers an unambiguous discard if there are multiple
 		// parameters named `_`, so this `c` needs to be named.
-		_client.InteractionCreated += (c, e) => {
-			_ = Task.Run(async () => {
-				Interaction interaction = Interaction.FromCommand(e);
-				await HandleInteraction(interaction, e);
-			});
-			return Task.CompletedTask;
+		_client.InteractionCreated += async (c, e) => {
+			Interaction interaction = Interaction.FromCommand(e);
+			await HandleInteraction(interaction, e);
 		};
-		_client.ContextMenuInteractionCreated += (c, e) => {
-			_ = Task.Run(async () => {
-				Interaction interaction = Interaction.FromContextMenu(e);
-				await HandleInteraction(interaction, e);
-			});
-			return Task.CompletedTask;
+		_client.ContextMenuInteractionCreated += async (c, e) => {
+			Interaction interaction = Interaction.FromContextMenu(e);
+			await HandleInteraction(interaction, e);
 		};
 	}
 
@@ -309,37 +293,34 @@ class Program {
 	private static void RegisterMessageHandler() {
 		// C# only infers an unambiguous discard if there are multiple
 		// parameters named `_`, so this `c` needs to be named.
-		_client.MessageCreated += (c, e) => {
-			_ = Task.Run(async () => {
-				// Only handle messages from Erythro.
-				if ((e.Guild?.Id ?? null) != id_g.erythro)
-					return;
+		_client.MessageCreated += async (c, e) => {
+			// Only handle messages from Erythro.
+			if ((e.Guild?.Id ?? null) != id_g.erythro)
+				return;
 
-				CheckErythroInit();
-				DiscordMessage message = e.Message;
+			CheckErythroInit();
+			DiscordMessage message = e.Message;
 
-				// Never respond to self!
-				if (message.Author == _client.CurrentUser)
-					return;
+			// Never respond to self!
+			if (message.Author == _client.CurrentUser)
+				return;
 
-				// Special handler for the `Keys` command, to emulate
-				// the way the command behaves in-game.
-				string messageText = message.Content.Trim().ToLower();
-				if (messageText.StartsWith("!keys")) {
-					return;
-				}
+			// Special handler for the `Keys` command, to emulate
+			// the way the command behaves in-game.
+			string messageText = message.Content.Trim().ToLower();
+			if (messageText.StartsWith("!keys")) {
+				return;
+			}
 
-				// React to boost messages.
-				if (message.MessageType == MessageType.UserPremiumGuildSubscription) {
-					await ReactToBoostAsync(Erythro, message);
-					return;
-				}
+			// React to boost messages.
+			if (message.MessageType == MessageType.UserPremiumGuildSubscription) {
+				await ReactToBoostAsync(Erythro, message);
+				return;
+			}
 
-				// Any other message is parsed and responded to by the
-				// chat module.
-				await Chatbot.RespondAsync(message);
-			});
-			return Task.CompletedTask;
+			// Any other message is parsed and responded to by the
+			// chat module.
+			await Chatbot.RespondAsync(message);
 		};
 	}
 
@@ -399,7 +380,6 @@ class Program {
 			Log.Error("Unrecognized command: /{CommandName}", commandName);
 			return;
 		}
-		e.Handled = true;
 
 		// `UnknownCommandException` is the only type of exception that
 		// can't be caught by the `CommandHandler`, since it will throw

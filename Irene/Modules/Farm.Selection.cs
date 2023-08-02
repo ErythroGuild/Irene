@@ -25,44 +25,40 @@ partial class Farm {
 		static Selection() {
 			CheckErythroInit();
 
-			Erythro.Client.ComponentInteractionCreated += (client, e) => {
-				_ = Task.Run(async () => {
-					ulong id = e.Message.Id;
+			Erythro.Client.ComponentInteractionCreated += async (client, e) => {
+				ulong id = e.Message.Id;
 
-					// Consume all interactions originating from a registered
-					// message, containing this Selector object.
-					if (_selections.ContainsKey(id) && e.Id == _idSelect) {
-						Selection selection = _selections[id];
-						e.Handled = true;
+				// Consume all interactions originating from a registered
+				// message, containing this Selector object.
+				if (_selections.ContainsKey(id) && e.Id == _idSelect) {
+					Selection selection = _selections[id];
 
-						// Can only update if message was already created.
-						if (selection._message is null)
-							return;
+					// Can only update if message was already created.
+					if (selection._message is null)
+						return;
 
-						// Only respond to interactions created by the owner
-						// of the interactable.
-						if (e.User != selection._interaction.User)
-							return;
+					// Only respond to interactions created by the owner
+					// of the interactable.
+					if (e.User != selection._interaction.User)
+						return;
 
-						// Acknowledge interaction and update the original
-						// message later (inside the callback itself).
-						Interaction interaction = Interaction.FromComponent(e);
-						await interaction.DeferComponentAsync();
+					// Acknowledge interaction and update the original
+					// message later (inside the callback itself).
+					Interaction interaction = Interaction.FromComponent(e);
+					await interaction.DeferComponentAsync();
 
-						// Parse the selected Route object and update
-						// the message display.
-						string routeId = e.Values[0];
-						Route? route = null;
-						foreach (Route route_i in selection._data.Routes) {
-							if (route_i.Id == routeId)
-								route = route_i;
-						}
-						if (route is null)
-							return;
-						await selection.Update(route);
+					// Parse the selected Route object and update
+					// the message display.
+					string routeId = e.Values[0];
+					Route? route = null;
+					foreach (Route route_i in selection._data.Routes) {
+						if (route_i.Id == routeId)
+							route = route_i;
 					}
-				});
-				return Task.CompletedTask;
+					if (route is null)
+						return;
+					await selection.Update(route);
+				}
 			};
 		}
 

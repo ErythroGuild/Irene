@@ -80,10 +80,8 @@ class IreneStatus {
 		_ = InitializeCurrent();
 
 		// Ensure the status gets set again after reconnecting.
-		static Task connectHandler(DiscordClient c, ReadyEventArgs e) {
-			_ = Task.Run(InitializeCurrent);
-			return Task.CompletedTask;
-		}
+		static async Task connectHandler(DiscordClient c, ReadyEventArgs e) =>
+			await InitializeCurrent();
 		Erythro.Client.Ready += connectHandler;
 		Erythro.Client.Resumed += connectHandler;
 	}

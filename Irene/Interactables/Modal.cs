@@ -185,23 +185,19 @@ class Modal {
 		new (interaction.User.Id, customId);
 	
 	// Filter and dispatch any interactions to be properly handled.
-	private static Task InteractionDispatchAsync(
+	private static async Task InteractionDispatchAsync(
 		DiscordClient c,
 		ModalSubmitEventArgs e
 	) {
-		_ = Task.Run(async () => {
-			Id id = new (
-				e.Interaction.User.Id,
-				e.Interaction.Data.CustomId
-			);
+		Id id = new (
+			e.Interaction.User.Id,
+			e.Interaction.Data.CustomId
+		);
 
-			if (_modals.TryGetValue(id, out Modal? modal)) {
-				e.Handled = true;
-				Interaction interaction = Interaction.FromModal(e);
-				await modal.HandleModalAsync(e.Values, interaction);
-			}
-		});
-		return Task.CompletedTask;
+		if (_modals.TryGetValue(id, out Modal? modal)) {
+			Interaction interaction = Interaction.FromModal(e);
+			await modal.HandleModalAsync(e.Values, interaction);
+		}
 	}
 	
 	// Handle any corresponding modal submissions.

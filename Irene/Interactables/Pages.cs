@@ -273,37 +273,33 @@ class Pages {
 	// Filter and dispatch any interactions to be properly handled.
 	// This delegate handles dispatch for all derived classes as well,
 	// and so doesn't need to be overridden.
-	private static Task InteractionDispatcherAsync(
+	private static async Task InteractionDispatcherAsync(
 		DiscordClient c,
 		ComponentInteractionCreateEventArgs e
 	) {
-		_ = Task.Run(async () => {
-			ulong id = e.Message.Id;
+		ulong id = e.Message.Id;
 
-			// Consume all interactions originating from a registered
-			// message, and created by the corresponding component.
-			if (_pages.TryGetValue(id, out Pages? pages)) {
-				if (!_ids.Contains(e.Id))
-					return;
-				e.Handled = true;
+		// Consume all interactions originating from a registered
+		// message, and created by the corresponding component.
+		if (_pages.TryGetValue(id, out Pages? pages)) {
+			if (!_ids.Contains(e.Id))
+				return;
 
-				// Can only update if message was already created.
-				if (!pages.HasMessage)
-					return;
+			// Can only update if message was already created.
+			if (!pages.HasMessage)
+				return;
 
-				// Only respond to interactions created by the owner
-				// of the interactable.
-				Interaction interaction = Interaction.FromComponent(e);
-				if (e.User != pages.Owner) {
-					await interaction.RespondComponentNotOwned(pages.Owner);
-					return;
-				}
-
-				// Handle buttons.
-				await pages.HandleButtonAsync(interaction, e.Id);
+			// Only respond to interactions created by the owner
+			// of the interactable.
+			Interaction interaction = Interaction.FromComponent(e);
+			if (e.User != pages.Owner) {
+				await interaction.RespondComponentNotOwned(pages.Owner);
+				return;
 			}
-		});
-		return Task.CompletedTask;
+
+			// Handle buttons.
+			await pages.HandleButtonAsync(interaction, e.Id);
+		}
 	}
 
 	// Handle any button presses for this interactable. The passed in

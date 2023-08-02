@@ -12,49 +12,46 @@ class Welcome {
 	static Welcome() {
 		CheckErythroInit();
 
-		Erythro.Client.GuildMemberAdded += (c, e) => {
+		Erythro.Client.GuildMemberAdded += async (c, e) => {
+			CheckErythroInit();
+
+			DiscordMember member = e.Member;
+			ulong id = member.Id;
+
+			// Notify recruitment officer.
+			Log.Debug("  Notifying recruitment officer.");
+			string notify =
+				$"""
+				{Erythro.Role(id_r.recruiter).Mention} -
+				:star: New member {member.Mention} joined the server.
+				""";
+			DiscordChannel channel =
+				Erythro.Channel(id_ch.officerBots);
+			await channel.SendMessageAsync(notify);
+
+			// Initialize welcome message.
+			string welcome = await File.ReadAllTextAsync(_pathMessage);
+			welcome = welcome.Unescape();
+
+			// Send welcome message to new member.
+			Promise welcomePromise = new ();
+			_welcomePromises.TryAdd(id, welcomePromise);
+			Task task = welcomePromise.Task.ContinueWith(
+				async t => {
+					_welcomePromises.TryRemove(id, out _);
+					Log.Information("Sending welcome message to new member.");
+					Log.Debug($"  {member.Tag()}");
+					await member.SendMessageAsync(welcome);
+					_welcomeTasks.TryRemove(id, out _);
+				}
+			);
+			_welcomeTasks.TryAdd(id, task);
+
+			// Delay the message slightly to feel more natural.
 			_ = Task.Run(async () => {
-				CheckErythroInit();
-
-				DiscordMember member = e.Member;
-				ulong id = member.Id;
-
-				// Notify recruitment officer.
-				Log.Debug("  Notifying recruitment officer.");
-				string notify =
-					$"""
-					{Erythro.Role(id_r.recruiter).Mention} -
-					:star: New member {member.Mention} joined the server.
-					""";
-				DiscordChannel channel =
-					Erythro.Channel(id_ch.officerBots);
-				await channel.SendMessageAsync(notify);
-
-				// Initialize welcome message.
-				string welcome = await File.ReadAllTextAsync(_pathMessage);
-				welcome = welcome.Unescape();
-
-				// Send welcome message to new member.
-				Promise welcomePromise = new ();
-				_welcomePromises.TryAdd(id, welcomePromise);
-				Task task = welcomePromise.Task.ContinueWith(
-					async t => {
-						_welcomePromises.TryRemove(id, out _);
-						Log.Information("Sending welcome message to new member.");
-						Log.Debug($"  {member.Tag()}");
-						await member.SendMessageAsync(welcome);
-						_welcomeTasks.TryRemove(id, out _);
-					}
-				);
-				_welcomeTasks.TryAdd(id, task);
-
-				// Delay the message slightly to feel more natural.
-				_ = Task.Run(async () => {
-					await Task.Delay(_welcomeDelay);
-					welcomePromise.TrySetResult();
-				});
+				await Task.Delay(_welcomeDelay);
+				welcomePromise.TrySetResult();
 			});
-			return Task.CompletedTask;
 		};
 	}
 

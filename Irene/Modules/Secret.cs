@@ -182,7 +182,6 @@ class Secret {
 				string command = e.Message.Content;
 				const string prefix = "kirasath: ";
 				if (command.StartsWith(prefix)) {
-					e.Handled = true;
 					string message = command.Replace(prefix, null);
 					DiscordChannel kirasath = Erythro.Channel(id_ch.kirasath);
 					await kirasath.SendMessageAsync(message);
