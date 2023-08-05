@@ -91,7 +91,7 @@ class Translate {
 		_footerIcon = @"https://i.imgur.com/dQ1sXFW.png";
 	private const string _arrow = "\u21D2";
 
-	private const string _pathKey = @"config/deepl.txt";
+	private const string _pathKey = @"secrets/deepl.txt";
 
 	static Translate() {
 		// Load DeepL authentication key.

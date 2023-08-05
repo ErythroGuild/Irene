@@ -30,7 +30,7 @@ class ApiRequest {
 	private const HttpStatusCode _statusNotFound = HttpStatusCode.NotFound;
 
 	// Client authentication info.
-	private const string _pathToken = @"config/blizzard.txt";
+	private const string _pathToken = @"secrets/blizzard.txt";
 	private const string
 		_keyClientId = "id: ",
 		_keyClientSecret = "secret: ";

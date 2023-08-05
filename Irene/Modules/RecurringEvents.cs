@@ -119,8 +119,8 @@ static partial class RecurringEvents {
 		_pathData  = @"data/events.txt",
 		_pathMemes = @"data/memes.txt",
 		_pathMemeHistory = @"data/memes-history.txt",
-		_pathDirData = @"config/dir-data.txt",
-		_pathDirLogs = @"config/dir-logs.txt";
+		_pathDirData = @"secrets/dir-data.txt",
+		_pathDirLogs = @"secrets/dir-logs.txt";
 	private const string _delim = "|||";
 
 	private const string _formatDateTime = "u";

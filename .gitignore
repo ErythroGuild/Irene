@@ -14,7 +14,7 @@ Irene/remote-stop.ps1
 Irene/remote-start.ps1
 
 # Secure build tokens/info
-Irene/config/**
+Irene/secrets/**
 
 
 ## ----------------

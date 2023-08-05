@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="data\.stignore" />
-    <None Include="config\**">
+    <None Include="secrets\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="data\farm\**">
