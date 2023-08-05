@@ -50,7 +50,7 @@ class Program {
 
 	// File paths for config files.
 	private const string
-		_pathToken = @"secrets/token.txt",
+		_pathToken = @"secrets/discord.txt",
 		_pathLogs = @"logs/";
 
 
