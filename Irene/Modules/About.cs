@@ -13,8 +13,8 @@ class About {
 
 	// Private fields / constants.
 	private const string
-		_pathVersion = @"config/tag.txt",
-		_pathBuild   = @"config/commit.txt";
+		_pathVersion = @"config/git-tag.txt",
+		_pathBuild   = @"config/git-commit.txt";
 	private static readonly DiscordColor
 		_colorOnline = new ("#57F287"),
 		_colorIdle   = new ("#FEE75C"),
